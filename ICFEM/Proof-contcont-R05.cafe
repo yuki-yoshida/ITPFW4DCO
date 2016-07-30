@@ -1,0 +1,184 @@
+require ProofContCont Proof-contcont.cafe
+
+-- As to rule R01, we have checked all possible cases, however,
+-- here we will omit irrevant cases in which wfs(S) does not hold and thus contcont(S) holds.
+
+--> ***********************************************************************
+--> ctrans [R05]:
+-->    < SetND, (cap(dependsOn,IDCP,closed,IDND) SetCP), SetRQ, SetRL, MP >
+--> => < SetND, (cap(dependsOn,IDCP,open,  IDND) SetCP), SetRQ, SetRL, MP >
+-->    if isCreated(state(getNode(SetND,IDND))) .
+--> ***********************************************************************
+--> Rule R05 makes a dependsOn capability be open, so next applied rules may be Rule R06 or R07.
+--> Case 1: The condition of R05 does not hold in S, otherwise
+--> Case 2: The condition of R06 holds in SS, otherwise
+--> Case 3-19:
+-->  #     R1        N1
+-->  3-11  unbound   initial -> Cyclic Dependency Theorem ensures that contcont holds.
+-->  12/13 unbound   created -> R07 is applicable
+-->  14/15 unbound   started -> not reachable
+-->  16/17 waiting   *       -> not reachable
+-->  18/19 ready     *       -> not reachable
+
+--> Case 1:
+--> (1-1) The condition of R05 does not hold in S.
+--> In this case, there is no applicable rule.
+open ProofContCont .
+  eq isCreated(state(getNode(sND,idND))) = false .
+  red contcont(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,
+               SS:State,CC:Bool) .
+close
+--> Case 2:
+--> (1-2) The condition of R05 holds in S, which means that
+-->       the state of the node of idND is created or started.
+--> (2-1) The node is started.
+--> In this case, Rule R06 is applicable in SS.
+open ProofContCont .
+  eq sND = (node(tnd,idND,started) sND') .
+  red contcont(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,
+               SS:State,CC:Bool) .
+close
+--> Case 3-11:
+--> (1-2) The condition of R05 holds in S, which means that
+-->       the state of the node of idND is created or started.
+--> (2-1) The node is created,
+--> (3-1) The corresponding requirement is unbound,
+--> (4-1) The corresponding node is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+--> In this case, the proofs are same as Case 4-12 of initcont(S) .
+
+--> Case 12:
+--> (1-2) The condition of R05 holds in S, which means that
+-->       the state of the node of idND is created or started.
+--> (2-1) The node is created,
+--> (3-1) The corresponding requirement is unbound,
+--> (4-2) The corresponding node is created,
+--> (5-1) allRQOfNDInStates(sRQ',idND,ready) holds.
+--> In this case, Rule R02 and R07 is applicable in SS.
+open ProofContCont .
+  eq allRQOfNDInStates(sRQ',idND,ready) = true .
+  eq sND' = (node(tnd,idND1,created) sND'') .
+  eq sRQ = (req(dependsOn,idRQ,unbound,idND1) sRQ') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sND = (node(tnd,idND,created) sND') .
+  red contcont(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,
+               SS:State,CC:Bool) .
+close
+--> Case 13:
+--> (1-2) The condition of R05 holds in S, which means that
+-->       the state of the node of idND is created or started.
+--> (2-1) The node is created,
+--> (3-1) The corresponding requirement is unbound,
+--> (4-2) The corresponding node is created,
+--> (5-2) allRQOfNDInStates(sRQ',idND,ready) does not hold.
+--> In this case, Rule R02 and R07 is applicable in SS.
+open ProofContCont .
+  eq allRQOfNDInStates(sRQ',idND,ready) = false .
+  eq sND' = (node(tnd,idND1,created) sND'') .
+  eq sRQ = (req(dependsOn,idRQ,unbound,idND1) sRQ') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sND = (node(tnd,idND,created) sND') .
+  red contcont(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,
+               SS:State,CC:Bool) .
+close
+--> Case 14:
+--> (1-2) The condition of R05 holds in S, which means that
+-->       the state of the node of idND is created or started.
+--> (2-1) The node is created,
+--> (3-1) The corresponding requirement is unbound,
+--> (4-3) The corresponding node is started,
+--> (5-1) allRQOfNDInStates(sRQ',idND,ready) holds.
+--> This case will be rejected by inv-ifNDStartedThenRQReady(S) .
+open ProofContCont .
+  eq inv(S:State) = inv-ifNDStartedThenRQReady(S) .
+  eq allRQOfNDInStates(sRQ',idND,ready) = true .
+  eq sND' = (node(tnd,idND1,started) sND'') .
+  eq sRQ = (req(dependsOn,idRQ,unbound,idND1) sRQ') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sND = (node(tnd,idND,created) sND') .
+  red contcont(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,
+               SS:State,CC:Bool) .
+close
+--> Case 15:
+--> (1-2) The condition of R05 holds in S, which means that
+-->       the state of the node of idND is created or started.
+--> (2-1) The node is created,
+--> (3-1) The corresponding requirement is unbound,
+--> (4-3) The corresponding node is started,
+--> (5-2) allRQOfNDInStates(sRQ',idND,ready) does not hold.
+--> This case will be rejected by inv-ifNDStartedThenRQReady(S) .
+open ProofContCont .
+  eq inv(S:State) = inv-ifNDStartedThenRQReady(S) .
+  eq allRQOfNDInStates(sRQ',idND,ready) = false .
+  eq sND' = (node(tnd,idND1,started) sND'') .
+  eq sRQ = (req(dependsOn,idRQ,unbound,idND1) sRQ') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sND = (node(tnd,idND,created) sND') .
+  red contcont(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,
+               SS:State,CC:Bool) .
+close
+--> Case 16:
+--> (1-2) The condition of R05 holds in S, which means that
+-->       the state of the node of idND is created or started.
+--> (2-1) The node is created,
+--> (3-2) The corresponding requirement is waiting.
+--> (5-1) allRQOfNDInStates(sRQ',idND,ready) holds.
+--> This case will be rejected by inv-ifCPClosedThenRQUnbound(S).
+open ProofContCont .
+  eq inv(S:State) = inv-ifCPClosedThenRQUnbound(S) .
+  eq allRQOfNDInStates(sRQ',idND,ready) = true .
+  eq sRQ = (req(dependsOn,idRQ,waiting,idND1) sRQ') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sND = (node(tnd,idND,created) sND') .
+  red contcont(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,
+               SS:State,CC:Bool) .
+close
+--> Case 17:
+--> (1-2) The condition of R05 holds in S, which means that
+-->       the state of the node of idND is created or started.
+--> (2-1) The node is created,
+--> (3-2) The corresponding requirement is waiting.
+--> (5-2) allRQOfNDInStates(sRQ',idND,ready) does not hold.
+--> This case will be rejected by inv-ifCPClosedThenRQUnbound(S).
+open ProofContCont .
+  eq inv(S:State) = inv-ifCPClosedThenRQUnbound(S) .
+  eq allRQOfNDInStates(sRQ',idND,ready) = false .
+  eq sRQ = (req(dependsOn,idRQ,waiting,idND1) sRQ') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sND = (node(tnd,idND,created) sND') .
+  red contcont(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,
+               SS:State,CC:Bool) .
+close
+--> Case 18:
+--> (1-2) The condition of R05 holds in S, which means that
+-->       the state of the node of idND is created or started.
+--> (2-1) The node is created,
+--> (3-3) The corresponding requirement is ready.
+--> (5-1) allRQOfNDInStates(sRQ',idND,ready) holds.
+--> This case will be rejected by inv-ifCPClosedThenRQUnbound(S).
+open ProofContCont .
+  eq inv(S:State) = inv-ifCPClosedThenRQUnbound(S) .
+  eq allRQOfNDInStates(sRQ',idND,ready) = true .
+  eq sRQ = (req(dependsOn,idRQ,ready,idND1) sRQ') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sND = (node(tnd,idND,created) sND') .
+  red contcont(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,
+               SS:State,CC:Bool) .
+close
+--> Case 19:
+--> (1-2) The condition of R05 holds in S, which means that
+-->       the state of the node of idND is created or started.
+--> (2-1) The node is created,
+--> (3-3) The corresponding requirement is ready.
+--> (5-2) allRQOfNDInStates(sRQ',idND,ready) does not hold.
+--> This case will be rejected by inv-ifCPClosedThenRQUnbound(S).
+open ProofContCont .
+  eq inv(S:State) = inv-ifCPClosedThenRQUnbound(S) .
+  eq allRQOfNDInStates(sRQ',idND,ready) = false .
+  eq sRQ = (req(dependsOn,idRQ,ready,idND1) sRQ') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sND = (node(tnd,idND,created) sND') .
+  red contcont(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,
+               SS:State,CC:Bool) .
+close

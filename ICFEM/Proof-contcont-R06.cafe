@@ -1,0 +1,92 @@
+require ProofContCont Proof-contcont.cafe
+
+-- As to rule R01, we have checked all possible cases, however,
+-- here we will omit irrevant cases in which wfs(S) does not hold and thus contcont(S) holds.
+
+--> ***********************************************************************
+--> ctrans [R06]:
+-->    < SetND, (cap(dependsOn,IDCP,open,     IDND) SetCP), SetRQ, SetRL, MP >
+--> => < SetND, (cap(dependsOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
+-->    if state(getNode(SetND,IDND)) = started .
+--> ***********************************************************************
+--> Rule R06 makes a dependsOn capability be available, so next applied rules may be Rule R08.
+--> Case 1: The condition of R06 does not hold in S, otherwise
+--> Case 2-14:
+-->  #     R1        N1
+-->  2-10  unbound   initial -> Cyclic Dependency Theorem ensures that contcont holds.
+-->  11    unbound   created -> R07 is applicable
+-->  12    unbound   started -> not reachable
+-->  13    waiting   *       -> R08 is applicable
+-->  14    ready     *       -> not reachable
+
+--> Case 1:
+--> (1-1) The condition of R06 does not hold.
+--> In this case, there is no applicable rule.
+open ProofContCont .
+  eq (state(getNode(sND,idND)) = started) = false .
+  red contcont(< sND,(cap(dependsOn,idCP,open,idND) sCP),sRQ,sRL,mp >,
+               SS:State,CC:Bool) .
+close
+--> Case 2-10:
+--> (1-2) The condition of R06 holds, which means that
+-->       the node of the capability is started,
+--> (2-1) The corresponding requirement is unbound,
+--> (3-1) The corresponding node is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+--> In this case, the proofs are same as Case 4-12 of initcont(S) .
+
+--> Case 11:
+--> (1-2) The condition of R06 holds, which means that
+-->       the node of the capability is started,
+--> (2-1) The corresponding requirement is unbound,
+--> (3-2) The corresponding node is created.
+--> In this case, Rule R07 is applicable in SS.
+open ProofContCont .
+  eq sND' = (node(tnd,idND1,created) sND'') .
+  eq sRQ = (req(dependsOn,idRQ,unbound,idND1) sRQ') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sND = (node(tnd,idND,started) sND') .
+  red contcont(< sND,(cap(dependsOn,idCP,open,idND) sCP),sRQ,sRL,mp >,
+               SS:State,CC:Bool) .
+close
+--> Case 12:
+--> (1-2) The condition of R06 holds, which means that
+-->       the node of the capability is started,
+--> (2-1) The corresponding requirement is unbound,
+--> (3-3) The corresponding node is started.
+--> This case will be rejected by inv-ifNDStartedThenRQReady(S) .
+open ProofContCont .
+  eq inv(S:State) = inv-ifNDStartedThenRQReady(S) .
+  eq sND' = (node(tnd,idND1,started) sND'') .
+  eq sRQ = (req(dependsOn,idRQ,unbound,idND1) sRQ') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sND = (node(tnd,idND,started) sND') .
+  red contcont(< sND,(cap(dependsOn,idCP,open,idND) sCP),sRQ,sRL,mp >,
+               SS:State,CC:Bool) .
+close
+--> Case 13:
+--> (1-2) The condition of R06 holds, which means that
+-->       the node of the capability is started,
+--> (2-2) The corresponding requirement is waiting.
+--> In this case, Rule R08 is applicable in SS.
+open ProofContCont .
+  eq sRQ = (req(dependsOn,idRQ,waiting,idND1) sRQ') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sND = (node(tnd,idND,started) sND') .
+  red contcont(< sND,(cap(dependsOn,idCP,open,idND) sCP),sRQ,sRL,mp >,
+               SS:State,CC:Bool) .
+close
+--> Case 14:
+--> (1-2) The condition of R06 holds, which means that
+-->       the node of the capability is started,
+--> (2-3) The corresponding requirement is ready.
+--> This case will be rejected by inv-ifCPOpenThenRQUnboundWaiting(S).
+open ProofContCont .
+  eq inv(S:State) = inv-ifCPOpenThenRQUnboundWaiting(S) .
+  eq sRQ = (req(dependsOn,idRQ,ready,idND1) sRQ') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sND = (node(tnd,idND,started) sND') .
+  red contcont(< sND,(cap(dependsOn,idCP,open,idND) sCP),sRQ,sRL,mp >,
+               SS:State,CC:Bool) .
+close

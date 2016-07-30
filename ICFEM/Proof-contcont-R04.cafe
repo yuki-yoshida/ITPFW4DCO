@@ -1,0 +1,68 @@
+require ProofContCont Proof-contcont.cafe
+
+-- As to rule R01, we have checked all possible cases, however,
+-- here we will omit irrevant cases in which wfs(S) does not hold and thus contcont(S) holds.
+
+--> ************************************************************************************************
+--> trans [R04]:
+-->    < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
+--> 	      (req(hostedOn,IDRQ,unbound,IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP >
+--> => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
+--> 	      (req(hostedOn,IDRQ,ready,  IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
+--> ************************************************************************************************
+--> Rule R04 makes a hostedOn requirement be ready, so next applied rules may be Rule R01.
+--> There should be a node of IDND2.
+--> Case 1: The node is initial and the condition of R01 for the node holds.
+--> Case 2: The node is initial and the condition of R01 for the node does not hold. -> Not reachable
+--> Case 3: The node is created. -> Not reachable
+--> Case 4: The node is started. -> Not reachable
+
+--> Case 1:
+--> (1-1) The node of IDND2 is initial,
+--> (2-1) The condition of R01 holds.
+--> In this case, Rule R01 can be applied to SS.
+open ProofContCont .
+  eq (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND2,ready)) = true .
+  eq sND = (node(tnd,idND2,initial) sND') .
+  red contcont(< sND, 
+		 (cap(hostedOn,idCP,available,idND1) sCP), 
+ 	         (req(hostedOn,idRQ,unbound,idND2) sRQ), 
+                 (rel(hostedOn,idRL,idCP,idRQ) sRL), mp >,SS:State,CC:Bool) .
+close
+--> Case 2:
+--> (1-1) The node of IDND2 is initial,
+--> (2-2) The condition of R01 does not hold, which means
+-->       there is at least one hostedOn requiment of idND2 which is not ready.
+--> This case will be rejected by wfs-allNDHasAtMostOneHost(S).
+open ProofContCont .
+  eq inv(S:State) = wfs-allNDHasAtMostOneHost(S) .
+  eq sRQ = (req(hostedOn,idRQ1,srq,idND2) sRQ') .
+  eq (srq = ready) = false .
+  eq sND = (node(tnd,idND2,initial) sND') .
+  red contcont(< sND, 
+		 (cap(hostedOn,idCP,available,idND1) sCP), 
+ 	         (req(hostedOn,idRQ,unbound,idND2) sRQ), 
+                 (rel(hostedOn,idRL,idCP,idRQ) sRL), mp >,SS:State,CC:Bool) .
+close
+--> Case 3:
+--> (1-2) The node of IDND2 is created.
+--> This case will be rejected by inv-ifNDCreatedThenHostedOnRQReady(S) .
+open ProofContCont .
+  eq inv(S:State) = inv-ifNDCreatedThenHostedOnRQReady(S) .
+  eq sND = (node(tnd,idND2,created) sND') .
+  red contcont(< sND, 
+		 (cap(hostedOn,idCP,available,idND1) sCP), 
+ 	         (req(hostedOn,idRQ,unbound,idND2) sRQ), 
+                 (rel(hostedOn,idRL,idCP,idRQ) sRL), mp >,SS:State,CC:Bool) .
+close
+--> Case 4:
+--> (1-3) The node of IDND2 is strated.
+--> This case will be rejected by inv-ifNDCreatedThenHostedOnRQReady(S) .
+open ProofContCont .
+  eq inv(S:State) = inv-ifNDCreatedThenHostedOnRQReady(S) .
+  eq sND = (node(tnd,idND2,started) sND') .
+  red contcont(< sND, 
+		 (cap(hostedOn,idCP,available,idND1) sCP), 
+ 	         (req(hostedOn,idRQ,unbound,idND2) sRQ), 
+                 (rel(hostedOn,idRL,idCP,idRQ) sRL), mp >,SS:State,CC:Bool) .
+close

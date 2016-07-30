@@ -1,0 +1,161 @@
+provide SET
+
+mod! SET(X :: TRIV) {
+  [Elt.X < Set]
+  op empty : -> Set {constr}
+  op _ _ : Set Set -> Set {constr assoc comm idem id: empty}
+  eq ((E:Elt.X S1:Set) = (E S2:Set)) = (S1 = S2) .
+  --
+  op _U_ : Set Set -> Set
+  op _\in_ : Elt.X Set -> Bool
+  op _A_ : Set Set -> Set
+  op _\\_ : Set Set -> Set
+  --
+  vars S S1 S2 : Set
+  vars E E1 : Elt.X
+  -- for empty
+  eq ((E S) = empty) = false .
+  -- for _U_
+  eq S1 U S2 = S1 S2 .
+  -- for _\in_
+  eq E \in empty = false .
+  eq E \in (E S) = true .
+  ceq E \in (E1 S) = E \in S if not(E = E1) .
+  -- for _A_
+  eq empty A S2 = empty .
+  eq (E S1) A (E S2) = E (S1 A S2) .
+  ceq (E S1) A S2 = S1 A S2 if not(E \in S2) .
+  -- for _\\_ 
+  eq empty \\ E = empty .
+  eq (E S) \\ E = S .
+  ceq (E1 S) \\ E = (E1 (S \\ E)) if not (E = E1) .
+
+}
+eof
+module! SETTHEOREMS {
+  pr(SET)
+
+  pred P : Elt.X
+  pred allP : Set
+  eq allP(empty) = true .
+  eq allP(E:Elt.X S:Set) = P(E) and allP(S) .
+
+  pred set-theorem1 : Set Elt.X Set
+  -- When allP(S) does not hold, there exist some E and S' such that S = (E S') and P(E) does not hold.
+  eq set-theorem1(S:Set, E:Elt.X, S':Set)
+     = not allP(S) implies (S = (E S')) and not P(E) .
+
+  pred allNotP : Set
+  eq allNotP(empty) = true .
+  eq allNotP(E:Elt.X S:Set) = not P(E) and allNotP(S) .
+
+  pred onlyOneP : Set
+  eq onlyOneP(empty) = false .
+  eq onlyOneP(E:Elt.X S:Set)
+     = if P(E) then allNotP(S) else onlyOneP(S) fi .
+
+  pred set-theorem2 : Set Elt.X Set
+  -- When onlyOneP(S) holds, there exist some E and S' such that S = (E S') and P(E) holds.
+  eq set-theorem2(S:Set, E:Elt.X, S':Set)
+     = onlyOneP(S) implies (S = (E S')) and P(E) and allNotP(S').
+
+  pred existP : Set
+  eq existP(empty) = false .
+  eq existP(E:Elt.X S:Set) = P(E) or existP(S) .
+
+  pred set-theorem3 : Set
+  eq set-theorem3(S:Set)
+     = existP(S) iff not allNotP(S) .
+}
+
+--> ************************************************************************************************************
+--> Prove that when allP(S) does not hold there exist some E and S' such that S = (E S') and P(E) does not hold.
+--> ************************************************************************************************************
+--> case 1: Basic case, S is empty
+open SETTHEOREMS .
+  op s : -> Set .
+  op e : -> Elt.X .
+  red set-theorem1(empty,e,s) .
+close
+
+--> case 2: Induction case, S is not empty
+-- Assuming that there exist e' and s' for s such that set-theorem1(s,e',s') holds,
+-- prove that there also exist some E' and S' for S = (e s) such that set-theorem1(S,E',S') holds;
+-- i.e. set-theorem1(s,e',s') implies set-theorem1((e s),E',S') .
+
+--> case 2-1: When P(e) does not hold.
+open SETTHEOREMS .
+  ops s s' : -> Set .
+  ops e e' : -> Elt.X .
+  eq P(e) = false .
+  --> E' = e and S' = s, we don't need the induction hypothesis.
+  red set-theorem1(s,e',s') implies set-theorem1((e s),e,s) .
+close
+
+--> case 2-2: When P(e) holds.
+--> There are two cases where allP(s) does or does not hold.
+
+--> case 2-2-1: When allP(s) holds.
+open SETTHEOREMS .
+  ops s s' : -> Set .
+  ops e e' : -> Elt.X .
+  eq P(e) = true .
+  eq allP(s) = true .
+  --> E' and S' can be any value.
+  red set-theorem1(s,e',s') implies set-theorem1((e s),E:Elt.X,S:Set) .
+close
+
+--> case 2-2-2: When allP(s) does not hold.
+open SETTHEOREMS .
+  ops s s' : -> Set .
+  ops e e' : -> Elt.X .
+  eq P(e) = true .
+  eq allP(s) = false .
+  --> E' = e' and S' = (e s')
+  red set-theorem1(s,e',s') implies set-theorem1((e s),e',(e s')).
+close
+
+--> *****************************************************************************************************************
+--> Prove that when onlyOneP(S) holds, there exist some E and S' such that S = (E S') and P(E) and allNotP(S') holds.
+--> *****************************************************************************************************************
+--> case 1: Basic case, S is empty
+open SETTHEOREMS .
+  op s : -> Set .
+  op e : -> Elt.X .
+  red set-theorem2(empty,e,s) .
+close
+
+--> case 2: Induction case, S is not empty
+-- Assuming that there exist e' and s' for s such that set-theorem2(s,e',s') holds,
+-- there also exist some E' and S' for S = (e s) such that set-theorem2(S,E',S') holds;
+-- i.e. set-theorem2(s,e',s') implies set-theorem2((e s),E',S') .
+
+--> case 2-1: When P(e) holds.
+open SETTHEOREMS .
+  ops e e' : -> Elt.X .
+  ops s s' : -> Set .
+  eq P(e) = true .
+  --> E' = e and S' = s, we don't need the induction hypothesis.
+  red set-theorem2(s,e',s') implies set-theorem2((e s),e,s) .
+close
+
+--> case 2-2: When P(e) does not hold.
+open SETTHEOREMS .
+  ops e e' : -> Elt.X .
+  ops s s' : -> Set .
+  eq P(e) = false .
+  --> E' = e' and S' = (e s').
+  red set-theorem2(s,e',s') implies set-theorem2((e s),e',(e s')) .
+close
+
+--> *****************************************
+--> Prove that existP(S) iff not allNotP(S) .
+--> *****************************************
+open SETTHEOREMS .
+  --> Basic Case.
+  red set-theorem3(empty) .
+  op e : -> Elt.X .
+  op s : -> Set .
+  --> Induction Case.
+  red set-theorem3(s) implies set-theorem3(e s) .
+close

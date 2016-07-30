@@ -1,0 +1,284 @@
+require Proof Proof.cafe
+
+--> ************************************************************************
+--> (3) inv(S) and wfs(S) and cont(S) and not final(S) implies m(S) > m(SS).
+--> ************************************************************************
+
+module! ProofMesure {
+  pr(PROOFfuns)
+  pred mesmes : State State Bool .
+  eq mesmes(S:State,SS:State,CC:Bool)
+     = not (S =(*,1)=>+ SS if CC suchThat
+            not ((CC then
+                  (inv(S) and cont(S) and not final(S)
+     	           implies m(S) > m(SS))) == true)
+     	   { S => SS !! CC ! inv(S) ! cont(S) ! final(S) ! (m(S) > m(SS)) }) .
+
+  --> Axioms of Nat
+  eq (N:Nat.PNAT < s(N)) = true .
+  eq (N:Nat.PNAT < s(s(N))) = true .
+  eq (N:Nat.PNAT < s(s(s(N)))) = true .
+  eq (N:Nat.PNAT < s(s(s(s(N))))) = true .
+}
+
+--> *************************************************************************
+--> ctrans [R01]: < (node(TND,IDND,initial) SetND), SetCP, SetRQ, SetRL, MP >
+-->            => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
+-->	      if allRQOfNDInStates(filterRQ(SetRQ,hostedOn),IDND,ready) .
+--> *************************************************************************
+--> Case 1: The condition of R01 does not hold.
+open ProofMesure .
+  eq allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) 
+     = false .
+  red mesmes(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 2: The condition of R01 holds.
+open ProofMesure .
+  eq allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) 
+     = true .
+  red mesmes(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+
+--> *************************************************************************
+--> ctrans [R02]: < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP >
+-->            => < (node(TND,IDND,started) SetND), SetCP, SetRQ, SetRL, MP > 
+-->	      if allRQOfNDInStates(SetRQ,IDND,ready) .
+--> *************************************************************************
+--> Case 1: The condition of R02 does not hold.
+open ProofMesure .
+  eq allRQOfNDInStates(sRQ,idND,ready)
+     = false .
+  red mesmes(< (node(tnd,idND,created)  sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 2: The condition of R02 holds.
+open ProofMesure .
+  eq allRQOfNDInStates(sRQ,idND,ready)
+     = true .
+  red mesmes(< (node(tnd,idND,created)  sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+
+--> ************************************************************************************
+--> ctrans [R03]: < SetND, (cap(hostedOn,IDCP,closed,   IDND) SetCP), SetRQ, SetRL, MP >
+-->            => < SetND, (cap(hostedOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
+-->	    if isCreated(state(getNode(SetND,IDND))) .
+--> ************************************************************************************
+--> Case 1: The condition of R03 does not hold.
+open ProofMesure .
+  eq isCreated(state(getNode(sND,idND)))
+     = false .
+  red mesmes(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 2: The condition of R03 holds.
+open ProofMesure .
+  eq isCreated(state(getNode(sND,idND)))
+     = true .
+  red mesmes(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+
+--> ***************************************************************************************************
+--> trans [R04]: < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
+-->  	       	(req(hostedOn,IDRQ,unbound,IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP >
+-->           => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
+-->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
+--> ***************************************************************************************************
+open ProofMesure .
+  red mesmes(< sND, (cap(hostedOn,idCP,available,idND1) sCP), 
+  	       (req(hostedOn,idRQ,unbound,idND2) sRQ), (rel(hostedOn,idRL,idCP,idRQ) sRL), mp >,
+             SS:State,CC:Bool) .
+close
+
+--> **********************************************************************************
+--> ctrans [R05]: < SetND, (cap(dependsOn,IDCP,closed,IDND) SetCP), SetRQ, SetRL, MP >
+-->            => < SetND, (cap(dependsOn,IDCP,open,  IDND) SetCP), SetRQ, SetRL, MP >
+-->	     if isCreated(state(getNode(SetND,IDND))) .
+--> **********************************************************************************
+--> Case 1: The condition of R05 does not hold.
+open ProofMesure .
+  eq isCreated(state(getNode(sND,idND)))
+     = false .
+  red mesmes(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 2: The condition of R05 holds.
+open ProofMesure .
+  eq isCreated(state(getNode(sND,idND)))
+     = true .
+  red mesmes(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+
+--> *************************************************************************************
+--> ctrans [R06]: < SetND, (cap(dependsOn,IDCP,open,     IDND) SetCP), SetRQ, SetRL, MP >
+-->            => < SetND, (cap(dependsOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
+-->	     if state(getNode(SetND,IDND)) = started .
+--> *************************************************************************************
+--> Case 1:
+--> (1-1) The condition of R06 does not hold.
+open ProofMesure .
+  eq (state(getNode(sND,idND)) = started)
+     = false .
+  red mesmes(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 2:
+--> (1-2) The condition of R06 holds.
+open ProofMesure .
+  eq (state(getNode(sND,idND)) = started)
+     = true .
+  red mesmes(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+
+--> ****************************************************************************************************
+--> ctrans [R07]: < SetND, (cap(dependsOn,IDCP,SCP,IDND1) SetCP), 
+-->  	       	  (req(dependsOn,IDRQ,unbound,IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
+-->            => < SetND, (cap(dependsOn,IDCP,SCP,IDND1) SetCP), 
+-->  	       	  (req(dependsOn,IDRQ,waiting,IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
+-->             if state(SetND,IDND2) = created and isActivated(SCP) .
+--> ****************************************************************************************************
+--> Case 1: The condition of R07 does not hold.
+open ProofMesure .
+  eq (state(getNode(sND,idND2)) = created and isActivated(scp))
+     = false .
+  red mesmes(< sND, (cap(dependsOn,idCP,scp,idND1) sCP), 
+   	       (req(dependsOn,idRQ,unbound,idND2) sRQ), (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >,
+             SS:State,CC:Bool) .
+close
+--> Case 2: The condition of R07 holds.
+open ProofMesure .
+  eq (state(getNode(sND,idND2)) = created and isActivated(scp))
+     = true .
+  red mesmes(< sND, (cap(dependsOn,idCP,scp,idND1) sCP), 
+   	       (req(dependsOn,idRQ,unbound,idND2) sRQ), (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >,
+             SS:State,CC:Bool) .
+close
+
+--> ******************************************************************************************************
+--> trans [R08]: < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
+-->  	          (req(dependsOn,IDRQ,waiting,IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
+-->           => < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
+-->  	       	  (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
+--> ******************************************************************************************************
+open ProofMesure .
+  red mesmes(< sND, (cap(dependsOn,idCP,scp,idND1) sCP), 
+   	       (req(dependsOn,idRQ,waiting,idND2) sRQ), (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >,
+             SS:State,CC:Bool) .
+close
+
+--> ***********************************************************************************
+--> ctrans [R09]: < SetND, (cap(connectsTo,IDCP,closed,IDND) SetCP), SetRQ, SetRL, MP >
+-->            => < SetND, (cap(connectsTo,IDCP,open,  IDND) SetCP), SetRQ, SetRL, 
+-->	       	 (opMsg(IDCP) MP) >
+-->	    if isCreated(state(getNode(SetND,IDND))) .
+--> ***********************************************************************************
+--> Case 1: The condition of R09 does not hold.
+open ProofMesure .
+  eq isCreated(state(getNode(sND,idND)))
+     = false .
+  red mesmes(< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 2: The condition of R09 holds.
+open ProofMesure .
+  eq isCreated(state(getNode(sND,idND)))
+     = true .
+  red mesmes(< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+
+--> **************************************************************************************
+--> ctrans [R10]: < SetND, (cap(connectsTo,IDCP,open,     IDND) SetCP), SetRQ, SetRL, MP >
+-->            => < SetND, (cap(connectsTo,IDCP,available,IDND) SetCP), SetRQ, SetRL,
+-->	       	  (avMsg(IDCP) MP) >
+-->	     if state(getNode(SetND,IDND)) = started .
+--> **************************************************************************************
+--> Case 1:
+--> (1-1) The condition of R10 does not hold.
+open ProofMesure .
+  eq (state(getNode(sND,idND)) = started)
+     = false .
+  red mesmes(< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 2:
+--> (1-2) The condition of R10 holds
+open ProofMesure .
+  eq (state(getNode(sND,idND)) = started)
+     = true .
+  red mesmes(< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+
+--> ********************************************************************************************************
+--> ctrans [R11]: < SetND, SetCP, 
+--> 	       	  (req(connectsTo,IDRQ,unbound,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), 
+--> 		  (opMsg(IDCP) MP) >
+-->            => < SetND, SetCP, 
+--> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
+--> 	     if state(getNode(SetND,IDND)) = created .
+--> ********************************************************************************************************
+--> Case 1: The condition of R11 does not hold.
+open ProofMesure .
+  eq (state(getNode(sND,idND)) = created)
+     = false .
+  red mesmes(< sND, sCP, 
+   	       (req(connectsTo,idRQ,unbound,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
+	       (opMsg(idCP) mp) >,
+             SS:State,CC:Bool) .
+close
+--> Case 2: The condition of R11 holds.
+open ProofMesure .
+  eq (state(getNode(sND,idND)) = created)
+     = true .
+  red mesmes(< sND, sCP, 
+   	       (req(connectsTo,idRQ,unbound,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
+	       (opMsg(idCP) mp) >,
+             SS:State,CC:Bool) .
+close
+
+--> *******************************************************************************************************
+--> trans [R12]: < SetND, SetCP, 
+--> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), 
+--> 		  (avMsg(IDCP) MP) >
+-->            => < SetND, SetCP, 
+--> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
+--> *******************************************************************************************************
+open ProofMesure .
+  red mesmes(< sND, sCP, 
+   	       (req(connectsTo,idRQ,waiting,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
+	       (avMsg(idCP) mp) >,
+             SS:State,CC:Bool) .
+close
+
+--> ******************************************************************************
+--> (4) inv(S) and wfs(S) and (cont(S) or final(S)) and m(S) = 0 implies final(S).
+--> ******************************************************************************
+module! ProofMesFinal {
+  pr(PROOFfuns)
+  pred mesfinal : State .
+  eq mesfinal(S:State)
+     = (m(S) = 0) implies final(S) .
+
+  pred lemma : SetOfNode
+  eq lemma(SetND:SetOfNode)
+     = ((#NodeInStates(created,SetND) = 0) and #NodeInStates(initial,SetND) = 0)
+       implies allNDInStates(SetND,started) .
+
+  --> Axioms of Nat
+  eq (N1:Nat.PNAT + N2:Nat.PNAT = 0)
+     = (N1 = 0) and (N2 = 0) .
+}
+--> Proof of lemma.
+--> Base Case: SetND is empty.
+open ProofMesFinal .
+  red lemma(empND).
+close
+--> Induction Case: SetND has a node.
+open ProofMesFinal .
+  red lemma(sND) implies lemma((node(tnd,idND,initial) sND)) .
+  red lemma(sND) implies lemma((node(tnd,idND,created) sND)) .
+  red lemma(sND) implies lemma((node(tnd,idND,started) sND)) .
+close
+--> Proof of mesfinal.
+open ProofMesFinal .
+  eq ((#NodeInStates(created,sND) = 0) and #NodeInStates(initial,sND) = 0 and allNDInStates(sND,started))
+     = ((#NodeInStates(created,sND) = 0) and #NodeInStates(initial,sND) = 0) .
+  red mesfinal(< sND, sCP, sRQ, sRL, mp >) .
+close
+--> Another sytle, which is inefficient.
+open ProofMesFinal .
+  red lemma(sND) and (m(< sND, sCP, sRQ, sRL, mp >) = 0)
+      implies final(< sND, sCP, sRQ, sRL, mp >) .
+close

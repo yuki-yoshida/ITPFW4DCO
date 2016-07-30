@@ -1,0 +1,991 @@
+require Template Template.cafe
+require BAG BAG.cafe
+provide DomainModel
+
+-- An abstract model for OASIS TOSCA
+
+-- There are four kinds of objects:
+-- Node(ND): a component of which a cloud application composes.
+-- Capability(CP): a function which a node provides.
+-- Requirement(RQ): a function which a node requires.
+-- Relationship(RL): a relationship between a requirement and a capability.
+
+-- There are typical types of nodes, 
+--   VM(Virtual Machine), OS(Operating System), MW(Middleware), SC(Software Component), ...
+-- There are typical types of relationships,
+--   hostedOn: a node is hosted on another node,
+--   dependsOn: a node is started only when another local node has been started,
+--   connectsTo: a node needs a connection to another remote node,
+-- where "local" means both nodes are hosted in a same VM and "remote" means non-local.
+
+module! TYPE {
+
+  [NDTypeLt < NDType]
+  ops VM OS MW SC : -> NDTypeLt
+  eq (NT1:NDTypeLt = NT2:NDTypeLt)
+     = NT1 == NT2 .
+
+  [RLTypeLt < RLType]
+  ops hostedOn dependsOn connectsTo : -> RLTypeLt
+  eq (RT1:RLTypeLt = RT2:RLTypeLt)
+     = RT1 == RT2 .
+}
+
+module! NODE {
+  pr(TYPE)
+
+  extending(TMPOBJBASEMOD
+	* {sort ObjIDLt -> NDIDLt,
+	   sort ObjID -> NDID,
+	   sort ObjStateLt -> StateNDLt,
+	   sort ObjState -> StateND,
+	   sort Object -> Node,
+	   sort SetOfObject -> SetOfNode,
+	   sort SetOfObjState -> SetOfStateND,
+	   op empObj -> empND,
+	   op empState -> empSND,
+	   op theObjInStates -> idNDInStates,
+	   op existObj -> existND,
+	   op uniqObj -> uniqND,
+	   op #ObjInStates -> #NodeInStates,
+	   op getObject -> getNode,
+	   op allObjInStates -> allNDInStates,
+	   op allObjNotInStates -> allNDNotInStates,
+	   op someObjInStates -> someNDInStates})
+
+  -- node(NDType, NDID, StateND) is a VM Node.
+  op node : NDType NDID StateND -> Node {constr}
+  op type : Node -> NDType
+
+  var TND : NDType
+  var IDND : NDID
+  var SND : StateND
+
+  eq type(node(TND,IDND,SND)) = TND .
+  eq id(node(TND,IDND,SND)) = IDND .
+  eq state(node(TND,IDND,SND)) = SND .
+
+  ops initial created started : -> StateNDLt
+  pred isCreated : StateND
+  eq isCreated(initial) = false .
+  eq isCreated(created) = true .
+  eq isCreated(started) = true .
+  eq isCreated(null:StateND) = false .
+}
+
+module! CAPABILITY {
+  pr(NODE)
+
+  extending(TMPOBJBASEMOD
+	* {sort ObjIDLt -> CPIDLt,
+	   sort ObjID -> CPID,
+	   sort ObjStateLt -> StateCPLt,
+	   sort ObjState -> StateCP,
+	   sort Object -> Capability
+	   sort SetOfObject -> SetOfCapability,
+	   sort SetOfObjState -> SetOfStateCP,
+	   op empObj -> empCP,
+	   op empState -> empSCP,
+	   op theObjInStates -> idCPInStates,
+	   op existObj -> existCP,
+	   op uniqObj -> uniqCP,
+	   op #ObjInStates -> #CapabilityInStates,
+	   op getObject -> getCapability,
+	   op allObjInStates -> allCPInStates,
+	   op allObjNotInStates -> allCPNotInStates,
+	   op someObjInStates -> someCPInStates})
+
+  -- cap(RLType, CPID, StateCP, NDID) is a Capability of a Node identified by idND.
+  op cap : RLType CPID StateCP NDID -> Capability {constr}
+  op type : Capability -> RLType
+  op node : Capability -> NDID
+
+  var TRL : RLType
+  var IDCP : CPID
+  var SCP : StateCP
+  var IDND : NDID
+
+  eq type(cap(TRL,IDCP,SCP,IDND)) = TRL .
+  eq id(cap(TRL,IDCP,SCP,IDND)) = IDCP .
+  eq state(cap(TRL,IDCP,SCP,IDND)) = SCP .
+  eq node(cap(TRL,IDCP,SCP,IDND)) = IDND .
+
+  ops closed open available : -> StateCPLt
+  pred isActivated : StateCP
+  eq isActivated(closed) = false .
+  eq isActivated(open) = true .
+  eq isActivated(available) = true .
+  eq isActivated(null:StateCP) = false .
+}
+
+module! REQUIREMENT {
+  pr(NODE)
+
+  extending(TMPOBJBASEMOD
+	* {sort ObjIDLt -> RQIDLt,
+	   sort ObjID -> RQID,
+	   sort ObjStateLt -> StateRQLt,
+	   sort ObjState -> StateRQ,
+	   sort Object -> Requirement,
+	   sort SetOfObject -> SetOfRequirement,
+	   sort SetOfObjState -> SetOfStateRQ,
+	   op empObj -> empRQ,
+	   op empState -> empSRQ,
+	   op theObjInStates -> idRQInStates,
+	   op existObj -> existRQ,
+	   op uniqObj -> uniqRQ,
+	   op #ObjInStates -> #RequirementInStates,
+	   op getObject -> getRequirement,
+	   op allObjInStates -> allRQInStates,
+	   op allObjNotInStates -> allRQNotInStates,
+	   op someObjInStates -> someRQInStates})
+
+  -- req(RLType, RQID, StateRQ, NDID) is a Requirement of a Node idetified by idND.
+  op req : RLType RQID StateRQ NDID -> Requirement {constr}
+  op type : Requirement -> RLType
+  op node : Requirement -> NDID
+
+  var TRL : RLType
+  var IDRQ : RQID
+  var IDND : NDID
+  var SRQ : StateRQ
+
+  eq type(req(TRL,IDRQ,SRQ,IDND)) = TRL .
+  eq id(req(TRL,IDRQ,SRQ,IDND)) = IDRQ .
+  eq state(req(TRL,IDRQ,SRQ,IDND)) = SRQ .
+  eq node(req(TRL,IDRQ,SRQ,IDND)) = IDND .
+
+  ops unbound waiting ready : -> StateRQLt
+}
+
+module! RELATIONSHIP {
+  pr(CAPABILITY + REQUIREMENT)
+
+  extending(TMPOBJBASEMOD
+	* {sort ObjIDLt -> RLIDLt,
+	   sort ObjID -> RLID,
+	   sort ObjStateLt -> StateRLLt,
+	   sort ObjState -> StateRL,
+	   sort Object -> Relationship,
+	   sort SetOfObject -> SetOfRelationship,
+	   sort SetOfObjState -> SetOfStateRL,
+	   op empObj -> empRL,
+	   op existObj -> existRL,
+	   op uniqObj -> uniqRL})
+
+  
+  -- rel(RLType, RLID, CPID, RQID) is a Relationship
+  op rel : RLType RLID CPID RQID -> Relationship {constr}
+  op type : Relationship -> RLType
+  op cap : Relationship -> CPID
+  op req : Relationship -> RQID
+
+  var TRL : RLType
+  var IDRL : RLID
+  var IDCP : CPID
+  var IDRQ : RQID
+
+  eq type(rel(TRL,IDRL,IDCP,IDRQ)) = TRL .
+  eq id(rel(TRL,IDRL,IDCP,IDRQ)) = IDRL .
+  eq cap(rel(TRL,IDRL,IDCP,IDRQ)) = IDCP .
+  eq req(rel(TRL,IDRL,IDCP,IDRQ)) = IDRQ .
+
+  pred isLocalRL : Relationship
+  eq isLocalRL(rel(hostedOn,IDRL,IDCP,IDRQ)) = true .
+  eq isLocalRL(rel(dependsOn,IDRL,IDCP,IDRQ)) = true .
+  eq isLocalRL(rel(connectsTo,IDRL,IDCP,IDRQ)) = false .
+}
+
+module! LINKS {
+  pr(NODE + CAPABILITY + REQUIREMENT + RELATIONSHIP)
+
+  extending(TMPOBJLINKMANY2ONE(
+	CAPABILITY {sort Object -> Capability,
+  		    sort ObjID -> CPID,
+  		    sort ObjState -> StateCP,
+  		    sort SetOfObject -> SetOfCapability,
+  		    sort SetOfObjState -> SetOfStateCP,
+		    sort LObject -> Node,
+		    sort LObjID -> NDID,
+  	            sort LObjState -> StateND,
+  	            sort SetOfLObject -> SetOfNode,
+  	            sort SetOfLObjState -> SetOfStateND,
+		    op getLObject -> getNode,
+		    op existObj -> existND,
+		    op empLObj -> empND,
+		    op link -> node,
+		    op theLObjInStates -> idNDInStates})
+	* {op getXOfZ -> getNDOfCP,
+	   op getZsOfX -> getCPsOfND,
+	   op getZsOfXInStates -> getCPsOfNDInStates,
+	   op getXsOfZs -> getNDsOfCPs,
+	   op getXsOfZsInStates -> getNDsOfCPsInStates,
+	   op getZsOfXs -> getCPsOfNDs,
+	   op getZsOfXsInStates -> getCPsOfNDsInStates,
+	   op allZHaveX -> allCPHaveND,
+	   op allZOfXInStates -> allCPOfNDInStates,
+	   op ifXInStatesThenZInStates -> ifNDInStatesThenCPInStates}
+	)
+
+  extending(TMPOBJLINKMANY2ONE(
+	REQUIREMENT {sort Object -> Requirement,
+  		     sort ObjID -> RQID,
+  		     sort ObjState -> StateRQ,
+  		     sort SetOfObject -> SetOfRequirement,
+  		     sort SetOfObjState -> SetOfStateRQ,
+		     sort LObject -> Node,
+		     sort LObjID -> NDID,
+  	             sort LObjState -> StateND,
+  	             sort SetOfLObject -> SetOfNode,
+  	       	     sort SetOfLObjState -> SetOfStateND,
+		     op getLObject -> getNode,
+		     op existObj -> existND,
+		     op empLObj -> empND,
+		     op link -> node,
+		     op theLObjInStates -> idNDInStates})
+	* {op getXOfZ -> getNDOfRQ,
+	   op getXsOfZs -> getNDsOfRQs,
+	   op getXsOfZsInStates -> getNDsOfRQsInStates,
+	   op getZsOfX -> getRQsOfND,
+	   op getZsOfXInStates -> getRQsOfNDInStates,
+	   op getZsOfXs -> getRQsOfNDs,
+	   op getZsOfXsInStates -> getRQsOfNDsInStates,
+	   op allZHaveX -> allRQHaveND,
+	   op allZOfXInStates -> allRQOfNDInStates,
+	   op ifXInStatesThenZInStates -> ifNDInStatesThenRQInStates}
+	)
+
+  extending(TMPOBJLINKONE2ONE(
+	RELATIONSHIP {sort Object -> Relationship,
+  		      sort ObjID -> RLID,
+  		      sort ObjState -> StateRL,
+  		      sort SetOfObject -> SetOfRelationship,
+  		      sort SetOfObjState -> SetOfStateRL,
+		      sort LObject -> Capability,
+		      sort LObjID -> CPID,
+  	              sort LObjState -> StateCP,
+  	              sort SetOfLObject -> SetOfCapability,
+  	              sort SetOfLObjState -> SetOfStateCP,
+		      op getLObject -> getCapability,
+		      op existObj -> existCP,
+		      op empLObj -> empCP,
+		      op link -> cap,
+		      op theLObjInStates -> idCPInStates})
+	* {op existX -> existCP,
+	   op getXOfY -> getCPOfRL,
+	   op getXsOfYs -> getCPsOfRLs,
+	   op getXsOfYsInStates -> getCPsOfRLsInStates,
+	   op getYOfX -> getRLOfCP,
+	   op getYsOfXs -> getRLsOfCPs,
+	   op getYsOfXsInStates -> getRLsOfCPsInStates,
+	   op uniqX -> uniqCP,
+	   op YOfXInStates -> RLOfCPInStates,
+	   op ifXInStatesThenYInStates -> ifCPInStatesThenRLInStates,
+	   op ifYInStatesThenXInStates -> ifRLInStatesThenCPInStates,
+	   op onlyOneYOfX -> onlyOneRLOfCP}
+	)
+--	   op allYHaveX -> allRLHaveCP,
+--	   op allXHaveY -> allCPHaveRL,
+
+
+  extending(TMPOBJLINKONE2ONE(
+	RELATIONSHIP {sort Object -> Relationship,
+  		      sort ObjID -> RLID,
+  		      sort ObjState -> StateRL,
+  		      sort SetOfObject -> SetOfRelationship,
+  		      sort SetOfObjState -> SetOfStateRL,
+		      sort LObject -> Requirement,
+		      sort LObjID -> RQID,
+  	              sort LObjState -> StateRQ,
+  	              sort SetOfLObject -> SetOfRequirement,
+  	              sort SetOfLObjState -> SetOfStateRQ,
+		      op getLObject -> getRequirement,
+		      op existObj -> existRQ,
+		      op empLObj -> empRQ,
+		      op link -> req,
+		      op theLObjInStates -> idRQInStates})
+	* {op existX -> existRQ,
+	   op getXOfY -> getRQOfRL,
+	   op getXsOfYs -> getRQsOfRLs,
+	   op getXsOfYsInStates -> getRQsOfRLsInStates,
+	   op getYOfX -> getRLOfRQ,
+	   op getYsOfXs -> getRLsOfRQs,
+	   op getYsOfXsInStates -> getRLsOfRQsInStates,
+	   op uniqX -> uniqRQ,
+	   op YOfXInStates -> RLOfRQInStates,
+	   op ifXInStatesThenYInStates -> ifRQInStatesThenRLInStates,
+	   op ifYInStatesThenXInStates -> ifRLInStatesThenRQInStates,
+	   op onlyOneYOfX -> onlyOneRLOfRQ}
+	)
+--	   op allYHaveX -> allRLHaveRQ,
+--	   op allXHaveY -> allRQHaveRL,
+
+  var CP : Capability
+  var RQ : Requirement
+  var RL : Relationship
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  var SetRL : SetOfRelationship
+
+-- allRLHaveCP is not reused but redefined to check type consistency.
+  pred allRLHaveCP : SetOfRelationship SetOfCapability
+  eq allRLHaveCP(empRL,SetCP)
+     = true .
+  eq allRLHaveCP((RL SetRL),SetCP)
+     = existCP(SetCP,cap(RL)) and type(getCPOfRL(SetCP,RL)) = type(RL) and
+       not existCP(SetRL,cap(RL)) and allRLHaveCP(SetRL,SetCP) .
+
+-- allCPHaveRL is not reused but redefined to check type consistency.
+  pred allCPHaveRL : SetOfCapability SetOfRelationship
+  eq allCPHaveRL(empCP,SetRL)
+     = true .
+  eq allCPHaveRL((CP SetCP),SetRL)
+     = onlyOneRLOfCP(SetRL,id(CP)) and type(getRLOfCP(SetRL,CP)) = type(CP) and
+       allCPHaveRL(SetCP,SetRL) .
+
+-- allRLHaveRQ is not reused but redefined to check type consistency.
+  pred allRLHaveRQ : SetOfRelationship SetOfRequirement
+  eq allRLHaveRQ(empRL,SetRQ)
+     = true .
+  eq allRLHaveRQ((RL SetRL),SetRQ)
+     = existRQ(SetRQ,req(RL)) and type(getRQOfRL(SetRQ,RL)) = type(RL) and
+       not existRQ(SetRL,req(RL)) and allRLHaveRQ(SetRL,SetRQ) .
+
+-- allRQHaveRL is not reused but redefined to check type consistency.
+  pred allRQHaveRL : SetOfRequirement SetOfRelationship
+  eq allRQHaveRL(empRQ,SetRL)
+     = true .
+  eq allRQHaveRL((RQ SetRQ),SetRL)
+     = onlyOneRLOfRQ(SetRL,id(RQ)) and type(getRLOfRQ(SetRL,RQ)) = type(RQ) and
+       allRQHaveRL(SetRQ,SetRL) .
+}
+
+module! MSG {
+  pr(LINKS)
+
+  [Msg]
+  -- An open message
+  op opMsg : CPID -> Msg {constr}
+  -- An available message
+  op avMsg : CPID -> Msg {constr}
+
+  vars IDCP1 IDCP2 : CPID 
+  eq (opMsg(IDCP1) = opMsg(IDCP2))
+     = (IDCP1 = IDCP2) .
+  eq (avMsg(IDCP1) = avMsg(IDCP2))
+     = (IDCP1 = IDCP2) .
+  eq (opMsg(IDCP1) = avMsg(IDCP2))
+     = false .
+}    
+
+module! STATE {
+  pr(BAG(MSG {sort Elt -> Msg})
+      * {sort Bag -> PoolOfMsg,
+      	 op empty -> empMsg})
+
+  [State]
+  op <_,_,_,_,_> : SetOfNode SetOfCapability SetOfRequirement SetOfRelationship PoolOfMsg -> State {constr}
+}
+
+module! UtilFuns {
+  pr(STATE)
+
+  var ND : Node
+  var CP : Capability
+  var RQ : Requirement
+  var RL : Relationship
+  var TND : NDType
+  var TRL : RLType
+  var IDND : NDID
+  var IDCP : CPID
+  var IDRQ : RQID
+  var IDRL : RLID
+  var SCP : StateCP
+  var SRQ : StateRQ
+  var SetND : SetOfNode
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  vars SetRL SetRL1 : SetOfRelationship
+  var StND : SetOfStateND
+  var StCP : SetOfStateCP
+  var StRQ : SetOfStateRQ
+  var TYRL : RLType
+  var MP : PoolOfMsg
+
+  op getNode : SetOfNode Capability -> Node
+  eq getNode(SetND,CP)
+     = getNode(SetND,node(CP)) .
+
+  op getNode : SetOfNode Requirement -> Node
+  eq getNode(SetND,RQ)
+     = getNode(SetND,node(RQ)) .
+
+  op getCapability : SetOfCapability Relationship -> Capability
+  eq getCapability(SetCP,RL)
+     = getCapability(SetCP,cap(RL)) .
+
+  op getRequirement : SetOfRequirement Relationship -> Requirement
+  eq getRequirement(SetRQ,RL)
+     = getRequirement(SetRQ,req(RL)) .
+
+  op getCPOfRQ : SetOfCapability SetOfRelationship RQID -> Capability
+  op getCPOfRQ : SetOfCapability SetOfRelationship Requirement -> Capability
+  eq getCPOfRQ(SetCP,SetRL,RQ)
+     = getCPOfRQ(SetCP,SetRL,id(RQ)) .
+  eq getCPOfRQ(SetCP,SetRL,IDRQ)
+     = getCPOfRL(SetCP,getRLOfRQ(SetRL,IDRQ)) .
+
+  op getRQOfCP : SetOfRequirement SetOfRelationship CPID -> Requirement
+  op getRQOfCP : SetOfRequirement SetOfRelationship Capability -> Requirement
+  eq getRQOfCP(SetRQ,SetRL,CP)
+     = getRQOfCP(SetRQ,SetRL,id(CP)) .
+  eq getRQOfCP(SetRQ,SetRL,IDCP)
+     = getRQOfRL(SetRQ,getRLOfCP(SetRL,IDCP)) .
+
+  pred allRLHaveSameTypeCPRQ : SetOfRelationship SetOfCapability SetOfRequirement
+  eq allRLHaveSameTypeCPRQ(empRL,SetCP,SetRQ)
+     = true .
+  eq allRLHaveSameTypeCPRQ((RL SetRL),SetCP,SetRQ)
+     = type(getCapability(SetCP,RL)) = type(RL) and
+       type(getRequirement(SetRQ,RL)) = type(RL) and
+       allRLHaveSameTypeCPRQ(SetRL,SetCP,SetRQ) .
+
+  pred allRLNotInSameND : SetOfRelationship SetOfCapability SetOfRequirement
+  eq allRLNotInSameND(empRL,SetCP,SetRQ)
+     = true .
+  eq allRLNotInSameND((RL SetRL),SetCP,SetRQ)
+     = (node(getCapability(SetCP,RL)) = node(getRequirement(SetRQ,RL))) = false and
+       allRLNotInSameND(SetRL,SetCP,SetRQ) .
+
+  op filterRQ : SetOfRequirement RLType -> SetOfRequirement
+  eq filterRQ(empRQ,TYRL)
+     = empRQ .
+  eq filterRQ((RQ SetRQ),TYRL)
+     = if type(RQ) = TYRL then
+          (RQ filterRQ(SetRQ,TYRL)) 
+       else
+          filterRQ(SetRQ,TYRL)
+       fi .
+
+  -- WFS ensures that there is at most one HostedOn requirement
+  op getHostedOnRQOfND : SetOfRequirement NDID -> Requirement
+  op getHostedOnRQOfND : SetOfRequirement Node -> Requirement
+  op head : SetOfRequirement -> Requirement
+  eq getHostedOnRQOfND(SetRQ,ND)
+     = getHostedOnRQOfND(SetRQ,id(ND)) .
+  eq getHostedOnRQOfND(SetRQ,IDND)
+     = head(getRQsOfND(filterRQ(SetRQ,hostedOn),IDND)) .
+  eq head((RQ SetRQ)) = RQ .
+
+  op getHostedOnRQsOfND : SetOfRequirement NDID -> SetOfRequirement
+  op getHostedOnRQsOfND : SetOfRequirement Node -> SetOfRequirement
+  eq getHostedOnRQsOfND(SetRQ,ND)
+     = getHostedOnRQsOfND(SetRQ,id(ND)) .
+  eq getHostedOnRQsOfND(SetRQ,IDND)
+     = getRQsOfND(filterRQ(SetRQ,hostedOn),IDND) .
+
+  op VMOfND : NDID SetOfNode SetOfCapability SetOfRequirement SetOfRelationship -> NDID
+  op VMOfND : Node SetOfNode SetOfCapability SetOfRequirement SetOfRelationship -> NDID
+  eq VMOfND(IDND,SetND,SetCP,SetRQ,SetRL)
+     = VMOfND(getNode(SetND,IDND),SetND,SetCP,SetRQ,SetRL) .
+  eq VMOfND(ND,SetND,SetCP,SetRQ,SetRL)
+     = if type(ND) = VM then
+         id(ND)
+       else
+         VMOfND(getNDOfCP(SetND,
+			  getCPOfRL(SetCP,
+			            getRLOfRQ(SetRL,
+				              getHostedOnRQOfND(SetRQ,ND)))),
+	        SetND,SetCP,SetRQ,SetRL)
+       fi .
+
+  op VMOfCP : CPID SetOfNode SetOfCapability SetOfRequirement SetOfRelationship -> NDID
+  eq VMOfCP(IDCP,SetND,SetCP,SetRQ,SetRL)
+     = VMOfND(node(getCapability(SetCP,IDCP)),SetND,SetCP,SetRQ,SetRL) .
+
+  op VMOfRQ : RQID SetOfNode SetOfCapability SetOfRequirement SetOfRelationship -> NDID
+  eq VMOfRQ(IDRQ,SetND,SetCP,SetRQ,SetRL)
+     = VMOfND(node(getRequirement(SetRQ,IDRQ)),SetND,SetCP,SetRQ,SetRL) .
+
+  pred allRLHoldLocality : SetOfRelationship SetOfNode SetOfCapability SetOfRequirement
+  pred allRLHoldLocality-sub : SetOfRelationship SetOfNode SetOfCapability SetOfRequirement SetOfRelationship
+  eq allRLHoldLocality(SetRL,SetND,SetCP,SetRQ)
+     = allRLHoldLocality-sub(SetRL,SetND,SetCP,SetRQ,SetRL) .
+  eq allRLHoldLocality-sub(empRL,SetND,SetCP,SetRQ,SetRL)
+     = true .
+  eq allRLHoldLocality-sub((RL SetRL1),SetND,SetCP,SetRQ,SetRL)
+     = if type(RL) = hostedOn then
+       	  true
+       else if isLocalRL(RL) then
+       	  VMOfCP(cap(RL),SetND,SetCP,SetRQ,SetRL) = VMOfRQ(req(RL),SetND,SetCP,SetRQ,SetRL)
+       else 
+       	  (VMOfCP(cap(RL),SetND,SetCP,SetRQ,SetRL) = VMOfRQ(req(RL),SetND,SetCP,SetRQ,SetRL)) = false
+       fi fi and allRLHoldLocality-sub(SetRL1,SetND,SetCP,SetRQ,SetRL) .
+
+  pred allNDHasAtMostOneHost : SetOfNode SetOfRequirement
+  pred isAtMostOne : SetOfRequirement
+  eq allNDHasAtMostOneHost(empND,SetRQ)
+     = true .
+  eq allNDHasAtMostOneHost((ND SetND),SetRQ)
+     = isAtMostOne(filterRQ(getRQsOfND(SetRQ,ND),hostedOn))
+       and allNDHasAtMostOneHost(SetND,SetRQ) .
+  eq isAtMostOne(SetRQ)
+     = card(SetRQ) = 0 or card(SetRQ) = 1 .
+
+  pred allPairOfCPRQSameType : SetOfCapability SetOfRelationship SetOfRequirement
+  eq allPairOfCPRQSameType(empCP,SetRL,SetRQ)
+     = true .
+  eq allPairOfCPRQSameType((CP SetCP),SetRL,SetRQ)
+     = type(getRQOfCP(SetRQ,SetRL,CP)) = type(CP) and
+       allPairOfCPRQSameType(SetCP,SetRL,SetRQ) .
+
+  pred ifNDInStatesThenHostedOnRQInStates : SetOfNode SetOfStateND SetOfRequirement SetOfStateRQ
+  eq ifNDInStatesThenHostedOnRQInStates(SetND,StND,SetRQ,StRQ)
+     = ifNDInStatesThenRQInStates(SetND,StND,filterRQ(SetRQ,hostedOn),StRQ) .
+
+  pred ifOpenMsgThenCPInStates : PoolOfMsg SetOfCapability SetOfStateCP
+  eq ifOpenMsgThenCPInStates(empMsg,SetCP,StCP)
+     = true .
+  eq ifOpenMsgThenCPInStates((opMsg(IDCP) MP),SetCP,StCP)
+     = state(getCapability(SetCP,IDCP)) \in StCP and
+       ifOpenMsgThenCPInStates(MP,SetCP,StCP) .
+  eq ifOpenMsgThenCPInStates((avMsg(IDCP) MP),SetCP,StCP)
+     = ifOpenMsgThenCPInStates(MP,SetCP,StCP) .
+
+  pred ifAvailableMsgThenCPInStates : PoolOfMsg SetOfCapability SetOfStateCP
+  eq ifAvailableMsgThenCPInStates(empMsg,SetCP,StCP)
+     = true .
+  eq ifAvailableMsgThenCPInStates((opMsg(IDCP) MP),SetCP,StCP)
+     = ifAvailableMsgThenCPInStates(MP,SetCP,StCP) .
+  eq ifAvailableMsgThenCPInStates((avMsg(IDCP) MP),SetCP,StCP)
+     = state(getCapability(SetCP,IDCP)) \in StCP and
+       ifAvailableMsgThenCPInStates(MP,SetCP,StCP) .
+
+  pred ifCPInStatesThenRQInStates : 
+       SetOfCapability StateCP SetOfRequirement SetOfStateRQ SetOfRelationship
+  eq ifCPInStatesThenRQInStates(empCP,StCP,SetRQ,StRQ,SetRL)
+     = true .
+  eq ifCPInStatesThenRQInStates((CP SetCP),StCP,SetRQ,StRQ,SetRL)
+     = (state(CP) \in StCP implies state(getRQOfCP(SetRQ,SetRL,CP)) \in StRQ) and
+       ifCPInStatesThenRQInStates(SetCP,StCP,SetRQ,StRQ,SetRL) .
+
+  pred ifConnectsToCPInStatesThenRQInStatesOrOpenMsg : 
+       SetOfCapability StateCP SetOfRequirement SetOfStateRQ SetOfRelationship PoolOfMsg
+  eq ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(empCP,StCP,SetRQ,StRQ,SetRL,MP)
+     = true .
+  eq ifConnectsToCPInStatesThenRQInStatesOrOpenMsg((CP SetCP),StCP,SetRQ,StRQ,SetRL,MP)
+     = ((type(CP) = connectsTo and state(CP) \in StCP) 
+        implies (state(getRQOfCP(SetRQ,SetRL,CP)) \in StRQ or opMsg(id(CP)) \in MP)) and
+       ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,StCP,SetRQ,StRQ,SetRL,MP) .
+
+  pred ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg : 
+       SetOfCapability StateCP SetOfRequirement SetOfStateRQ SetOfRelationship PoolOfMsg
+  eq ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg(empCP,StCP,SetRQ,StRQ,SetRL,MP)
+     = true .
+  eq ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg((CP SetCP),StCP,SetRQ,StRQ,SetRL,MP)
+     = ((type(CP) = connectsTo and state(CP) \in StCP) 
+        implies (state(getRQOfCP(SetRQ,SetRL,CP)) \in StRQ or avMsg(id(CP)) \in MP)) and
+       ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg(SetCP,StCP,SetRQ,StRQ,SetRL,MP) .
+
+  pred HostedOnCPInState : SetOfCapability SetOfStateCP
+  eq HostedOnCPInState(empCP,StCP) 
+     = true .
+  eq HostedOnCPInState((CP SetCP),StCP) 
+     = (type(CP) = hostedOn implies state(CP) \in StCP) and
+       HostedOnCPInState(SetCP,StCP) .
+
+  pred HostedOnRQInState : SetOfRequirement SetOfStateRQ
+  eq HostedOnRQInState(empRQ,StRQ) 
+     = true .
+  eq HostedOnRQInState((RQ SetRQ),StRQ) 
+     = (type(RQ) = hostedOn implies state(RQ) \in StRQ) and
+       HostedOnRQInState(SetRQ,StRQ) .
+}
+
+module! STATECyclefuns {
+  pr(UtilFuns)
+
+  var ND : Node
+  -- vars IDND IDND1 IDND2 : NDID 
+  -- vars IDCP IDCP1 IDCP2 : CPID 
+  -- var IDRQ  : RQID 
+  -- var IDRL  : RLID 
+  var SetND : SetOfNode
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  var SetRL : SetOfRelationship
+  -- var SCP : StateCP
+  -- var SRL : StateRL
+  var MP : PoolOfMsg
+
+  op getAllNDInState : State -> SetOfNode
+  eq getAllNDInState(< SetND,SetCP,SetRQ,SetRL,MP >) = SetND .
+
+  op DDSR01 : Node State -> SetOfNode
+  eq DDSR01(ND,< SetND,SetCP,SetRQ,SetRL,MP >)
+     = getNDsOfCPs(SetND,
+                   getCPsOfRLs(SetCP,
+			       getRLsOfRQs(SetRL,
+				           getHostedOnRQsOfND(SetRQ,
+       			       				      ND)))) .
+
+  op DDSR02 : Node State -> SetOfNode
+  eq DDSR02(ND,< SetND,SetCP,SetRQ,SetRL,MP >)
+     = getNDsOfCPs(SetND,
+                   getCPsOfRLs(SetCP,
+			       getRLsOfRQs(SetRL,
+				           getRQsOfND(SetRQ,
+						      ND)))) .
+}
+
+module STATEfuns {
+  pr(UtilFuns)
+
+  var SetND : SetOfNode
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  var SetRL : SetOfRelationship
+  var MP : PoolOfMsg
+  var S : State
+
+  extending(TMPCYCLE(
+	STATECyclefuns {sort Object -> Node,
+	                sort ObjStateLt -> StateNDLt,
+	       		sort ObjState -> StateND,
+	       		sort SetOfObject -> SetOfNode,
+	       		op empObj -> empND,
+	       		op getAllObjInState -> getAllNDInState,
+	       		op DDS -> DDSR01,
+	       		op sx -> initial})
+	* {op noCycle -> noHostedOnNDCycle,
+	   op noCycleStructure -> noHostedOnNDCycleStruct,
+	   op noCycleInState -> noHostedOnNDCycleInState}
+	)
+
+  extending(TMPCYCLE(
+	STATECyclefuns {sort Object -> Node,
+	                sort ObjStateLt -> StateNDLt,
+	       		sort ObjState -> StateND,
+	       		sort SetOfObject -> SetOfNode,
+	       		op empObj -> empND,
+	       		op getAllObjInState -> getAllNDInState,
+	       		op DDS -> DDSR02,
+	       		op sx -> created})
+	* {op noCycle -> noNDCycle,
+	   op noCycleStructure -> noNDCycleStruct,
+	   op noCycleInState -> noNDCycleInState}
+	)
+
+  pred wfs-uniqND : State
+  eq wfs-uniqND(< SetND,SetCP,SetRQ,SetRL,MP >) = uniqND(SetND) .
+  pred wfs-uniqCP : State
+  eq wfs-uniqCP(< SetND,SetCP,SetRQ,SetRL,MP >) = uniqCP(SetCP) and uniqCP(SetRL) .
+  pred wfs-uniqRQ : State
+  eq wfs-uniqRQ(< SetND,SetCP,SetRQ,SetRL,MP >) = uniqRQ(SetRQ) and uniqRQ(SetRL) .
+  pred wfs-uniqRL : State
+  eq wfs-uniqRL(< SetND,SetCP,SetRQ,SetRL,MP >) = uniqRL(SetRL) .
+  pred wfs-allCPHaveND : State
+  eq wfs-allCPHaveND(< SetND,SetCP,SetRQ,SetRL,MP >) = allCPHaveND(SetCP,SetND) .
+  pred wfs-allRQHaveND : State
+  eq wfs-allRQHaveND(< SetND,SetCP,SetRQ,SetRL,MP >) = allRQHaveND(SetRQ,SetND) .
+  pred wfs-allRLHaveCP : State
+  eq wfs-allRLHaveCP(< SetND,SetCP,SetRQ,SetRL,MP >) = allRLHaveCP(SetRL,SetCP) .
+  pred wfs-allRLHaveRQ : State
+  eq wfs-allRLHaveRQ(< SetND,SetCP,SetRQ,SetRL,MP >) = allRLHaveRQ(SetRL,SetRQ) .
+  pred wfs-allCPHaveRL : State
+  eq wfs-allCPHaveRL(< SetND,SetCP,SetRQ,SetRL,MP >) = allCPHaveRL(SetCP,SetRL) .
+  pred wfs-allRQHaveRL : State
+  eq wfs-allRQHaveRL(< SetND,SetCP,SetRQ,SetRL,MP >) = allRQHaveRL(SetRQ,SetRL) .
+  pred wfs-allRLHaveSameTypeCPRQ : State
+  eq wfs-allRLHaveSameTypeCPRQ(< SetND,SetCP,SetRQ,SetRL,MP >) = allRLHaveSameTypeCPRQ(SetRL,SetCP,SetRQ) .
+  pred wfs-allRLNotInSameND : State
+  eq wfs-allRLNotInSameND(< SetND,SetCP,SetRQ,SetRL,MP >) = allRLNotInSameND(SetRL,SetCP,SetRQ) .
+  pred wfs-allRLHoldLocality : State
+  eq wfs-allRLHoldLocality(< SetND,SetCP,SetRQ,SetRL,MP >) = allRLHoldLocality(SetRL,SetND,SetCP,SetRQ) .
+  pred wfs-allNDHasAtMostOneHost : State
+  eq wfs-allNDHasAtMostOneHost(< SetND,SetCP,SetRQ,SetRL,MP >) = allNDHasAtMostOneHost(SetND,SetRQ) .
+  
+  pred wfs : State
+  pred wfs0 : State
+  eq wfs0(S)
+     = wfs-uniqND(S) and wfs-uniqCP(S) and wfs-uniqRQ(S) and wfs-uniqRL(S) and
+       wfs-allCPHaveND(S) and wfs-allRQHaveND(S) and 
+       wfs-allCPHaveRL(S) and wfs-allRQHaveRL(S) and 
+       wfs-allRLHaveCP(S) and wfs-allRLHaveRQ(S) and 
+       wfs-allRQHaveRL(S) and 
+       wfs-allRLNotInSameND(S) and
+       wfs-allRLHoldLocality(S) and
+       wfs-allNDHasAtMostOneHost(S) .
+
+  pred init : State
+  eq init(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = not (SetND = empND) and wfs(< SetND,SetCP,SetRQ,SetRL,MP >) and (MP = empMsg) and
+       allNDInStates(SetND,initial) and 
+       allCPInStates(SetCP,closed) and allRQInStates(SetRQ,unbound) and
+       noHostedOnNDCycleStruct(< SetND,SetCP,SetRQ,SetRL,MP >) and
+       noNDCycleStruct(< SetND,SetCP,SetRQ,SetRL,MP >) .
+
+  pred final : State
+  eq final(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = allNDInStates(SetND,started) .
+-- It may define more strictly:
+--     = (MP = empMsg) and
+--       allNDInStates(SetND,started) and allCPInStates(SetCP,available) and allRQInStates(SetRQ,ready) .
+}
+
+module! STATERuleNodeCreate {
+  pr(STATEfuns)
+
+  var TND : NDType
+  var IDND : NDID 
+  var SetND : SetOfNode
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  var SetRL : SetOfRelationship
+  var MP : PoolOfMsg
+
+-- Create an initial node if all of its hostedOn requirements are ready.
+  ctrans [R01]:
+     < (node(TND,IDND,initial) SetND), SetCP, SetRQ, SetRL, MP >
+  => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
+     if allRQOfNDInStates(filterRQ(SetRQ,hostedOn),IDND,ready) .
+}
+
+module! STATERuleNodeStart {
+  pr(STATEfuns)
+
+  var TND : NDType
+  var IDND : NDID 
+  var SetND : SetOfNode
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  var SetRL : SetOfRelationship
+  var MP : PoolOfMsg
+
+-- Start a created node if all of its requirements are ready.
+  ctrans [R02]:
+     < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP >
+  => < (node(TND,IDND,started) SetND), SetCP, SetRQ, SetRL, MP > 
+     if allRQOfNDInStates(SetRQ,IDND,ready) .
+}
+
+module! STATERuleHostedOnCapAvail {
+  pr(STATEfuns)
+
+  var IDND : NDID 
+  var IDCP : CPID
+  var SetND : SetOfNode
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  var SetRL : SetOfRelationship
+  var MP : PoolOfMsg
+
+-- Let a closed hostedOn capability be available if its node is created.
+  ctrans [R03]:
+     < SetND, (cap(hostedOn,IDCP,closed,   IDND) SetCP), SetRQ, SetRL, MP >
+  => < SetND, (cap(hostedOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
+     if isCreated(state(getNode(SetND,IDND))) .
+}
+
+module! STATERuleHostedOnReqReady {
+  pr(STATEfuns)
+
+  vars IDND1 IDND2 : NDID 
+  var IDCP : CPID
+  var IDRQ : RQID
+  var IDRL : RLID
+  var SetND : SetOfNode
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  var SetRL : SetOfRelationship
+  var MP : PoolOfMsg
+
+-- Let a unbound HostedOn requirement be ready if its the corresponding capability is available.
+  trans [R04]:
+     < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
+  	      (req(hostedOn,IDRQ,unbound,IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP >
+  => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
+  	      (req(hostedOn,IDRQ,ready,  IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
+}
+
+module! STATERuleDependsOnCapOpen {
+  pr(STATEfuns)
+
+  var IDND : NDID 
+  var IDCP : CPID
+  var SetND : SetOfNode
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  var SetRL : SetOfRelationship
+  var MP : PoolOfMsg
+
+-- Let a closed dependsOn capability be open if its node is created.
+  ctrans [R05]:
+     < SetND, (cap(dependsOn,IDCP,closed,IDND) SetCP), SetRQ, SetRL, MP >
+  => < SetND, (cap(dependsOn,IDCP,open,  IDND) SetCP), SetRQ, SetRL, MP >
+     if isCreated(state(getNode(SetND,IDND))) .
+}
+
+module! STATERuleDependsOnCapAvail {
+  pr(STATEfuns)
+
+  var IDND : NDID 
+  var IDCP : CPID
+  var SetND : SetOfNode
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  var SetRL : SetOfRelationship
+  var MP : PoolOfMsg
+
+-- Let a open dependsOn capability be available if its node is started.
+  ctrans [R06]:
+     < SetND, (cap(dependsOn,IDCP,open,     IDND) SetCP), SetRQ, SetRL, MP >
+  => < SetND, (cap(dependsOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
+     if state(getNode(SetND,IDND)) = started .
+}
+
+module! STATERuleDependsOnReqWait {
+  pr(STATEfuns)
+
+  vars IDND1 IDND2 : NDID 
+  var IDCP : CPID
+  var IDRQ : RQID
+  var IDRL : RLID
+  var SCP : StateCP
+  var SetND : SetOfNode
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  var SetRL : SetOfRelationship
+  var MP : PoolOfMsg
+
+-- Let a unbound DependsOn requirement be waiting 
+-- if its node is created and the corresponding capability is activated.
+  ctrans [R07]:
+     < SetND, (cap(dependsOn,IDCP,SCP,IDND1) SetCP), 
+   	      (req(dependsOn,IDRQ,unbound,IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
+  => < SetND, (cap(dependsOn,IDCP,SCP,IDND1) SetCP), 
+  	      (req(dependsOn,IDRQ,waiting,IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
+     if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
+}
+
+module! STATERuleDependsOnReqReady {
+  pr(STATEfuns)
+
+  vars IDND1 IDND2 : NDID 
+  var IDCP : CPID
+  var IDRQ : RQID
+  var IDRL : RLID
+  var SetND : SetOfNode
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  var SetRL : SetOfRelationship
+  var MP : PoolOfMsg
+
+-- Let a waiting dependsOn requirement be ready 
+-- if the corresponding capability is available.
+  trans [R08]:
+     < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
+  	      (req(dependsOn,IDRQ,waiting,IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
+  => < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
+  	      (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
+}
+
+module! STATERuleConnectsToCapOpen {
+  pr(STATEfuns)
+
+  var IDND : NDID 
+  var IDCP : CPID
+  var SetND : SetOfNode
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  var SetRL : SetOfRelationship
+  var MP : PoolOfMsg
+
+-- Let a closed connectsTo capability be open if its node is created
+-- and send a open message.
+  ctrans [R09]:
+     < SetND, (cap(connectsTo,IDCP,closed,IDND) SetCP), SetRQ, SetRL, MP >
+  => < SetND, (cap(connectsTo,IDCP,open,  IDND) SetCP), SetRQ, SetRL, (opMsg(IDCP) MP) >
+     if isCreated(state(getNode(SetND,IDND))) .
+}
+
+module! STATERuleConnectsToCapAvail {
+  pr(STATEfuns)
+
+  var IDND : NDID 
+  var IDCP : CPID
+  var SetND : SetOfNode
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  var SetRL : SetOfRelationship
+  var MP : PoolOfMsg
+
+-- Let a open connectsTo capability be available if its node is started
+-- and send an available message.
+  ctrans [R10]:
+     < SetND, (cap(connectsTo,IDCP,open,     IDND) SetCP), SetRQ, SetRL, MP >
+  => < SetND, (cap(connectsTo,IDCP,available,IDND) SetCP), SetRQ, SetRL, (avMsg(IDCP) MP) >
+     if state(getNode(SetND,IDND)) = started .
+}
+
+module! STATERuleConnectsToReqWait {
+  pr(STATEfuns)
+
+  var IDND : NDID 
+  var IDCP : CPID
+  var IDRQ : RQID
+  var IDRL : RLID
+  var SetND : SetOfNode
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  var SetRL : SetOfRelationship
+  var MP : PoolOfMsg
+
+-- Let a unbound ConnectsTo requirement be waiting
+--     if its node is created and there is a open message of the corresponding capability.
+  ctrans [R11]:
+     < SetND, SetCP, 
+       (req(connectsTo,IDRQ,unbound,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), 
+       (opMsg(IDCP) MP) >
+  => < SetND, SetCP, 
+       (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
+     if state(getNode(SetND,IDND)) = created .
+}
+
+module! STATERuleConnectsToReqReady {
+  pr(STATEfuns)
+
+  var IDND : NDID 
+  var IDCP : CPID
+  var IDRQ : RQID
+  var IDRL : RLID
+  var SetND : SetOfNode
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  var SetRL : SetOfRelationship
+  var MP : PoolOfMsg
+
+-- Let a waiting ConnectsTo requirement be ready
+-- if there is a available message of the corresponding capability.
+  trans [R12]:
+     < SetND, SetCP, 
+       (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), 
+       (avMsg(IDCP) MP) >
+  => < SetND, SetCP, 
+       (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
+}
+
+module! STATERules {
+protecting(  STATERuleNodeCreate
+	   + STATERuleNodeStart
+	   + STATERuleHostedOnCapAvail
+	   + STATERuleHostedOnReqReady
+	   + STATERuleDependsOnCapOpen
+	   + STATERuleDependsOnCapAvail
+	   + STATERuleDependsOnReqWait
+	   + STATERuleDependsOnReqReady
+	   + STATERuleConnectsToCapOpen
+	   + STATERuleConnectsToCapAvail
+	   + STATERuleConnectsToReqWait
+	   + STATERuleConnectsToReqReady)
+}

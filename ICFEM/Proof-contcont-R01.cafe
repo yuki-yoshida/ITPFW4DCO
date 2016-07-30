@@ -1,0 +1,1117 @@
+require ProofContCont Proof-contcont.cafe
+
+--> ****************************************************************************
+-->  ctrans [R01]: < (node(TND,IDND,initial) SetND), SetCP, SetRQ, SetRL, MP >
+-->             => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP >
+-->	      if allRQOfNDInStates(filterRQ(SetRQ,hostedOn),IDND,ready) .
+--> ****************************************************************************
+--> Rule R01 creates a node, so next applied rules may be Rule R02.
+--> Case 1: The condition of R01 does not hold in S, otherwise
+--> Case 2: The condition of R02 holds in SS, otherwise
+--> Case 3-61: There is at least one requirement (R1) that is not ready.
+-->  #     R1                 C1        N1
+-->  3     hostedOn&unbound   *         *       -> a contradiction
+-->  *     dependsOn&unbound  closed    initial -> Case 26-43
+-->  4-6   dependsOn&unbound  -         -       -> not well-formed state
+-->  7/8   dependsOn&unbound  closed    created -> R05 is applicable
+-->  9     dependsOn&unbound  closed    started -> R05 is applicable
+-->  10    dependsOn&unbound  open      initial -> R07 is applicable
+-->                                     created -> R07 is applicable
+-->  11    dependsOn&unbound  open      started -> R06, R07 are applicable
+-->  12    dependsOn&unbound  available *       -> R07 is applicable
+-->  *     connectsTo&unbound closed    initial -> Case 44-61
+-->  13/14 connectsTo&unbound closed    created -> not well-formed state
+-->  15/16 connectsTo&unbound closed    created -> R09 is applicable
+-->  17    connectsTo&unbound closed    started -> R09 is applicable
+-->  18/19 connectsTo&unbound open      initial -> R11 is applicable
+-->                                     created -> R11 is applicable
+-->  20    connectsTo&unbound open      started -> R10, R11 are applicable
+-->  21/22 connectsTo&unbound available *       -> R11 is applicable
+-->  23    hostedOn&waiting   *                 -> a contradiction
+-->  24    dependsOn&waiting  *                 -> not reachable
+-->  25    connectsTo&waiting *                 -> not reachable
+--> Case 26-43: N1 is initial.
+-->         Cyclic Dependency Theorem allows us to assume that
+-->         DDSR01 of the N1 does not include initial nodes.
+--> Case 26: The condition of R01 holds for N1, otherwise
+--> Case 27-43: There is at least one HostedOn requirement (R1) that is not ready.
+-->  #     R1        C1        N1
+-->  27-30 unbound   closed    initial -> a contradiction
+-->  31/32 unbound   closed    created -> R03 is applicable
+-->  33/34 unbound   closed    started -> R03 is applicable
+-->  35/36 unbound   open      *       -> not reachable
+-->  37/38 unbound   available initial -> a contradiction
+-->  39/40 unbound   available created -> R04 is applicable
+-->  41/42 unbound   available started -> R04 is applicable
+-->  43    waiting   *                 -> not reachable
+--> Case 44-61: N1 is initial.
+-->         Cyclic Dependency Theorem allows us to assume that
+-->         DDSR01 of the N1 does not include initial nodes.
+
+
+--> Case 1:
+--> (1-1) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) does not hold.
+--> In this case, no rule is applicable.
+open ProofContCont .
+  eq (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) = false .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 2:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-1) allRQOfNDInStates(sRQ,idND,ready) holds.
+--> In this case, Rule R02 can be applied to SS.
+open ProofContCont .
+  eq allRQOfNDInStates(sRQ,idND,ready) = true .
+  eq (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 3:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-1) TRL is hostedOn,
+--> In this case, allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) should not hold
+--> which is a contradiction.
+open ProofContCont .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready))  = false .
+close
+--> Case 4:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-2) TRL is dependsOn,
+--> (5-1) onlyOneRLOfRQ(sRL,idRQ) does not hold.
+--> This case will be rejected by wfs-allRQHaveRL(S).
+open ProofContCont .
+  eq inv(S:State) = wfs-allRQHaveRL(S) .
+  eq onlyOneRLOfRQ(sRL,idRQ) = false .
+  eq sRQ = (req(dependsOn,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready))
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 5:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-2) TRL is dependsOn,
+--> (5-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a dependsOn relationship of idRQ,
+-->       i.e., sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL'),
+--> (6-1) existCP(sCP,idCP) does not hold.
+--> This case will be rejected by wfs-allRLHaveCP(S).
+open ProofContCont .
+  eq inv(S:State) = wfs-allRLHaveCP(S) .
+  eq existCP(sCP,idCP) = false .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(dependsOn,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 6:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-2) TRL is dependsOn,
+--> (5-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a dependsOn relationship of idRQ,
+-->       i.e., sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL'),
+--> (6-2) existCP(sCP,idCP) holds, which means sCP = (cap(dependsOn,idCP,SCP,idND1) sCP') .
+--> (7-1) SCP is closed,
+--> (8-1) existND(sND,idND1) does not hold.
+--> This case will be rejected by wfs-allCPHaveND(S).
+open ProofContCont .
+  eq inv(S:State) = wfs-allCPHaveND(S) .
+  eq existND(sND,idND1) = false .
+  eq sCP = (cap(dependsOn,idCP,closed,idND1) sCP') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(dependsOn,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 7:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-2) TRL is dependsOn,
+--> (5-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a dependsOn relationship of idRQ,
+-->       i.e., sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL'),
+--> (6-2) existCP(sCP,idCP) holds, which means sCP = (cap(dependsOn,idCP,SCP,idND1) sCP') .
+--> (7-1) SCP is closed,
+--> (8-2) existND(sND,idND1) holds,
+-->       which means sND has a node of idND1, i.e., sND = (node(tnd',idND1,SND) sND'),
+--> (9-1) SND is created.
+--> (10-1) allRQOfNDInStates(sRQ',idND1,ready) does not hold.
+--> In this case, Rule R05 can be applied to SS.
+open ProofContCont .
+  eq allRQOfNDInStates(sRQ',idND1,ready) = false .
+  eq sND = (node(tnd',idND1,created) sND') .
+  eq sCP = (cap(dependsOn,idCP,closed,idND1) sCP') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(dependsOn,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 8:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-2) TRL is dependsOn,
+--> (5-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a dependsOn relationship of idRQ,
+-->       i.e., sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL'),
+--> (6-2) existCP(sCP,idCP) holds, which means sCP = (cap(dependsOn,idCP,SCP,idND1) sCP') .
+--> (7-1) SCP is closed,
+--> (8-2) existND(sND,idND1) holds,
+-->       which means sND has a node of idND1, i.e., sND = (node(tnd',idND1,SND) sND'),
+--> (9-1) SND is created.
+--> (10-2) allRQOfNDInStates(sRQ',idND1,ready) holds.
+--> In this case, Rule R05 or R02 can be applied to SS.
+open ProofContCont .
+  eq allRQOfNDInStates(sRQ',idND1,ready) = true .
+  eq sND = (node(tnd',idND1,created) sND') .
+  eq sCP = (cap(dependsOn,idCP,closed,idND1) sCP') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(dependsOn,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 9:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-2) TRL is dependsOn,
+--> (5-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a dependsOn relationship of idRQ,
+-->       i.e., sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL'),
+--> (6-2) existCP(sCP,idCP) holds, which means sCP = (cap(dependsOn,idCP,SCP,idND1) sCP') .
+--> (7-1) SCP is closed,
+--> (8-2) existND(sND,idND1) holds,
+-->       which means sND has a node of idND1, i.e., sND = (node(tnd',idND1,SND) sND'),
+--> (9-2) SND is started
+--> In this case, Rule R05 can be applied to SS.
+open ProofContCont .
+  eq sND = (node(tnd',idND1,started) sND') .
+  eq sCP = (cap(dependsOn,idCP,closed,idND1) sCP') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(dependsOn,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 10:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-2) TRL is dependsOn,
+--> (5-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a dependsOn relationship of idRQ,
+-->       i.e., sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL'),
+--> (6-2) existCP(sCP,idCP) holds, which means sCP = (cap(dependsOn,idCP,SCP,idND1) sCP') .
+--> (7-2) SCP is open,
+--> (11-1) state(getNode(sND,idND1)) is not started.
+--> In this case, Rule R07 can be applied to SS.
+open ProofContCont .
+  eq (state(getNode(sND,idND1)) = started) = false .
+  eq sCP = (cap(dependsOn,idCP,open,idND1) sCP') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(dependsOn,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 11:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-2) TRL is dependsOn,
+--> (5-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a dependsOn relationship of idRQ,
+-->       i.e., sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL'),
+--> (6-2) existCP(sCP,idCP) holds, which means sCP = (cap(dependsOn,idCP,SCP,idND1) sCP') .
+--> (7-2) SCP is open,
+--> (11-2) state(getNode(sND,idND1)) is started.
+--> In this case, Rule R06, R07 can be applied to SS.
+open ProofContCont .
+  eq (state(getNode(sND,idND1)) = started) = true .
+  eq sCP = (cap(dependsOn,idCP,open,idND1) sCP') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(dependsOn,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 12:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-2) TRL is dependsOn,
+--> (5-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a dependsOn relationship of idRQ,
+-->       i.e., sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL'),
+--> (6-2) existCP(sCP,idCP) holds, which means sCP = (cap(dependsOn,idCP,SCP,idND1) sCP') .
+--> (7-3) SCP is available.
+--> In this case, Rule R07 can be applied to SS.
+open ProofContCont .
+  eq sCP = (cap(dependsOn,idCP,available,idND1) sCP') .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(dependsOn,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 13:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-3) TRL is connectsTo,
+--> (5-3) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a connectsTo relationship of idRQ,
+-->       i.e., sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL'),
+--> (6-1) existCP(sCP,idCP) does not hold.
+--> This case will be rejected by wfs-allRLHaveCP(S).
+open ProofContCont .
+  eq inv(S:State) = wfs-allRLHaveCP(S) .
+  eq existCP(sCP,idCP) = false .
+  eq sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(connectsTo,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 14:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-3) TRL is connectsTo,
+--> (5-3) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a connectsTo relationship of idRQ,
+-->       i.e., sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL'),
+--> (6-3) existCP(sCP,idCP) holds, which means sCP = (cap(connectsTo,idCP,SCP,idND1) sCP') .
+--> (7-1) SCP is closed,
+--> (8-1) existND(sND,idND1) does not hold.
+--> This case will be rejected by wfs-allCPHaveND(S).
+open ProofContCont .
+  eq inv(S:State) = wfs-allCPHaveND(S) .
+  eq existND(sND,idND1) = false .
+  eq sCP = (cap(connectsTo,idCP,closed,idND1) sCP') .
+  eq sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(connectsTo,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 15:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-3) TRL is connectsTo,
+--> (5-3) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a connectsTo relationship of idRQ,
+-->       i.e., sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL'),
+--> (6-3) existCP(sCP,idCP) holds, which means sCP = (cap(connectsTo,idCP,SCP,idND1) sCP') .
+--> (7-1) SCP is closed,
+--> (8-2) existND(sND,idND1) holds,
+-->       which means sND has a node of idND1, i.e., sND = (node(TND',idND1,SND) sND'),
+--> (9-1) SND is created.
+--> (10-1) allRQOfNDInStates(sRQ',idND1,ready) does not hold.
+--> In this case, Rule R09 can be applied to SS.
+open ProofContCont .
+  eq allRQOfNDInStates(sRQ',idND1,ready) = false .
+  eq sND = (node(tnd',idND1,created) sND') .
+  eq sCP = (cap(connectsTo,idCP,closed,idND1) sCP') .
+  eq sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(connectsTo,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 16:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-3) TRL is connectsTo,
+--> (5-3) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a connectsTo relationship of idRQ,
+-->       i.e., sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL'),
+--> (6-3) existCP(sCP,idCP) holds, which means sCP = (cap(connectsTo,idCP,SCP,idND1) sCP') .
+--> (7-1) SCP is closed,
+--> (8-2) existND(sND,idND1) holds,
+-->       which means sND has a node of idND1, i.e., sND = (node(TND',idND1,SND) sND'),
+--> (9-1) SND is created.
+--> (10-2) allRQOfNDInStates(sRQ',idND1,ready) holds.
+--> In this case, Rule R09 or R02 can be applied to SS.
+open ProofContCont .
+  eq allRQOfNDInStates(sRQ',idND1,ready) = true .
+  eq sND = (node(tnd',idND1,created) sND') .
+  eq sCP = (cap(connectsTo,idCP,closed,idND1) sCP') .
+  eq sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(connectsTo,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 17:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-3) TRL is connectsTo,
+--> (5-3) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a connectsTo relationship of idRQ,
+-->       i.e., sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL'),
+--> (6-3) existCP(sCP,idCP) holds, which means sCP = (cap(connectsTo,idCP,SCP,idND1) sCP') .
+--> (7-1) SCP is closed,
+--> (8-2) existND(sND,idND1) holds,
+-->       which means sND has a node of idND1, i.e., sND = (node(TND',idND1,SND) sND'),
+--> (9-2) SND is started
+--> In this case, Rule R09 can be applied to SS.
+open ProofContCont .
+  eq allRQOfNDInStates(sRQ',idND1,ready) = true .
+  eq sND = (node(tnd',idND1,started) sND') .
+  eq sCP = (cap(connectsTo,idCP,closed,idND1) sCP') .
+  eq sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(connectsTo,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 18:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-3) TRL is connectsTo,
+--> (5-3) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a connectsTo relationship of idRQ,
+-->       i.e., sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL'),
+--> (6-3) existCP(sCP,idCP) holds, which means sCP = (cap(connectsTo,idCP,SCP,idND1) sCP') .
+--> (7-2) SCP is open,
+--> (11-1) state(getNode(sND,idND1)) is not started,
+--> (12-1) MP does not have opMsg(idCP) .
+--> This case will be rejected by inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg(S) .
+open ProofContCont .
+  eq inv(S:State) = inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg(S) .
+  eq (opMsg(idCP) \in mp) = false .
+  eq (state(getNode(sND,idND1)) = started) = false .
+  eq sCP = (cap(connectsTo,idCP,open,idND1) sCP') .
+  eq sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(connectsTo,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 19:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-3) TRL is connectsTo,
+--> (5-3) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a connectsTo relationship of idRQ,
+-->       i.e., sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL'),
+--> (6-3) existCP(sCP,idCP) holds, which means sCP = (cap(connectsTo,idCP,SCP,idND1) sCP') .
+--> (7-2) SCP is open,
+--> (11-1) state(getNode(sND,idND1)) is not started,
+--> (12-2) MP has opMsg(idCP), i.e., mp = (opMsg(idCP) mp') .
+--> In this case, Rule R11 can be applied to SS.
+open ProofContCont .
+  eq mp = (opMsg(idCP) mp') .
+  eq (state(getNode(sND,idND1)) = started) = false .
+  eq sCP = (cap(connectsTo,idCP,open,idND1) sCP') .
+  eq sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(connectsTo,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 20:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-3) TRL is connectsTo,
+--> (5-3) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a connectsTo relationship of idRQ,
+-->       i.e., sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL'),
+--> (6-3) existCP(sCP,idCP) holds, which means sCP = (cap(connectsTo,idCP,SCP,idND1) sCP') .
+--> (7-2) SCP is open,
+--> (11-2) state(getNode(sND,idND1)) is started.
+--> In this case, Rule R10 can be applied to SS.
+open ProofContCont .
+  eq state(getNode(sND,idND1)) = started .
+  eq sCP = (cap(connectsTo,idCP,open,idND1) sCP') .
+  eq sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(connectsTo,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 21:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-3) TRL is connectsTo,
+--> (5-3) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a connectsTo relationship of idRQ,
+-->       i.e., sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL'),
+--> (6-3) existCP(sCP,idCP) holds, which means sCP = (cap(connectsTo,idCP,SCP,idND1) sCP') .
+--> (7-3) SCP is available.
+--> (12-1) MP does not have opMsg(idCP) .
+--> This case will be rejected by inv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg(S) .
+open ProofContCont .
+  eq inv(S:State) = inv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg(S) .
+  eq (opMsg(idCP) \in mp) = false .
+  eq sCP = (cap(connectsTo,idCP,available,idND1) sCP') .
+  eq sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(connectsTo,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 22:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-3) TRL is connectsTo,
+--> (5-3) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a connectsTo relationship of idRQ,
+-->       i.e., sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL'),
+--> (6-3) existCP(sCP,idCP) holds, which means sCP = (cap(connectsTo,idCP,SCP,idND1) sCP') .
+--> (7-3) SCP is available.
+--> (12-2) MP has opMsg(idCP), i.e., mp = (opMsg(idCP) mp') .
+--> In this case, Rule R11 can be applied to SS.
+open ProofContCont .
+  eq mp = (opMsg(idCP) mp') .
+  eq sCP = (cap(connectsTo,idCP,available,idND1) sCP') .
+  eq sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(connectsTo,idRQ,unbound,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 23:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-2) it is waiting, i.e., sRQ = (req(TRL,idRQ,waiting,idND) sRQ'),
+--> (4-1) TRL is hostedOn.
+--> In this case, allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) should not hold
+--> which is a contradiction.
+open ProofContCont .
+  eq sRQ = (req(hostedOn,idRQ,waiting,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) = false .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 24:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-2) it is waiting, i.e., sRQ = (req(TRL,idRQ,waiting,idND) sRQ'),
+--> (4-2) TRL is dependsOn.
+--> This case will be rejected by inv-ifNDInitialThenRQUnboundReady(S) .
+open ProofContCont .
+  eq inv(S:State) = inv-ifNDInitialThenRQUnboundReady(S) .
+  eq sRQ = (req(dependsOn,idRQ,waiting,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready))
+      implies (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 25:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-2) it is waiting, i.e., sRQ = (req(TRL,idRQ,waiting,idND) sRQ'),
+--> (4-3) TRL is connectsTo.
+--> This case will be rejected by inv-ifNDInitialThenRQUnboundReady(S) .
+open ProofContCont .
+  eq inv(S:State) = inv-ifNDInitialThenRQUnboundReady(S) .
+  eq sRQ = (req(connectsTo,idRQ,waiting,idND) sRQ') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready))
+      implies (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 26:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-2) TRL is dependsOn,
+--> (5-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a dependsOn relationship of idRQ,
+-->       i.e., sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL'),
+--> (6-2) existCP(sCP,idCP) holds, which means sCP = (cap(dependsOn,idCP,SCP,idND1) sCP') .
+--> (7-1) SCP is closed,
+--> (8-2) existND(sND,idND1) holds,
+-->       which means sND has a node of idND1, i.e., sND = (node(tnd',idND1,SND) sND'),
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-1) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) holds.
+--> In this case, Rule R01 can be applied to SS.
+open ProofContCont .
+  eq allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) = true .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  eq (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 27:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) does not hold, which means
+-->       there is at least one HostedOn requirement of N1 which is not ready, 
+--> (14-1) it is unbound, i.e., sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ'),
+--> (15-1) onlyOneRLOfRQ(sRL,idRQ) does not hold.
+--> This case will be rejected by wfs-allRQHaveRL(S).
+open ProofContCont .
+  eq inv(S:State) = wfs-allRQHaveRL(S) .
+  eq onlyOneRLOfRQ(sRL,idRQ) = false .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ') .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 28:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) does not hold, which means
+-->       there is at least one HostedOn requirement of N1 which is not ready, 
+--> (14-1) it is unbound, i.e., sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ'),
+--> (15-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a hostedOn relationship of idRQ,
+-->       i.e., sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+--> (16-1) existCP(sCP,idCP) does not hold.
+--> This case will be rejected by wfs-allRLHaveCP(S).
+open ProofContCont .
+  eq inv(S:State) = wfs-allRLHaveCP(S) .
+  eq existCP(sCP,idCP) = false .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ') .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 29:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) does not hold, which means
+-->       there is at least one HostedOn requirement of N1 which is not ready, 
+--> (14-1) it is unbound, i.e., sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ'),
+--> (15-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a hostedOn relationship of idRQ,
+-->       i.e., sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+--> (16-2) existCP(sCP,idCP) holds, which means sCP = (cap(hostedOn,idCP,SCP,idND2) sCP') .
+--> (17-1) SCP is closed,
+--> (18-1) existND(sND',idND2) does not hold.
+--> This case will be rejected by wfs-allCPHaveND(S).
+open ProofContCont .
+  eq inv(S:State) = wfs-allCPHaveND(S) .
+  eq existND(sND',idND2) = false .
+  eq sCP = (cap(hostedOn,idCP,closed,idND2) sCP') .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ') .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 30:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) does not hold, which means
+-->       there is at least one HostedOn requirement of N1 which is not ready, 
+--> (14-1) it is unbound, i.e., sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ'),
+--> (15-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a hostedOn relationship of idRQ,
+-->       i.e., sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+--> (16-2) existCP(sCP,idCP) holds, which means sCP = (cap(hostedOn,idCP,SCP,idND2) sCP') .
+--> (17-1) SCP is closed,
+--> (18-2) existND(sND',idND2) holds,
+-->       which means sND' has a node of idND2, i.e., sND' = (node(tnd'',idND2,SND') sND''),
+--> (19-1) SND' is initial.
+--> This case will be rejected by the constraint that DDSR01(N1,S) does not include initial nodes.
+open ProofContCont .
+  eq sND' = (node(tnd'',idND2,initial) sND'') .
+  eq sCP = (cap(hostedOn,idCP,closed,idND2) sCP') .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ') .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  red allNDInStates(DDSR01(node(tnd',idND1,initial),< sND, sCP, sRQ, sRL, mp >),(created started)) = false .
+--  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 31:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) does not hold, which means
+-->       there is at least one HostedOn requirement of N1 which is not ready, 
+--> (14-1) it is unbound, i.e., sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ'),
+--> (15-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a hostedOn relationship of idRQ,
+-->       i.e., sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+--> (16-2) existCP(sCP,idCP) holds, which means sCP = (cap(hostedOn,idCP,SCP,idND2) sCP') .
+--> (17-1) SCP is closed,
+--> (18-2) existND(sND',idND2) holds,
+-->       which means sND' has a node of idND2, i.e., sND' = (node(tnd'',idND2,SND') sND''),
+--> (19-2) SND' is created.
+--> (20-1) allRQOfNDInStates(sRQ',idND2,ready) does not hold.
+--> In this case, Rule R03 can be applied to SS.
+open ProofContCont .
+  eq allRQOfNDInStates(sRQ',idND2,ready) = false .
+  eq sND' = (node(tnd'',idND2,created) sND'') .
+  eq sCP = (cap(hostedOn,idCP,closed,idND2) sCP') .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ') .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 32:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) does not hold, which means
+-->       there is at least one HostedOn requirement of N1 which is not ready, 
+--> (14-1) it is unbound, i.e., sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ'),
+--> (15-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a hostedOn relationship of idRQ,
+-->       i.e., sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+--> (16-2) existCP(sCP,idCP) holds, which means sCP = (cap(hostedOn,idCP,SCP,idND2) sCP') .
+--> (17-1) SCP is closed,
+--> (18-2) existND(sND',idND2) holds,
+-->       which means sND' has a node of idND2, i.e., sND' = (node(tnd'',idND2,SND') sND''),
+--> (19-2) SND' is created.
+--> (20-2) allRQOfNDInStates(sRQ',idND2,ready) holds.
+--> In this case, Rule R03 or R02 can be applied to SS.
+open ProofContCont .
+  eq allRQOfNDInStates(sRQ',idND2,ready) = true .
+  eq sND' = (node(tnd'',idND2,created) sND'') .
+  eq sCP = (cap(hostedOn,idCP,closed,idND2) sCP') .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ') .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 33:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) does not hold, which means
+-->       there is at least one HostedOn requirement of N1 which is not ready, 
+--> (14-1) it is unbound, i.e., sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ'),
+--> (15-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a hostedOn relationship of idRQ,
+-->       i.e., sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+--> (16-2) existCP(sCP,idCP) holds, which means sCP = (cap(hostedOn,idCP,SCP,idND2) sCP') .
+--> (17-1) SCP is closed,
+--> (18-2) existND(sND',idND2) holds,
+-->       which means sND' has a node of idND2, i.e., sND' = (node(tnd'',idND2,SND') sND''),
+--> (19-3) SND' is started.
+--> (21-1) state(getNode(sND',idND2)) is not started .
+--> In this case, Rule R03 can be applied to SS.
+open ProofContCont .
+  eq (state(getNode(sND',idND2)) = started) = false .
+  eq sND' = (node(tnd'',idND2,started) sND'') .
+  eq sCP = (cap(hostedOn,idCP,closed,idND2) sCP') .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ') .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 34:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) does not hold, which means
+-->       there is at least one HostedOn requirement of N1 which is not ready, 
+--> (14-1) it is unbound, i.e., sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ'),
+--> (15-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a hostedOn relationship of idRQ,
+-->       i.e., sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+--> (16-2) existCP(sCP,idCP) holds, which means sCP = (cap(hostedOn,idCP,SCP,idND2) sCP') .
+--> (17-1) SCP is closed,
+--> (18-2) existND(sND',idND2) holds,
+-->       which means sND' has a node of idND2, i.e., sND' = (node(tnd'',idND2,SND') sND''),
+--> (19-3) SND' is started.
+--> (21-2) state(getNode(sND',idND2)) is started .
+--> In this case, Rule R03 can be applied to SS.
+open ProofContCont .
+  eq state(getNode(sND',idND2)) = started .
+  eq sND' = (node(tnd'',idND2,started) sND'') .
+  eq sCP = (cap(hostedOn,idCP,closed,idND2) sCP') .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ') .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 35:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) does not hold, which means
+-->       there is at least one HostedOn requirement of N1 which is not ready, 
+--> (14-1) it is unbound, i.e., sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ'),
+--> (15-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a hostedOn relationship of idRQ,
+-->       i.e., sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+--> (16-2) existCP(sCP,idCP) holds, which means sCP = (cap(hostedOn,idCP,SCP,idND2) sCP') .
+--> (17-2) SCP is open.
+--> (21-1) state(getNode(sND',idND2)) is not started .
+--> In this case, Rule R03 can be applied to SS.
+--> This case will be rejected by inv-HostedOnCPNotOpen(S) .
+open ProofContCont .
+  eq inv(S:State) = inv-HostedOnCPNotOpen(S) .
+  eq (state(getNode(sND',idND2)) = started) = false .
+  eq sCP = (cap(hostedOn,idCP,open,idND2) sCP') .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ') .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 36:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) does not hold, which means
+-->       there is at least one HostedOn requirement of N1 which is not ready, 
+--> (14-1) it is unbound, i.e., sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ'),
+--> (15-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a hostedOn relationship of idRQ,
+-->       i.e., sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+--> (16-2) existCP(sCP,idCP) holds, which means sCP = (cap(hostedOn,idCP,SCP,idND2) sCP') .
+--> (17-2) SCP is open.
+--> (21-2) state(getNode(sND',idND2)) is started .
+--> In this case, Rule R03 can be applied to SS.
+--> This case will be rejected by inv-HostedOnCPNotOpen(S) .
+open ProofContCont .
+  eq inv(S:State) = inv-HostedOnCPNotOpen(S) .
+  eq state(getNode(sND',idND2)) = started .
+  eq sCP = (cap(hostedOn,idCP,open,idND2) sCP') .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ') .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 37:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) does not hold, which means
+-->       there is at least one HostedOn requirement of N1 which is not ready, 
+--> (14-1) it is unbound, i.e., sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ'),
+--> (15-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a hostedOn relationship of idRQ,
+-->       i.e., sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+--> (16-2) existCP(sCP,idCP) holds, which means sCP = (cap(hostedOn,idCP,SCP,idND2) sCP') .
+--> (17-3) SCP is available,
+--> (18-1) existND(sND',idND2) does not hold.
+--> This case will be rejected by wfs-allCPHaveND(S).
+open ProofContCont .
+  eq inv(S:State) = wfs-allCPHaveND(S) .
+  eq existND(sND',idND2) = false .
+  eq sCP = (cap(hostedOn,idCP,available,idND2) sCP') .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ') .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 38:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) does not hold, which means
+-->       there is at least one HostedOn requirement of N1 which is not ready, 
+--> (14-1) it is unbound, i.e., sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ'),
+--> (15-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a hostedOn relationship of idRQ,
+-->       i.e., sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+--> (16-2) existCP(sCP,idCP) holds, which means sCP = (cap(hostedOn,idCP,SCP,idND2) sCP') .
+--> (17-3) SCP is available,
+--> (18-2) existND(sND',idND2) holds,
+-->       which means sND' has a node of idND2, i.e., sND' = (node(tnd'',idND2,SND') sND''),
+--> (19-1) SND' is initial.
+--> This case will be rejected by the constraint that DDSR01(N1,S) does not include initial nodes.
+open ProofContCont .
+  eq sND' = (node(tnd'',idND2,initial) sND'') .
+  eq sCP = (cap(hostedOn,idCP,available,idND2) sCP') .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ') .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  red allNDInStates(DDSR01(node(tnd',idND1,initial),< sND, sCP, sRQ, sRL, mp >),(created started)) = false .
+--  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 39:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) does not hold, which means
+-->       there is at least one HostedOn requirement of N1 which is not ready, 
+--> (14-1) it is unbound, i.e., sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ'),
+--> (15-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a hostedOn relationship of idRQ,
+-->       i.e., sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+--> (16-2) existCP(sCP,idCP) holds, which means sCP = (cap(hostedOn,idCP,SCP,idND2) sCP') .
+--> (17-3) SCP is available,
+--> (18-2) existND(sND',idND2) holds,
+-->       which means sND' has a node of idND2, i.e., sND' = (node(tnd'',idND2,SND') sND''),
+--> (19-2) SND' is created.
+--> (20-1) allRQOfNDInStates(sRQ',idND2,ready) does not hold.
+--> In this case, Rule R03 can be applied to SS.
+open ProofContCont .
+  eq allRQOfNDInStates(sRQ',idND2,ready) = false .
+  eq sND' = (node(tnd'',idND2,created) sND'') .
+  eq sCP = (cap(hostedOn,idCP,available,idND2) sCP') .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ') .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 40:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) does not hold, which means
+-->       there is at least one HostedOn requirement of N1 which is not ready, 
+--> (14-1) it is unbound, i.e., sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ'),
+--> (15-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a hostedOn relationship of idRQ,
+-->       i.e., sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+--> (16-2) existCP(sCP,idCP) holds, which means sCP = (cap(hostedOn,idCP,SCP,idND2) sCP') .
+--> (17-3) SCP is available,
+--> (18-2) existND(sND',idND2) holds,
+-->       which means sND' has a node of idND2, i.e., sND' = (node(tnd'',idND2,SND') sND''),
+--> (19-2) SND' is created.
+--> (20-2) allRQOfNDInStates(sRQ',idND2,ready) holds.
+--> In this case, Rule R03 or R02 can be applied to SS.
+open ProofContCont .
+  eq allRQOfNDInStates(sRQ',idND2,ready) = true .
+  eq sND' = (node(tnd'',idND2,created) sND'') .
+  eq sCP = (cap(hostedOn,idCP,available,idND2) sCP') .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ') .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 41:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) does not hold, which means
+-->       there is at least one HostedOn requirement of N1 which is not ready, 
+--> (14-1) it is unbound, i.e., sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ'),
+--> (15-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a hostedOn relationship of idRQ,
+-->       i.e., sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+--> (16-2) existCP(sCP,idCP) holds, which means sCP = (cap(hostedOn,idCP,SCP,idND2) sCP') .
+--> (17-3) SCP is available,
+--> (18-2) existND(sND',idND2) holds,
+-->       which means sND' has a node of idND2, i.e., sND' = (node(tnd'',idND2,SND') sND''),
+--> (19-3) SND' is started.
+--> (21-1) state(getNode(sND',idND2)) is not started .
+--> In this case, Rule R04 can be applied to SS.
+open ProofContCont .
+  eq (state(getNode(sND',idND2)) = started) = false .
+  eq sND' = (node(tnd'',idND2,started) sND'') .
+  eq sCP = (cap(hostedOn,idCP,available,idND2) sCP') .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ') .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 42:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) does not hold, which means
+-->       there is at least one HostedOn requirement of N1 which is not ready, 
+--> (14-1) it is unbound, i.e., sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ'),
+--> (15-2) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a hostedOn relationship of idRQ,
+-->       i.e., sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+--> (16-2) existCP(sCP,idCP) holds, which means sCP = (cap(hostedOn,idCP,SCP,idND2) sCP') .
+--> (17-3) SCP is available,
+--> (18-2) existND(sND',idND2) holds,
+-->       which means sND' has a node of idND2, i.e., sND' = (node(tnd'',idND2,SND') sND''),
+--> (19-3) SND' is started.
+--> (21-2) state(getNode(sND',idND2)) is started .
+--> In this case, Rule R04 can be applied to SS.
+open ProofContCont .
+  eq state(getNode(sND',idND2)) = started .
+  eq sND' = (node(tnd'',idND2,started) sND'') .
+  eq sCP = (cap(hostedOn,idCP,available,idND2) sCP') .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ') .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 43:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+-->       and we can ignore (3-1), (4-2), (5-2), (6-2), (7-1), and (8-2)
+-->       and we newly assume that N1 is a node idND1, i.e. sND = (node(tnd',idND1,initial) sND'),
+--> (13-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND1,ready) does not hold, which means
+-->       there is at least one HostedOn requirement of N1 which is not ready, 
+--> (14-2) it is waiting, i.e., sRQ = (req(hostedOn,idRQ,unbound,idND1) sRQ').
+--> This case will be rejected by inv-HostedOnRQNotWaiting(S) .
+open ProofContCont .
+  eq inv(S:State) = inv-HostedOnRQNotWaiting(S) .
+  eq sRQ = (req(hostedOn,idRQ,waiting,idND1) sRQ') .
+  eq sND = (node(tnd',idND1,initial) sND') .
+  red (allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready)) 
+      implies (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) .
+  eq (allRQOfNDInStates(filterRQ(sRQ',hostedOn),idND,ready)) = true .
+  red contcont(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 44-61:
+--> (1-2) allRQOfNDInStates(filterRQ(sRQ,hostedOn),idND,ready) holds,
+--> (2-2) allRQOfNDInStates(sRQ,idND,ready) does not hold, which means
+-->       there is at least one requiment of idND which is not ready,
+--> (3-1) it is unbound, i.e., sRQ = (req(TRL,idRQ,unbound,idND) sRQ'),
+--> (4-3) TRL is connectsTo,
+--> (5-3) onlyOneRLOfRQ(sRL,idRQ) holds, which means sRL has a connectsTo relationship of idRQ,
+-->       i.e., sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL'),
+--> (6-3) existCP(sCP,idCP) holds, which means sCP = (cap(connectsTo,idCP,SCP,idND1) sCP') .
+--> (7-1) SCP is closed,
+--> (8-2) existND(sND,idND1) holds,
+-->       which means sND has a node of idND1, i.e., sND = (node(TND',idND1,SND) sND'),
+--> (9-3) SND is initial.
+-->       Cyclic Dependency Theorem ensures that
+-->       there is a node N1 which is initial and DDSR01(N1,S) does not include initial nodes.
+--> In this case, the proofs are same as Case 26-43.
+

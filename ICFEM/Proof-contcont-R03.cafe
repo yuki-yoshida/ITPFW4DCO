@@ -1,0 +1,61 @@
+require ProofContCont Proof-contcont.cafe
+
+-- As to rule R01, we have checked all possible cases, however,
+-- here we will omit irrevant cases in which wfs(S) does not hold and thus contcont(S) holds.
+
+--> *************************************************************************************
+-->  ctrans [R03]: < SetND, (cap(hostedOn,IDCP,closed,   IDND) SetCP), SetRQ, SetRL, MP >
+-->             => < SetND, (cap(hostedOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
+-->	    if isCreated(state(getNode(SetND,IDND))) .
+--> *************************************************************************************
+--> Rule R03 makes a hostedOn capability be available, so next applied rules may be Rule R04.
+--> Case 1: The condition of R03 does not hold in S, otherwise
+--> Case 2: The corresponding requirement is unbound. -> R04 is applicable
+--> Case 3: The corresponding requirement is waiting. -> Not reachable
+--> Case 4: The corresponding requirement is ready.   -> Not reachable
+
+--> Case 1:
+--> (1-1) isCreated(state(getNode(SetND,IDND))) does not hold.
+--> In this case, no rule is applicable.
+open ProofContCont .
+  eq isCreated(state(getNode(sND,idND))) = false .
+  red contcont(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 2:
+--> (1-2) isCreated(state(getNode(SetND,IDND))) holds,
+-->       sRL has a hostedOn relationship of idCP, i.e. sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+-->       sRQ has a hostedOn requirement of idRL, i.e. sRQ = (req(hostedOn,idRQ,srq,idND') sRQ'),
+--> (2-1) srq is unbound.
+--> In this case, Rule R04 can be applied to SS.
+open ProofContCont .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND') sRQ') .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq isCreated(state(getNode(sND,idND))) = true .
+  red contcont(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 3:
+--> (1-2) isCreated(state(getNode(SetND,IDND))) holds,
+-->       sRL has a hostedOn relationship of idCP, i.e. sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+-->       sRQ has a hostedOn requirement of idRL, i.e. sRQ = (req(hostedOn,idRQ,srq,idND') sRQ'),
+--> (2-2) srq is waiting.
+--> This case will be rejected by inv-ifCPClosedThenRQUnbound(S) .
+open ProofContCont .
+  eq inv(S:State) = inv-ifCPClosedThenRQUnbound(S) .
+  eq sRQ = (req(hostedOn,idRQ,waiting,idND') sRQ') .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq isCreated(state(getNode(sND,idND))) = true .
+  red contcont(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,SS:State,CC:Bool) .
+close
+--> Case 4:
+--> (1-2) isCreated(state(getNode(SetND,IDND))) holds,
+-->       sRL has a hostedOn relationship of idCP, i.e. sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL'),
+-->       sRQ has a hostedOn requirement of idRL, i.e. sRQ = (req(hostedOn,idRQ,srq,idND') sRQ'),
+--> (2-3) srq is ready.
+--> This case will be rejected by inv-ifCPClosedThenRQUnbound(S) .
+open ProofContCont .
+  eq inv(S:State) = inv-ifCPClosedThenRQUnbound(S) .
+  eq sRQ = (req(hostedOn,idRQ,ready,idND') sRQ') .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+  eq isCreated(state(getNode(sND,idND))) = true .
+  red contcont(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >,SS:State,CC:Bool) .
+close

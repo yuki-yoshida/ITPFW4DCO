@@ -1,0 +1,150 @@
+require DomainModel DomainModel.cafe
+
+provide Proof
+
+module! PROOFbase {
+  pr(STATEfuns)
+
+  pred (_then _) : Bool Bool .
+  eq (true  then B:Bool) = B . 
+  eq (false then B:Bool) = true .
+  op _!_ : Bool Bool -> Bool {constr assoc}
+  op _=>_!!_ : State State Bool -> Bool {constr}
+
+  [NDID CPID RQID RLID
+   SetOfStateND SetOfStateCP SetOfStateRQ
+   SetOfNode SetOfCapability SetOfRequirement SetOfRelationship
+   PoolOfMsg State Bool < Val < ValSq]
+  op _,_ : ValSq ValSq -> ValSq {assoc} .
+  op v_ : ValSq -> Bool .
+
+  [IndInfo]
+  op ii_ : ValSq -> IndInfo {constr} .
+  op ss_ : State -> IndInfo {constr} .
+
+  -- Constants for Proofs.
+  ops idND idND' idND1 idND2 : -> NDIDLt
+  ops idCP idCP' idCP1 idCP2 : -> CPIDLt
+  ops idRQ idRQ' idRQ1 idRQ2 : -> RQIDLt
+  ops idRL idRL' idRL1 idRL2 : -> RLIDLt
+  ops sND sND' sND'' : -> SetOfNode
+  ops sCP sCP' sCP'' : -> SetOfCapability
+  ops sRQ sRQ' sRQ'' : -> SetOfRequirement
+  ops sRL sRL' sRL'' : -> SetOfRelationship
+  ops tnd tnd' tnd'' : -> NDType
+  ops trl trl' trl'' : -> RLType
+  ops snd snd' : -> StateND
+  ops scp scp' : -> StateCP
+  ops srq srq' : -> StateRQ
+  op stND : -> SetOfStateND
+  op stCP : -> SetOfStateCP
+  op stRQ : -> SetOfStateRQ
+  ops mp mp'   : -> PoolOfMsg
+}
+
+module! PROOFfuns {
+  pr(PROOFbase)
+  pr(STATERules)
+
+  vars IDND IDND1 IDND2 : NDID 
+  vars IDCP IDCP1 IDCP2 : CPID 
+  var IDRQ  : RQID 
+  var IDRL  : RLID 
+  var SetND : SetOfNode
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  var SetRL : SetOfRelationship
+  var SCP : StateCP
+  var SRL : StateRL
+  var MP : PoolOfMsg
+  var S : State
+
+  pred inv-allPairOfCPRQSameType : State
+  eq inv-allPairOfCPRQSameType(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = allPairOfCPRQSameType(SetCP,SetRL,SetRQ) .
+  pred inv-ifOpenMsgThenCPActivated : State
+  eq inv-ifOpenMsgThenCPActivated(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifOpenMsgThenCPInStates(MP,SetCP,(open available)) .
+  pred inv-ifCPClosedThenRQUnbound : State
+  eq inv-ifCPClosedThenRQUnbound(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifCPInStatesThenRQInStates(SetCP,closed,SetRQ,unbound,SetRL) .
+  pred inv-ifAvailableMsgThenCPAvailable : State
+  eq inv-ifAvailableMsgThenCPAvailable(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifAvailableMsgThenCPInStates(MP,SetCP,available) .
+  pred inv-ifCPOpenThenRQUnboundWaiting : State
+  eq inv-ifCPOpenThenRQUnboundWaiting(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifCPInStatesThenRQInStates(SetCP,open,SetRQ,(unbound waiting),SetRL) .
+  pred inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg : State
+  eq inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,open,SetRQ,waiting,SetRL,MP) .
+  pred inv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg : State
+  eq inv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,available,SetRQ,(waiting ready),SetRL,MP) .
+  pred inv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg : State
+  eq inv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg(SetCP,available,SetRQ,ready,SetRL,MP) .
+  pred inv-ifNDInitialThenCPClosed : State
+  eq inv-ifNDInitialThenCPClosed(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifNDInStatesThenCPInStates(SetND,initial,SetCP,closed) .
+  pred inv-ifNDInitialThenRQUnboundReady : State
+  eq inv-ifNDInitialThenRQUnboundReady(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifNDInStatesThenRQInStates(SetND,initial,SetRQ,(unbound ready)) .
+  pred inv-ifNDStartedThenRQReady : State
+  eq inv-ifNDStartedThenRQReady(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifNDInStatesThenRQInStates(SetND,started,SetRQ,ready) .
+  pred inv-ifNDCreatedThenHostedOnRQReady : State
+  eq inv-ifNDCreatedThenHostedOnRQReady(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifNDInStatesThenHostedOnRQInStates(SetND,(created started),SetRQ,ready) .
+  pred inv-HostedOnCPNotOpen : State
+  eq inv-HostedOnCPNotOpen(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = HostedOnCPInState(SetCP,(closed available)) .
+  pred inv-HostedOnRQNotWaiting : State
+  eq inv-HostedOnRQNotWaiting(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = HostedOnRQInState(SetRQ,(unbound ready)) .
+
+  pred inv : State
+-- The invariant should be defined as the conjunction of all inv-* and all wfs-*.
+-- But this definition causes costly computations.
+-- It is practical to use a minimal set of invariants for each proof.
+
+  pred cont : State
+  eq cont(S:State)
+     = (S =(*,1)=>+ SS:State) .
+
+  op m : State -> Nat.PNAT
+  eq m(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = (( (#NodeInStates(initial,SetND)        * 2) + #NodeInStates(created,SetND))
+     +  ( (#CapabilityInStates(closed,SetCP)    * 2) + #CapabilityInStates(open,SetCP)))
+     +  ( (#RequirementInStates(unbound,SetRQ) * 2) + #RequirementInStates(waiting,SetRQ)) .
+}
+
+-- ***************************************************************************************
+-- (1) init(S) implies cont(S).
+-- (2) inv(S) and wfs(S) and cont(S) and not final(S) implies cont(SS) or final(SS).
+-- (3) inv(S) and wfs(S) and cont(S) and not final(S) implies measure(S) > measure(SS).
+-- (4) inv(S) and wfs(S) and (cont(S) or final(S)) and measure(S) = 0 implies final(S).
+-- (5) init(S) implies inv(S).
+-- (6) inv(S) implies inv(SS).
+-- ***************************************************************************************
+
+-- ***************************************************************************************
+-- (1) init(S) implies cont(S).
+-- ***************************************************************************************
+-- in Proof-initcont.cafe
+
+-- **************************************************************************************
+-- (2) inv(S) and wfs(S) and cont(S) and not final(S) implies cont(SS) or final(SS).
+-- **************************************************************************************
+-- in Proof-contcont.cafe
+
+-- **************************************************************************************
+-- (3) inv(S) and wfs(S) and cont(S) and not final(S) implies measure(S) > measure(SS).
+-- (4) inv(S) and wfs(S) and (cont(S) or final(S)) and measure(S) = 0 implies final(S).
+-- **************************************************************************************
+-- in Proof-measure.cafe
+
+-- **************************************************************************************
+-- (5) init(S) implies inv(S).
+-- (6) inv(S) implies inv(SS).
+-- ***************************************************************************************
+-- in Proof-inv.cafe
