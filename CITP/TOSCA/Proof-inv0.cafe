@@ -1,0 +1,495 @@
+require Proof Proof.cafe
+
+--> ***************************
+--> (5) init(S) implies inv(S).
+--> (6) inv(S) implies inv(SS).
+--> ***************************
+
+module! ProofInv {
+  pr(PROOFfuns)
+  pred invS : State
+
+  pred initinv : State
+  eq initinv(S:State)
+     = init(S) implies invS(S) .
+
+  pred invinv : State
+  eq invinv(S:State)
+     = not (S =(*,1)=>+ SS:State if CC:Bool suchThat
+            not ((CC implies
+                  (wfs(S) and inv(S) and invS(S) implies invS(SS))) == true)
+     	   { S => SS !! CC ! wfs(S) ! inv(S) ! invS(S) ! invS(SS) }) .
+}
+
+--> *********************************************************************
+--> Proof of inv-ifCPClosedThenRQUnbound.
+-->  eq inv-ifCPClosedThenRQUnbound(< SetND,SetCP,SetRQ,SetRL,MP >)
+-->     = ifCPInStatesThenRQInStates(SetCP,closed,SetRQ,unbound,SetRL) .
+--> *********************************************************************
+--> This proof requires inv-ifOpenMsgThenCPActivated.
+--> Proof of inv(S) implies inv(SS)
+module! Proofinv-ifCPClosedThenRQUnbound {
+  pr(ProofInv)
+  eq invS(S:State) = inv-ifCPClosedThenRQUnbound(S) .
+--> This proof requires inv-ifOpenMsgThenCPActivated.
+
+  var SetCP : SetOfCapability
+  var SetRL : SetOfRelationship
+  var SetRQ : SetOfRequirement
+  var TRL : RLType
+  var IDND : NDID           
+  var IDCP : CPID
+  var IDRQ : RQID
+  var IDRL : RLID      
+  var SCP : StateCP
+  vars SRQ1 SRQ2 : StateRQ
+  var STRQ : SetOfStateRQ 
+
+  pred lemma : SetOfCapability SetOfRequirement SetOfRelationship
+  eq lemma(SetCP,SetRQ,SetRL)
+     = (allCPInStates(SetCP,closed) and allRQInStates(SetRQ,unbound) and 
+        allCPHaveRL(SetCP,SetRL) and allRLHaveRQ(SetRL,SetRQ)) implies
+       ifCPInStatesThenRQInStates(SetCP,closed,SetRQ,unbound,SetRL) .
+
+  eq [allCPHaveRLHaveRQ :nonexec]: wfs(S:State) 
+    = wfs-allCPHaveRL(S) and wfs-allRLHaveRQ(S) .
+
+  eq [lemma :nonexec]:
+      (allCPInStates(SetCP,closed) and allRQInStates(SetRQ,unbound) and 
+       allCPHaveRL(SetCP,SetRL) and allRLHaveRQ(SetRL,SetRQ) and
+       ifCPInStatesThenRQInStates(SetCP,closed,SetRQ,unbound,SetRL))
+    = (allCPInStates(SetCP,closed) and allRQInStates(SetRQ,unbound) and 
+       allCPHaveRL(SetCP,SetRL) and allRLHaveRQ(SetRL,SetRQ)) .
+
+  -- ifCPClosedThenRQUnbound keeps to hold 
+  -- even if a requirement, whose capability is not concerned, changes its state.
+  ceq [tosca-lemma08 :nonexec]:
+      (ifCPInStatesThenRQInStates(SetCP,SCP,(req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,
+		                  (rel(TRL,IDRL,IDCP,IDRQ) SetRL)) and
+       ifCPInStatesThenRQInStates(SetCP,SCP,(req(TRL,IDRQ,SRQ2,IDND) SetRQ),STRQ,
+				  (rel(TRL,IDRL,IDCP,IDRQ) SetRL)))
+     = ifCPInStatesThenRQInStates(SetCP,SCP,(req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,
+		                  (rel(TRL,IDRL,IDCP,IDRQ) SetRL))
+     if not existCP(SetCP,IDCP) .
+
+  -- ifCPClosedThenRQUnbound keeps to hold 
+  -- even if a requirement, whose current state is not concerned, changes its state.
+  ceq [tosca-lemma09 :nonexec]:
+      (ifCPInStatesThenRQInStates(
+		SetCP,SCP,(req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,
+		(rel(TRL,IDRL,IDCP,IDRQ) SetRL)) and
+       ifCPInStatesThenRQInStates(
+		SetCP,SCP,(req(TRL,IDRQ,SRQ2,IDND) SetRQ),STRQ,
+		(rel(TRL,IDRL,IDCP,IDRQ) SetRL)))
+     = ifCPInStatesThenRQInStates(
+		SetCP,SCP,(req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,
+		(rel(TRL,IDRL,IDCP,IDRQ) SetRL))
+     if not (SRQ1 \in STRQ) .
+}
+
+--> ***************************
+--> (5) init(S) implies inv(S).
+--> ***************************
+--> Proof of lemma.
+open Proofinv-ifCPClosedThenRQUnbound .
+:goal {
+  eq [lemma-1]: lemma(empCP,sRQ,sRL) = true .
+  eq [lemma-2]: lemma(sCP,sRQ,sRL) implies
+                lemma((cap(trl,idCP,scp,idND) sCP),sRQ,sRL) = true .
+}
+:csp {
+  eq scp = closed .
+  eq scp = open .
+  eq scp = available .
+}
+:csp {
+  eq onlyOneRLOfCP(sRL,idCP) = false .
+  eq sRL = (rel(trl',idRL,idCP,idRQ) sRL') .
+}
+:apply (rd) -- 1-1
+:ctf {
+  eq trl' = trl .
+}
+:csp {
+  eq existRQ(sRQ,idRQ) = false .
+  eq sRQ = (req(trl'',idRQ,srq,idND') sRQ') .
+}
+:apply (rd) -- 1-2-1-1
+:ctf {
+  eq trl'' = trl .
+}
+:csp {
+  eq srq = unbound .
+  eq srq = waiting .
+  eq srq = ready .
+}
+:apply (rd) -- 1-2-1-2-1-1
+:apply (rd) -- 1-2-1-2-1-2
+:apply (rd) -- 1-2-1-2-1-3
+:apply (rd) -- 1-2-1-2-2
+:apply (rd) -- 1-2-2
+:apply (rd) -- 2
+:apply (rd) -- 3
+show proof
+close
+--> Proof of initinv.
+open Proofinv-ifCPClosedThenRQUnbound .
+:goal {
+  eq initinv(< sND,sCP,sRQ,sRL,mp >) = true .
+}
+:init [lemma] by {
+  SetCP:SetOfCapability   <- sCP ;
+  SetRQ:SetOfRequirement  <- sRQ ;
+  SetRL:SetOfRelationship <- sRL ;
+}
+:init [allCPHaveRLHaveRQ] by {S:State <- < sND, sCP, sRQ, sRL, mp >;}
+:apply (rd)
+show proof
+close
+
+--> ***************************
+--> (6) inv(S) implies inv(SS).
+--> ***************************
+--> *************************************************************************
+--> ctrans [R01]: < (node(TND,IDND,initial) SetND), SetCP, SetRQ, SetRL, MP >
+-->            => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
+-->	      if allRQOfTypeOfNDInStates(SetRQ,hostedOn,IDND,ready) .
+--> *************************************************************************
+open Proofinv-ifCPClosedThenRQUnbound .
+:goal {
+  eq invinv(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >) = true .
+}
+:ctf {
+  eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
+}
+:apply (rd) -- 1
+:apply (rd) -- 2
+show proof
+close
+
+--> *************************************************************************
+--> ctrans [R02]: < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP >
+-->            => < (node(TND,IDND,started) SetND), SetCP, SetRQ, SetRL, MP > 
+-->	      if allRQOfNDInStates(SetRQ,IDND,ready) .
+--> *************************************************************************
+open Proofinv-ifCPClosedThenRQUnbound .
+:goal {
+  eq invinv(< (node(tnd,idND,created)  sND), sCP, sRQ, sRL, mp >) = true .
+}
+:ctf {
+  eq allRQOfNDInStates(sRQ,idND,ready) = true .
+}
+:apply (rd) -- 1
+:apply (rd) -- 2
+show proof
+close
+
+--> ************************************************************************************
+--> ctrans [R03]: < SetND, (cap(hostedOn,IDCP,closed,   IDND) SetCP), SetRQ, SetRL, MP >
+-->            => < SetND, (cap(hostedOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
+-->	    if isCreated(state(getNode(SetND,IDND))) .
+--> ************************************************************************************
+open Proofinv-ifCPClosedThenRQUnbound .
+:goal {
+  eq invinv(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
+}
+:ctf {
+  eq isCreated(state(getNode(sND,idND))) = true .
+}
+:apply (rd) -- 1
+:apply (rd) -- 2
+show proof
+close
+
+--> ***************************************************************************************************
+--> trans [R04]: < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
+-->  	       	(req(hostedOn,IDRQ,unbound,IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP >
+-->           => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
+-->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
+--> ***************************************************************************************************
+open Proofinv-ifCPClosedThenRQUnbound .
+:goal {
+  eq invinv(< sND, (cap(hostedOn,idCP,available,idND1) sCP), 
+  	           (req(hostedOn,idRQ,unbound,idND2) sRQ), 
+	           (rel(hostedOn,idRL,idCP,idRQ) sRL), mp >) = true .
+}
+:ctf {
+  eq existCP(sCP,idCP) = true .
+}
+:init [uniqCP] by {
+  S:State <- < sND, (cap(hostedOn,idCP,available,idND1) sCP), 
+  	            (req(hostedOn,idRQ,unbound,idND2) sRQ), 
+                    (rel(hostedOn,idRL,idCP,idRQ) sRL), mp > ;
+}
+:apply (rd) -- 1
+:init [tosca-lemma08] by {
+  SetCP:SetOfCapability   <- sCP ;
+  SCP:StateCP             <- closed ;
+  TRL:RLType              <- hostedOn ;
+  IDRQ:RQID               <- idRQ ;
+  SRQ1:StateRQ            <- unbound ;
+  IDND:NDID               <- idND2 ;
+  SetRQ:SetOfRequirement  <- sRQ ;
+  STRQ:SetOfStateRQ       <- unbound ;
+  IDRL:RLID               <- idRL ;
+  IDCP:CPID               <- idCP ;
+  SetRL:SetOfRelationship <- sRL ;
+  SRQ2:StateRQ            <- ready ;
+}
+:apply (rd) -- 2
+show proof
+close
+
+--> **********************************************************************************
+--> ctrans [R05]: < SetND, (cap(dependsOn,IDCP,closed,IDND) SetCP), SetRQ, SetRL, MP >
+-->            => < SetND, (cap(dependsOn,IDCP,open,  IDND) SetCP), SetRQ, SetRL, MP >
+-->	     if isCreated(state(getNode(SetND,IDND))) .
+--> **********************************************************************************
+open Proofinv-ifCPClosedThenRQUnbound .
+:goal {
+  eq invinv(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
+}
+:ctf {
+  eq isCreated(state(getNode(sND,idND))) = true .
+}
+:apply (rd) -- 1
+:apply (rd) -- 2
+show proof
+close
+
+--> *************************************************************************************
+--> ctrans [R06]: < SetND, (cap(dependsOn,IDCP,open,     IDND) SetCP), SetRQ, SetRL, MP >
+-->            => < SetND, (cap(dependsOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
+-->	     if state(getNode(SetND,IDND)) = started .
+--> *************************************************************************************
+open Proofinv-ifCPClosedThenRQUnbound .
+:goal {
+  eq invinv(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
+}
+:ctf {
+  eq state(getNode(sND,idND)) = started .
+}
+:apply (rd) -- 1
+:apply (rd) -- 2
+show proof
+close
+
+--> **************************************************************************
+--> ctrans [R07]: < SetND, (cap(dependsOn,IDCP,SCP,IDND1) SetCP), 
+-->   	                   (req(dependsOn,IDRQ,unbound,IDND2) SetRQ),
+-->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
+-->            => < SetND, (cap(dependsOn,IDCP,SCP,IDND1) SetCP), 
+-->  	                   (req(dependsOn,IDRQ,waiting,IDND2) SetRQ),
+-->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
+-->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
+--> **************************************************************************
+open Proofinv-ifCPClosedThenRQUnbound .
+:goal {
+  eq invinv(< sND, (cap(dependsOn,idCP,scp,idND1) sCP), 
+   	           (req(dependsOn,idRQ,unbound,idND2) sRQ), 
+	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
+}
+:ctf {
+  eq (state(getNode(sND,idND2)) = created and isActivated(scp)) = true .
+}
+:apply (rd) -- 1
+:apply (rd) -- 2
+show proof
+close
+
+--> ******************************************************************************************************
+--> trans [R08]: < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
+--> 	          (req(dependsOn,IDRQ,waiting,IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
+-->           => < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
+-->  	       	  (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
+--> ******************************************************************************************************
+open Proofinv-ifCPClosedThenRQUnbound .
+:goal {
+  eq invinv(< sND, (cap(dependsOn,idCP,scp,idND1) sCP), 
+   	           (req(dependsOn,idRQ,waiting,idND2) sRQ), 
+	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
+}
+:apply (rd) 
+show proof
+close
+
+--> ***********************************************************************************
+--> ctrans [R09]: < SetND, (cap(connectsTo,IDCP,closed,IDND) SetCP), SetRQ, SetRL, MP >
+-->            => < SetND, (cap(connectsTo,IDCP,open,  IDND) SetCP), SetRQ, SetRL, 
+-->	       	 (opMsg(IDCP) MP) >
+-->	    if isCreated(state(getNode(SetND,IDND))) .
+--> ***********************************************************************************
+open Proofinv-ifCPClosedThenRQUnbound .
+:goal {
+  eq invinv(< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
+}
+:ctf {
+  eq isCreated(state(getNode(sND,idND))) = true .
+}
+:apply (rd) -- 1
+:apply (rd) -- 2
+show proof
+close
+
+--> **************************************************************************************
+--> ctrans [R10]: < SetND, (cap(connectsTo,IDCP,open,     IDND) SetCP), SetRQ, SetRL, MP >
+-->            => < SetND, (cap(connectsTo,IDCP,available,IDND) SetCP), SetRQ, SetRL,
+-->	       	  (avMsg(IDCP) MP) >
+-->	     if state(getNode(SetND,IDND)) = started .
+--> **************************************************************************************
+open Proofinv-ifCPClosedThenRQUnbound .
+:goal {
+  eq invinv(< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
+}
+:ctf {
+  eq state(getNode(sND,idND)) = started .
+}
+:apply (rd) -- 1
+:apply (rd) -- 2
+show proof
+close
+
+--> ******************************************************************************************************
+--> ctrans [R11]: < SetND, SetCP, 
+--> 	       	  (req(connectsTo,IDRQ,unbound,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), 
+--> 		  (opMsg(IDCP) MP) >
+-->            => < SetND, SetCP, 
+--> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
+--> 	     if state(getNode(SetND,IDND)) = created .
+--> ******************************************************************************************************
+open Proofinv-ifCPClosedThenRQUnbound .
+:goal {
+  eq invinv(< sND, sCP, 
+   	      (req(connectsTo,idRQ,unbound,idND) sRQ), 
+	      (rel(connectsTo,idRL,idCP,idRQ) sRL),
+	      (opMsg(idCP) mp) >) = true .
+}
+:ctf {
+  eq state(getNode(sND,idND)) = created .
+}
+:csp {
+  eq existCP(sCP,idCP) = false .
+  eq sCP = (cap(trl,idCP,scp,idND') sCP') .
+}
+:init [allRLHaveCP] by {
+  S:State <- < sND, sCP, 
+   	       (req(connectsTo,idRQ,unbound,idND) sRQ), 
+	       (rel(connectsTo,idRL,idCP,idRQ) sRL),
+	       (opMsg(idCP) mp) > ;
+}
+:apply (rd) -- 1-1
+:ctf {
+  eq trl = connectsTo .
+}
+:csp {
+  eq scp = closed .
+  eq scp = open .
+  eq scp = available .
+}
+:init [ifOpenMsgThenCPActivated] by {
+  S:State <- < sND, sCP, 
+   	       (req(connectsTo,idRQ,unbound,idND) sRQ), 
+	       (rel(connectsTo,idRL,idCP,idRQ) sRL),
+	       (opMsg(idCP) mp) > ;
+}
+:apply (rd) -- 1-2-1-1
+:ctf {
+  eq existCP(sCP',idCP) = true .
+}
+:init [uniqCP] by {
+  S:State <- < sND, sCP, 
+               (req(connectsTo,idRQ,unbound,idND) sRQ),
+               (rel(connectsTo,idRL,idCP,idRQ) sRL),
+               (opMsg(idCP) mp) >;
+}
+:ctf {
+  eq state(getNode(sND,idND')) = started .
+}
+:apply (rd) -- 1-2-1-2-1-1
+:apply (rd) -- 1-2-1-2-1-2
+:init [tosca-lemma08] by {
+  SetCP:SetOfCapability   <- sCP' ;
+  SCP:StateCP             <- closed ;
+  TRL:RLType              <- connectsTo ;
+  IDRQ:RQID               <- idRQ ;
+  SRQ1:StateRQ            <- unbound ;
+  IDND:NDID               <- idND ;
+  SetRQ:SetOfRequirement  <- sRQ ;
+  STRQ:SetOfStateRQ       <- unbound ;
+  IDRL:RLID               <- idRL ;
+  IDCP:CPID               <- idCP ;
+  SetRL:SetOfRelationship <- sRL ;
+  SRQ2:StateRQ            <- waiting ;
+}
+:ctf {
+  eq state(getNode(sND,idND')) = started .
+}
+:apply (rd) -- 1-2-1-2-2-1
+:apply (rd) -- 1-2-1-2-2-2
+:ctf {
+  eq existCP(sCP',idCP) = true .
+}
+:init [uniqCP] by {
+  S:State <- < sND, sCP, 
+               (req(connectsTo,idRQ,unbound,idND) sRQ),
+               (rel(connectsTo,idRL,idCP,idRQ) sRL),
+               (opMsg(idCP) mp) >;
+}
+:apply (rd) -- 1-2-1-3-1
+:init [tosca-lemma08] by {
+  SetCP:SetOfCapability   <- sCP' ;
+  SCP:StateCP             <- closed ;
+  TRL:RLType              <- connectsTo ;
+  IDRQ:RQID               <- idRQ ;
+  SRQ1:StateRQ            <- unbound ;
+  IDND:NDID               <- idND ;
+  SetRQ:SetOfRequirement  <- sRQ ;
+  STRQ:SetOfStateRQ       <- unbound ;
+  IDRL:RLID               <- idRL ;
+  IDCP:CPID               <- idCP ;
+  SetRL:SetOfRelationship <- sRL ;
+  SRQ2:StateRQ            <- waiting ;
+}
+:apply (rd) -- 1-2-1-3-2
+:init [allRLHaveSameTypeCPRQ] by {
+  S:State <- < sND, sCP, 
+   	       (req(connectsTo,idRQ,unbound,idND) sRQ), 
+	       (rel(connectsTo,idRL,idCP,idRQ) sRL),
+	       (opMsg(idCP) mp) > ;
+}
+:apply (rd) -- 1-2-2
+:apply (rd) -- 2
+show proof
+close
+
+--> *******************************************************************************************************
+--> trans [R12]: < SetND, SetCP, 
+--> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), 
+--> 		  (avMsg(IDCP) MP) >
+-->           => < SetND, SetCP, 
+--> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
+--> *******************************************************************************************************
+open Proofinv-ifCPClosedThenRQUnbound .
+:goal {
+  eq invinv(< sND, sCP, 
+   	      (req(connectsTo,idRQ,waiting,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
+	      (avMsg(idCP) mp) >) = true .
+}
+:init [tosca-lemma09] by {
+  SetCP:SetOfCapability   <- sCP ;
+  SCP:StateCP             <- closed ;
+  TRL:RLType              <- connectsTo ;
+  IDRQ:RQID               <- idRQ ;
+  SRQ1:StateRQ            <- waiting ;
+  IDND:NDID               <- idND ;
+  SetRQ:SetOfRequirement  <- sRQ ;
+  STRQ:SetOfStateRQ       <- unbound ;
+  IDRL:RLID               <- idRL ;
+  IDCP:CPID               <- idCP ;
+  SetRL:SetOfRelationship <- sRL ;
+  SRQ2:StateRQ            <- ready ;
+}
+:apply (rd)
+show proof
+close
+

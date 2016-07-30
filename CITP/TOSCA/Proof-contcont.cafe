@@ -1,0 +1,502 @@
+require Proof Proof.cafe
+provide ProofContCont
+
+--> *********************************************************************
+--> (2) inv(S) and wfs(S) and not final(S) implies cont(SS) or final(SS).
+--> *********************************************************************
+
+--> ******************************************
+--> Step 2-0: Define a predicate to be proved.
+--> ******************************************
+module! ProofContCont {
+  pr(PROOFfuns)
+  pred ccont : State State
+  pred contcont : State
+  eq ccont(S:State,SS:State)
+     = wfs(S) and inv(S) and not final(S) 
+       implies cont(SS) or final(SS) .
+  eq contcont(S:State)
+     = not (S =(*,1)=>+ SS:State if CC:Bool suchThat
+            not ((CC implies ccont(S,SS)) == true)
+     	   { S => SS !! CC ! wfs(S) ! inv(S) ! final(S) ! cont(SS) ! final(SS) }) .
+
+  -- initialcont lemma: If there is an initail node, then there is an applicable rule.
+  eq cont(< (node(T:NDType, I:NDID, initial) SetND:SetOfNode), 
+	      SetCP:SetOfCapability, SetRQ:SetOfRequirement, SetRL:SetOfRelationship, M:PoolOfMsg >)
+     = true .
+}
+
+--> *****************************************************************************************
+--> Lemma: Assuming invariants if there is an initail node, then there is an applicable rule.
+--> *****************************************************************************************
+-- Note that this lemma can be used in the proof of (1) init(S) implies cont(S),
+-- which significantly reduces the number of lines of the proof.
+-- However intentionally, Proof-initcont.cafe does not use the lemma
+-- and proves (1) as explained in our paper.
+
+module! ProofInitialCont {
+  pr(PROOFfuns)
+
+  pred invcont : State
+  eq invcont(S:State) = wfs(S) and inv(S) implies cont(S) .
+  pred initialcont : NDType NDID SetOfNode SetOfCapability SetOfRequirement SetOfRelationship PoolOfMsg
+  eq initialcont(TND:NDType, IDND:NDID, 
+		 SetND:SetOfNode, SetCP:SetOfCapability, SetRQ:SetOfRequirement, SetRL:SetOfRelationship, 
+		 MP:PoolOfMsg)  
+     = invcont(< (node(TND, IDND, initial) SetND), SetCP, SetRQ, SetRL, MP >) .
+}
+
+select ProofInitialCont .
+
+--> Proof of the initialcont lemma
+--> When there is an initial node in state S
+--> Cyclic Dependency Theorem ensures there is an initial node N
+--> where DDSR01(N,S) does not include any initial nodes.
+--> So, we can assume that S = < (node(tnd, idND, initial) sND), sCP, sRQ, sRL, mp >
+--> and allNDInStates(DDSR01(node(tnd, idND, initial),S),(created started)) = true .
+:goal {eq initialcont(tnd, idND, sND, sCP, sRQ, sRL, mp) = true .}
+--> ***************************************************************
+--> Step 2-4: Think which rule can be applied to the next state
+-->  and repeat case splitting similarly as Step 1-3, 1-4, and 1-5.
+--> ***************************************************************
+-- The next rule should be R01 for the node of idND.
+--> ****************************************************
+--> Step 1-4: Split the first rule case into cases where
+-->  the condition of the rule does or does not hold.
+--> ****************************************************
+-- The condition of R01 does or does not hold for the node of idND.
+-- The states of all of the hostedOn requirements of the node are or are not ready.
+:csp- { 
+  eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND) sRQ') .
+  eq sRQ = (req(hostedOn,idRQ,waiting,idND) sRQ') .
+}
+-- Case 1: When all of the hostedOn requirements are ready:
+:apply (rd) -- 1
+-- Case 2: When there is an unbound hostedOn requirement of the node:
+--> ***************************************************************
+--> Step 2-4: Think which rule can be applied to the next state
+-->  and repeat case splitting similarly as Step 1-3, 1-4, and 1-5.
+--> ***************************************************************
+-- The next rule should be R04 for the requirement of idRQ.
+--> ********************************************************************
+--> Step 1-3: Split the general case into cases which collectively cover
+-->  the general case and one of which matches to LHS of the first rule.
+--> ********************************************************************
+-- LHS of R04 requires a relationship and an available capability of the requirement of idRQ.
+--> ***********************************************************
+--> Step 1-5: When there is a dangling link, split the case
+-->  into cases where the linked object does or does not exist.
+--> ***********************************************************
+-- The relationship of the requirement of idRQ does or does not exist.
+:csp- {
+  eq onlyOneRLOfRQ(sRL,idRQ) = false .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+}
+-- Case 2-1: When the relationship of the requirement of idRQ does not exist:
+:apply (rd) -- 2-1
+-- Case 2-2: When the relationship of the requirement of idRQ exists:
+--> ***********************************************************
+--> Step 1-5: When there is a dangling link, split the case
+-->  into cases where the linked object does or does not exist.
+--> ***********************************************************
+-- The capability of the relationship does or does not exist.
+:csp- {
+  eq existCP(sCP,idCP) = false .
+  eq sCP = (cap(hostedOn,idCP,scp,idND1) sCP') .
+}
+-- Case 2-2-1: When the capability of the relationship does not exist:
+:apply (rd) -- 2-2-1
+-- Case 2-2-2: When the capability of the relationship exists:
+-- The node of the capability of idCP is or is not the same of the node of the requiement of idRQ.
+:ctf- {
+  eq idND1 = idND .
+}
+-- Case 2-2-2-1: When the node of the capability of idCP is the same of the node of the requiement of idRQ:
+:apply (rd) -- 2-2-2-1
+-- Case 2-2-2-2: When the node of the capability of idCP is not the same of the node of the requiement of idRQ:
+--> ***********************************************************
+--> Step 1-5: When there is a dangling link, split the case
+-->  into cases where the linked object does or does not exist.
+--> ***********************************************************
+-- The node of the capability of idCP does or does not exist.
+:csp- {
+  eq existND(sND,idND1) = false .
+  eq sND = (node(tnd',idND1,snd') sND') .
+}
+-- Case 2-2-2-2-1: When the node of the capability of idCP does not exist:
+:apply (rd) -- 2-2-2-2-1
+-- Case 2-2-2-2-2: When the node of the capability of idCP exists:
+-- The state of the node of idND1 is initial, created, or started.
+:csp- {
+  eq snd' = initial .
+  eq snd' = created .
+  eq snd' = started .
+}
+-- Case 2-2-2-2-2-1: When the node of idND1 is initial:
+-- The Cyclic Dependency Lemma rejects this case.
+:init [CycleR01] by {
+  T:NDType <- tnd;
+  I:NDID   <- idND;
+  S:State  <- < (node(tnd,idND,initial) sND) , sCP , sRQ , sRL , mp >;
+}
+:apply (rd) -- 2-2-2-2-2-1
+-- Case 2-2-2-2-2-2: When the node of idND1 is created:
+-- The state of the capability of idCP is closed, open, or available.
+:csp- {
+  eq scp = closed .
+  eq scp = open .
+  eq scp = available .
+}
+-- Case 2-2-2-2-2-2-1: When the capability of idCP is closed:
+:apply (rd) -- 2-2-2-2-2-2-1
+-- Case 2-2-2-2-2-2-2: When the capability of idCP is open:
+:apply (rd) -- 2-2-2-2-2-2-2
+-- Case 2-2-2-2-2-2-3: When the capability of idCP is available:
+:apply (rd) -- 2-2-2-2-2-2-3
+-- Case 2-2-2-2-2-3: When the node of idND1 is started:
+-- The state of the capability of idCP is closed, open, or available.
+:csp- {
+  eq scp = closed .
+  eq scp = open .
+  eq scp = available .
+}
+-- Case 2-2-2-2-2-3-1: When the capability of idCP is closed:
+:apply (rd) -- 2-2-2-2-2-3-1
+-- Case 2-2-2-2-2-3-2: When the capability of idCP is open:
+:apply (rd) -- 2-2-2-2-2-3-2
+-- Case 2-2-2-2-2-3-3: When the capability of idCP is available:
+:apply (rd) -- 2-2-2-2-2-3-3
+-- Case 3: When there is a waiting hostedOn requirement of idRQ of the node:
+:apply (rd) -- 3
+show proof
+
+--> ****************************************************************************************
+--> Lemma: Assuming invariants if there is a created node, then there is an applicable rule.
+--> ****************************************************************************************
+module! ProofCreatedCont {
+  pr(PROOFfuns)
+
+  pred invcont : State
+  eq invcont(S:State) = wfs(S) and inv(S) implies cont(S) .
+  pred createdcont : NDType NDID SetOfNode SetOfCapability SetOfRequirement SetOfRelationship PoolOfMsg
+  eq createdcont(TND:NDType, IDND:NDID, 
+		 SetND:SetOfNode, SetCP:SetOfCapability, SetRQ:SetOfRequirement, SetRL:SetOfRelationship, 
+		 MP:PoolOfMsg)  
+     = invcont(< (node(TND, IDND, created) SetND), SetCP, SetRQ, SetRL, MP >) .
+
+  -- This proof uses the createdcont lemma: If there is an initail node, then there is an applicable rule.
+  eq cont(< (node(T:NDType, I:NDID, initial) SetND:SetOfNode), 
+	      SetCP:SetOfCapability, SetRQ:SetOfRequirement, SetRL:SetOfRelationship, M:PoolOfMsg >)
+     = true .
+}
+
+select ProofCreatedCont .
+
+--> Proof of the createdcont lemma
+--> When there is a created node in state S
+--> Cyclic Dependency Theorem ensures there is a created node N
+--> where DDSR02(N,S) does not include any created nodes.
+--> So, we can assume that S = < (node(tnd, idND, created) sND), sCP, sRQ, sRL, mp >
+--> and allNDInStates(DDSR02(node(tnd, idND, created),S),(initial started)) = true .
+:goal {eq createdcont(tnd, idND, sND, sCP, sRQ, sRL, mp) = true .}
+--> ***************************************************************
+--> Step 2-4: Think which rule can be applied to the next state
+-->  and repeat case splitting similarly as Step 1-3, 1-4, and 1-5.
+--> ***************************************************************
+-- The next rule should be R02 for the node of idND.
+--> ********************************************************************
+--> Step 1-3: Split the general case into cases which collectively cover
+-->  the general case and one of which matches to LHS of the first rule.
+--> ********************************************************************
+-- The states of all of the requirements of the node of idND are or are not ready.
+:csp- { 
+  eq allRQOfNDInStates(sRQ,idND,ready) = true .
+  eq sRQ = (req(trl,idRQ,unbound,idND) sRQ') .
+  eq sRQ = (req(trl,idRQ,waiting,idND) sRQ') .
+}
+-- Case 1: When all of the requirements are ready:
+:apply (rd-) -- 1
+-- Case 2: When there is an unbound requirement of the node of idND:
+-- The type of the requirement of idRQ is hostedOn, dependsOn, or connectsTo.
+:csp {
+  eq trl = hostedOn .
+  eq trl = dependsOn .
+  eq trl = connectsTo .
+}
+-- Case 2-1: When the type of the requirement of idRQ is hostedOn:
+--> ***************************************************************
+--> Step 2-4: Think which rule can be applied to the next state
+-->  and repeat case splitting similarly as Step 1-3, 1-4, and 1-5.
+--> ***************************************************************
+-- The next rule should be R04 for the hostedOn requirement of idRQ.
+--> ********************************************************************
+--> Step 1-3: Split the general case into cases which collectively cover
+-->  the general case and one of which matches to LHS of the first rule.
+--> ********************************************************************
+-- LHS of R04 requires a relationship and an available capability of the hostedOn requirement of idRQ.
+--> ***********************************************************
+--> Step 1-5: When there is a dangling link, split the case
+-->  into cases where the linked object does or does not exist.
+--> ***********************************************************
+-- The relationship of the hostedOn requirement of idRQ does or does not exist.
+:csp- {
+  eq onlyOneRLOfRQ(sRL,idRQ) = false .
+  eq sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+}
+-- Case 2-1-1: When the relationship of the hostedOn requirement of idRQ does not exist:
+:apply (rd-) -- 2-1-1
+-- Case 2-1-2: When the relationship of the hostedOn requirement of idRQ exists:
+--> ***********************************************************
+--> Step 1-5: When there is a dangling link, split the case
+-->  into cases where the linked object does or does not exist.
+--> ***********************************************************
+-- The capability of the relationship does or does not exist.
+:csp- {
+  eq existCP(sCP,idCP) = false .
+  eq sCP = (cap(hostedOn,idCP,scp,idND1) sCP') .
+}
+-- Case 2-1-2-1: When the capability of the relationship does not exist:
+:apply (rd-) -- 2-1-2-1
+-- Case 2-1-2-2: When the capability of the relationship exists:
+-- The node of the capability of idCP is or is not the same of the node of the requiement of idRQ.
+:ctf- {
+  eq idND1 = idND .
+}
+-- Case 2-1-2-2-1: When the node of the capability of idCP is the same of the node of the requiement of idRQ:
+:apply (rd-) -- 2-1-2-2-1
+-- Case 2-1-2-2-2: When the node of the capability of idCP is not the same of the node of the requiement of idRQ:
+--> ***********************************************************
+--> Step 1-5: When there is a dangling link, split the case
+-->  into cases where the linked object does or does not exist.
+--> ***********************************************************
+-- The node of the capability of idCP does or does not exist.
+:csp- {
+  eq existND(sND,idND1) = false .
+  eq sND = (node(tnd',idND1,snd') sND') .
+}
+-- Case 2-1-2-2-2-1: When the node of the capability of idCP does not exist:
+:apply (rd-) -- 2-1-2-2-2-1
+-- Case 2-1-2-2-2-2: When the node of the capability of idCP exists:
+-- The state of the node of idND1 is initial, created, or started.
+:csp- {
+  eq snd' = initial .
+  eq snd' = created .
+  eq snd' = started .
+}
+-- Case 2-1-2-2-2-2-1: When the node of idND1 is initial:
+:apply (rd-) -- 2-1-2-2-2-2-1
+-- Case 2-1-2-2-2-2-2: When the node of idND1 is created:
+-- The Cyclic Dependency Lemma rejects this case.
+:init [CycleR02] by {
+  T:NDType <- tnd;
+  I:NDID   <- idND;
+  S:State  <- < (node(tnd,idND,created) sND) , sCP , sRQ , sRL , mp >;
+}
+:apply (rd-) -- 2-1-2-2-2-2-2
+-- Case 2-1-2-2-2-2-3: When the node of idND1 is started:
+-- The state of the capability of idCP is closed, open, or available.
+:csp- {
+  eq scp = closed .
+  eq scp = open .
+  eq scp = available .
+}
+-- Case 2-1-2-2-2-2-3-1: When the capability of idCP is closed:
+:apply (rd-) -- 2-1-2-2-2-2-3-1
+-- Case 2-1-2-2-2-2-3-2: When the capability of idCP is open:
+:apply (rd-) -- 2-1-2-2-2-2-3-2
+-- Case 2-1-2-2-2-2-3-3: When the capability of idCP is available:
+:apply (rd-) -- 2-1-2-2-2-2-3-3
+-- Case 2-2: When the type of the requirement of idRQ is dependsOn:
+--> ***************************************************************
+--> Step 2-4: Think which rule can be applied to the next state
+-->  and repeat case splitting similarly as Step 1-3, 1-4, and 1-5.
+--> ***************************************************************
+-- The next rule should be R07 for the dependsOn requirement of idRQ.
+--> ********************************************************************
+--> Step 1-3: Split the general case into cases which collectively cover
+-->  the general case and one of which matches to LHS of the first rule.
+--> ********************************************************************
+-- LHS of R07 requires a relationship and a capability of the dependsOn requirement of idRQ.
+--> ***********************************************************
+--> Step 1-5: When there is a dangling link, split the case
+-->  into cases where the linked object does or does not exist.
+--> ***********************************************************
+-- The relationship of the dependsOn requirement of idRQ does or does not exist.
+:csp- {
+  eq onlyOneRLOfRQ(sRL,idRQ) = false .
+  eq sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+}
+-- Case 2-2-1: When the relationship of the dependsOn requirement of idRQ does not exist:
+:apply (rd-) -- 2-2-1
+-- Case 2-2-2: When the relationship of the dependsOn requirement of idRQ exists:
+--> ***********************************************************
+--> Step 1-5: When there is a dangling link, split the case
+-->  into cases where the linked object does or does not exist.
+--> ***********************************************************
+-- The capability of the relationship does or does not exist.
+:csp- {
+  eq existCP(sCP,idCP) = false .
+  eq sCP = (cap(dependsOn,idCP,scp,idND1) sCP') .
+}
+-- Case 2-2-2-1: When the capability of the relationship does not exist:
+:apply (rd-) -- 2-2-2-1
+-- Case 2-2-2-2: When the capability of the relationship exists:
+-- The node of the capability of idCP is or is not the same of the node of the requiement of idRQ.
+:ctf- {
+  eq idND1 = idND .
+}
+-- Case 2-2-2-2-1: When the node of the capability of idCP is the same of the node of the requiement of idRQ:
+:apply (rd-) -- 2-2-2-2-1
+-- Case 2-2-2-2-2: When the node of the capability of idCP is not the same of the node of the requiement of idRQ:
+--> ***********************************************************
+--> Step 1-5: When there is a dangling link, split the case
+-->  into cases where the linked object does or does not exist.
+--> ***********************************************************
+-- The node of the capability of idCP does or does not exist.
+:csp- {
+  eq existND(sND,idND1) = false .
+  eq sND = (node(tnd',idND1,snd') sND') .
+}
+-- Case 2-2-2-2-2-1: When the node of the capability of idCP does not exist:
+:apply (rd-) -- 2-2-2-2-2-1
+-- Case 2-2-2-2-2-2: When the node of the capability of idCP exists:
+-- The state of the node of idND1 is initial, created, or started.
+:csp- {
+  eq snd' = initial .
+  eq snd' = created .
+  eq snd' = started .
+}
+-- Case 2-2-2-2-2-2-1: When the node of idND1 is initial:
+:apply (rd-) -- 2-2-2-2-2-2-1
+-- Case 2-2-2-2-2-2-2: When the node of idND1 is created:
+-- The Cyclic Dependency Lemma rejects this case.
+:init [CycleR02] by {
+  T:NDType <- tnd;
+  I:NDID   <- idND;
+  S:State  <- < (node(tnd,idND,created) sND) , sCP , sRQ , sRL , mp >;
+}
+:apply (rd-) -- 2-2-2-2-2-2-2
+-- Case 2-2-2-2-2-2-3: When the node of idND1 is started:
+-- The state of the capability of idCP is closed, open, or available.
+:csp- {
+  eq scp = closed .
+  eq scp = open .
+  eq scp = available .
+}
+-- Case 2-2-2-2-2-2-3-1: When the capability of idCP is closed:
+:apply (rd-) -- 2-2-2-2-2-2-3-1
+-- Case 2-2-2-2-2-2-3-2: When the capability of idCP is open:
+:apply (rd-) -- 2-2-2-2-2-2-3-2
+-- Case 2-2-2-2-2-2-3-3: When the capability of idCP is available:
+:apply (rd-) -- 2-2-2-2-2-2-3-3
+-- Case 2-3: When the type of the requirement of idRQ is connectsTo:
+--> ***************************************************************
+--> Step 2-4: Think which rule can be applied to the next state
+-->  and repeat case splitting similarly as Step 1-3, 1-4, and 1-5.
+--> ***************************************************************
+-- The next rule should be R11 for the connectsTo requirement of idRQ.
+--> ********************************************************************
+--> Step 1-3: Split the general case into cases which collectively cover
+-->  the general case and one of which matches to LHS of the first rule.
+--> ********************************************************************
+-- LHS of R11 requires a relationship of the connectsTo requirement of idRQ.
+--> ***********************************************************
+--> Step 1-5: When there is a dangling link, split the case
+-->  into cases where the linked object does or does not exist.
+--> ***********************************************************
+-- The relationship of the connectsTo requirement of idRQ does or does not exist.
+:csp- {
+  eq onlyOneRLOfRQ(sRL,idRQ) = false .
+  eq sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL') .
+}
+-- Case 2-3-1: When the relationship of the connectsTo requirement of idRQ does not exist:
+:apply (rd-) -- 2-3-1
+-- Case 2-3-2: When the relationship of the connectsTo requirement of idRQ exists:
+--> ********************************************************************
+--> Step 1-3: Split the general case into cases which collectively cover
+-->  the general case and one of which matches to LHS of the first rule.
+--> ********************************************************************
+-- LHS of R11 requires an open message of idCP.
+:csp {
+  eq (opMsg(idCP) \in mp) = false .
+  eq mp = (opMsg(idCP) mp') .
+}
+-- Case 2-3-2-1: When there is no open message of idCP.
+:apply (rd-) -- 2-3-2-1
+eof
+-- Case 2-3-2-2: When there is an open message of idCP.
+--> ****************************************************
+--> Step 1-4: Split the first rule case into cases where
+-->  the condition of the rule does or does not hold.
+--> ****************************************************
+-- The condition of R11 does or does not hold for the requirement of idRQ.
+-- The states of the node of the requirement of idRQ is or is not created.
+:ctf {
+  eq (state(getNode(sND,idND)) = created) = true .
+}
+%%
+--> ***********************************************************
+--> Step 1-5: When there is a dangling link, split the case
+-->  into cases where the linked object does or does not exist.
+--> ***********************************************************
+-- The capability of the relationship does or does not exist.
+:csp- {
+  eq existCP(sCP,idCP) = false .
+  eq sCP = (cap(connectsTo,idCP,scp,idND1) sCP') .
+}
+-- Case 2-3-2-1: When the capability of the relationship does not exist:
+:apply (rd-) -- 2-3-2-1
+-- Case 2-3-2-2: When the capability of the relationship exists:
+-- The node of the capability of idCP is or is not the same of the node of the requiement of idRQ.
+:ctf- {
+  eq idND1 = idND .
+}
+-- Case 2-3-2-2-1: When the node of the capability of idCP is the same of the node of the requiement of idRQ:
+:apply (rd-) -- 2-3-2-2-1
+-- Case 2-3-2-2-2: When the node of the capability of idCP is not the same of the node of the requiement of idRQ:
+--> ***********************************************************
+--> Step 1-5: When there is a dangling link, split the case
+-->  into cases where the linked object does or does not exist.
+--> ***********************************************************
+-- The node of the capability of idCP does or does not exist.
+:csp- {
+  eq existND(sND,idND1) = false .
+  eq sND = (node(tnd',idND1,snd') sND') .
+}
+-- Case 2-3-2-2-2-1: When the node of the capability of idCP does not exist:
+:apply (rd-) -- 2-3-2-2-2-1
+-- Case 2-3-2-2-2-2: When the node of the capability of idCP exists:
+-- The state of the node of idND1 is initial, created, or started.
+:csp- {
+  eq snd' = initial .
+  eq snd' = created .
+  eq snd' = started .
+}
+-- Case 2-3-2-2-2-2-1: When the node of idND1 is initial:
+:apply (rd-) -- 2-3-2-2-2-2-1
+-- Case 2-3-2-2-2-2-2: When the node of idND1 is created:
+-- The Cyclic Dependency Lemma rejects this case.
+:init [CycleR02] by {
+  T:NDType <- tnd;
+  I:NDID   <- idND;
+  S:State  <- < (node(tnd,idND,created) sND) , sCP , sRQ , sRL , mp >;
+}
+:apply (rd-) -- 2-3-2-2-2-2-2
+-- Case 2-3-2-2-2-2-3: When the node of idND1 is started:
+-- The state of the capability of idCP is closed, open, or available.
+:csp- {
+  eq scp = closed .
+  eq scp = open .
+  eq scp = available .
+}
+-- Case 2-3-2-2-2-2-3-1: When the capability of idCP is closed:
+:apply (rd-) -- 2-3-2-2-2-2-3-1
+-- Case 2-3-2-2-2-2-3-2: When the capability of idCP is open:
+:apply (rd-) -- 2-3-2-2-2-2-3-2
+-- Case 2-3-2-2-2-2-3-3: When the capability of idCP is available:
+:apply (rd-) -- 2-3-2-2-2-2-3-3
+eof
+-- Case 3: When there is a waiting requirement of idRQ of the node:
+:apply (rd-) -- 3
+show proof
