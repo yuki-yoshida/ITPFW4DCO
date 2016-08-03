@@ -538,7 +538,7 @@ show proof
 :apply (rd-) -- 1
 :apply (rd-) -- 2
 show proof
-
+eof
 --> **************************************************************************
 --> ctrans [R07]: < SetND, (cap(dependsOn,IDCP,SCP,IDND1) SetCP), 
 -->   	                   (req(dependsOn,IDRQ,unbound,IDND2) SetRQ),
