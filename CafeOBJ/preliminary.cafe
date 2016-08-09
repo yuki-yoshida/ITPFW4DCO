@@ -5,8 +5,7 @@ module! SET(X :: TRIV) {
  op _ _ : Set Set -> Set {constr assoc comm idem id: emp}
  op #_ : Set -> Nat
  var E : Elt.X     var S : Set
- eq # emp = 0 .
- eq # (E S) = 1 + (# S) . }
+ eq # emp = 0 .    eq # (E S) = 1 + (# S) . }
 
 module! SERVICE {
  protecting(NAT)
@@ -16,8 +15,7 @@ module! SERVICE {
 
 module! SV-SET {
  protecting(SET(SERVICE{sort Elt -> Service})
-    * {sort Set -> SvSet,
-       op emp -> empSvSet}) }
+    * {sort Set -> SvSet, op emp -> empSvSet}) }
 
 module! UPDATE {
  including(SV-SET)

@@ -81,9 +81,9 @@ select ProofContCont .
   eq srs'' = started .
 }
 -- Case 1-2-2-2-1: When the resource idRRS is initial:
---> ********************************************************************************
---> Step 2-5: When falling in a cyclic situation, use the Cyclic Dependency Theorem.
---> ********************************************************************************
+--> ******************************************************************************
+--> Step 2-5: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
+--> ******************************************************************************
 -- The Cyclic Dependency Lemma rejects this case.
 :init [cycle] by {
   T:RSType <- trs';

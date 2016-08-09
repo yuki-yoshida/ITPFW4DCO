@@ -36,12 +36,8 @@ module! PROOFfuns {
   pr(PROOFbase)
   pr(STATERules)
 
-  vars IDRS IDRS1 IDRS2 : RSID 
-  vars IDPR IDPR1 IDPR2 : PRID 
   var SetRS : SetOfResource
   var SetPR : SetOfProperty
-  var SRS : RSState
-  var SPR : PRState
   var S : State
 
 --> *************************
