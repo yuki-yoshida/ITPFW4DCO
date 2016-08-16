@@ -1,4 +1,4 @@
-# AWS CloudFormationのleads-to特性の検証サンプル
+# OASIS TOSCAのleads-to特性の検証サンプル
 ## CITP(Constructor-based Inductive Theorem Prover)について
 ### goalコマンド
  - :goal {eq EXPRESSION = true .}
@@ -52,41 +52,35 @@
    - eq wfs(S) = false if not wfs-BBB(S) .
 
 ### Cyclic Dependency Lemma(CDL)適用の準備
- - 「状態Sで、あるinitialリソースのDDSに、別のinitialリソースが含まれたら、矛盾する」という未実行(nonexec)lemmaを定義しておく。
- - そのlemmaを提供するinitialリソースを導入するためのスコーレム関数を２つ(そのリソースと残り)用意しておく。
- - CDL適用可能な状態に対して、スコーレム関数を適用して対象リソースを導入し、initコマンドで矛盾lemmaを導入する。
+#### R01に対して
+ - 「状態Sで、あるinitial nodeのDDSに、別のinitial nodeが含まれたら、矛盾する」という未実行(nonexec)lemma CycleR01を定義しておく。
+ - CycleR01を適用するinitial nodeを導入するためのスコーレム関数を用意しておく。
+ - CDL適用可能な状態に対して、スコーレム関数を適用して対象nodeを導入し、initコマンドでCycleR01を導入し、矛盾を導く。
+ - 「initial nodeが存在すれば適用可能なルールが存在する、つまりcont(S)が成り立つ」ことはcondition (1)と(2)の多くのルールの証明で度々必要になるので、Initial Cont Lemmaとして事前に証明しておく(Proof-cyclelemma.cafe)。証明内容については後述。
+
+#### R02に対して
+ - 「状態Sで、あるcreated nodeのDDSに、別のcreated nodeが含まれたら、矛盾する」という未実行(nonexec)lemma CycleR02を定義しておく。
+ - CycleR02を適用するcreated nodeを導入するためのスコーレム関数を用意しておく。
+ - CDL適用可能な状態に対して、スコーレム関数を適用して対象nodeを導入し、initコマンドでCycleR02を導入し、矛盾を導く。
+ - 「created nodeが存在すれば適用可能なルールが存在する、つまりcont(S)が成り立つ」ことはcondition (1)と(2)の多くのルールの証明で度々必要になるので、Created Cont Lemmaとして事前に証明しておく(Proof-cyclelemma.cafe)。証明内容については後述。
 
 ## Condtion (1): init(S) implies cont(S) の証明譜 (Proof-initcont.cafe)
 ### ステップ 1-0: 証明すべき述語を定義
  - initcont = init implies cont
+ - Initial Cont Lemmaを導入し、initial nodeがあればcont(S)はtrueになることを表明しておく。
 
 ### ステップ 1-1: 最も一般的なケースから開始
- - 任意定数sRS(リソースの集合)、sPR(プロパティの集合)により、最も一般的な状態は< sRS, sPR >。
+ - 任意定数sND(nodeの集合)、sCP(Capabilityの集合)、sRQ(Requirementの集合)、sRL(Relationshipの集合)、mp(メッセージプール)により、最も一般的な状態は< sND, sCP, sRQ, sRL, mp >。
 
 ### ステップ 1-2: 初期状態で最初に適用されるルールを考察
  - 最初のルールはR01。
 
 ### ステップ 1-3: 最初のルールのLHSにマッチするケースを含むようにケース分け
- - R01のLHSは１つ以上のinitialリソースが必要なので、cspコマンドで以下の３つにケース分けする。
- - Case 1: リソースが一つもない => 証明可能 (init(S)がfalse)
- - Case 2-1: initialリソースが少なくとも一つある
- - Case 2-2: startedリソースが少なくとも一つある => 証明可能 (init(S)がfalse)
-
-### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
- - R01の条件節は「initialリソースのプロパティがすべてready」なので以下の２つにケース分けする。
- - Case 2-1-1: initialリソースのプロパティがすべてready => 証明可能 (R01が適用可能)
- - Case 2-1-2: initialリソースのプロパティのうちnotreadyなものが少なくとも一つある
-
-### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
- - notreadyプロパティのreferリンクが未定なので、以下の３つにケース分けする
- - Case 2-1-2-1: referリンクの参照先が存在しない => 証明可能 (wfs-allPRHaveRRS(S)がfalse)
- - Case 2-1-2-2-1: referリンクの参照先リソースが存在してinitial
- - Case 2-1-2-2-2: referリンクの参照先リソースが存在してstarted => 証明可能 (init(S)がfalse)
-
-### ステップ 1-6: 循環する状況になったらCyclic Dependency Lemmaを適用
- - ここでCase 2-1には、任意に選択したinitialリソースがあるので、これをCDL適用対象と考えて良い (新規に導入不要)。
- - 用意しておいたcycle未実行lemmaを、このinitialリソースを対象として導入する。
- - このリソースのDDSに、referリンクの参照先リソースが含まれるので、矛盾が生じ、証明が完了する。
+ - R01のLHSは１つ以上のinitial nodeが必要なので、cspコマンドで以下の３つにケース分けする。
+ - Case 1: nodeが一つもない => 証明可能 (init(S)がfalse)
+ - Case 2-1: initial nodeが少なくとも一つある => 証明可能 (Initial Cont Lemmaによりcont(S)がtrue)
+ - Case 2-2: created nodeが少なくとも一つある => 証明可能 (init(S)がfalse)
+ - Case 2-3: started nodeが少なくとも一つある => 証明可能 (init(S)がfalse)
 
 ## Condtion (2): inv(S) and not final(S) implies cont(SS) or final(SS) の証明譜 (Proof-contcont.cafe)
 ### ステップ 2-0: 証明すべき述語を定義
@@ -94,105 +88,405 @@
  - wfsを、invと区別して定義しているので前件に加えておく。
  - 次状態が存在する状態に関する条件なので、前件にcont(S)が不要であることに注意。
  - contcontを二重否定イディオムを使って定義する。
+ - Initial Cont Lemmaを導入し、initial nodeがあればcont(S)はtrueになることを表明しておく。
+ - Created Cont Lemmaを導入し、created nodeがあればcont(S)はtrueになることを表明しておく。
 
 ## R01に対するCondtion (2)の証明譜 (Proof-contcont-R01.cafe)
 ### ステップ 2-1: 各ルールのLHSにマッチする最も一般的なケースから開始
- - R01のLHSは１つ以上のinitialリソースが必要なので、trs, idRS, sRS, sPRを任意定数として< (res(trs,idRS,initial) sRS), sPR >が最も一般的な状態。
+ - R01のLHSは１つ以上のinitial nodeが必要なので、tnd, idND, sND, sCP, sRQ, sRL,mpを任意定数として< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >が最も一般的な状態。
 
 ### ステップ 2-2: ルールの条件節が成り立つ/成り立たないでケース分け
- - R01の条件節は「initialリソースのプロパティがすべてready」なので以下の２つにケース分けする。
- - Case 1: initialリソースのプロパティがすべてready
- - Case 2: initialリソースのプロパティがすべてready、ではない => 証明可能 (次状態が無い)
-
-### ステップ 2-3: ルール適用後の次状態がfinalになる/ならないでケース分け
- - R01適用後にはstartedリソースが一つあるので、残りのリソースが全部startedならfinalになる。そこで、以下の２つにケース分けする。
- - Case 1-1: 残りのリソースすべてがstarted => 証明可能 (final(S')がtrue)
- - Case 1-2: 残りのリソースの少なくとも一つがinitial
-
-### ステップ 2-4: 次状態に適用されるルールを考察
- - initialリソースがあるので、適用されるルールはR01。
-
-### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
- - R01の条件節は「initialリソースのプロパティがすべてready」なので以下の２つにケース分けする。
- - Case 1-2-1: initialリソースのプロパティがすべてready => 証明可能 (次状態にR01が適用可能)
- - Case 1-2-2: initialリソースのプロパティのうちnotreadyなものが少なくとも一つある
-
-### CITPテクニック(2)を使って、sPRの詳細化に対してallPROfRSInStates(sPR,idRS,ready)がtrueになることを保証しておく。
-
-### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
- - notreadyプロパティのreferリンクが未定なので、以下の３つにケース分けする
- - Case 1-2-2-1: referリンクの参照先が存在しない => 証明可能 (wfs-allPRHaveRRS(S)がfalse)
- - Case 1-2-2-2-1: referリンクの参照先リソースが存在してinitial
- - Case 1-2-2-2-2: referリンクの参照先リソースが存在してstarted => 証明可能 (次状態にR02が適用可能)
-
-### ステップ 2-5: 循環する状況になったらCyclic Dependency Lemmaを適用
- - Case 1-2には、任意に選択したinitialリソースがあるので、これをCDL適用対象と考えて良い (新規に導入不要)。
- - 用意しておいたcycle未実行lemmaを、このinitialリソースを対象として導入する。
- - このリソースのDDSに、referリンクの参照先リソースが含まれるので、矛盾が生じ、証明が完了する。
+ - R01の条件節は「initial nodeのhostedOn requirementがすべてready」なので以下の２つにケース分けする。
+ - Case 1: initial nodeのhostedOn requirementがすべてready => 証明可能 (Created Cont Lemmaによりcont(S')がtrue)
+ - Case 2: initial nodeのhostedOn requirementがすべてready、ではない => 証明可能 (次状態が無い)
 
 ## R02に対するCondtion (2)の証明譜 (Proof-contcont-R02.cafe)
 ### ステップ 2-1: 各ルールのLHSにマッチする最も一般的なケースから開始
- - R02のLHSを任意定数trs, idRRS, sRS, tpr, idPR, idRS, sPRで表現する。
+ - R02のLHSは１つ以上のcreated nodeが必要なので、tnd, idND, sND, sCP, sRQ, sRL,mpを任意定数として< (node(tnd,idND,created) sND), sCP, sRQ, sRL, mp >が最も一般的な状態。
 
 ### ステップ 2-2: ルールの条件節が成り立つ/成り立たないでケース分け
- - R02は無条件ルールなので、ケース分けは不要。
+ - R02の条件節は「created nodeのrequirementがすべてready」なので以下の２つにケース分けする。
+ - Case 1: created nodeのrequirementがすべてready
+ - Case 2: created nodeのrequirementがすべてready、ではない => 証明可能 (次状態が無い)
 
 ### ステップ 2-3: ルール適用後の次状態がfinalになる/ならないでケース分け
- - R02適用後にはstartedリソースが一つあるので、残りのリソースが全部startedならfinalになる。そこで、以下の２つにケース分けする。
- - Case 1: 残りのリソースすべてがstarted => 証明可能 (final(S')がtrue)
- - Case 2: 残りのリソースすべてがstarted、ではない
+ - R02適用後にはstarted nodeが一つあるので、残りのnodeが全部startedならfinalになる。そこで、以下の２つにケース分けする。
+ - Case 1-1: 残りのnodeすべてがstarted => 証明可能 (final(S')がtrue)
+ - Case 1-2: 残りのnodeの少なくとも一つがinitial => 証明可能 (Initial Cont Lemmaによりcont(S')がtrue)
+ - Case 1-3: 残りのnodeの少なくとも一つがcreated => 証明可能 (Created Cont Lemmaによりcont(S')がtrue)
 
-### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
- - readyになったプロパティのparentリンクが未定なので、以下の３つにケース分けする
- - Case 2-1: parentリンクの参照先が存在しない => 証明可能 (wfs-allPRHaveRRS(S)がfalse)
- - Case 2-2-1: parentリンクの参照先リソースが存在してinitial
- - Case 2-2-2: referリンクの参照先リソースが存在してstarted
+## R03に対するCondtion (2)の証明譜 (Proof-contcont-R03.cafe)
+### ステップ 2-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R03のLHSは１つ以上のclosedなhostedOn capabilityが必要なので、< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >が最も一般的な状態。
 
-### CDL適用の準備
- - ここでCase 2-2-1にはinitialリソースが存在するのでCDLを適用できるが、このinitialリソースは任意に選択したものではないので、CDL適用対象のinitialリソースを別に用意する必要がある。
- - スコーレム関数を利用してsRS'を分解し、CDL適用対象リソースidRS1を導入する。
+### ステップ 2-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R03の条件節は「closed capabilityの親nodeがisCreated」なので以下の２つにケース分けする。
+ - Case 1: closed capabilityの親nodeがisCreated
+ - Case 2: closed capabilityの親nodeがisCreated、ではない => 証明可能 (次状態が無い)
+
+### ステップ 2-3: ルール適用後の次状態がfinalになる/ならないでケース分け
+ - R03適用直後にfinalにならないことはわかっている。
 
 ### ステップ 2-4: 次状態に適用されるルールを考察
- - initialリソースがあるので、適用されるルールはR01。
+ - availableなhostedOn capabilityがあるので、適用されるルールはR04。
 
-### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
- - R01の条件節は「initialリソースのプロパティがすべてready」なので以下の２つにケース分けする。
- - Case 2-2-1-1: initialリソースのプロパティがすべてready => 証明可能 (次状態にR01が適用可能)
- - Case 2-2-1-2: initialリソースのプロパティのうちnotreadyなものが少なくとも一つある
+### ステップ 1-3: 最初のルールのLHSにマッチするケースを含むようにケース分け
+ - R04のLHSはavailable capabilityに対応するrelationshipと、さらにそれに対応するunbound requirementが必要なので、以下のようにケース分けする。
+ - Case 1-1: 対応するrelationshipが無い => 証明可能 (wfs-allCPHaveRL(S)がfalse)
+ - Case 1-2: 対応するrelationshipがある
+   - Case 1-2-1: 対応するrelationshipがhostedOn
+     - Case 1-2-1-1: 対応するrequirementが無い => 証明可能 (wfs-allRLHaveRQ(S)がfalse)
+     - Case 1-2-1-2: 対応するrequirementがある
+　　　　 - Case 1-2-1-2-1: 対応するrequirementがhostedOn
+  　　　　 - Case 1-2-1-2-1-1: 対応するrequirementがunbound => 証明可能 (R04が適用可能なのでcont(S')がtrue)
+  　　　　 - Case 1-2-1-2-1-2: 対応するrequirementがwaiting => 証明可能 (inv-ifCPClosedThenRQUnbound(S)がfalse)
+　  　　　 - Case 1-2-1-2-1-3: 対応するrequirementがready => 証明可能 (inv-ifCPClosedThenRQUnbound(S)がfalse)
+
+　　　　 - Case 1-2-1-2-2: 対応するrequirementがdependsOn => 証明可能 (wfs-allRLHaveSameTypeCPRQ(S)がfalse)
+　　　　 - Case 1-2-1-2-3: 対応するrequirementがconnectsTo => 証明可能 (wfs-allRLHaveSameTypeCPRQ(S)がfalse)
+
+   - Case 1-2-2: 対応するrelationshipがdependsOn => 証明可能 (wfs-allRLHaveSameTypeCPRQ(S)がfalse)
+   - Case 1-2-3: 対応するrelationshipがconnectsTo => 証明可能 (wfs-allRLHaveSameTypeCPRQ(S)がfalse)
+
+## R04に対するCondtion (2)の証明譜 (Proof-contcont-R04.cafe)
+### ステップ 2-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R04のLHSはavailable capability、それに対応するrelationshipと、されにそれに対応するunbound requirementが必要なので、< sND, (cap(hostedOn,idCP,available,idND) sCP), (req(hostedOn,idRQ,unbound,idND') sRQ), (rel(hostedOn,idRL,idCP,idRQ) sRL), mp >が最も一般的な状態。
+
+### ステップ 2-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R04は無条件ルール。
+
+### ステップ 2-3: ルール適用後の次状態がfinalになる/ならないでケース分け
+ - R03適用直後にfinalにならないことはわかっている。
+
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - readyなhostedOn requirementがあるので、適用されるルールはR01。
+
+### ステップ 1-3: 最初のルールのLHSにマッチするケースを含むようにケース分け
+ - R01のLHSはready requirementに対応するinitial nodeが必要なので、以下のようにケース分けする。
+ - Case 1: 対応するnodeが無い => 証明可能 (wfs-allRQHaveND(S)がfalse)
+ - Case 2: 対応するnodeがある
+   - Case 2-1: 対応するnodeがinitial => 証明可能 (Initial Cont Lemmaによりcont(S')がtrue)
+   - Case 2-2: 対応するnodeがcreated => 証明可能 (inv-ifNDCreatedThenHostedOnRQReady(S)がfalse)
+   - Case 2-2: 対応するnodeがstarted => 証明可能 (inv-ifNDStartedThenRQReady(S)がfalse)
+
+## R05に対するCondtion (2)の証明譜 (Proof-contcont-R05.cafe)
+### ステップ 2-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R05のLHSは１つ以上のclosedなdependsOn capabilityが必要なので、< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >が最も一般的な状態。
 
 ### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
- - notreadyプロパティのreferリンクが未定なので、以下の３つにケース分けする
- - Case 2-2-1-2-1: referリンクの参照先が存在しない => 証明可能 (wfs-allPRHaveRRS(S)がfalse)
- - Case 2-2-1-2-2-1: referリンクの参照先リソースが存在してinitial
- - Case 2-2-1-2-2-2: referリンクの参照先リソースが存在してstarted => 証明可能 (次状態にR02が適用可能)
+ - capabilityの親nodeのリンクが未定なので、以下の２つにケース分けする
+ - Case 1: 対応するnodeが無い => 証明可能 (wfs-allCPHaveND(S)がfalse)
+ - Case 2: 対応するnodeがある
 
-### ステップ 2-5: 循環する状況になったらCyclic Dependency Lemmaを適用
- - Case 2-2-1で導入したリソースのDDSに、referリンクの参照先リソースが含まれるので、矛盾が生じ、証明が完了する。
+### ステップ 2-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R05の条件節は「closed capabilityの親nodeがisCreated」なので以下の３つにケース分け。
+ - Case 2-1: capabilityに対応するnodeがinitial => 証明可能 (Initial Cont Lemmaによりcont(S')がtrue)
+ - Case 2-2: capabilityに対応するnodeがcreated => 証明可能 (Created Cont Lemmaによりcont(S')がtrue)
+ - Case 2-3: capabilityに対応するnodeがstarted => 証明可能 (R06が適用可能なのでcont(S')がtrue)
+
+## R06に対するCondtion (2)の証明譜 (Proof-contcont-R06.cafe)
+### ステップ 2-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R06のLHSは１つ以上のopenなdependsOn capabilityが必要なので、< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >が最も一般的な状態。
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - capabilityの親nodeのリンクが未定なので、以下の２つにケース分けする
+ - Case 1: 対応するnodeが無い => 証明可能 (wfs-allCPHaveND(S)がfalse)
+ - Case 2: 対応するnodeがある
+
+### ステップ 2-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R06の条件節は「closed capabilityの親nodeがisCreated」なので以下の３つにケース分け。
+ - Case 2-1: capabilityに対応するnodeがinitial => 証明可能 (Initial Cont Lemmaによりcont(S')がtrue)
+ - Case 2-2: capabilityに対応するnodeがcreated => 証明可能 (Created Cont Lemmaによりcont(S')がtrue)
+ - Case 2-3: capabilityに対応するnodeがstarted
+
+### ステップ 2-3: ルール適用後の次状態がfinalになる/ならないでケース分け
+ - R06適用直後にfinalにならないことはわかっている。
+
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - availableなdependsOn capabilityがあるので、適用されるルールはR08。
+
+### ステップ 1-3: 最初のルールのLHSにマッチするケースを含むようにケース分け
+ - R08のLHSはavailable capabilityに対応するrelationshipと、さらにそれに対応するwaiting requirementが必要なので、以下のようにケース分けする。
+ - Case 2-3-1: 対応するrelationshipが無い => 証明可能 (wfs-allCPHaveRL(S)がfalse)
+ - Case 2-3-2: 対応するrelationshipがある
+   - Case 2-3-2-1: 対応するrelationshipがhostedOn => 証明可能 (wfs-allRLHaveSameTypeCPRQがfalse)
+   - Case 2-3-2-2: 対応するrelationshipがdependsOn => 証明可能 (wfs-allRLHaveSameTypeCPRQ(S)がfalse)
+   - Case 2-3-2-3: 対応するrelationshipがconnectsTo
+     - Case 2-3-2-3-1: 対応するrequirementが無い => 証明可能 (wfs-allRLHaveRQ(S)(S)がfalse)
+     - Case 2-3-2-3-2: 対応するrequirementがある
+　　　　 - Case 2-3-2-3-2-1: 対応するrequirementがhostedOn => 証明可能 (wfs-allRLHaveSameTypeCPRQ(S)がfalse)
+　　　　 - Case 2-3-2-3-2-2: 対応するrequirementがdependsOn => 証明可能 (wfs-allRLHaveSameTypeCPRQ(S)がfalse)
+　　　　 - Case 2-3-2-3-2-3: 対応するrequirementがconnectsTo
+  　　　　 - Case 2-3-2-3-2-3-1: 対応するrequirementがunbound
+  　　　　 - Case 2-3-2-3-2-3-2: 対応するrequirementがwaiting => 証明可能 (R08が適用可能なのでcont(S')がfalse)
+　  　　　 - Case 2-3-2-3-2-3-3: 対応するrequirementがready => 証明可能 (inv-ifCPClosedThenRQUnbound(S)がfalse)
+
+
+   - ここでCase 2-3-2-3-2-3-1がまだ残っている。
+
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - unboundなconnectsTo requirementがあるので、適用されるルールはR11。
+
+### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
+ - R11の条件節は「unbound requiremetのnodeがcreated、かつcapabilityがisActivated」だが、capabilityはopenなので、nodeの条件で以下の3つにケース分けする。
+ - Case 2-3-2-3-2-3-1-2-1: unbound requiremetのnodeがinitial => 証明可能 (Initial Cont Lemmaによりconst(S')がtrue)
+ - Case 2-3-2-3-2-3-1-2-2: unbound requiremetのnodeがcreated => 証明可能 (R07が適用可能なのでcont(S')がtrue)
+ - Case 2-3-2-3-2-3-1-2-3: unbound requiremetのnodeがstarted => 証明可能 (inv-ifCPOpenThenRQUnboundWaiting(S)がfalse)
+
+## R07に対するCondtion (2)の証明譜 (Proof-contcont-R07.cafe)
+### ステップ 2-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R07のLHSはunbound requirementに対応するrelationshipと、さらにそれに対応するcapabilityが必要なので、< sND, (cap(dependsOn,idCP,scp,idND) sCP), (req(dependsOn,idRQ,unbound,idND') sRQ), (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >が最も一般的な状態。
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - requirementの親nodeのリンクが未定なので、以下の２つにケース分けする
+ - Case 1: 対応するnodeが無い => 証明可能 (wfs-allRQHaveND(S)がfalse)
+ - Case 2: 対応するnodeがある
+
+### ステップ 2-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R07の条件節は「unbound requiremetのnodeがcreated、かつcapabilityがisActivated」なので、まずはnodeの状態について以下の３つにケース分け。
+ - Case 2-1: requirementに対応するnodeがinitial => 証明可能 (Initial Cont Lemmaによりcont(S')がtrue)
+ - Case 2-2: requirementに対応するnodeがcreated => 証明可能 (Created Cont Lemmaによりcont(S')がtrue)
+ - Case 2-3: requirementに対応するnodeがstarted => 証明可能 (次状態が無い)
+
+## R08に対するCondtion (2)の証明譜 (Proof-contcont-R08.cafe)
+### ステップ 2-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R08のLHSはwaiting requirementに対応するrelationshipと、さらにそれに対応するavailable capabilityが必要なので、< sND, (cap(dependsOn,idCP,available,idND) sCP), (req(dependsOn,idRQ,waiting,idND') sRQ), (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >が最も一般的な状態。
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - requirementの親nodeのリンクが未定なので、以下の２つにケース分けする
+ - Case 1: 対応するnodeが無い => 証明可能 (wfs-allRQHaveND(S)がfalse)
+ - Case 2: 対応するnodeがある
+
+### ステップ 2-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R08は無条件ルール。
+
+### ステップ 2-3: ルール適用後の次状態がfinalになる/ならないでケース分け
+ - R08適用直後にfinalにならないことはわかっている。
+
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - readyなrequirementがあるので、適用されるルールはR02。
+
+### ステップ 1-3: 最初のルールのLHSにマッチするケースを含むようにケース分け
+ - R02のLHSはrequiremntに対応するcreated nodeが必要なので、cspコマンドで以下の３つにケース分けする。
+ - Case 2-1: requirementに対応するnodeがinitial => 証明可能 (inv-ifNDInitialThenRQUnboundReady(S)がfalse)
+ - Case 2-2: requirementに対応するnodeがcreated => 証明可能 (R02が適用可能なのでcont(S')がtrue)
+ - Case 2-3: requirementに対応するnodeがstarted => 証明可能 (inv-ifNDStartedThenRQReady(S)がfalse)
+
+## R09に対するCondtion (2)の証明譜 (Proof-contcont-R09.cafe)
+### ステップ 2-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R09のLHSは１つ以上のclosedなconnectsTo capabilityが必要なので、< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >が最も一般的な状態。
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - capabilityの親nodeのリンクが未定なので、以下の２つにケース分けする
+ - Case 1: 対応するnodeが無い => 証明可能 (wfs-allCPHaveND(S)がfalse)
+ - Case 2: 対応するnodeがある
+
+### ステップ 2-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R09の条件節は「closed capabilityの親nodeがisCreated」なので以下の３つにケース分け。
+ - Case 2-1: capabilityに対応するnodeがinitial => 証明可能 (Initial Cont Lemmaによりcont(S')がtrue)
+ - Case 2-2: capabilityに対応するnodeがcreated => 証明可能 (Created Cont Lemmaによりcont(S')がtrue)
+ - Case 2-3: capabilityに対応するnodeがstarted => 証明可能 (R10が適用可能なのでcont(S')がtrue)
+
+## R10に対するCondtion (2)の証明譜 (Proof-contcont-R10.cafe)
+### ステップ 2-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R10のLHSは１つ以上のopenなconnectsTo capabilityが必要なので、< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >が最も一般的な状態。
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - capabilityの親nodeのリンクが未定なので、以下の２つにケース分けする
+ - Case 1: 対応するnodeが無い => 証明可能 (wfs-allCPHaveND(S)がfalse)
+ - Case 2: 対応するnodeがある
+
+### ステップ 2-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R10の条件節は「closed capabilityの親nodeがisCreated」なので以下の３つにケース分け。
+ - Case 2-1: capabilityに対応するnodeがinitial => 証明可能 (Initial Cont Lemmaによりcont(S')がtrue)
+ - Case 2-2: capabilityに対応するnodeがcreated => 証明可能 (Created Cont Lemmaによりcont(S')がtrue)
+ - Case 2-3: capabilityに対応するnodeがstarted
+
+### ステップ 2-3: ルール適用後の次状態がfinalになる/ならないでケース分け
+ - R10適用直後にfinalにならないことはわかっている。
+
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - availableなconnectsTo capabilityがあるので、適用されるルールはR12。
+
+### ステップ 1-3: 最初のルールのLHSにマッチするケースを含むようにケース分け
+ - R12のLHSはavailable capabilityに対応するrelationshipと、さらにそれに対応するwaiting requirementが必要なので、以下のようにケース分けする。
+ - Case 2-3-1: 対応するrelationshipが無い => 証明可能 (wfs-allCPHaveRL(S)がfalse)
+ - Case 2-3-2: 対応するrelationshipがある
+   - Case 2-3-2-1: 対応するrelationshipがhostedOn => 証明可能 (wfs-allRLHaveSameTypeCPRQがfalse)
+   - Case 2-3-2-3: 対応するrelationshipがdependsOn
+     - Case 2-3-2-3-1: 対応するrequirementが無い => 証明可能 (wfs-allRLHaveRQ(S)(S)がfalse)
+     - Case 2-3-2-3-2: 対応するrequirementがある
+　　　　 - Case 2-3-2-3-2-1: 対応するrequirementがhostedOn => 証明可能 (wfs-allRLHaveSameTypeCPRQ(S)がfalse)
+　　　　 - Case 2-3-2-3-2-3: 対応するrequirementがdependsOn
+  　　　　 - Case 2-3-2-3-2-3-1: 対応するrequirementがunbound
+  　　　　 - Case 2-3-2-3-2-3-2: 対応するrequirementがwaiting => 証明可能 (R12が適用可能なのでcont(S')がfalse)
+　  　　　 - Case 2-3-2-3-2-3-3: 対応するrequirementがready => 証明可能 (inv-ifCPClosedThenRQUnbound(S)がfalse)
+
+　　　　 - Case 2-3-2-3-2-3: 対応するrequirementがconnectsTo => 証明可能 (wfs-allRLHaveSameTypeCPRQ(S)がfalse)
+
+   - Case 2-3-2-3: 対応するrelationshipがconnectsTo => 証明可能 (wfs-allRLHaveSameTypeCPRQ(S)がfalse)
+   - ここでCase 2-3-2-3-2-3-1がまだ残っている。
+
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - unboundなconnectsTo requirementがあるので、適用されるルールはR11。
+
+### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
+ - R11の条件節は「unbound requiremetのnodeがcreated、かつ対応するopen messageが存在する」だが、まずnodeの条件で以下の3つにケース分けする。
+ - Case 2-3-2-3-2-3-1-2-1: unbound requiremetのnodeがinitial => 証明可能 (Initial Cont Lemmaによりconst(S')がtrue)
+ - Case 2-3-2-3-2-3-1-2-2: unbound requiremetのnodeがcreated => 証明可能 (Created Cont Lemmaによりconst(S')がtrue)
+ - Case 2-3-2-3-2-3-1-2-3: unbound requiremetのnodeがstarted => 証明可能 (inv-ifNDStartedThenRQReady(S)がfalse)
+
+## R11に対するCondtion (2)の証明譜 (Proof-contcont-R11.cafe)
+### ステップ 2-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R11のLHSはunbound requirementに対応するrelationshipと、対応するopen messageが必要なので、< sND, sCP, (req(connectsTo,idRQ,unbound,idND') sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL), (opMsg(idCP) mp) >が最も一般的な状態。
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - requirementの親nodeのリンクが未定なので、以下の２つにケース分けする
+ - Case 1: 対応するnodeが無い => 証明可能 (wfs-allRQHaveND(S)がfalse)
+ - Case 2: 対応するnodeがある
+
+### ステップ 2-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R11の条件節は「unbound requiremetのnodeがcreated、かつcapabilityがisActivated」なので、まずはnodeの状態について以下の３つにケース分け。
+ - Case 2-1: requirementに対応するnodeがinitial => 証明可能 (Initial Cont Lemmaによりcont(S')がtrue)
+ - Case 2-2: requirementに対応するnodeがcreated => 証明可能 (Created Cont Lemmaによりcont(S')がtrue)
+ - Case 2-3: requirementに対応するnodeがstarted => 証明可能 (次状態が無い)
+
+## R12に対するCondtion (2)の証明譜 (Proof-contcont-R12.cafe)
+### ステップ 2-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R12のLHSはwaiting requirementに対応するrelationshipと、さらにそれに対応するavailable capabilityが必要なので、< sND, (cap(dependsOn,idCP,available,idND) sCP), (req(dependsOn,idRQ,waiting,idND') sRQ), (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >が最も一般的な状態。
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - requirementの親nodeのリンクが未定なので、以下の２つにケース分けする
+ - Case 1: 対応するnodeが無い => 証明可能 (wfs-allRQHaveND(S)がfalse)
+ - Case 2: 対応するnodeがある
+
+### ステップ 2-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R12は無条件ルール。
+
+### ステップ 2-3: ルール適用後の次状態がfinalになる/ならないでケース分け
+ - R12適用直後にfinalにならないことはわかっている。
+
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - readyなrequirementがあるので、適用されるルールはR02。
+
+### ステップ 1-3: 最初のルールのLHSにマッチするケースを含むようにケース分け
+ - R02のLHSはrequiremntに対応するcreated nodeが必要なので、cspコマンドで以下の３つにケース分けする。
+ - Case 2-1: requirementに対応するnodeがinitial => 証明可能 (inv-ifNDInitialThenRQUnboundReady(S)がfalse)
+ - Case 2-2: requirementに対応するnodeがcreated => 証明可能 (R02が適用可能なのでcont(S')がtrue)
+ - Case 2-3: requirementに対応するnodeがstarted => 証明可能 (inv-ifNDStartedThenRQReady(S)がfalse)
 
 ## Condtion (3): inv(S) and not final(S) implies m(S) > m(SS) の証明譜 (Proof-measure.cafe)
 ### ステップ 3-0: 証明すべき述語を定義
- - mmes = wfs and inv and not final implies cont' or final'
+ - mmes = wfs and inv and not final implies m > m'
  - wfsを、invと区別して定義しているので前件に加えておく。
  - 次状態が存在する状態に関する条件なので、前件にcont(S)が不要であることに注意。
  - mesmesを二重否定イディオムを使って定義する。
- - 自然数に対するAxiomとして N < N+1 を定義しておく。
+ - 自然数に対するAxiomとして N < N+1, N < N+2, N < N+3, N < N+4, を定義しておく。
 
 ## R01に対するCondtion (3)の証明譜
 ### ステップ 3-1: 各ルールのLHSにマッチする最も一般的なケースから開始
- - R01のLHSを任意定数trs, idRS, sRS, sPRで表現する。
+ - R01のLHSを任意定数tnd, idND, sND, sCP, sRQ, sRL, mpで表現する。
 
 ### ステップ 3-2: ルールの条件節が成り立つ/成り立たないでケース分け
- - R01の条件節は「initialリソースのプロパティがすべてready」なので以下の２つにケース分けする。
- - Case 1: initialリソースのプロパティがすべてready => 証明可能 (m(S) > m(SS)が成り立つ)
- - Case 2: initialリソースのプロパティがすべてready、ではない => 証明可能 (次状態が無い)
+ - R01の条件節は「initial nodeのhostedOn requirementがすべてready」なので以下の２つにケース分けする。
+ - Case 1: initial nodeのhostedOn requirementがすべてready => 証明可能 (m(S) > m(SS)が成り立つ)
+ - Case 2: initial nodeのhostedOn requirementがすべてready、ではない => 証明可能 (次状態が無い)
 
 ## R02に対するCondtion (3)の証明譜
 ### ステップ 3-1: 各ルールのLHSにマッチする最も一般的なケースから開始
- - R02のLHSを任意定数trs, idRRS, sRS, tpr, idPR, idRS, sPRで表現する。
+ - R02のLHSを任意定数tnd, idND, sND, sCP, sRQ, sRL, mpで表現する。
 
 ### ステップ 3-2: ルールの条件節が成り立つ/成り立たないでケース分け
- - R02は無条件ルールなので、ケース分けは不要。
- - Case 1: R02のLHSにマッチする最も一般的なケース => 証明可能 (m(S) > m(SS)が成り立つ)
+ - R02の条件節は「created nodeのrequirementがすべてready」なので以下の２つにケース分けする。
+ - Case 1: created nodeのrequirementがすべてready => 証明可能 (m(S) > m(SS)が成り立つ)
+ - Case 2: created nodeのrequirementがすべてready、ではない => 証明可能 (次状態が無い)
+
+## R03に対するCondtion (3)の証明譜
+### ステップ 3-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R03のLHSを任意定数sND, idCP, idND, sCP, sRQ, sRL, mpで表現する。
+
+### ステップ 3-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R03の条件節は「closedなhostedOn capabilityに対するnodeがisCreated」なので以下の２つにケース分けする。
+ - Case 1: closedなhostedOn capabilityに対するnodeがisCreated => 証明可能 (m(S) > m(SS)が成り立つ)
+ - Case 2: closedなhostedOn capabilityに対するnodeがisCreated、ではない => 証明可能 (次状態が無い)
+
+## R04に対するCondtion (3)の証明譜
+### ステップ 3-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R04のLHSを任意定数sND, idCP, idND, sCP, idRQ, idND', sRQ, idRL, sRL, mpで表現する。
+
+### ステップ 3-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R04は無条件ルールなので、ケース分けは不要。
+ - Case 1: R04のLHSにマッチする最も一般的なケース => 証明可能 (m(S) > m(SS)が成り立つ)
+
+## R05に対するCondtion (3)の証明譜
+### ステップ 3-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R05のLHSを任意定数sND, idCP, idND, sCP, sRQ, sRL, mpで表現する。
+
+### ステップ 3-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R05の条件節は「closedなdependsOn capabilityに対するnodeがisCreated」なので以下の２つにケース分けする。
+ - Case 1: closedなdependsOn capabilityに対するnodeがisCreated => 証明可能 (m(S) > m(SS)が成り立つ)
+ - Case 2: closedなdependsOn capabilityに対するnodeがisCreated、ではない => 証明可能 (次状態が無い)
+
+## R06に対するCondtion (3)の証明譜
+### ステップ 3-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R06のLHSを任意定数sND, idCP, idND, sCP, sRQ, sRL, mpで表現する。
+
+### ステップ 3-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R06の条件節は「openなdependsOn capabilityに対するnodeがstarted」なので以下の２つにケース分けする。
+ - Case 1: openなdependsOn capabilityに対するnodeがstarted => 証明可能 (m(S) > m(SS)が成り立つ)
+ - Case 2: openなdependsOn capabilityに対するnodeがstarted、ではない => 証明可能 (次状態が無い)
+
+## R07に対するCondtion (3)の証明譜
+### ステップ 3-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R07のLHSを任意定数sND, idCP, idND, sCP, idRQ, idND', sRQ, idRL, sRL, mpで表現する。
+
+### ステップ 3-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R07の条件節は「requiementに対するnodeがcreated、かつcapabilityがisActivated」なので以下の２つにケース分けする。
+ - Case 1: requiementに対するnodeがcreated、かつcapabilityがisActivated => 証明可能 (m(S) > m(SS)が成り立つ)
+ - Case 2: requiementに対するnodeがcreated、かつcapabilityがisActivated、ではない => 証明可能 (次状態が無い)
+
+## R08に対するCondtion (3)の証明譜
+### ステップ 3-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R08のLHSを任意定数sND, idCP, idND, sCP, idRQ, idND', sRQ, idRL, sRL, mpで表現する。
+
+### ステップ 3-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R08は無条件ルールなので、ケース分けは不要。
+ - Case 1: R08のLHSにマッチする最も一般的なケース => 証明可能 (m(S) > m(SS)が成り立つ)
+
+## R09に対するCondtion (3)の証明譜
+### ステップ 3-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R09のLHSを任意定数sND, idCP, idND, sCP, sRQ, sRL, mpで表現する。
+
+### ステップ 3-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R05の条件節は「closedなconnectsTo capabilityに対するnodeがisCreated」なので以下の２つにケース分けする。
+ - Case 1: closedなconnectsTo capabilityに対するnodeがisCreated => 証明可能 (m(S) > m(SS)が成り立つ)
+ - Case 2: closedなconnectsTo capabilityに対するnodeがisCreated、ではない => 証明可能 (次状態が無い)
+
+## R10に対するCondtion (3)の証明譜
+### ステップ 3-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R10のLHSを任意定数sND, idCP, idND, sCP, sRQ, sRL, mpで表現する。
+
+### ステップ 3-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R10の条件節は「openなconnectsTo capabilityに対するnodeがstarted」なので以下の２つにケース分けする。
+ - Case 1: openなconnectsTo capabilityに対するnodeがstarted => 証明可能 (m(S) > m(SS)が成り立つ)
+ - Case 2: openなconnectsTo capabilityに対するnodeがstarted、ではない => 証明可能 (次状態が無い)
+
+## R11に対するCondtion (3)の証明譜
+### ステップ 3-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R11のLHSを任意定数sND, sCP, idRQ, idND, sRQ, idRL, idCP, sRL, mpで表現する。
+
+### ステップ 3-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R11の条件節は「requiementに対するnodeがcreated」なので以下の２つにケース分けする。
+ - Case 1: requiementに対するnodeがcreated => 証明可能 (m(S) > m(SS)が成り立つ)
+ - Case 2: requiementに対するnodeがcreated、ではない => 証明可能 (次状態が無い)
+
+## R12に対するCondtion (3)の証明譜
+### ステップ 3-1: 各ルールのLHSにマッチする最も一般的なケースから開始
+ - R12のLHSを任意定数sND, sCP, idRQ, idND, sRQ, idRL, idCP, sRL, mpで表現する。
+
+### ステップ 3-2: ルールの条件節が成り立つ/成り立たないでケース分け
+ - R12は無条件ルールなので、ケース分けは不要。
+ - Case 1: R12のLHSにマッチする最も一般的なケース => 証明可能 (m(S) > m(SS)が成り立つ)
 
 ## Condtion (4): inv(S) and (cont(S) or final(S)) and m(S) = 0 implies final(S) の証明譜 (Proof-measure.cafe)
 ### ステップ 4-0: 証明すべき述語を定義
@@ -200,7 +494,7 @@
  - wfsを、invと区別して定義しているので前件に加えておく。
 
 ### ステップ 4-1: m(S)用の一般Lemmaをインスタンシエート
- - initialリソースの数が0ならば、すべてのリソースはstartedである。
+ - initial nodeの数が0、かつcreated nodeの数が0ならば、すべてのnodeはstartedである。
 
 ### ステップ 4-2: 自然数に対するAxiomを定義
  - 「N1 + N2 = 0」と「N1 = 0 かつ N2 = 2」が等価である。
@@ -213,100 +507,63 @@
    - Condition (5)のゴールは、initinv = init implies invS .
    - Condition (6)のゴールは、iinv = wfs and inv and invS implies invS'.とし、invinvを二重否定イディオムを使って定義する。
  - 抽象レベルで証明済みのLemmaを利用するには、具象レベルにインスタンシエートする必要があるが、現在のところ、インスタンシエーションはCafeOBJの機能を利用するように整備されていないので、手作業が必要である。
+ - 個々のinvariantの証明譜の説明は割愛する。
 
-## inv-ifRSStartedThenPRReadyのCondtion (5)(6)の証明譜
- - 対象invariantを設定する：invS = inv-ifRSStartedThenPRReady。
- - 一般Lemma m2o-lemma11をインスタンシエートし、「すべてのリソースがinitialならば、startedなリソースのプロパティはすべてreadyである」を言明する。Condtion (5)で利用。
- - 一般Lemma m2o-lemma08をインスタンシエートし、「startedなリソースのプロパティはすべてreadyであることは、not readyプロパティがreadyに遷移しても変わらない」を言明する。Condtion (6)のR02で利用。
+## Initial Cont Lemmaの証明譜(Proof-cyclelemma.cafe)
+### ステップ 2-0: 証明すべき述語を定義
+ - invcont = wfs and inv implies cont
+ - Sにinitial nodeが含まれる時に、invcont(S)が成り立つことを証明する。
 
-## inv-ifRSStartedThenPRReadyのCondtion (5)の証明譜
- - lemmaにより、最も一般的なケースで証明可能。
+### ステップ 2-1: 最も一般的なケースから開始
+ - 一つ以上のinitial nodeが存在する場合は、< (node(tnd, idND, initial) sND), sCP, sRQ, sRL, mp >が最も一般的な状態。
+ - ここで、idND nodeは任意に選択しているので、Cyclic Dependency Lemmaが存在を保証する「initialであって、かつDDSR01にinitialなnodeが含まれないnode」であることを仮定してよい。
 
-## inv-ifRSStartedThenPRReadyのR01に対するCondtion (6)の証明譜
-### ステップ 6-1: 各ルールのLHSにマッチする最も一般的なケースから開始
- - R01のLHSを任意定数sRS, sPRで表現する。
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - initialなnodeがあるので、適用されるルールはR01。
 
-### ステップ 6-2: ルールの条件節が成り立つ/成り立たないでケース分け
- - R01の条件節は「initialリソースのプロパティがすべてready」なので以下の２つにケース分けする。
- - Case 1: initialリソースのプロパティがすべてready
- - Case 2: initialリソースのプロパティがすべてready、ではない => 証明可能 (次状態が無い)
+### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
+ - R01の条件節は「initial nodeのhostedOn requirementがすべてready」なので以下の２つにケース分けする。
+ - Case 1: initial nodeのhostedOn requirementがすべてready => 証明可能 (R01が適用可能なのでcont(S)がtrue)
+ - Case 2: initial nodeのhostedOn requirementの一つがunbound.
+ - Case 3: initial nodeのhostedOn requirementの一つがwaiting. =>  証明可能 (inv-HostedOnRQNotWaiting(S)がfalse)
 
-### ステップ 6-3: ルール適用後の次状態がinvSになる/ならないでケース分け
- - ifRSStartedThenPRReadyは、sPRが空か否かで定義が異なる。
- - Case 1-1: sPRが空      => 証明可能 (invS(S')がtrue)
- - Case 1-2: sPRが空でない => 証明可能 (invS(S) implies invS(S')が成り立つ)
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - unboundなhostedOn requirementがあるので、適用されるルールはR04。
 
-## inv-ifRSStartedThenPRReadyのR02に対するCondtion (6)の証明譜
-### ステップ 6-1: 各ルールのLHSにマッチする最も一般的なケースから開始
- - R02のLHSを任意定数trs, idRRS, sRS, tpr, idPR, idRS, sPRで表現する。
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - requirementに対するrelationshipのリンクが未定なので、以下の２つにケース分けする
+   - Case 2-1: 対応するrelationshipが無い => 証明可能 (wfs-allRQHaveRL(S)がfalse)
+   - Case 2-2: 対応するrelationshipがある
 
-### ステップ 6-2: ルールの条件節が成り立つ/成り立たないでケース分け
- - R02は無条件ルールなので、ケース分けは不要。
- - Case 1: R02のLHSにマッチする最も一般的なケース => 証明可能 (invS(S) implies invS(S')が成り立つ)
+ - relationshipに対するcapabilityのリンクが未定なので、以下の２つにケース分けする
+   - Case 2-2-1: 対応するcapabilityが無い => 証明可能 (wfs-allRLHaveCP(S)がfalse)
+   - Case 2-2-2: 対応するcapabilityがある
+   
+ - capabilityの親ノードのIDがすでに存在するものかどうかで、以下の２つにケース分けする
+   - Case 2-2-2-1: capabilityの親ノードはrequirementの親ノードと同じ => 証明可能 (wfs-allRLNotInSameND(S)がfalse)
+   - Case 2-2-2-2: capabilityの親ノードはrequirementの親ノードと異なる
 
-## wfs-allPRHaveRSのCondtion (5)(6)の証明譜
- - wfsはinitに含まれているのでCondition (5)の証明は不要。
- - 対象invariantを設定する：invS = wfs-allPRHaveRS。
- - 一般Lemma m2o-lemma12をインスタンシエートし、「すべてのプロパティが親リソースを持つことは、initialリソースがstartedに遷移しても変わらない」を言明する。Condtion (6)のR01で利用。
+### ステップ 1-3: 最初のルールのLHSにマッチするケースを含むようにケース分け
+ - R04のLHSはrequiremntに対応するavailable capabilityが必要なので、cspコマンドで以下の３つにケース分けする。
+ - Case 2-2-2-2-1: 対応するcapabilityがclosed
+ - Case 2-2-2-2-2: 対応するcapabilityがopen => 証明可能 (inv-HostedOnCPNotOpen(S)がfalse)
+ - Case 2-2-2-2-3: 対応するcapabilityがavailable => 証明可能 (R04が適用可能なのでcont(S)がtrue)
 
-## wfs-allPRHaveRSのR01に対するCondtion (6)の証明譜
-### ステップ 6-1: 各ルールのLHSにマッチする最も一般的なケースから開始
- - R01のLHSを任意定数sRS, sPRで表現する。
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - closedなhostedOn capabilityがあるので、適用されるルールはR03。
 
-### ステップ 6-2: ルールの条件節が成り立つ/成り立たないでケース分け
- - R01の条件節は「initialリソースのプロパティがすべてready」なので以下の２つにケース分けする。
- - Case 1: initialリソースのプロパティがすべてready         => 証明可能 (lemmaによる)
- - Case 2: initialリソースのプロパティがすべてready、ではない => 証明可能 (次状態が無い)
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - capabilityの親ノードのリンクが未定なので、以下の２つにケース分けする
+   - Case 2-2-2-2-1-1: 対応するnodeが無い => 証明可能 (wfs-allCPHaveND(S)がfalse)
+   - Case 2-2-2-2-1-2: 対応するnodeがある
 
-## wfs-allPRHaveRSのR02に対するCondtion (6)の証明譜
-### ステップ 6-1: 各ルールのLHSにマッチする最も一般的なケースから開始
- - R02のLHSを任意定数trs, idRRS, sRS, tpr, idPR, idRS, sPRで表現する。
+### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
+ - R03の条件節はcapabilityに対応するnodeがcreatedまたはstartedなので、以下の３つにケース分けする
+   - Case 2-2-2-2-1-2-1: capabilityの親nodeがinitial => 証明可能 (元のnodeのDDSR01にinitial nodeが存在して矛盾)
+   - Case 2-2-2-2-1-2-2: capabilityの親nodeがcreated => 証明可能 (R03が適用可能なのでcont(S)がtrue)
+   - Case 2-2-2-2-1-2-3: capabilityの親nodeがstarted => 証明可能 (R03が適用可能なのでcont(S)がtrue)
 
-### ステップ 6-2: ルールの条件節が成り立つ/成り立たないでケース分け
- - R02は無条件ルールなので、ケース分けは不要。
- - Case 1: R02のLHSにマッチする最も一般的なケース => 証明可能 (invS(S) implies invS(S')が成り立つ)
-
-## wfs-allPRHaveRRSのCondtion (5)(6)の証明譜
- - wfsはinitに含まれているのでCondition (5)の証明は不要。
- - 対象invariantを設定する：invS = wfs-allPRHaveRRS。
- - 一般Lemma m2o-lemma12をインスタンシエートし、「すべてのプロパティが参照リソースを持つことは、initialリソースがstartedに遷移しても変わらない」を言明する。Condtion (6)のR01で利用。
-
-## wfs-allPRHaveRRSのR01に対するCondtion (6)の証明譜
-### ステップ 6-1: 各ルールのLHSにマッチする最も一般的なケースから開始
- - R01のLHSを任意定数sRS, sPRで表現する。
-
-### ステップ 6-2: ルールの条件節が成り立つ/成り立たないでケース分け
- - R01の条件節は「initialリソースのプロパティがすべてready」なので以下の２つにケース分けする。
- - Case 1: initialリソースのプロパティがすべてready         => 証明可能 (lemmaによる)
- - Case 2: initialリソースのプロパティがすべてready、ではない => 証明可能 (次状態が無い)
-
-## wfs-allPRHaveRRSのR02に対するCondtion (6)の証明譜
-### ステップ 6-1: 各ルールのLHSにマッチする最も一般的なケースから開始
- - R02のLHSを任意定数trs, idRRS, sRS, tpr, idPR, idRS, sPRで表現する。
-
-### ステップ 6-2: ルールの条件節が成り立つ/成り立たないでケース分け
- - R02は無条件ルールなので、ケース分けは不要。
- - Case 1: R02のLHSにマッチする最も一般的なケース => 証明可能 (invS(S) implies invS(S')が成り立つ)
-
-## wfs-atLeastOneRSのCondtion (5)(6)の証明譜
- - wfsはinitに含まれているのでCondition (5)の証明は不要。
- - 対象invariantを設定する：invS = wfs-atLeastOneRS。
-
-## wfs-atLeastOneRSのR01に対するCondtion (6)の証明譜
-### ステップ 6-1: 各ルールのLHSにマッチする最も一般的なケースから開始
- - R01のLHSを任意定数sRS, sPRで表現する。
-
-### ステップ 6-2: ルールの条件節が成り立つ/成り立たないでケース分け
- - R01の条件節は「initialリソースのプロパティがすべてready」なので以下の２つにケース分けする。
- - Case 1: initialリソースのプロパティがすべてready         => 証明可能 (invS(S')がtrue)
- - Case 2: initialリソースのプロパティがすべてready、ではない => 証明可能 (次状態が無い)
-
-## wfs-atLeastOneRSのR02に対するCondtion (6)の証明譜
-### ステップ 6-1: 各ルールのLHSにマッチする最も一般的なケースから開始
- - R02のLHSを任意定数trs, idRRS, sRS, tpr, idPR, idRS, sPRで表現する。
-
-### ステップ 6-2: ルールの条件節が成り立つ/成り立たないでケース分け
- - R02は無条件ルールなので、ケース分けは不要。
- - Case 1: R02のLHSにマッチする最も一般的なケース => 証明可能 (invS(S')がtrue)
+## その他のLemmaの証明譜(Proof-lemma.cafe)
 
 以上で、すべての十分条件が証明済みとなり、init leads-to finalが証明できた。
+
