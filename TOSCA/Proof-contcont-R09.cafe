@@ -5,18 +5,18 @@ require ProofContCont Proof-contcont.cafe
 --> *********************************************************************************
 
 --> ************************************************************************
--->  ctrans [R05]:
--->     < SetND, (cap(dependsOn,IDCP,closed,IDND) SetCP), SetRQ, SetRL, MP >
--->  => < SetND, (cap(dependsOn,IDCP,open,  IDND) SetCP), SetRQ, SetRL, MP >
+-->  ctrans [R09]:
+-->     < SetND, (cap(connectsTo,IDCP,closed,IDND) SetCP), SetRQ, SetRL, MP >
+-->  => < SetND, (cap(connectsTo,IDCP,open,  IDND) SetCP), SetRQ, SetRL, (opMsg(IDCP) MP) >
 -->     if isCreated(state(getNode(SetND,IDND))) .
 --> ************************************************************************
 select ProofContCont .
--- When R05 can be applied to the state S:
+-- When R09 can be applied to the state S:
 --> **************************************************************************
 --> Step 2-1: Begin with the cases each of which matches to LHS of each rules.
 --> **************************************************************************
 :goal {
-  eq contcont(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
+  eq contcont(< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
 --> ***********************************************************
 --> Step 1-5: When there is a dangling link, split the case
@@ -34,7 +34,7 @@ select ProofContCont .
 --> Step 2-2: Split the most general case for a rule into cases
 -->  where the condition of the rule does or does not hold.
 --> ***********************************************************
--- The condition of R05 does or does not hold for the node of idND.
+-- The condition of R09 does or does not hold for the node of idND.
 :csp {
   eq snd = initial .
   eq snd = created .

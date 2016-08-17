@@ -45,6 +45,8 @@ This package includes following files:
 - TOSCA/Proof-contcont-R12.cafe: Proof scores for condition (2) for Rule R12.
 - TOSCA/Proof-measure.cafe: Proof scores for condition (3) and (4).
 - TOSCA/Proof-inv.cafe: Proof scores for condition (5) and (6).
+- TOSCA/Proof-lemma.cafe: Proof scores for lemmas specific to this problem.
+- TOSCA/Proof-cyclelemma.cafe: Proof scores for two special lemmas.
 - TOSCA/all.cafe: Execute all proof scores.
 
 CafeOBJ system can be downloaded at http://cafeobj.org.

@@ -14,19 +14,22 @@ module! ProofInv {
   eq initinv(S:State)
      = init(S) implies invS(S) .
 
+  pred iinv : State State .
+  eq iinv(S:State,SS:State)
+     = wfs(S) and inv(S) and invS(S) 
+       implies invS(SS) .
   pred invinv : State
   eq invinv(S:State)
      = not (S =(*,1)=>+ SS:State if CC:Bool suchThat
-            not ((CC implies
-                  (wfs(S) and inv(S) and invS(S) implies invS(SS))) == true)
+            not ((CC implies iinv(S,SS)) == true)
      	   { S => SS !! CC ! wfs(S) ! inv(S) ! invS(S) ! invS(SS) }) .
 }
 
---> ****************************************************************************
+--> ****************************************************************
 --> Proof of inv-ifOpenMsgThenCPActivated.
 -->  eq inv-ifOpenMsgThenCPActivated(< SetND,SetCP,SetRQ,SetRL,MP >)
 -->     = ifOpenMsgThenCPInStates(MP,SetCP,(open available)) .
---> ****************************************************************************
+--> ****************************************************************
 --> Proof of inv(S) implies inv(SS)
 module! Proofinv-ifOpenMsgThenCPActivated {
   pr(ProofInv)
@@ -42,11 +45,17 @@ module! Proofinv-ifOpenMsgThenCPActivated {
 
   -- If (SCP2 \in STCP) or not (SCP1 \in STCP),
   -- then ifOpenMsgThenCPInStates keeps to hold.
-  ceq [tosca-lemma1112 :nonexec]:
+  ceq [tosca-lemma13 :nonexec]:
       (ifOpenMsgThenCPInStates(MP,(cap(TRL,IDCP,SCP1,IDND) SetCP),STCP) and
        ifOpenMsgThenCPInStates(MP,(cap(TRL,IDCP,SCP2,IDND) SetCP),STCP))
-      = ifOpenMsgThenCPInStates(MP,(cap(TRL,IDCP,SCP1,IDND) SetCP),STCP)
-      if (SCP2 \in STCP) or not (SCP1 \in STCP) .
+     = ifOpenMsgThenCPInStates(MP,(cap(TRL,IDCP,SCP1,IDND) SetCP),STCP)
+     if (SCP2 \in STCP) .
+
+  ceq [tosca-lemma14 :nonexec]:
+      (ifOpenMsgThenCPInStates(MP,(cap(TRL,IDCP,SCP1,IDND) SetCP),STCP) and
+       ifOpenMsgThenCPInStates(MP,(cap(TRL,IDCP,SCP2,IDND) SetCP),STCP))
+     = ifOpenMsgThenCPInStates(MP,(cap(TRL,IDCP,SCP1,IDND) SetCP),STCP)
+     if not (SCP1 \in STCP) .
 
 }
 
@@ -60,8 +69,8 @@ select Proofinv-ifOpenMsgThenCPActivated .
 :ctf {
   eq mp = empMsg .
 }
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1
+:apply (rd) -- 2
 show proof
 
 --> ***************************
@@ -78,8 +87,8 @@ show proof
 :ctf {
   eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
 }
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1
+:apply (rd) -- 2
 show proof
 
 --> *************************************************************************
@@ -93,8 +102,8 @@ show proof
 :ctf {
   eq allRQOfNDInStates(sRQ,idND,ready) = true .
 }
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1
+:apply (rd) -- 2
 show proof
 
 --> ************************************************************************************
@@ -108,18 +117,11 @@ show proof
 :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
-:init [tosca-lemma1112] by {
-  MP:PoolOfMsg          <- mp ;
-  TRL:RLType            <- hostedOn ;
-  IDCP:CPID             <- idCP ;
-  SCP1:CPState          <- closed ;
-  SCP2:CPState          <- available ;
-  IDND:NDID             <- idND ;
-  SetCP:SetOfCapability <- sCP ;
-  STCP:SetOfCPState     <- (open available) ;
+:init [tosca-lemma13] by {
+  SCP2:CPState <- available ;
 }
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1
+:apply (rd) -- 2
 show proof
 
 --> ***************************************************************************************************
@@ -129,11 +131,11 @@ show proof
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
 :goal {
-  eq invinv(< sND, (cap(hostedOn,idCP,available,idND1) sCP), 
-  	           (req(hostedOn,idRQ,unbound,idND2) sRQ), 
+  eq invinv(< sND, (cap(hostedOn,idCP,available,idND) sCP), 
+  	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
 	           (rel(hostedOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
-:apply (rd-)
+:apply (rd)
 show proof
 
 --> **********************************************************************************
@@ -147,18 +149,11 @@ show proof
 :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
-:init [tosca-lemma1112] by {
-  MP:PoolOfMsg          <- mp ;
-  TRL:RLType            <- dependsOn ;
-  IDCP:CPID             <- idCP ;
-  SCP1:CPState          <- closed ;
-  SCP2:CPState          <- open ;
-  IDND:NDID             <- idND ;
-  SetCP:SetOfCapability <- sCP ;
-  STCP:SetOfCPState     <- (open available) ;
+:init [tosca-lemma14] by {
+  SCP1:CPState <- closed ;
 }
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1
+:apply (rd) -- 2
 show proof
 
 --> *************************************************************************************
@@ -172,18 +167,11 @@ show proof
 :ctf {
   eq state(getNode(sND,idND)) = started .
 }
-:init [tosca-lemma1112] by {
-  MP:PoolOfMsg          <- mp ;
-  TRL:RLType            <- dependsOn ;
-  IDCP:CPID             <- idCP ;
-  SCP1:CPState          <- open ;
-  SCP2:CPState          <- available ;
-  IDND:NDID             <- idND ;
-  SetCP:SetOfCapability <- sCP ;
-  STCP:SetOfCPState     <- (open available) ;
+:init [tosca-lemma13] by {
+  SCP2:CPState <- available ;
 }
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1 
+:apply (rd) -- 2
 show proof
 
 --> **************************************************************************
@@ -196,15 +184,15 @@ show proof
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
 :goal {
-  eq invinv(< sND, (cap(dependsOn,idCP,scp,idND1) sCP), 
-   	           (req(dependsOn,idRQ,unbound,idND2) sRQ), 
+  eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
+   	           (req(dependsOn,idRQ,unbound,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
 :ctf {
-  eq (state(getNode(sND,idND2)) = created and isActivated(scp)) = true .
+  eq (state(getNode(sND,idND')) = created and isActivated(scp)) = true .
 }
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1
+:apply (rd) -- 2
 show proof
 
 --> ******************************************************************************************************
@@ -214,11 +202,11 @@ show proof
 -->  	       	  (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ******************************************************************************************************
 :goal {
-  eq invinv(< sND, (cap(dependsOn,idCP,scp,idND1) sCP), 
-   	           (req(dependsOn,idRQ,waiting,idND2) sRQ), 
+  eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
+   	           (req(dependsOn,idRQ,waiting,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
-:apply (rd-) 
+:apply (rd) 
 show proof
 
 --> ***********************************************************************************
@@ -233,18 +221,8 @@ show proof
 :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
-:init [tosca-lemma1112] by {
-  MP:PoolOfMsg          <- mp ;
-  TRL:RLType            <- connectsTo ;
-  IDCP:CPID             <- idCP ;
-  SCP1:CPState          <- closed ;
-  SCP2:CPState          <- open ;
-  IDND:NDID             <- idND ;
-  SetCP:SetOfCapability <- sCP ;
-  STCP:SetOfCPState     <- (open available) ;
-}
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1
+:apply (rd) -- 2
 show proof
 
 --> **************************************************************************************
@@ -259,18 +237,11 @@ show proof
 :ctf {
   eq state(getNode(sND,idND)) = started .
 }
-:init [tosca-lemma1112] by {
-  MP:PoolOfMsg          <- mp ;
-  TRL:RLType            <- connectsTo ;
-  IDCP:CPID             <- idCP ;
-  SCP1:CPState          <- open ;
-  SCP2:CPState          <- available ;
-  IDND:NDID             <- idND ;
-  SetCP:SetOfCapability <- sCP ;
-  STCP:SetOfCPState     <- (open available) ;
+:init [tosca-lemma13] by {
+  SCP2:CPState <- available ;
 }
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1
+:apply (rd) -- 2
 show proof
 
 --> ******************************************************************************************************
@@ -290,8 +261,8 @@ show proof
 :ctf {
   eq state(getNode(sND,idND)) = created .
 }
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1
+:apply (rd) -- 2
 show proof
 
 --> *******************************************************************************************************
@@ -306,14 +277,15 @@ show proof
    	      (req(connectsTo,idRQ,waiting,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
 	      (avMsg(idCP) mp) >) = true .
 }
-:apply (rd-)
+:apply (rd)
 show proof
+select
 
---> *********************************************************************
+--> ********************************************************************
 --> Proof of inv-ifCPClosedThenRQUnbound.
 -->  eq inv-ifCPClosedThenRQUnbound(< SetND,SetCP,SetRQ,SetRL,MP >)
 -->     = ifCPInStatesThenRQInStates(SetCP,closed,SetRQ,unbound,SetRL) .
---> *********************************************************************
+--> ********************************************************************
 --> This proof requires inv-ifOpenMsgThenCPActivated.
 --> Proof of inv(S) implies inv(SS)
 module! Proofinv-ifCPClosedThenRQUnbound {
@@ -341,18 +313,12 @@ module! Proofinv-ifCPClosedThenRQUnbound {
   ceq wfs(S) = false if not wfs-allRLHaveCP(S) .
   ceq wfs(S) = false if not wfs-allRLHaveSameTypeCPRQ(S) .
 
-  pred lemma : SetOfCapability SetOfRequirement SetOfRelationship
-  eq lemma(SetCP,SetRQ,SetRL)
-     = (allCPInStates(SetCP,closed) and allRQInStates(SetRQ,unbound) and 
-        allCPHaveRL(SetCP,SetRL) and allRLHaveRQ(SetRL,SetRQ)) implies
-       ifCPInStatesThenRQInStates(SetCP,closed,SetRQ,unbound,SetRL) .
-
-  eq [lemma :nonexec]:
-      (allCPInStates(SetCP,closed) and allRQInStates(SetRQ,unbound) and 
-       allCPHaveRL(SetCP,SetRL) and allRLHaveRQ(SetRL,SetRQ) and
-       ifCPInStatesThenRQInStates(SetCP,closed,SetRQ,unbound,SetRL))
-    = (allCPInStates(SetCP,closed) and allRQInStates(SetRQ,unbound) and 
-       allCPHaveRL(SetCP,SetRL) and allRLHaveRQ(SetRL,SetRQ)) .
+  -- Since wfs-allCPHaveRL and wfs-allRLHaveRQ(SetRL,SetRQ) always hold
+  -- they are omitted from the antecedent.
+  eq [tosca-lemma19]:
+      (allRQInStates(SetRQ,STRQ) and 
+       ifCPInStatesThenRQInStates(SetCP,STCP,SetRQ,STRQ,SetRL))
+    = allRQInStates(SetRQ,STRQ) .
 
   -- ifCPClosedThenRQUnbound keeps to hold 
   -- even if a requirement, whose capability is not concerned, changes its state.
@@ -383,50 +349,11 @@ module! Proofinv-ifCPClosedThenRQUnbound {
 --> ***************************
 --> (5) init(S) implies inv(S).
 --> ***************************
---> Proof of lemma.
 select Proofinv-ifCPClosedThenRQUnbound .
-:goal {
-  eq [lemma-1]: lemma(empCP,sRQ,sRL) = true .
-  eq [lemma-2]: lemma(sCP,sRQ,sRL) implies
-                lemma((cap(trl,idCP,scp,idND) sCP),sRQ,sRL) = true .
-}
-:csp {
-  eq scp = closed .
-  eq scp = open .
-  eq scp = available .
-}
-:csp {
-  eq onlyOneRLOfCP(sRL,idCP) = false .
-  eq sRL = (rel(trl',idRL,idCP,idRQ) sRL') .
-}
-:apply (rd-) -- 1-1
-:csp {
-  eq existRQ(sRQ,idRQ) = false .
-  eq sRQ = (req(trl'',idRQ,srq,idND') sRQ') .
-}
-:apply (rd-) -- 1-2-1
-:csp {
-  eq srq = unbound .
-  eq srq = waiting .
-  eq srq = ready .
-}
-:apply (rd-) -- 1-2-2-1
-:apply (rd-) -- 1-2-2-2
-:apply (rd-) -- 1-2-2-3
-:apply (rd-) -- 2
-:apply (rd-) -- 3
-show proof
-
---> Proof of initinv.
 :goal {
   eq initinv(< sND,sCP,sRQ,sRL,mp >) = true .
 }
-:init [lemma] by {
-  SetCP:SetOfCapability   <- sCP ;
-  SetRQ:SetOfRequirement  <- sRQ ;
-  SetRL:SetOfRelationship <- sRL ;
-}
-:apply (rd-)
+:apply (rd)
 show proof
 
 --> ***************************
@@ -443,8 +370,8 @@ show proof
 :ctf {
   eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
 }
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1
+:apply (rd) -- 2
 show proof
 
 --> *************************************************************************
@@ -458,8 +385,8 @@ show proof
 :ctf {
   eq allRQOfNDInStates(sRQ,idND,ready) = true .
 }
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1
+:apply (rd) -- 2
 show proof
 
 --> ************************************************************************************
@@ -473,8 +400,8 @@ show proof
 :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1
+:apply (rd) -- 2
 show proof
 
 --> ***************************************************************************************************
@@ -484,29 +411,18 @@ show proof
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
 :goal {
-  eq invinv(< sND, (cap(hostedOn,idCP,available,idND1) sCP), 
-  	           (req(hostedOn,idRQ,unbound,idND2) sRQ), 
+  eq invinv(< sND, (cap(hostedOn,idCP,available,idND) sCP), 
+  	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
 	           (rel(hostedOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
 :ctf {
   eq existCP(sCP,idCP) = true .
 }
-:apply (rd-) -- 1
+:apply (rd) -- 1
 :init [tosca-lemma08] by {
-  SetCP:SetOfCapability   <- sCP ;
-  STCP:SetOfCPState       <- closed ;
-  TRL:RLType              <- hostedOn ;
-  IDRQ:RQID               <- idRQ ;
-  SRQ1:RQState            <- unbound ;
-  IDND:NDID               <- idND2 ;
-  SetRQ:SetOfRequirement  <- sRQ ;
-  STRQ:SetOfRQState       <- unbound ;
-  IDRL:RLID               <- idRL ;
-  IDCP:CPID               <- idCP ;
-  SetRL:SetOfRelationship <- sRL ;
-  SRQ2:RQState            <- ready ;
+    SRQ1:RQState <- unbound ;
 }
-:apply (rd-) -- 2
+:apply (rd) -- 2
 show proof
 
 --> **********************************************************************************
@@ -520,8 +436,8 @@ show proof
 :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1
+:apply (rd) -- 2
 show proof
 
 --> *************************************************************************************
@@ -535,10 +451,10 @@ show proof
 :ctf {
   eq state(getNode(sND,idND)) = started .
 }
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1
+:apply (rd) -- 2
 show proof
-eof
+
 --> **************************************************************************
 --> ctrans [R07]: < SetND, (cap(dependsOn,IDCP,SCP,IDND1) SetCP), 
 -->   	                   (req(dependsOn,IDRQ,unbound,IDND2) SetRQ),
@@ -549,17 +465,31 @@ eof
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
 :goal {
-  eq invinv(< sND, (cap(dependsOn,idCP,scp,idND1) sCP), 
-   	           (req(dependsOn,idRQ,unbound,idND2) sRQ), 
+  eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
+   	           (req(dependsOn,idRQ,unbound,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
 :ctf {
-  eq (state(getNode(sND,idND2)) = created and isActivated(scp)) = true .
+  eq existCP(sCP,idCP) = true .
 }
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1
+:ctf {
+  eq (state(getNode(sND,idND')) = created) = true .
+}
+:init [tosca-lemma08] by {
+    SRQ1:RQState <- unbound ;
+}
+:csp {
+  eq scp = closed .
+  eq scp = open .
+  eq scp = available .
+}
+:apply (rd) -- 2-1-1
+:apply (rd) -- 2-1-2
+:apply (rd) -- 2-1-3
+:apply (rd) -- 2-2
 show proof
-eof
+
 --> ******************************************************************************************************
 --> trans [R08]: < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
 --> 	          (req(dependsOn,IDRQ,waiting,IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
@@ -567,11 +497,11 @@ eof
 -->  	       	  (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ******************************************************************************************************
 :goal {
-  eq invinv(< sND, (cap(dependsOn,idCP,scp,idND1) sCP), 
-   	           (req(dependsOn,idRQ,waiting,idND2) sRQ), 
+  eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
+   	           (req(dependsOn,idRQ,waiting,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
-:apply (rd-) 
+:apply (rd) 
 show proof
 
 --> ***********************************************************************************
@@ -586,8 +516,8 @@ show proof
 :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1
+:apply (rd) -- 2
 show proof
 
 --> **************************************************************************************
@@ -602,8 +532,8 @@ show proof
 :ctf {
   eq state(getNode(sND,idND)) = started .
 }
-:apply (rd-) -- 1
-:apply (rd-) -- 2
+:apply (rd) -- 1
+:apply (rd) -- 2
 show proof
 
 --> ******************************************************************************************************
@@ -627,64 +557,27 @@ show proof
   eq existCP(sCP,idCP) = false .
   eq sCP = (cap(trl,idCP,scp,idND') sCP') .
 }
-:apply (rd-) -- 1-1
+:apply (rd) -- 1-1
+:ctf {
+  eq existCP(sCP',idCP) = true .
+}
+:apply (rd) -- 1-2-1
 :ctf {
   eq trl = connectsTo .
+}
+:init [tosca-lemma08] by {
+    SRQ1:RQState <- unbound ;
 }
 :csp {
   eq scp = closed .
   eq scp = open .
   eq scp = available .
 }
-:apply (rd-) -- 1-2-1-1
-:ctf {
-  eq existCP(sCP',idCP) = true .
-}
-:ctf {
-  eq state(getNode(sND,idND')) = started .
-}
-:apply (rd-) -- 1-2-1-2-1-1
-:apply (rd-) -- 1-2-1-2-1-2
-:init [tosca-lemma08] by {
-  SetCP:SetOfCapability   <- sCP' ;
-  STCP:SetOfCPState       <- closed ;
-  TRL:RLType              <- connectsTo ;
-  IDRQ:RQID               <- idRQ ;
-  SRQ1:RQState            <- unbound ;
-  IDND:NDID               <- idND ;
-  SetRQ:SetOfRequirement  <- sRQ ;
-  STRQ:SetOfRQState       <- unbound ;
-  IDRL:RLID               <- idRL ;
-  IDCP:CPID               <- idCP ;
-  SetRL:SetOfRelationship <- sRL ;
-  SRQ2:RQState            <- waiting ;
-}
-:ctf {
-  eq state(getNode(sND,idND')) = started .
-}
-:apply (rd-) -- 1-2-1-2-2-1
-:apply (rd-) -- 1-2-1-2-2-2
-:ctf {
-  eq existCP(sCP',idCP) = true .
-}
-:apply (rd-) -- 1-2-1-3-1
-:init [tosca-lemma08] by {
-  SetCP:SetOfCapability   <- sCP' ;
-  STCP:SetOfCPState       <- closed ;
-  TRL:RLType              <- connectsTo ;
-  IDRQ:RQID               <- idRQ ;
-  SRQ1:RQState            <- unbound ;
-  IDND:NDID               <- idND ;
-  SetRQ:SetOfRequirement  <- sRQ ;
-  STRQ:SetOfRQState       <- unbound ;
-  IDRL:RLID               <- idRL ;
-  IDCP:CPID               <- idCP ;
-  SetRL:SetOfRelationship <- sRL ;
-  SRQ2:RQState            <- waiting ;
-}
-:apply (rd-) -- 1-2-1-3-2
-:apply (rd-) -- 1-2-2
-:apply (rd-) -- 2
+:apply (rd) -- 1-2-2-1-1
+:apply (rd) -- 1-2-2-1-2
+:apply (rd) -- 1-2-2-1-3
+:apply (rd) -- 1-2-2-2
+:apply (rd) -- 2
 show proof
 
 --> *******************************************************************************************************
@@ -700,20 +593,8 @@ show proof
 	      (avMsg(idCP) mp) >) = true .
 }
 :init [tosca-lemma09] by {
-  SetCP:SetOfCapability   <- sCP ;
-  STCP:SetOfCPState       <- closed ;
-  TRL:RLType              <- connectsTo ;
-  IDRQ:RQID               <- idRQ ;
-  SRQ1:RQState            <- waiting ;
-  IDND:NDID               <- idND ;
-  SetRQ:SetOfRequirement  <- sRQ ;
-  STRQ:SetOfRQState       <- unbound ;
-  IDRL:RLID               <- idRL ;
-  IDCP:CPID               <- idCP ;
-  SetRL:SetOfRelationship <- sRL ;
-  SRQ2:RQState            <- ready ;
+    SRQ1:RQState <- waiting ;
 }
-:apply (rd-)
+:apply (rd)
 show proof
-
 select

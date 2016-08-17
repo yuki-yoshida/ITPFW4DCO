@@ -99,6 +99,7 @@ show proof
 }
 :apply (rd) -- goal
 show proof
+select
 
 --> ***********************************
 --> Proof of wfs-allPRHaveRS.
@@ -146,6 +147,7 @@ select Proofwfs-allPRHaveRS
 :apply (rd) -- 1
 :apply (rd) -- 2
 show proof
+
 --> ****************************************************
 -->  trans [R02]:
 -->     < (res(TRS,IDRRS,started) SetRS), 
@@ -158,6 +160,7 @@ show proof
 }
 :apply (rd) -- goal
 show proof
+select
 
 --> ***********************************
 --> Proof of wfs-allPRHaveRRS.
@@ -218,6 +221,7 @@ show proof
 }
 :apply (rd) -- goal
 show proof
+select
 
 --> ***********************************
 --> Proof of wfs-atLeastOneRS.
@@ -267,5 +271,5 @@ show proof
 }
 :apply (rd) -- goal
 show proof
-
 select
+

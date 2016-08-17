@@ -97,7 +97,7 @@ select ProofContCont .
 }
 -- Case 2-2-1-2-2-1: When the resource idRRS1 is initial:
 -- The Cyclic Dependency Lemma rejects this case.
-:init [cycle] by {
+:init [CycleR01] by {
   T:RSType <- trs'';
   I:RSID <- idRS1; 
   S:State <- < (res(trs, idRRS, started) sRS),

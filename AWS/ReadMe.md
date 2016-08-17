@@ -52,8 +52,8 @@
    - eq wfs(S) = false if not wfs-BBB(S) .
 
 ### Cyclic Dependency Lemma(CDL)適用の準備
- - 「状態Sで、あるinitialリソースのDDSに、別のinitialリソースが含まれたら、矛盾する」という未実行(nonexec)lemmaを定義しておく。
- - そのlemmaを提供するinitialリソースを導入するためのスコーレム関数を２つ(そのリソースと残り)用意しておく。
+ - 「状態Sで、あるinitialリソースのDDSに、別のinitialリソースが含まれたら、矛盾する」という未実行(nonexec)lemma CycleR01を定義しておく。
+ - CycleR01を適用するinitialリソースを導入するためのスコーレム関数を２つ(そのリソースと残り)用意しておく。
  - CDL適用可能な状態に対して、スコーレム関数を適用して対象リソースを導入し、initコマンドで矛盾lemmaを導入する。
 
 ## Condtion (1): init(S) implies cont(S) の証明譜 (Proof-initcont.cafe)
@@ -85,7 +85,7 @@
 
 ### ステップ 1-6: 循環する状況になったらCyclic Dependency Lemmaを適用
  - ここでCase 2-1には、任意に選択したinitialリソースがあるので、これをCDL適用対象と考えて良い (新規に導入不要)。
- - 用意しておいたcycle未実行lemmaを、このinitialリソースを対象として導入する。
+ - 用意しておいたCycleR01未実行lemmaを、このinitialリソースを対象として導入する。
  - このリソースのDDSに、referリンクの参照先リソースが含まれるので、矛盾が生じ、証明が完了する。
 
 ## Condtion (2): inv(S) and not final(S) implies cont(SS) or final(SS) の証明譜 (Proof-contcont.cafe)
@@ -127,7 +127,7 @@
 
 ### ステップ 2-5: 循環する状況になったらCyclic Dependency Lemmaを適用
  - Case 1-2には、任意に選択したinitialリソースがあるので、これをCDL適用対象と考えて良い (新規に導入不要)。
- - 用意しておいたcycle未実行lemmaを、このinitialリソースを対象として導入する。
+ - 用意しておいたCycleR01未実行lemmaを、このinitialリソースを対象として導入する。
  - このリソースのDDSに、referリンクの参照先リソースが含まれるので、矛盾が生じ、証明が完了する。
 
 ## R02に対するCondtion (2)の証明譜 (Proof-contcont-R02.cafe)
@@ -171,7 +171,7 @@
 
 ## Condtion (3): inv(S) and not final(S) implies m(S) > m(SS) の証明譜 (Proof-measure.cafe)
 ### ステップ 3-0: 証明すべき述語を定義
- - mmes = wfs and inv and not final implies cont' or final'
+ - mmes = wfs and inv and not final implies m > m'
  - wfsを、invと区別して定義しているので前件に加えておく。
  - 次状態が存在する状態に関する条件なので、前件にcont(S)が不要であることに注意。
  - mesmesを二重否定イディオムを使って定義する。

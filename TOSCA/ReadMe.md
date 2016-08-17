@@ -522,7 +522,7 @@
  - initialなnodeがあるので、適用されるルールはR01。
 
 ### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
- - R01の条件節は「initial nodeのhostedOn requirementがすべてready」なので以下の２つにケース分けする。
+ - R01の条件節は「initial nodeのhostedOn requirementがすべてready」なので以下の3つにケース分けする。
  - Case 1: initial nodeのhostedOn requirementがすべてready => 証明可能 (R01が適用可能なのでcont(S)がtrue)
  - Case 2: initial nodeのhostedOn requirementの一つがunbound.
  - Case 3: initial nodeのhostedOn requirementの一つがwaiting. =>  証明可能 (inv-HostedOnRQNotWaiting(S)がfalse)
@@ -562,6 +562,242 @@
    - Case 2-2-2-2-1-2-1: capabilityの親nodeがinitial => 証明可能 (元のnodeのDDSR01にinitial nodeが存在して矛盾)
    - Case 2-2-2-2-1-2-2: capabilityの親nodeがcreated => 証明可能 (R03が適用可能なのでcont(S)がtrue)
    - Case 2-2-2-2-1-2-3: capabilityの親nodeがstarted => 証明可能 (R03が適用可能なのでcont(S)がtrue)
+
+## Created Cont Lemmaの証明譜(Proof-cyclelemma.cafe)
+### ステップ 2-0: 証明すべき述語を定義
+ - invcont = wfs and inv implies cont
+ - Sにcreated nodeが含まれる時に、invcont(S)が成り立つことを証明する。
+ - 上記で証明済みのInitial Cont Lemmaを導入しておく。 
+
+### ステップ 2-1: 最も一般的なケースから開始
+ - 一つ以上のcreated nodeが存在する場合は、< (node(tnd, idND, created) sND), sCP, sRQ, sRL, mp >が最も一般的な状態。
+ - ここで、idND nodeは任意に選択しているので、Cyclic Dependency Lemmaが存在を保証する「createdであって、かつDDSR02にcreatedなnodeが含まれないnode」であることを仮定してよい。
+
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - createdなnodeがあるので、適用されるルールはR02。
+
+### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
+ - R02の条件節は「created nodeのrequirementがすべてready」なので以下の3つにケース分けする。
+ - Case 1: created nodeのrequirementがすべてready => 証明可能 (R02が適用可能なのでcont(S)がtrue)
+ - Case 2: created nodeのrequirementの一つがunbound.
+ - Case 3: created nodeのrequirementの一つがwaiting.
+
+### Case 2: created nodeのrequirementの一つがunboundの証明。
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - unboundなrequirementのタイプによって適用されるルールが異なるので、以下の３つにケース分け
+ - Case 2-1: unboundなrequirementがhostedOn => 証明可能 (inv-ifNDCreatedThenHostedOnRQReady(S)がfalse)
+ - Case 2-2: unboundなrequirementがdependsOn
+ - Case 2-3: unboundなrequirementがconnectsTo
+
+### Case 2-2: unboundなrequirementがdependsOnの証明
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - unboundなdependsOn requirementがあるので、適用されるルールはR07。
+
+### ステップ 1-3: 最初のルールのLHSにマッチするケースを含むようにケース分け
+ - R07のLHSはrequiremntに対応するrelationishipと、されにそれに対応するcapabilityが必要。
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - requirementに対するrelationshipのリンクが未定なので、以下の２つにケース分けする
+   - Case 2-2-1: 対応するrelationshipが無い => 証明可能 (wfs-allRQHaveRL(S)がfalse)
+   - Case 2-2-2: 対応するrelationshipがある
+
+ - relationshipに対するcapabilityのリンクが未定なので、以下の２つにケース分けする
+   - Case 2-2-2-1: 対応するcapabilityが無い => 証明可能 (wfs-allRLHaveCP(S)がfalse)
+   - Case 2-2-2-2: 対応するcapabilityがある
+   
+ - capabilityの親ノードのIDがすでに存在するものかどうかで、以下の２つにケース分けする
+   - Case 2-2-2-2-1: capabilityの親ノードはrequirementの親ノードと同じ => 証明可能 (wfs-allRLNotInSameND(S)がfalse)
+   - Case 2-2-2-2-2: capabilityの親ノードはrequirementの親ノードと異なる
+
+### ステップ 1-3: 最初のルールのLHSにマッチするケースを含むようにケース分け
+ - R07のLHSはrequiremntに対応するactivatedなcapabilityが必要なので、cspコマンドで以下の３つにケース分けする。
+ - Case 2-2-2-2-2-1: 対応するcapabilityがclosed
+ - Case 2-2-2-2-2-2: 対応するcapabilityがopen => 証明可能 (R07が適用可能なのでcont(S)がtrue)
+ - Case 2-2-2-2-2-3: 対応するcapabilityがavailable => 証明可能 (R07が適用可能なのでcont(S)がtrue)
+
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - closedなdepensOn capabilityがあるので、適用されるルールはR05。
+
+### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
+ - R05の条件節はcapabilityの親nodeがcreatedかstartedであることを要求する
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - capabilityの親ノードのリンクが未定なので、以下の２つにケース分けする
+   - Case 2-2-2-2-2-1-1: 対応するnodeが無い => 証明可能 (wfs-allCPHaveND(S)がfalse)
+   - Case 2-2-2-2-2-1-2: 対応するnodeがある
+
+### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
+ - R05の条件節はcapabilityに対応するnodeがcreatedまたはstartedなので、以下の３つにケース分けする
+   - Case 2-2-2-2-2-1-2-1: capabilityの親nodeがinitial => 証明可能 (Initial Cont Lemmaによりcont(S)がtrue)
+   - Case 2-2-2-2-2-1-2-2: capabilityの親nodeがcreated => 証明可能 (R05が適用可能なのでcont(S)がtrue)
+   - Case 2-2-2-2-2-1-2-3: capabilityの親nodeがstarted => 証明可能 (R05が適用可能なのでcont(S)がtrue)
+
+### Case 2-3: unboundなrequirementがconnectsToの証明
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - unboundなconnectsTo requirementがあるので、適用されるルールはR11。
+
+### ステップ 1-3: 最初のルールのLHSにマッチするケースを含むようにケース分け
+ - R11のLHSはrequiremntに対応するrelationishipが必要。
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - requirementに対するrelationshipのリンクが未定なので、以下の２つにケース分けする
+   - Case 2-3-1: 対応するrelationshipが無い => 証明可能 (wfs-allRQHaveRL(S)がfalse)
+   - Case 2-3-2: 対応するrelationshipがある
+
+### ステップ 1-3: 最初のルールのLHSにマッチするケースを含むようにケース分け
+ - R11のLHSはrequiremntに対応するopen messageが必要なので、以下の2つにケース分けする。
+ - Case 2-3-2-1: 対応するopen messageが無い
+ - Case 2-3-2-2: 対応するopen messageがある => 証明可能 (R11が適用可能なのでcont(S)がtrue)
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - open messageに対するcapabilityのリンクが未定なので、以下の２つにケース分けする
+   - Case 2-3-2-1-1: 対応するcapabilityが無い => 証明可能 (wfs-allRLHaveCP(S)がfalse)
+   - Case 2-3-2-1-2: 対応するcapabilityがある
+   
+ - capabilityの親ノードのIDがすでに存在するものかどうかで、以下の２つにケース分けする
+   - Case 2-3-2-1-2-1: capabilityの親ノードはrequirementの親ノードと同じ => 証明可能 (wfs-allRLNotInSameND(S)がfalse)
+   - Case 2-3-2-1-2-2: capabilityの親ノードはrequirementの親ノードと異なる
+
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - connectsTo capabilityの状態によって適用されるルールが異なるので、以下の３つにケース分け
+ - Case 2-3-2-1-2-2-1: Capabilityがclosed
+ - Case 2-3-2-1-2-2-2: Capabilityがopen
+ - Case 2-3-2-1-2-2-3: Capabilityがavailable => 証明可能 (inv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg(S)がfalse)
+
+### Case 2-3-2-1-2-2-1: Capabilityがclosedの証明
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - closedなconnectsTo capabilityがあるので、適用されるルールはR09。
+
+### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
+ - R09の条件節はcapabilityの親nodeがcreatedまたはstartedであることを要求する
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - capabilityの親ノードのリンクが未定なので、以下の２つにケース分けする
+   - Case 2-3-2-1-2-2-1-1: 対応するnodeが無い => 証明可能 (wfs-allCPHaveND(S)がfalse)
+   - Case 2-3-2-1-2-2-1-2: 対応するnodeがある
+
+### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
+ - R09の条件節はcapabilityに対応するnodeがcreatedまたはstartedなので、以下の３つにケース分けする
+   - Case 2-3-2-1-2-2-1-2-1: capabilityの親nodeがinitial => 証明可能 (Initial Cont Lemmaによりcont(S)がtrue)
+   - Case 2-3-2-1-2-2-1-2-2: capabilityの親nodeがcreated => 証明可能 (R09が適用可能なのでcont(S)がtrue)
+   - Case 2-3-2-1-2-2-1-2-3: capabilityの親nodeがstarted => 証明可能 (R09が適用可能なのでcont(S)がtrue)
+
+### Case 2-3-2-1-2-2-2: Capabilityがopenの証明
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - openなconnectsTo capabilityがあるので、適用されるルールはR10。
+
+### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
+ - R10の条件節はcapabilityの親nodeがstartedであることを要求する
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - capabilityの親ノードのリンクが未定なので、以下の２つにケース分けする
+   - Case 2-3-2-1-2-2-2-1: 対応するnodeが無い => 証明可能 (wfs-allCPHaveND(S)がfalse)
+   - Case 2-3-2-1-2-2-2-2: 対応するnodeがある
+
+### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
+ - R09の条件節はcapabilityに対応するnodeがcreatedまたはstartedなので、以下の３つにケース分けする
+   - Case 2-3-2-1-2-2-2-2-1: capabilityの親nodeがinitial => 証明可能 (Initial Cont Lemmaによりcont(S)がtrue)
+   - Case 2-3-2-1-2-2-2-2-2: capabilityの親nodeがcreated => 証明可能 (inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg(S)がfalse)
+   - Case 2-3-2-1-2-2-2-2-3: capabilityの親nodeがstarted => 証明可能 (R10が適用可能なのでcont(S)がtrue)
+
+### Case 3: created nodeのrequirementの一つがwaitingの証明。
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - waitingなrequirementのタイプによって適用されるルールが異なるので、以下の３つにケース分け
+ - Case 3-1: waitingなrequirementがhostedOn => 証明可能 (inv-HostedOnRQNotWaiting(S)がfalse)
+ - Case 3-2: waitingなrequirementがdependsOn
+ - Case 3-3: waitingなrequirementがconnectsTo
+
+### Case 3-2: waitingなrequirementがdependsOnの証明
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - waitingなdependsOn requirementがあるので、適用されるルールはR08。
+
+### ステップ 1-3: 最初のルールのLHSにマッチするケースを含むようにケース分け
+ - R08のLHSはrequiremntに対応するrelationishipと、されにそれに対応するcapabilityが必要。
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - requirementに対するrelationshipのリンクが未定なので、以下の２つにケース分けする
+   - Case 3-2-1: 対応するrelationshipが無い => 証明可能 (wfs-allRQHaveRL(S)がfalse)
+   - Case 3-2-2: 対応するrelationshipがある
+
+ - relationshipに対するcapabilityのリンクが未定なので、以下の２つにケース分けする
+   - Case 3-2-2-1: 対応するcapabilityが無い => 証明可能 (wfs-allRLHaveCP(S)がfalse)
+   - Case 3-2-2-2: 対応するcapabilityがある
+   
+ - capabilityの親ノードのIDがすでに存在するものかどうかで、以下の２つにケース分けする
+   - Case 3-2-2-2-1: capabilityの親ノードはrequirementの親ノードと同じ => 証明可能 (wfs-allRLNotInSameND(S)がfalse)
+   - Case 3-2-2-2-2: capabilityの親ノードはrequirementの親ノードと異なる
+
+### ステップ 1-3: 最初のルールのLHSにマッチするケースを含むようにケース分け
+ - R08のLHSはrequiremntに対応するavailableなcapabilityが必要なので、cspコマンドで以下の３つにケース分けする。
+ - Case 3-2-2-2-2-1: 対応するcapabilityがclosed => 証明可能 (inv-ifCPClosedThenRQUnbound(S)がfalse)
+ - Case 3-2-2-2-2-2: 対応するcapabilityがopen
+ - Case 3-2-2-2-2-3: 対応するcapabilityがavailable => 証明可能 (R08が適用可能なのでcont(S)がtrue)
+
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - openなdepensOn capabilityがあるので、適用されるルールはR06。
+
+### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
+ - R06の条件節はcapabilityの親nodeがstartedであることを要求する
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - capabilityの親ノードのリンクが未定なので、以下の２つにケース分けする
+   - Case 3-2-2-2-2-1-1: 対応するnodeが無い => 証明可能 (wfs-allCPHaveND(S)がfalse)
+   - Case 3-2-2-2-2-1-2: 対応するnodeがある
+
+### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
+ - R05の条件節はcapabilityに対応するnodeがcreatedまたはstartedなので、以下の３つにケース分けする
+   - Case 3-2-2-2-2-1-2-1: capabilityの親nodeがinitial => 証明可能 (Initial Cont Lemmaによりcont(S)がtrue)
+   - Case 3-2-2-2-2-1-2-2: capabilityの親nodeがcreated => 証明可能 (元のnodeのDDSR02にcreated nodeが存在して矛盾)
+   - Case 3-2-2-2-2-1-2-3: capabilityの親nodeがstarted => 証明可能 (R06が適用可能なのでcont(S)がtrue)
+
+### Case 3-3: waitingなrequirementがconnectsToの証明
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - waitingなconnectsTo requirementがあるので、適用されるルールはR12。
+
+### ステップ 1-3: 最初のルールのLHSにマッチするケースを含むようにケース分け
+ - R12のLHSはrequiremntに対応するrelationishipが必要。
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - requirementに対するrelationshipのリンクが未定なので、以下の２つにケース分けする
+   - Case 3-3-1: 対応するrelationshipが無い => 証明可能 (wfs-allRQHaveRL(S)がfalse)
+   - Case 3-3-2: 対応するrelationshipがある
+
+### ステップ 1-3: 最初のルールのLHSにマッチするケースを含むようにケース分け
+ - R11のLHSはrequiremntに対応するavailable messageが必要なので、以下の2つにケース分けする。
+ - Case 3-3-2-1: 対応するavailable messageが無い
+ - Case 3-3-2-2: 対応するavailable messageがある => 証明可能 (R12が適用可能なのでcont(S)がtrue)
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - available messageに対するcapabilityのリンクが未定なので、以下の２つにケース分けする
+   - Case 3-3-2-1-1: 対応するcapabilityが無い => 証明可能 (wfs-allRLHaveCP(S)がfalse)
+   - Case 3-3-2-1-2: 対応するcapabilityがある
+   
+ - capabilityの親ノードのIDがすでに存在するものかどうかで、以下の２つにケース分けする
+   - Case 3-3-2-1-2-1: capabilityの親ノードはrequirementの親ノードと同じ => 証明可能 (wfs-allRLNotInSameND(S)がfalse)
+   - Case 3-3-2-1-2-2: capabilityの親ノードはrequirementの親ノードと異なる
+
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - connectsTo capabilityの状態によって適用されるルールが異なるので、以下の３つにケース分け
+ - Case 3-3-2-1-2-2-1: Capabilityがclosed => 証明可能 (inv-ifCPClosedThenRQUnbound(S)がfalse)
+ - Case 3-3-2-1-2-2-2: Capabilityがopen
+ - Case 3-3-2-1-2-2-3: Capabilityがavailable => 証明可能 (inv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg(S)がfalse)
+ 
+### ステップ 2-4: 次状態に適用されるルールを考察
+ - openなconnectsTo capabilityがあるので、適用されるルールはR10。
+
+### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
+ - R10の条件節はcapabilityの親nodeがstartedであることを要求する
+
+### ステップ 1-5: 参照先が未定のリンクがあったら、参照先が無い/あるでケース分け
+ - capabilityの親ノードのリンクが未定なので、以下の２つにケース分けする
+   - Case 3-3-2-1-2-2-2-1: 対応するnodeが無い => 証明可能 (wfs-allCPHaveND(S)がfalse)
+   - Case 3-3-2-1-2-2-2-2: 対応するnodeがある
+
+### ステップ 1-4: 最初のルールの条件節が成り立つ/成り立たないでケース分け
+ - R09の条件節はcapabilityに対応するnodeがcreatedまたはstartedなので、以下の３つにケース分けする
+   - Case 3-3-2-1-2-2-2-2-1: capabilityの親nodeがinitial => 証明可能 (Initial Cont Lemmaによりcont(S)がtrue)
+   - Case 3-3-2-1-2-2-2-2-2: capabilityの親nodeがcreated => 証明可能 (元のnodeのDDSR02にcreated nodeが存在して矛盾)
+   - Case 3-3-2-1-2-2-2-2-3: capabilityの親nodeがstarted => 証明可能 (R10が適用可能なのでcont(S)がtrue)
 
 ## その他のLemmaの証明譜(Proof-lemma.cafe)
 

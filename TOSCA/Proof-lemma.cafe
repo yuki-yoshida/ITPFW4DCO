@@ -225,6 +225,13 @@ module! TOSCALEMMA {
 		SetCP,STCP,(req(trl,IDRQ,SRQ2,IDND) SetRQ),STRQ,
 		(rel(trl,IDRL,IDCP,IDRQ) SetRL),MP) .
 
+  pred tosca-lemma19 : SetOfCapability SetOfRequirement SetOfRelationship
+  eq tosca-lemma19(SetCP,SetRQ,SetRL)
+     = (allRQInStates(SetRQ,unbound) and 
+        allCPHaveRL(SetCP,SetRL) and allRLHaveRQ(SetRL,SetRQ)) implies
+       ifCPInStatesThenRQInStates(SetCP,closed,SetRQ,unbound,SetRL) .
+
+
 }
 
 --> Proof of tosca-lemma01.
@@ -1022,3 +1029,36 @@ open TOSCALEMMA .
       implies tosca-lemma18(sCP,scp,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND',idRL,idCP) .
 close
 
+--> Proof of tosca-lemma19.
+select TOSCALEMMA .
+:goal {
+  eq [tosca-lemma19-1]: tosca-lemma19(empCP,sRQ,sRL) = true .
+  eq [tosca-lemma19-2]: tosca-lemma19(sCP,sRQ,sRL) implies
+                tosca-lemma19((cap(trl,idCP,scp,idND) sCP),sRQ,sRL) = true .
+}
+:csp {
+  eq scp = closed .
+  eq scp = open .
+  eq scp = available .
+}
+:csp {
+  eq onlyOneRLOfCP(sRL,idCP) = false .
+  eq sRL = (rel(trl',idRL,idCP,idRQ) sRL') .
+}
+:apply (rd) -- 1-1
+:csp {
+  eq existRQ(sRQ,idRQ) = false .
+  eq sRQ = (req(trl'',idRQ,srq,idND') sRQ') .
+}
+:apply (rd) -- 1-2-1
+:csp {
+  eq srq = unbound .
+  eq srq = waiting .
+  eq srq = ready .
+}
+:apply (rd) -- 1-2-2-1
+:apply (rd) -- 1-2-2-2
+:apply (rd) -- 1-2-2-3
+:apply (rd) -- 2
+:apply (rd) -- 3
+show proof

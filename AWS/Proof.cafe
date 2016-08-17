@@ -64,7 +64,7 @@ module! PROOFfuns {
 
   -- From Cyclic Dependency Lemma
   -- There is an initial resource whose DDS includes no initial resourecs.
-  ceq [cycle :nonexec]: 
+  ceq [CycleR01 :nonexec]: 
      true = false if someRSInStates(DDSR01(res(T:RSType, I:RSID, initial),S:State),initial) .
 
   -- Skolem Functions for Cyclic Dependncy Lemma

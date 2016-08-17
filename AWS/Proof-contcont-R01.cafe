@@ -85,7 +85,7 @@ select ProofContCont .
 --> Step 2-5: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
 -- The Cyclic Dependency Lemma rejects this case.
-:init [cycle] by {
+:init [CycleR01] by {
   T:RSType <- trs';
   I:RSID <- idRS'; 
   S:State <- < (res(trs,idRS,initial) sRS), sPR >;

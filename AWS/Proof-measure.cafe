@@ -9,11 +9,11 @@ require Proof Proof.cafe
 --> ******************************************
 module! ProofMeasure {
   pr(PROOFfuns)
-  pred mesmes : State .
   pred mmes : State State .
   eq mmes(S:State,SS:State)
      = wfs(S) and inv(S) and not final(S)
        implies m(S) > m(SS) .
+  pred mesmes : State .
   eq mesmes(S:State)
      = not (S =(*,1)=>+ SS:State if CC:Bool suchThat
             not ((CC implies mmes(S,SS)) = true)
@@ -30,7 +30,6 @@ module! ProofMeasure {
 -->     if allPROfRSInStates(SetPR,IDRS,ready) .
 --> ********************************************
 select ProofMeasure .
--- When R01 can be applied to the state S:
 --> *************************************************************************
 --> Step 3-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -82,13 +81,7 @@ module! ProofMeasFinal {
 --> **************************************
 --> Step 4-1: Instantiate a general lemma.
 --> **************************************
-  -- allObjInStates(S_O,(SO St_O)) and #ObjInStates(SO,S_O) = 0 
-  --     implies allObjInStates(S_O,St_O) .
   var SetRS : SetOfResource
-  -- eq [lemma]:
-  --    (#ResourceInStates(initial,SetRS) = 0
-  --     and allRSInStates(SetRS,started))
-  --   = (#ResourceInStates(initial,SetRS) = 0) .
   ceq [lemma]:
      allRSInStates(SetRS,started) = true
      if #ResourceInStates(initial,SetRS) = 0 .
