@@ -2,7 +2,7 @@ in DomainModel.cafe
 in Simulate.cafe
 in Proof.cafe               -- Reload everytime!
 in Proof-cyclelemma.cafe
-in Proof-lemma.cafe
+-- in Proof-lemma.cafe
 in Proof-initcont.cafe
 in Proof-contcont.cafe      -- Reload everytime!
 in Proof-contcont-R01.cafe

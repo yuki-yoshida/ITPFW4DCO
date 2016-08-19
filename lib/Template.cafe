@@ -451,6 +451,16 @@ module! OBJLINKMANY2ONE {
        and ifXInStatesThenZInStates(S_X,St_X,S_Z,St_Z)
      if not (S_Z = empObj) .
 
+  pred ifXInStatesThenZOfTypeInStates : SetOfLObject SetOfLObjState SetOfObject ObjType SetOfObjState
+  eq ifXInStatesThenZOfTypeInStates(empLObj,St_X,S_Z,OT,St_Z)
+     = true .
+  eq ifXInStatesThenZOfTypeInStates(S_X,St_X,empObj,OT,St_Z)
+     = true .
+  ceq ifXInStatesThenZOfTypeInStates((X S_X),St_X,S_Z,OT,St_Z)
+     = ((state(X) \in St_X) implies allZOfTypeOfXInStates(S_Z,OT,id(X),St_Z))
+       and ifXInStatesThenZOfTypeInStates(S_X,St_X,S_Z,OT,St_Z)
+     if not (S_Z = empObj) .
+
   op getXOfZ : SetOfLObject Object -> LObject
   eq getXOfZ(empLObj,Z)
      = empLObj .

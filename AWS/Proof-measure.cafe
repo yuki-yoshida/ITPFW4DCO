@@ -78,11 +78,11 @@ module! ProofMeasFinal {
   eq mesfinal(S:State)
      = wfs(S) and inv(S) and (cont(S) or final(S)) and m(S) = 0 implies final(S) .
 
---> **************************************
---> Step 4-1: Instantiate a general lemma.
---> **************************************
+--> ***************************************************
+--> Step 4-1: Instantiate a general lemma, base-lemma3.
+--> ***************************************************
   var SetRS : SetOfResource
-  ceq [lemma]:
+  ceq [base-lemma3]:
      allRSInStates(SetRS,started) = true
      if #ResourceInStates(initial,SetRS) = 0 .
 

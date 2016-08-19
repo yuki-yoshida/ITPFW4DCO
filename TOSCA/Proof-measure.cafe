@@ -326,7 +326,7 @@ module! ProofMeasFinal {
 --> Step 4-1: Instantiate a general lemma.
 --> **************************************
   var SetND : SetOfNode
-  ceq [lemma]:
+  ceq [base-lemma3]:
      allNDInStates(SetND,started) = true
      if (#NodeInStates(created,SetND) = 0) and #NodeInStates(initial,SetND) = 0 .
 

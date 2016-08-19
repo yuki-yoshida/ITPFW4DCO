@@ -38,18 +38,33 @@ module! PROOFbase {
   -- The invariant should be defined as the conjunction of all inv-* and all wfs-*.
   -- But this definition causes costly computations.
 
-  pred inv-ifOpenMsgThenCPActivated : State
-  eq inv-ifOpenMsgThenCPActivated(< SetND,SetCP,SetRQ,SetRL,MP >)
-     = ifOpenMsgThenCPInStates(MP,SetCP,(open available)) .
+  -- Invariants defined by using general predicates.
+  pred inv-ifNDInitialThenCPClosed : State
+  eq inv-ifNDInitialThenCPClosed(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifNDInStatesThenCPInStates(SetND,initial,SetCP,closed) .
+  pred inv-ifNDInitialThenRQUnboundReady : State
+  eq inv-ifNDInitialThenRQUnboundReady(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifNDInStatesThenRQInStates(SetND,initial,SetRQ,(unbound ready)) .
+  pred inv-ifNDCreatedThenHostedOnRQReady : State
+  eq inv-ifNDCreatedThenHostedOnRQReady(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifNDInStatesThenRQOfTypeInStates(SetND,(created started),SetRQ,hostedOn,ready) .
+  pred inv-ifNDStartedThenRQReady : State
+  eq inv-ifNDStartedThenRQReady(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifNDInStatesThenRQInStates(SetND,started,SetRQ,ready) .
   pred inv-ifCPClosedThenRQUnbound : State
   eq inv-ifCPClosedThenRQUnbound(< SetND,SetCP,SetRQ,SetRL,MP >)
      = ifCPInStatesThenRQInStates(SetCP,closed,SetRQ,unbound,SetRL) .
-  pred inv-ifAvailableMsgThenCPAvailable : State
-  eq inv-ifAvailableMsgThenCPAvailable(< SetND,SetCP,SetRQ,SetRL,MP >)
-     = ifAvailableMsgThenCPInStates(MP,SetCP,available) .
   pred inv-ifCPOpenThenRQUnboundWaiting : State
   eq inv-ifCPOpenThenRQUnboundWaiting(< SetND,SetCP,SetRQ,SetRL,MP >)
      = ifCPInStatesThenRQInStates(SetCP,open,SetRQ,(unbound waiting),SetRL) .
+  pred inv-HostedOnCPNotOpen : State
+  eq inv-HostedOnCPNotOpen(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = HostedOnCPInState(SetCP,(closed available)) .
+  pred inv-HostedOnRQNotWaiting : State
+  eq inv-HostedOnRQNotWaiting(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = HostedOnRQInState(SetRQ,(unbound ready)) .
+
+  -- Problem specific invariants for messaging.
   pred inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg : State
   eq inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg(< SetND,SetCP,SetRQ,SetRL,MP >)
      = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,open,SetRQ,waiting,SetRL,MP) .
@@ -59,24 +74,12 @@ module! PROOFbase {
   pred inv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg : State
   eq inv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg(< SetND,SetCP,SetRQ,SetRL,MP >)
      = ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg(SetCP,available,SetRQ,ready,SetRL,MP) .
-  pred inv-ifNDInitialThenCPClosed : State
-  eq inv-ifNDInitialThenCPClosed(< SetND,SetCP,SetRQ,SetRL,MP >)
-     = ifNDInStatesThenCPInStates(SetND,initial,SetCP,closed) .
-  pred inv-ifNDInitialThenRQUnboundReady : State
-  eq inv-ifNDInitialThenRQUnboundReady(< SetND,SetCP,SetRQ,SetRL,MP >)
-     = ifNDInStatesThenRQInStates(SetND,initial,SetRQ,(unbound ready)) .
-  pred inv-ifNDStartedThenRQReady : State
-  eq inv-ifNDStartedThenRQReady(< SetND,SetCP,SetRQ,SetRL,MP >)
-     = ifNDInStatesThenRQInStates(SetND,started,SetRQ,ready) .
-  pred inv-ifNDCreatedThenHostedOnRQReady : State
-  eq inv-ifNDCreatedThenHostedOnRQReady(< SetND,SetCP,SetRQ,SetRL,MP >)
-     = ifNDInStatesThenHostedOnRQInStates(SetND,(created started),SetRQ,ready) .
-  pred inv-HostedOnCPNotOpen : State
-  eq inv-HostedOnCPNotOpen(< SetND,SetCP,SetRQ,SetRL,MP >)
-     = HostedOnCPInState(SetCP,(closed available)) .
-  pred inv-HostedOnRQNotWaiting : State
-  eq inv-HostedOnRQNotWaiting(< SetND,SetCP,SetRQ,SetRL,MP >)
-     = HostedOnRQInState(SetRQ,(unbound ready)) .
+  pred inv-ifOpenMsgThenCPActivated : State
+  eq inv-ifOpenMsgThenCPActivated(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifOpenMsgThenCPInStates(MP,SetCP,(open available)) .
+  pred inv-ifAvailableMsgThenCPAvailable : State
+  eq inv-ifAvailableMsgThenCPAvailable(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifAvailableMsgThenCPInStates(MP,SetCP,available) .
 }
 
 module! PROOFfuns {
@@ -113,19 +116,20 @@ module! PROOFfuns {
      +  ( (#RequirementInStates(unbound,SetRQ) * 2) + #RequirementInStates(waiting,SetRQ)) .
 
   -- inv(S):
-  ceq inv(S) = false if not inv-ifOpenMsgThenCPActivated(S) .
+  ceq inv(S) = false if not inv-ifNDInitialThenRQUnboundReady(S) .
+  ceq inv(S) = false if not inv-ifNDCreatedThenHostedOnRQReady(S) .
+  ceq inv(S) = false if not inv-ifNDStartedThenRQReady(S) .
   ceq inv(S) = false if not inv-ifCPClosedThenRQUnbound(S) .
-  ceq inv(S) = false if not inv-ifAvailableMsgThenCPAvailable(S) .
   ceq inv(S) = false if not inv-ifCPOpenThenRQUnboundWaiting(S) .
+  ceq inv(S) = false if not inv-HostedOnCPNotOpen(S) .
+  ceq inv(S) = false if not inv-HostedOnRQNotWaiting(S) .
+  -- Problem specific invariants for messaging.
   ceq inv(S) = false if not inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg(S) .
   ceq inv(S) = false if not inv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg(S) .
   ceq inv(S) = false if not inv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg(S) .
-  ceq inv(S) = false if not inv-ifNDInitialThenCPClosed(S) .
-  ceq inv(S) = false if not inv-ifNDInitialThenRQUnboundReady(S) .
-  ceq inv(S) = false if not inv-ifNDStartedThenRQReady(S) .
-  ceq inv(S) = false if not inv-ifNDCreatedThenHostedOnRQReady(S) .
-  ceq inv(S) = false if not inv-HostedOnCPNotOpen(S) .
-  ceq inv(S) = false if not inv-HostedOnRQNotWaiting(S) .
+  -- Problem specific invariants for proving other invariants.
+  -- ceq inv(S) = false if not inv-ifOpenMsgThenCPActivated(S) .
+  -- ceq inv(S) = false if not inv-ifAvailableMsgThenCPAvailable(S).
 
   -- wfs(S):
   ceq wfs(S) = false if not wfs-uniqND(S) .
@@ -138,11 +142,13 @@ module! PROOFfuns {
   ceq wfs(S) = false if not wfs-allRLHaveRQ(S) .
   ceq wfs(S) = false if not wfs-allCPHaveRL(S) .
   ceq wfs(S) = false if not wfs-allRQHaveRL(S) .
+  ceq wfs(S) = false if not wfs-noNDCycleStruct(S) .
+  -- Problem specific wfs's for type constraint.
   ceq wfs(S) = false if not wfs-allRLHaveSameTypeCPRQ(S) .
+  -- Other problem specific wfs's.
   ceq wfs(S) = false if not wfs-allRLNotInSameND(S) .
   ceq wfs(S) = false if not wfs-allRLHoldLocality(S) .
   ceq wfs(S) = false if not wfs-allNDHaveAtMostOneHost(S) .
-  ceq wfs(S) = false if not wfs-noNDCycleStruct(S) .
 
   -- From Cyclic Dependency Lemma
   -- There is an initial resource whose DDSR01 includes no initial resourecs.

@@ -222,7 +222,8 @@ module! LINKS {
 	   op allZHaveX -> allCPHaveND,
 	   op allZOfXInStates -> allCPOfNDInStates,
 	   op allZOfTypeOfXInStates -> allCPOfTypeOfNDInStates,
-	   op ifXInStatesThenZInStates -> ifNDInStatesThenCPInStates}
+	   op ifXInStatesThenZInStates -> ifNDInStatesThenCPInStates,
+	   op ifXInStatesThenZOfTypeInStates -> ifNDInStatesThenCPOfTypeInStates}
 	)
 
   extending(OBJLINKMANY2ONE(
@@ -255,7 +256,8 @@ module! LINKS {
 	   op allZHaveX -> allRQHaveND,
 	   op allZOfXInStates -> allRQOfNDInStates,
 	   op allZOfTypeOfXInStates -> allRQOfTypeOfNDInStates,
-	   op ifXInStatesThenZInStates -> ifNDInStatesThenRQInStates}
+	   op ifXInStatesThenZInStates -> ifNDInStatesThenRQInStates,
+	   op ifXInStatesThenZOfTypeInStates -> ifNDInStatesThenRQOfTypeInStates}
 	)
 
   extending(OBJLINKONE2ONE(
@@ -409,16 +411,6 @@ module! UtilFuns {
      = (node(getCPOfRL(SetCP,RL)) = node(getRQOfRL(SetRQ,RL))) = false and
        allRLNotInSameND(SetRL,SetCP,SetRQ) .
 
-  op filterRQ : SetOfRequirement RLType -> SetOfRequirement
-  eq filterRQ(empRQ,TYRL)
-     = empRQ .
-  eq filterRQ((RQ SetRQ),TYRL)
-     = if type(RQ) = TYRL then
-          (RQ filterRQ(SetRQ,TYRL)) 
-       else
-          filterRQ(SetRQ,TYRL)
-       fi .
-
   -- WFS ensures that there is at most one HostedOn requirement
   op getHostedOnRQOfND : SetOfRequirement NDID -> Requirement
   op getHostedOnRQOfND : SetOfRequirement Node -> Requirement
@@ -483,10 +475,6 @@ module! UtilFuns {
        and allNDHaveAtMostOneHost(SetND,SetRQ) .
   eq isAtMostOne(SetRQ)
      = card(SetRQ) = 0 or card(SetRQ) = 1 .
-
-  pred ifNDInStatesThenHostedOnRQInStates : SetOfNode SetOfNDState SetOfRequirement SetOfRQState
-  eq ifNDInStatesThenHostedOnRQInStates(SetND,StND,SetRQ,StRQ)
-     = ifNDInStatesThenRQInStates(SetND,StND,filterRQ(SetRQ,hostedOn),StRQ) .
 
   pred ifOpenMsgThenCPInStates : PoolOfMsg SetOfCapability SetOfCPState
   eq ifOpenMsgThenCPInStates(empMsg,SetCP,StCP)
