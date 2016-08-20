@@ -2435,14 +2435,14 @@ module! Proofinv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg {
 		(rel(connectsTo,IDRL,IDCP,IDRQ) SetRL),(avMsg(IDCP) MP)) 
      if not existCP(SetCP,IDCP) .
 
-  ceq [tosca-lemma23 :nonexec]:
+  ceq [tosca-lemma08 :nonexec]:
       (ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 		SetCP,STCP,(req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL,MP) and
        ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 		SetCP,STCP,(req(TRL,IDRQ,SRQ2,IDND) SetRQ),STRQ,SetRL,MP) )
      = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 		SetCP,STCP,(req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL,MP) 
-     if (TRL = connectsTo) = false .
+     if not (TRL = connectsTo) .
 }
 
 --> ***************************
@@ -2514,7 +2514,7 @@ show proof
   	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
 	           (rel(hostedOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
-:init [tosca-lemma23] by {
+:init [tosca-lemma08] by {
     SRQ1:RQState <- unbound ;
 }
 :apply (rd) 
@@ -2567,7 +2567,7 @@ show proof
 :ctf {
   eq (state(getNode(sND,idND')) = created and isActivated(scp)) = true .
 }
-:init [tosca-lemma23] by {
+:init [tosca-lemma08] by {
     SRQ1:RQState <- unbound ;
 }
 :apply (rd) -- 1
@@ -2585,7 +2585,7 @@ show proof
    	           (req(dependsOn,idRQ,waiting,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
-:init [tosca-lemma23] by {
+:init [tosca-lemma08] by {
     SRQ1:RQState <- waiting ;
 }
 :apply (rd) 
@@ -2766,14 +2766,14 @@ module! Proofinv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg {
 		SetRL,(avMsg(IDCP) MP)) 
      if SRQ2 \in STRQ .
 
-  ceq [tosca-lemma23 :nonexec]:
+  ceq [tosca-lemma08 :nonexec]:
       (ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 		SetCP,STCP,(req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL,MP) and
        ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 		SetCP,STCP,(req(TRL,IDRQ,SRQ2,IDND) SetRQ),STRQ,SetRL,MP) )
      = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 		SetCP,STCP,(req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL,MP) 
-     if (TRL = connectsTo) = false .
+     if not (TRL = connectsTo) .
 }
 
 --> ***************************
@@ -2845,7 +2845,7 @@ show proof
   	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
 	           (rel(hostedOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
-:init [tosca-lemma23] by {
+:init [tosca-lemma08] by {
     SRQ1:RQState <- unbound ;
 }
 :apply (rd)
@@ -2898,7 +2898,7 @@ show proof
 :ctf {
   eq (state(getNode(sND,idND')) = created and isActivated(scp)) = true .
 }
-:init [tosca-lemma23] by {
+:init [tosca-lemma08] by {
     SRQ1:RQState <- unbound ;
 }
 :apply (rd) -- 1
@@ -2916,7 +2916,7 @@ show proof
    	           (req(dependsOn,idRQ,waiting,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
-:init [tosca-lemma23] by {
+:init [tosca-lemma08] by {
     SRQ1:RQState <- waiting ;
 }
 :apply (rd) 

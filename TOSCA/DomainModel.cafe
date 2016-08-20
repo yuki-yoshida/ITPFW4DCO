@@ -398,11 +398,15 @@ module! UtilFuns {
   eq allRLHaveSameTypeCPRQ(empRL,SetCP,SetRQ)
      = true .
   eq allRLHaveSameTypeCPRQ((RL SetRL),SetCP,SetRQ)
-     = existCP(SetCP,cap(RL)) and
-       existRQ(SetRQ,req(RL)) and
-       type(getCPOfRL(SetCP,RL)) = type(RL) and
-       type(getRQOfRL(SetRQ,RL)) = type(RL) and
+     = (existCP(SetCP,cap(RL)) implies type(getCPOfRL(SetCP,RL)) = type(RL)) and
+       (existRQ(SetRQ,req(RL)) implies type(getRQOfRL(SetRQ,RL)) = type(RL)) and
        allRLHaveSameTypeCPRQ(SetRL,SetCP,SetRQ) .
+  -- eq allRLHaveSameTypeCPRQ((RL SetRL),SetCP,SetRQ)
+  --    = existCP(SetCP,cap(RL)) and
+  --      existRQ(SetRQ,req(RL)) and
+  --      type(getCPOfRL(SetCP,RL)) = type(RL) and
+  --      type(getRQOfRL(SetRQ,RL)) = type(RL) and
+  --      allRLHaveSameTypeCPRQ(SetRL,SetCP,SetRQ) .
 
   pred allRLNotInSameND : SetOfRelationship SetOfCapability SetOfRequirement
   eq allRLNotInSameND(empRL,SetCP,SetRQ)
