@@ -87,6 +87,16 @@ module! SETLEMMAS {
   eq set-lemma6(O, S, A)
      = allObjP((O S),A) implies allObjP(S,A) .
 
+  pred set-lemma7 : Object Object SetOfObject
+  -- Set inclusion is transitive
+  eq set-lemma7(O,O1,S)
+     = (O \in O1 and O1 \in S) implies (O \in S) .
+
+  pred set-lemma8 : Object Object SetOfObject
+  -- Set inclusion is transitive
+  eq set-lemma8(O,O1,S)
+     = (O \in O1 and not (O1 \in S)) implies not (O \in S).
+
   ops o o' o1 o2 : -> Object .
   op s : -> SetOfObject .
   op a : -> Arg .
@@ -237,6 +247,21 @@ select SETLEMMAS
 :apply (rd)
 :apply (rd)
 show proof
+
+--> ***************************************
+--> Prove that set inclusion is transitive.
+--> ***************************************
+select SETLEMMAS
+:goal {
+  eq set-lemma7(o1,o2,s) = true .
+}
+:apply (rd-)
+
+select SETLEMMAS
+:goal {
+  eq set-lemma8(o1,o2,s) = true .
+}
+:apply (rd-)
 
 module! LEMMAbase {
   pr(OBJECTBASE)
@@ -475,6 +500,13 @@ module! M2O-LEMMAS {
      = ifXInStatesThenZOfTypeInStates(S_X,St_X,(Z S_Z),OT,St_Z)
          implies ifXInStatesThenZOfTypeInStates(S_X,St_X,(Z' S_Z),OT,St_Z)
      when not (type(Z) = OT) and changeObjState(Z,Z') .
+
+  -- Using set-lemma7
+  ceq [set-lemma7 :nonexec]:
+     ((SZ1:ObjState \in SZ2:ObjState) and 
+      (SZ1 \in St_Z:SetOfObjState))
+     = (SZ1 \in SZ2) 
+     if (SZ2 \in St_Z) . 
 }
 
 --> ***********************************************************************
@@ -488,13 +520,6 @@ select M2O-LEMMAS
 }
 :ctf {
   eq (sz \in setSZ) = true .
-}
--- Axiom: inclusion is transitive.
-:init ( ceq ((SZ1:ObjState \in SZ2:ObjState) and (SZ1 \in St_Z:SetOfObjState)) 
-           = (SZ1 \in SZ2) if (SZ2 \in St_Z) . ) by {
-  SZ1:ObjState <- state(z) ;
-  SZ2:ObjState <- sz ;
-  St_Z:SetOfObjState <- setSZ ;
 }
 :apply (rd)
 :apply (rd)
@@ -511,13 +536,6 @@ select M2O-LEMMAS
 }
 :ctf {
   eq (sz \in setSZ) = true .
-}
--- Axiom: inclusion is transitive.
-:init ( ceq ((SZ1:ObjState \in SZ2:ObjState) and (SZ1 \in St_Z:SetOfObjState)) 
-           = (SZ1 \in SZ2) if (SZ2 \in St_Z) . ) by {
-  SZ1:ObjState <- state(z) ;
-  SZ2:ObjState <- sz ;
-  St_Z:SetOfObjState <- setSZ ;
 }
 :apply (rd)
 :apply (rd)
