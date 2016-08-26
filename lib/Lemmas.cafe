@@ -87,16 +87,6 @@ module! SETLEMMAS {
   eq set-lemma6(O, S, A)
      = allObjP((O S),A) implies allObjP(S,A) .
 
-  pred set-lemma7 : Object Object SetOfObject
-  -- Set inclusion is transitive
-  eq set-lemma7(O,O1,S)
-     = (O \in O1 and O1 \in S) implies (O \in S) .
-
-  pred set-lemma8 : Object Object SetOfObject
-  -- Set inclusion is transitive
-  eq set-lemma8(O,O1,S)
-     = (O \in O1 and not (O1 \in S)) implies not (O \in S).
-
   ops o o' o1 o2 : -> Object .
   op s : -> SetOfObject .
   op a : -> Arg .
@@ -247,21 +237,6 @@ select SETLEMMAS
 :apply (rd)
 :apply (rd)
 show proof
-
---> ***************************************
---> Prove that set inclusion is transitive.
---> ***************************************
-select SETLEMMAS
-:goal {
-  eq set-lemma7(o1,o2,s) = true .
-}
-:apply (rd-)
-
-select SETLEMMAS
-:goal {
-  eq set-lemma8(o1,o2,s) = true .
-}
-:apply (rd-)
 
 module! LEMMAbase {
   pr(OBJECTBASE)

@@ -276,18 +276,6 @@ module! TOSCALEMMA {
      = allRQInStates(SetRQ,SRQ) 
        implies HostedOnRQInState(SetRQ,STRQ)
      when SRQ \in STRQ .
-
-  ceq [set-lemma7CP :nonexec]:
-     (SCP \in STCP) = true 
-     if (SCP \in SCP1 and SCP1 \in STCP) .
-
-  ceq [set-lemma7RQ :nonexec]:
-     (SRQ \in STRQ) = true 
-     if (SRQ \in SRQ1 and SRQ1 \in STRQ) .
-
-  ceq [set-lemma8 :nonexec]:
-     (SCP \in STCP) = false
-     if (SCP \in SCP1 and not (SCP1 \in STCP)) .
 }
 
 --> ********************************************************************
@@ -626,12 +614,7 @@ select TOSCALEMMA
 }
 :apply (rd) -- 3-1
 :ctf {
-  eq (scp' \in scp) = true .
-}
-:init [set-lemma8] by {
-  SCP:CPState <- scp' ;
-  SCP1:CPState <- scp ;
-  STCP:SetOfCPState <- stCP ;
+  eq scp' = scp .
 }
 :apply (rd) -- 3-2-1
 :apply (rd) -- 3-2-2
@@ -1118,13 +1101,8 @@ select TOSCALEMMA
 :ctf {
   eq (scp \in stCP) = true .
 }
-:init [set-lemma7CP] by {
-  SCP:CPState <- scp' ;
-  SCP1:CPState <- scp ;
-  STCP:SetOfCPState <- stCP ;
-}
 :ctf {
-  eq (scp' \in scp) = true .
+  eq scp' = scp .
 }
 :apply (rd) -- 1-1-1
 :apply (rd) -- 1-1-2
@@ -1151,13 +1129,8 @@ select TOSCALEMMA
 :ctf {
   eq (srq \in stRQ) = true .
 }
-:init [set-lemma7RQ] by {
-  SRQ:RQState <- srq' ;
-  SRQ1:RQState <- srq ;
-  STRQ:SetOfRQState <- stRQ ;
-}
 :ctf {
-  eq (srq' \in srq) = true .
+  eq srq' =  srq .
 }
 :apply (rd) -- 1-1-1
 :apply (rd) -- 1-1-2
