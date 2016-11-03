@@ -16,7 +16,7 @@ module! ProofMeasure {
   pred mesmes : State .
   eq mesmes(S:State)
      = not (S =(*,1)=>+ SS:State if CC:Bool suchThat
-            not ((CC implies mmes(S,SS)) = true)
+            not ((CC implies mmes(S,SS)) == true)
      	   { S => SS !! CC ! inv(S) ! final(S) ! (m(S) > m(SS)) }) .
 
   --> Axioms of Nat
