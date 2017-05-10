@@ -2,6 +2,7 @@ require Template Template.cafe
 
 provide Lemmas
 
+:set(normalize-init,off)
 module! BOOLLEMMAS {
   pred bool-lemma1 : Bool Bool .
   -- (X implies Y) can be written as an equation, eq (X and Y) = X .
@@ -28,8 +29,9 @@ select BOOLLEMMAS
 show proof
 
 module! SETLEMMAS {
-  pr(ALLOBJPRED1)
-  op _ \in _ : Object SetOfObject -> Bool
+  protecting(ALLOBJPRED1)
+  op _ in _ : Object SetOfObject -> Bool
+  op subset : SetOfObject SetOfObject -> Bool
 
   pred (_when _) : Bool Bool { prec: 64 r-assoc }
   eq (B1:Bool when B2:Bool)
@@ -38,13 +40,15 @@ module! SETLEMMAS {
   -- Axioms
   -- SET Lemmas are valid only when instantiating with the following properties.
   vars O O1 : Object
-  vars S S' : SetOfObject
+  vars S S' S1 S2 : SetOfObject
   var A : Arg
   eq (empObj = (O S)) = false .
   eq ((O S) = (O S')) = (S = S') .
-  eq O \in empObj = false .
-  eq O \in (O S) = true .
-  ceq O \in (O1 S) = O \in S if not(O == O1) .
+  eq O in empObj = false .
+  eq O in (O S) = true .
+  ceq O in (O1 S) = O in S if not(O == O1) .
+  eq subset(empObj,S) = true .
+  eq subset((O S),S') = O in S' and subset(S,S') .
 
   -- Skolem functions
   -- A set may include a specific element
@@ -52,43 +56,75 @@ module! SETLEMMAS {
   -- and there is a rest of the set
   op s' : SetOfObject -> SetOfObject {strat (0)} .
 
-  pred set-lemma0 : SetOfObject Object
+  pred set-lemma00 : SetOfObject Object
   -- When O is included in S, there exist some S' such that S = (O S').
-  eq set-lemma0(S, O)
-     = (O \in S) implies (S = (O s'(S))) .
+  eq set-lemma00(S, O)
+     = (O in S) implies (S = (O s'(S))) .
 
-  pred set-lemma1 : SetOfObject Arg
+  pred set-lemma01 : SetOfObject Arg
   -- When allObjP(S,A) does not hold, there exist some E and S' such that S = (E S') and p(E,A) does not hold.
-  eq set-lemma1(S, A)
+  eq set-lemma01(S, A)
      = not allObjP(S,A) implies (S = (e(S) s'(S))) and not p(e(S),A) .
 
-  pred set-lemma2 : SetOfObject Arg
+  pred set-lemma02 : SetOfObject Arg
   -- When onlyOneObjP(S,A) holds, there exist some E and S' such that S = (E S') and p(E,A) holds.
-  eq set-lemma2(S, A)
+  eq set-lemma02(S, A)
      = onlyOneObjP(S,A) implies (S = (e(S) s'(S))) and p(e(S),A) and allObjNotP(s'(S),A).
 
-  pred set-lemma3 : SetOfObject Arg
+  pred set-lemma03 : SetOfObject Arg
   -- someObjP(S,A) if and only if not allObjNotP(S,A).
-  eq set-lemma3(S, A)
+  eq set-lemma03(S, A)
      = someObjP(S,A) iff not allObjNotP(S,A) .
 
-  pred set-lemma4 : SetOfObject Object Arg
+  pred set-lemma04 : SetOfObject Object Arg
   -- When p(O,A) holds and O is included in S, then someObjP(S,A) holds.
-  eq set-lemma4(S, O, A)
-     = p(O,A) and (O \in S) implies someObjP(S,A) .
+  eq set-lemma04(S, O, A)
+     = p(O,A) and (O in S) implies someObjP(S,A) .
 
-  pred set-lemma5 : SetOfObject Arg
+  pred set-lemma05 : SetOfObject Arg
   -- When onlyOneObjP(S,A) holds, someObjP(S,A) also holds.
-  eq set-lemma5(S, A)
+  eq set-lemma05(S, A)
      = onlyOneObjP(S,A) implies someObjP(S,A) .
 
-  pred set-lemma6 : Object SetOfObject Arg
+  pred set-lemma06 : Object SetOfObject Arg
   -- When p(O,A) holds, allObjP((O S),A) is equivalent to allObjP(S,A).
-  eq set-lemma6(O, S, A)
+  eq set-lemma06(O, S, A)
      = allObjP((O S),A) implies allObjP(S,A) .
 
+  pred set-lemma07 : Object Object SetOfObject
+  -- When O in S and O1 in O holds, O1 in S also holds.
+  eq set-lemma07(O,O1,S)
+     = O1 in O implies O1 in S 
+     when O in S .
+  
+  pred set-lemma08 : Object SetOfObject SetOfObject
+  -- When O in S holds, O in (S S') also holds.
+  eq set-lemma08(O,S,S')
+     = O in S implies O in (S S') .
+
+  pred set-lemma09 : Object SetOfObject SetOfObject
+  -- When subset(S,S') holds, subset(S,(O S')) also holds.
+  eq set-lemma09(O,S,S')
+     = subset(S,S') implies subset(S,(O S')) .
+
+  pred set-lemma10 : SetOfObject SetOfObject SetOfObject
+  -- When subset(S1,S) and subset(S2,S) holds, subset((S1 S2),S) also holds.
+  eq set-lemma10(S,S1,S2)
+     = subset(S2,S) implies subset((S1 S2),S) 
+     when subset(S1,S) .
+
+  pred set-lemma11 : SetOfObject SetOfObject SetOfObject
+  -- When subset(S,S1) holds, subset(S,(S1 S2)) also holds. 
+  eq set-lemma11(S,S1,S2)
+     = subset(S,S1) implies subset(S,(S1 S2)) . 
+
+  pred set-lemma12 : SetOfObject 
+  -- subset(S,S)) alway holds. 
+  eq set-lemma12(S)
+     = subset(S,S) .
+
   ops o o' o1 o2 : -> Object .
-  op s : -> SetOfObject .
+  ops s s1 s2 : -> SetOfObject .
   op a : -> Arg .
 }
 
@@ -98,10 +134,9 @@ module! SETLEMMAS {
 --> case 1: Basic case, S is empty
 select SETLEMMAS
 :goal {
-  eq set-lemma0(empObj,o) = true .
-  eq set-lemma0(s,o) implies set-lemma0((o' s),o) = true .
+  eq set-lemma00(empObj,o) = true .
+  eq set-lemma00(s,o) implies set-lemma00((o' s),o) = true .
 }
-
 :ctf {
   eq o' = o .
 }
@@ -122,8 +157,8 @@ show proof
 --> *******************************************************************************************************************
 select SETLEMMAS
 :goal {
-  eq set-lemma1(empObj,a) = true .
-  eq set-lemma1(s,a) implies set-lemma1((o s),a) = true .
+  eq set-lemma01(empObj,a) = true .
+  eq set-lemma01(s,a) implies set-lemma01((o s),a) = true .
 }
 :ctf {
   eq p(o,a) = true .
@@ -157,8 +192,8 @@ show proof
 --> *****************************************************************************************************************************
 select SETLEMMAS
 :goal {
-  eq set-lemma2(empObj,a) = true .
-  eq set-lemma2(s,a) implies set-lemma2((o s),a) = true .
+  eq set-lemma02(empObj,a) = true .
+  eq set-lemma02(s,a) implies set-lemma02((o s),a) = true .
 }
 :ctf {
   eq p(o,a) = true .
@@ -188,8 +223,8 @@ show proof
 --> **************************************************
 select SETLEMMAS
 :goal {
-  eq set-lemma3(empObj,a) = true .
-  eq set-lemma3(s,a) implies set-lemma3(o s,a) = true .
+  eq set-lemma03(empObj,a) = true .
+  eq set-lemma03(s,a) implies set-lemma03(o s,a) = true .
 }
 :apply (rd)
 show proof
@@ -199,8 +234,8 @@ show proof
 --> ******************************************************************************
 select SETLEMMAS
 :goal {
-  eq set-lemma4(empObj,o,a) = true .
-  eq set-lemma4(s,o,a) implies set-lemma4(o' s,o,a) = true .
+  eq set-lemma04(empObj,o,a) = true .
+  eq set-lemma04(s,o,a) implies set-lemma04(o' s,o,a) = true .
 }
 :ctf {
   eq o' = o .
@@ -214,8 +249,8 @@ show proof
 --> *****************************************************************
 select SETLEMMAS
 :goal {
-  eq set-lemma5(empObj,a) = true .
-  eq set-lemma5(s,a) implies set-lemma5((o s),a) = true .
+  eq set-lemma05(empObj,a) = true .
+  eq set-lemma05(s,a) implies set-lemma05((o s),a) = true .
 }
 :ctf {
   eq p(o,a) = true .
@@ -229,7 +264,7 @@ show proof
 --> *****************************************************************************
 select SETLEMMAS
 :goal {
-  eq set-lemma6(o,s,a) = true .
+  eq set-lemma06(o,s,a) = true .
 }
 :ctf {
   eq p(o,a) = true .
@@ -238,21 +273,129 @@ select SETLEMMAS
 :apply (rd)
 show proof
 
+--> *************************************************************
+--> Prove that when O in S and O1 in O holds, O1 in S also holds.
+--> *************************************************************
+select SETLEMMAS
+:goal {
+  eq set-lemma07(o,o',s) = true .
+}
+:ctf {
+  eq o' = o .
+}
+:apply (rd)
+:apply (rd)
+show proof
+
+--> *****************************************************
+--> Prove that when O in S holds, O in (S S') also holds.
+--> *****************************************************
+select SETLEMMAS
+:goal {
+  eq set-lemma08(o,empObj,s1) = true .
+  eq set-lemma08(o,s,s1) implies set-lemma08(o,(o' s),s1) = true .
+}
+:ctf {
+  eq o' = o .
+}
+:apply (rd)
+:apply (rd)
+show proof
+
+--> ****************************************************************
+--> Prove that when subset(S,S') holds, subset(S,(O S')) also holds.
+--> ****************************************************************
+select SETLEMMAS
+:goal {
+  eq set-lemma09(o,empObj,s2) = true .
+  eq set-lemma09(o,s1,s2) implies set-lemma09(o,(o' s1),s2) = true .
+}
+:apply (rd)
+show proof
+
+--> **********************************************************************************
+--> Prove that when subset(S1,S) and subset(S2,S) holds, subset((S1 S2),S) also holds.
+--> **********************************************************************************
+select SETLEMMAS
+:goal {
+  eq set-lemma10(s,empObj,s2) = true .
+  eq set-lemma10(s,s1,s2) implies set-lemma10(s,(o s1),s2) = true .
+}
+:apply (rd)
+show proof
+
+--> ******************************************************************
+--> Prove that when subset(S,S1) holds, subset(S,(S1 S2)) also holds. 
+--> ******************************************************************
+open SETLEMMAS .
+-- Using set-lemma08
+eq [set-lemma08]:
+   (O in S and O in (S S'))
+   = O in S .
+:goal {
+  eq set-lemma11(empObj,s1,s2) = true .
+  eq set-lemma11(s,s1,s2) implies set-lemma11((o s),s1,s2) = true .
+}
+:apply (rd)
+show proof
+close
+
+--> ************************************
+--> Prove that subset(S,S) always holds.
+--> ************************************
+open SETLEMMAS .
+-- Using set-lemma09
+eq [set-lemma09]:
+   (subset(S,S') and subset(S,(O S')))
+  = subset(S,S') .
+:goal {
+  eq set-lemma12(empObj) = true .
+  eq set-lemma12(s) implies set-lemma12(o s) = true .
+}
+:apply (rd)
+show proof
+close
+
+select
+
 module! LEMMAbase {
-  pr(OBJECTBASE)
-  pr(PRMOBJLINKPRED)
+  protecting(OBJECTBASE-)
+  protecting(PRMOBJLINKPRED)
 
   pred (_when _) : Bool Bool { prec: 64 r-assoc }
   eq (B1:Bool when B2:Bool)
      = B2 implies B1 .
 
+  vars Z Z1 Z2 : Object
+  vars X X1 X2 : LObject
+  vars S_Z S_Z1 S_Z2 : SetOfObject
+  vars S_X S_X1 S_X2 : SetOfLObject
+  vars SZ1 SZ2 : ObjState
+  var St_Z : SetOfObjState
+
   pred changeObjState : Object Object
-  eq changeObjState(O1:Object,O2:Object)
-     = (id(O1) = id(O2)) and (link(O1) = link(O2)) and (type(O1) = type(O2)) .
+  eq changeObjState(Z1,Z2)
+     = (id(Z1) = id(Z2)) and (link(Z1) = link(Z2)) and (type(Z1) = type(Z2)) .
 
   pred changeLObjState : LObject LObject
-  eq changeLObjState(O1:LObject,O2:LObject)
-     = (id(O1) = id(O2)) .
+  eq changeLObjState(X1,X2)
+     = (id(X1) = id(X2)) .
+
+  pred _in_ : LObject SetOfLObject .
+  eq X in empLObj = false .
+  eq X in (X S_X) = true .
+  ceq X in (X1 S_X) = X in S_X if not(X = X1) .
+
+  pred subset : SetOfLObject SetOfLObject .
+  eq subset(empLObj,S_X)
+     = true .
+  eq subset((X S_X1),S_X2)
+     = X in S_X2 and subset(S_X1,S_X2) .
+
+  eq getLObject((X S_X),LID:LObjID)
+     = if (id(X) = LID) then X else getLObject(S_X,LID) fi .
+
+  eq ((X S_X) = empLObj) = false .
 
   -- Constants for Proofs.
   ops x x' x1 x2 : -> LObject .
@@ -276,16 +419,54 @@ module! LEMMAbase {
   op setSY : -> SetOfObjState
   op setSZ : -> SetOfObjState
   op setSO : -> SetOfObjState
+
+  -- Using set-lemma07 for SetOfObjObject
+  -- (Note that this axiom is nonexec but m2o-lemma01 uses it implicitly?)
+  ceq [set-lemma07 :nonexec]:
+     ((SZ1 in SZ2) and (SZ1 in St_Z))
+     = (SZ1 in SZ2) 
+     if (SZ2 in St_Z) . 
+
+  -- Using set-lemma09 for SetOfLObject
+  eq [set-lemma09]:
+     (subset(S_X1,S_X2) and subset(S_X1,(X S_X2)))
+     = subset(S_X1,S_X2) .
+
+  -- Using set-lemma10 for SetOfLObject
+  ceq [set-lemma10]:
+     (subset(S_X2,S_X) and subset((S_X1 S_X2),S_X))
+     = subset(S_X2,S_X)
+     if subset(S_X1,S_X) .  
+
+  -- Using set-lemma11 for SetOfObject
+  eq [set-lemma11]:
+     (subset(S_Z,S_Z1) and subset(S_Z,(S_Z1 S_Z2)))
+     = subset(S_Z,S_Z1) .
+
+  -- Using set-lemma11 and 12 for SetOfObject
+  eq [set-lemma11&12]:
+     subset(S_Z,(S_Z S_Z1)) = true .
+
+  -- Using set-lemma09, 10, and 12 for SetOfObject
+  eq [set-lemma09&10&11]:
+     (subset(S_Z1,S_Z2) and subset((S_Z1 S_Z),(Z S_Z2 S_Z)))
+     = subset(S_Z1,S_Z2) .
+
+  -- Using set-lemma10 and 12 for SetOfObject
+  eq [set-lemma10&11]:
+     (subset(S_Z1,S_Z2) and subset((S_Z1 S_Z),(S_Z2 S_Z)))
+     = subset(S_Z1,S_Z2) .
 }
 
 module! BASE-LEMMAS {
-  pr(LEMMAbase)
+  protecting(LEMMAbase)
 
   var IDO : ObjID 
   vars O O' : Object
   var S_O : SetOfObject
   vars SO SO1 SO2 : ObjState
   var St_O : SetOfObjState
+  var OT : ObjType
 
   pred base-lemma01 : SetOfObject ObjID Object
   eq base-lemma01(S_O,IDO,O)
@@ -295,12 +476,26 @@ module! BASE-LEMMAS {
   eq base-lemma02(O,IDO,S_O)
      = (id(O) = IDO) implies existObj((O S_O),IDO) .
 
-  pred base-lemma3 : SetOfObject ObjState SetOfObjState
+  pred base-lemma03 : SetOfObject ObjState SetOfObjState
   -- When allObjInStates(S_O,(SO St_O)) and #ObjInState(SO,S_O) =0 holds, 
   -- allObjInStates(S_O,St_O) also holds.
-  eq base-lemma3(S_O, SO, St_O)
+  eq base-lemma03(S_O, SO, St_O)
      = allObjInStates(S_O,(SO St_O)) and #ObjInStates(SO,S_O) = 0 
        implies allObjInStates(S_O,St_O) .
+
+  pred base-lemma04 : SetOfObject ObjType ObjState SetOfObjState
+  eq base-lemma04(S_O,OT,SO,St_O)
+     = allObjInStates(S_O,SO) 
+       implies allObjOfTypeInStates(S_O,OT,St_O)
+     when SO in St_O .
+
+  pred base-lemma05 : SetOfObject ObjID
+  eq base-lemma05(S_O,IDO)
+     = getObject(S_O,IDO) = null
+       when not existObj(S_O,IDO) .
+
+  -- Axiom of Nat
+  eq (1 + N:Nat = 0) = false .
 }
 
 select BASE-LEMMAS
@@ -317,8 +512,8 @@ show proof
 --> *******************************************************************************
 select BASE-LEMMAS
 :goal {
-  eq base-lemma3(empObj,so,setSO) = true .
-  eq base-lemma3(setO,so,setSO) implies base-lemma3((o setO),so,setSO) = true .
+  eq base-lemma03(empObj,so,setSO) = true .
+  eq base-lemma03(setO,so,setSO) implies base-lemma03((o setO),so,setSO) = true .
 }
 :ctf {
   eq state(o) = so .
@@ -327,16 +522,55 @@ select BASE-LEMMAS
 :apply (rd)
 show proof
 
+--> ***********************************************
+--> Prove base-lemma04
+-->     = allObjInStates(S_O,SO) 
+-->       implies allObjOfTypeInStates(S_O,OT,St_O)
+-->     when SO in St_O .
+--> ***********************************************
+select BASE-LEMMAS
+:goal {
+  eq base-lemma04(empObj,ot,so,setSO) = true .
+  eq base-lemma04(setO,ot,so,setSO) implies base-lemma04((o setO),ot,so,setSO) = true .
+}
+:ctf {
+  eq type(o) = ot .
+}
+:ctf {
+  eq (so in setSO) = true .
+}
+:ctf {
+  eq state(o) = so .
+}
+:apply (rd)
+:apply (rd)
+:apply (rd)
+:apply (rd)
+show proof
+
+--> ***********************************************
+--> Prove base-lemma05(S_O,IDO)
+-->     = getObject(S_O,IDO) = null
+-->     when not existObj(S_O,IDO) .
+--> ***********************************************
+select BASE-LEMMAS
+:goal {
+  eq base-lemma05(empObj,idO) = true .
+  eq base-lemma05(setO,idO) implies base-lemma05((o setO),idO) = true .
+}
+:apply (rd-)
+show proof
+
 module! M2O-LEMMAS {
-  pr(LEMMAbase)
-  pr(OBJLINKMANY2ONE)
+  protecting(LEMMAbase)
+  protecting(OBJLINKMANY2ONE-)
 
   var IDX : LObjID 
   var IDZ : ObjID 
   vars X X' : LObject
   vars Z Z' : Object
-  var S_X : SetOfLObject
-  var S_Z : SetOfObject
+  vars S_X S_X' : SetOfLObject
+  vars S_Z S_Z' : SetOfObject
   vars SX SX1 SX2 : LObjState
   vars SZ SZ1 SZ2 : ObjState
   var St_X : SetOfLObjState
@@ -351,29 +585,39 @@ module! M2O-LEMMAS {
 
   op empLState : -> LObjState .
   op _ _ : SetOfLObjState SetOfLObjState -> SetOfLObjState {constr assoc comm id: empLState}
-  eq SX \in empLState = false .
-  eq SX \in (SX St_X) = true .
-  ceq SX \in (SX1 St_X) = SX \in St_X if not (SX = SX1) .
+  eq SX in empLState = false .
+  eq SX in (SX St_X) = true .
+  ceq SX in (SX1 St_X) = SX in St_X if not (SX = SX1) .
 
   pred allObjInStates : SetOfLObject SetOfLObjState
   eq allObjInStates(empLObj, St_X) = true .
   eq allObjInStates((X S_X), St_X)
-     = (state(X) \in St_X) and allObjInStates(S_X, St_X) .
+     = (state(X) in St_X) and allObjInStates(S_X, St_X) .
 
   pred m2o-lemma01 : LObjID SetOfObject ObjState SetOfObjState
   eq m2o-lemma01(IDX,S_Z,SZ,St_Z)
      = allObjInStates(S_Z,SZ) implies allZOfXInStates(S_Z,IDX,St_Z) 
-     when (SZ \in St_Z) .
+     when (SZ in St_Z) .
+
+  ceq [m2o-lemma01]:
+      (allObjInStates(S_Z,SZ) and allZOfXInStates(S_Z,IDX,St_Z))
+     = allObjInStates(S_Z,SZ)
+     if (SZ in St_Z) . 
 
   pred m2o-lemma02 : LObjID SetOfObject ObjState ObjType SetOfObjState
   eq m2o-lemma02(IDX,S_Z,SZ,OT,St_Z)
      = allObjInStates(S_Z,SZ) implies allZOfTypeOfXInStates(S_Z,OT,IDX,St_Z) 
-     when (SZ \in St_Z) .
+     when (SZ in St_Z) .
+
+  ceq [m2o-lemma02]:
+      (allObjInStates(S_Z,SZ) and allZOfTypeOfXInStates(S_Z,OT,IDX,St_Z))
+     = allObjInStates(S_Z,SZ)
+     if (SZ in St_Z) . 
 
   pred m2o-lemma03 : SetOfObject Object SetOfObjState
   eq m2o-lemma03(S_Z,Z,St_Z)
-     = allZOfXInStates(S_Z,link(Z),St_Z) implies (state(Z) \in St_Z)
-     when (Z \in S_Z) .
+     = allZOfXInStates(S_Z,link(Z),St_Z) implies (state(Z) in St_Z)
+     when (Z in S_Z) .
 
   pred m2o-lemma04 : SetOfObject LObjID ObjState SetOfObjState .
   eq m2o-lemma04(S_Z,IDX,SZ,St_Z)
@@ -389,12 +633,12 @@ module! M2O-LEMMAS {
   pred m2o-lemma06 : SetOfLObject SetOfLObjState SetOfObject ObjState SetOfObjState
   eq m2o-lemma06(S_X,St_X,S_Z,SZ,St_Z)
      = allObjInStates(S_Z,SZ) implies ifXInStatesThenZInStates(S_X,St_X,S_Z,St_Z)
-     when (SZ \in St_Z) .
+     when (SZ in St_Z) .
 
   pred m2o-lemma07 : SetOfLObject LObjState SetOfLObjState SetOfObject SetOfObjState
   eq m2o-lemma07(S_X,SX,St_X,S_Z,St_Z)
      = allObjInStates(S_X,SX) implies ifXInStatesThenZInStates(S_X,St_X,S_Z,St_Z)
-     when not (SX \in St_X) .
+     when not (SX in St_X) .
 
   pred m2o-lemma08 : Object Object SetOfLObject SetOfLObjState SetOfObject SetOfObjState
   eq m2o-lemma08(Z,Z',S_X,St_X,S_Z,St_Z)
@@ -411,13 +655,13 @@ module! M2O-LEMMAS {
   eq m2o-lemma10(X,X',S_X,St_X,S_Z,St_Z)
      = ifXInStatesThenZInStates((X S_X),St_X,S_Z,St_Z)
          implies ifXInStatesThenZInStates((X' S_X),St_X,S_Z,St_Z)
-     when not (state(X') \in St_X) and changeLObjState(X,X') .
+     when not (state(X') in St_X) and changeLObjState(X,X') .
 
   pred m2o-lemma11 : Object Object SetOfLObject SetOfLObjState SetOfObject SetOfObjState
   eq m2o-lemma11(Z,Z',S_X,St_X,S_Z,St_Z)
      = ifXInStatesThenZInStates(S_X,St_X,(Z S_Z),St_Z)
          implies ifXInStatesThenZInStates(S_X,St_X,(Z' S_Z),St_Z) 
-     when (state(Z') \in St_Z) and changeObjState(Z,Z') .
+     when (state(Z') in St_Z) and changeObjState(Z,Z') .
 
   pred m2o-lemma12 : LObject LObject SetOfLObject SetOfLObjState SetOfObject SetOfObjState
   eq m2o-lemma12(X,X',S_X,St_X,S_Z,St_Z)
@@ -429,17 +673,17 @@ module! M2O-LEMMAS {
   eq m2o-lemma13(Z,Z',S_X,St_X,S_Z,St_Z)
      = ifXInStatesThenZInStates(S_X,St_X,(Z S_Z),St_Z)
          implies ifXInStatesThenZInStates(S_X,St_X,(Z' S_Z),St_Z)
-     when not (state(Z) \in St_Z) and changeObjState(Z,Z') .
+     when not (state(Z) in St_Z) and changeObjState(Z,Z') .
 
   pred m2o-lemma14 : SetOfLObject SetOfLObjState SetOfObject ObjState ObjType SetOfObjState
   eq m2o-lemma14(S_X,St_X,S_Z,SZ,OT,St_Z)
      = allObjInStates(S_Z,SZ) implies ifXInStatesThenZOfTypeInStates(S_X,St_X,S_Z,OT,St_Z)
-     when (SZ \in St_Z) .
+     when (SZ in St_Z) .
 
   pred m2o-lemma15 : SetOfLObject LObjState SetOfLObjState SetOfObject ObjType SetOfObjState
   eq m2o-lemma15(S_X,SX,St_X,S_Z,OT,St_Z)
      = allObjInStates(S_X,SX) implies ifXInStatesThenZOfTypeInStates(S_X,St_X,S_Z,OT,St_Z)
-     when not (SX \in St_X) .
+     when not (SX in St_X) .
 
   pred m2o-lemma16 : Object Object SetOfLObject SetOfLObjState SetOfObject ObjType SetOfObjState
   eq m2o-lemma16(Z,Z',S_X,St_X,S_Z,OT,St_Z)
@@ -456,13 +700,13 @@ module! M2O-LEMMAS {
   eq m2o-lemma18(X,X',S_X,St_X,S_Z,OT,St_Z)
      = ifXInStatesThenZOfTypeInStates((X S_X),St_X,S_Z,OT,St_Z)
          implies ifXInStatesThenZOfTypeInStates((X' S_X),St_X,S_Z,OT,St_Z)
-     when not (state(X') \in St_X) and changeLObjState(X,X') .
+     when not (state(X') in St_X) and changeLObjState(X,X') .
 
   pred m2o-lemma19 : Object Object SetOfLObject SetOfLObjState SetOfObject ObjType SetOfObjState
   eq m2o-lemma19(Z,Z',S_X,St_X,S_Z,OT,St_Z)
      = ifXInStatesThenZOfTypeInStates(S_X,St_X,(Z S_Z),OT,St_Z)
          implies ifXInStatesThenZOfTypeInStates(S_X,St_X,(Z' S_Z),OT,St_Z) 
-     when (state(Z') \in St_Z) and changeObjState(Z,Z') .
+     when (state(Z') in St_Z) and changeObjState(Z,Z') .
 
   pred m2o-lemma20 : LObject LObject SetOfLObject SetOfLObjState SetOfObject ObjType SetOfObjState
   eq m2o-lemma20(X,X',S_X,St_X,S_Z,OT,St_Z)
@@ -476,17 +720,46 @@ module! M2O-LEMMAS {
          implies ifXInStatesThenZOfTypeInStates(S_X,St_X,(Z' S_Z),OT,St_Z)
      when not (type(Z) = OT) and changeObjState(Z,Z') .
 
-  -- Using set-lemma7
-  ceq [set-lemma7 :nonexec]:
-     ((SZ1:ObjState \in SZ2:ObjState) and 
-      (SZ1 \in St_Z:SetOfObjState))
-     = (SZ1 \in SZ2) 
-     if (SZ2 \in St_Z) . 
+  pred m2o-lemma22 : Object SetOfObject SetOfLObject SetOfLObjState .
+  eq m2o-lemma22(Z,S_Z,S_X,St_X)
+     = getLObject(S_X,link(Z)) in getXsOfZsInStates(S_X,S_Z,St_X)
+     when not S_X = empLObj and (state(getLObject(S_X,link(Z))) in St_X) and (Z in S_Z) .
+
+  pred m2o-lemma23 : SetOfObject SetOfObject SetOfLObject SetOfLObjState .
+  eq m2o-lemma23(S_Z,S_Z',S_X,St_X)
+     = subset(S_Z,S_Z') implies 
+       subset(getXsOfZsInStates(S_X,S_Z,St_X),getXsOfZsInStates(S_X,S_Z',St_X)) .
+
+  pred m2o-lemma24 : LObject LObject SetOfLObject SetOfObject SetOfLObjState .
+  eq m2o-lemma24(X,X',S_X,S_Z,St_X)
+     = subset(getXsOfZsInStates((X' S_X),S_Z,St_X),getXsOfZsInStates((X S_X),S_Z,St_X))
+     when changeLObjState(X,X') and not state(X') in St_X .
+
+  pred m2o-lemma25 : LObject SetOfLObject SetOfObject SetOfObjState .
+  eq m2o-lemma25(X,S_X,S_Z,St_Z)
+     = subset(getZsOfXInStates(S_Z,id(X),St_Z),getZsOfXsInStates(S_Z,S_X,St_Z))
+     when X in S_X .
+
+  pred m2o-lemma26 : SetOfLObject SetOfLObject SetOfObject SetOfObjState .
+  eq m2o-lemma26(S_X,S_X',S_Z,St_Z)
+     = subset(S_X,S_X') implies 
+       subset(getZsOfXsInStates(S_Z,S_X,St_Z),getZsOfXsInStates(S_Z,S_X',St_Z)) .
+
+  pred m2o-lemma27 : Object Object SetOfObject SetOfLObject SetOfObjState .
+  eq m2o-lemma27(Z,Z',S_Z,S_X,St_Z)
+     = subset(getZsOfXsInStates((Z' S_Z),S_X,St_Z),getZsOfXsInStates((Z S_Z),S_X,St_Z))
+     when changeObjState(Z,Z') and not state(Z') in St_Z .
+
+  pred m2o-lemma28 : Object Object SetOfObject LObject SetOfObjState .
+  eq m2o-lemma28(Z,Z',S_Z,X,St_Z)
+     = subset(getZsOfXInStates((Z' S_Z),X,St_Z),getZsOfXInStates((Z S_Z),X,St_Z))
+     when changeObjState(Z,Z') and not state(Z') in St_Z .
 }
 
 --> ***********************************************************************
 --> Prove m2o-lemma01
 -->       = allObjInStates(S_Z,St_Z) implies allZOfXInStates(S_Z,IDX,St_Z).
+-->       when (SZ in St_Z) .
 --> ***********************************************************************
 select M2O-LEMMAS
 :goal {
@@ -494,7 +767,7 @@ select M2O-LEMMAS
   eq m2o-lemma01(idX,setZ,sz,setSZ) implies m2o-lemma01(idX,(z setZ),sz,setSZ) = true .
 }
 :ctf {
-  eq (sz \in setSZ) = true .
+  eq (sz in setSZ) = true .
 }
 :apply (rd)
 :apply (rd)
@@ -510,17 +783,17 @@ select M2O-LEMMAS
   eq m2o-lemma02(idX,setZ,sz,ot,setSZ) implies m2o-lemma02(idX,(z setZ),sz,ot,setSZ) = true .
 }
 :ctf {
-  eq (sz \in setSZ) = true .
+  eq (sz in setSZ) = true .
 }
 :apply (rd)
 :apply (rd)
 show proof
 
---> *********************************************************************
+--> ********************************************************************
 --> Prove m2o-lemma03
--->       = allZOfXInStates(S_Z,link(Z),St_Z) implies (state(Z) \in St_Z)
--->       when (Z \in S_Z) .
---> *********************************************************************
+-->       = allZOfXInStates(S_Z,link(Z),St_Z) implies (state(Z) in St_Z)
+-->       when (Z in S_Z) .
+--> ********************************************************************
 select M2O-LEMMAS
 :goal {
   eq m2o-lemma03(empObj,z,setSZ) = true .
@@ -584,7 +857,7 @@ show proof
 --> **********************************************************************************
 --> Prove m2o-lemma06
 -->       = allObjInStates(S_Z,SZ) implies ifXInStatesThenZInStates(S_X,St_X,S_Z,St_Z)
--->       when (SZ \in St_Z) .
+-->       when (SZ in St_Z) .
 -->    This proof requires M2O-lemma01.
 --> **********************************************************************************
 select M2O-LEMMAS
@@ -598,18 +871,10 @@ select M2O-LEMMAS
 }
 :apply (rd)
 :ctf {
-  eq (state(x) \in setSX) = true .
-}
--- m2o-lemma01(IDX,S_Z,SZ,St_Z) = allObjInStates(S_Z,SZ) implies allZOfXInStates(S_Z,IDX,St_Z) .
-:init ( ceq (allObjInStates(S_Z:SetOfObject,SZ:ObjState) and allZOfXInStates(S_Z,IDX:LObjID,St_Z:SetOfObjState))
-	= allObjInStates(S_Z,SZ) if (SZ \in St_Z) . ) by {
-  S_Z:SetOfObject <- setZ ;
-  SZ:ObjState <- sz ;
-  St_Z:SetOfObjState <- setSZ ;
-  IDX:LObjID <- id(x) ;
+  eq (state(x) in setSX) = true .
 }
 :ctf {
-  eq (sz \in setSZ) = true .
+  eq (sz in setSZ) = true .
 }
 :apply (rd)
 :apply (rd)
@@ -619,7 +884,7 @@ show proof
 --> *******************************************************************************
 --> Prove m2o-lemma07
 -->    = allObjInStates(S_X,SX) implies ifXInStatesThenZInStates(S_X,St_X,S_Z,St_Z)
--->    when not (SX \in St_X) .
+-->    when not (SX in St_X) .
 --> *******************************************************************************
 select M2O-LEMMAS
 :goal {
@@ -628,7 +893,7 @@ select M2O-LEMMAS
       implies m2o-lemma07((x setX),sx,setSX,setZ,setSZ) = true .
 }
 :ctf {
-  eq (sx \in setSX) = true .
+  eq (sx in setSX) = true .
 }
 :apply (rd)
 :ctf {
@@ -679,7 +944,7 @@ select M2O-LEMMAS
 }
 :apply (rd)
 :ctf {
-  eq (state(x) \in setSX) = true .
+  eq (state(x) in setSX) = true .
 }
 :apply (rd)
 :apply (rd)
@@ -689,7 +954,7 @@ show proof
 --> Prove m2o-lemma10(X,X',S_X,St_X,S_Z,St_Z)
 -->       = ifXInStatesThenZInStates((X S_X),St_X,S_Z,St_Z)
 -->          implies ifXInStatesThenZInStates((X' S_X),St_X,S_Z,St_Z)
--->       when not (state(X') \in St_X) and changeLObjState(X,X') .
+-->       when not (state(X') in St_X) and changeLObjState(X,X') .
 --> *****************************************************************
 select M2O-LEMMAS
 :goal {
@@ -706,7 +971,7 @@ show proof
 --> Prove m2o-lemma11
 -->       = ifXInStatesThenZInStates(S_X,St_X,(Z S_Z),St_Z)
 -->           implies ifXInStatesThenZInStates(S_X,St_X,(Z' S_Z),St_Z)
--->       when (state(Z') \in St_Z) and changeObjState(Z,Z') .
+-->       when (state(Z') in St_Z) and changeObjState(Z,Z') .
 --> ******************************************************************
 select M2O-LEMMAS
 :goal {
@@ -738,7 +1003,7 @@ show proof
 --> Prove m2o-lemma13
 -->       = ifXInStatesThenZInStates(S_X,St_X,(Z S_Z),St_Z)
 -->           implies ifXInStatesThenZInStates(S_X,St_X,(Z' S_Z),St_Z)
--->       when not (state(Z) \in St_Z) and changeObjState(Z,Z') .
+-->       when not (state(Z) in St_Z) and changeObjState(Z,Z') .
 --> ******************************************************************
 select M2O-LEMMAS
 :goal {
@@ -760,7 +1025,7 @@ show proof
 --> *******************************************************************************************
 --> Prove m2o-lemma14
 -->       = allObjInStates(S_Z,SZ) implies ifXInStatesThenZOfTypeInStates(S_X,St_X,S_Z,OT,St_Z)
--->       when (SZ \in St_Z) .
+-->       when (SZ in St_Z) .
 -->    This proof requires M2O-lemma01.
 --> *******************************************************************************************
 select M2O-LEMMAS
@@ -774,18 +1039,10 @@ select M2O-LEMMAS
 }
 :apply (rd)
 :ctf {
-  eq (state(x) \in setSX) = true .
-}
--- m2o-lemma02(IDX,S_Z,SZ,OT,St_Z) = allObjInStates(S_Z,SZ) implies allZOfTypeOfXInStates(S_Z,OT,IDX,St_Z) .
-:init ( ceq (allObjInStates(S_Z:SetOfObject,SZ:ObjState) and allZOfTypeOfXInStates(S_Z,OT:ObjType,IDX:LObjID,St_Z:SetOfObjState))
-	= allObjInStates(S_Z,SZ) if (SZ \in St_Z) . ) by {
-  S_Z:SetOfObject <- setZ ;
-  SZ:ObjState <- sz ;
-  St_Z:SetOfObjState <- setSZ ;
-  IDX:LObjID <- id(x) ;
+  eq (state(x) in setSX) = true .
 }
 :ctf {
-  eq (sz \in setSZ) = true .
+  eq (sz in setSZ) = true .
 }
 :apply (rd)
 :apply (rd)
@@ -795,7 +1052,7 @@ show proof
 --> ****************************************************************************************
 --> Prove m2o-lemma15
 -->    = allObjInStates(S_X,SX) implies ifXInStatesThenZOfTypeInStates(S_X,St_X,S_Z,OT,St_Z)
--->    when not (SX \in St_X) .
+-->    when not (SX in St_X) .
 --> ****************************************************************************************
 select M2O-LEMMAS
 :goal {
@@ -804,7 +1061,7 @@ select M2O-LEMMAS
       implies m2o-lemma15((x setX),sx,setSX,setZ,ot,setSZ) = true .
 }
 :ctf {
-  eq (sx \in setSX) = true .
+  eq (sx in setSX) = true .
 }
 :apply (rd)
 :ctf {
@@ -855,7 +1112,7 @@ select M2O-LEMMAS
 }
 :apply (rd)
 :ctf {
-  eq (state(x) \in setSX) = true .
+  eq (state(x) in setSX) = true .
 }
 :apply (rd)
 :apply (rd)
@@ -865,7 +1122,7 @@ show proof
 --> Prove m2o-lemma18(X,X',S_X,St_X,S_Z,OT,St_Z)
 -->       = ifXInStatesThenZInStates((X S_X),St_X,S_Z,OT,St_Z)
 -->          implies ifXInStatesThenZInStates((X' S_X),St_X,S_Z,OT,St_Z)
--->       when not (state(X') \in St_X) and changeLObjState(X,X') .
+-->       when not (state(X') in St_X) and changeLObjState(X,X') .
 --> ********************************************************************
 select M2O-LEMMAS
 :goal {
@@ -882,7 +1139,7 @@ show proof
 --> Prove m2o-lemma19
 -->       = ifXInStatesThenZOfTypeInStates(S_X,St_X,(Z S_Z),St_Z)
 -->           implies ifXInStatesThenZOfTypeInStates(S_X,St_X,(Z' S_Z),St_Z)
--->       when (state(Z') \in St_Z) and changeObjState(Z,Z') .
+-->       when (state(Z') in St_Z) and changeObjState(Z,Z') .
 --> ************************************************************************
 select M2O-LEMMAS
 :goal {
@@ -926,7 +1183,7 @@ select M2O-LEMMAS
 }
 :apply (rd)
 :ctf {
-  eq (state(x) \in setSX) = true .
+  eq (state(x) in setSX) = true .
 }
 :ctf {
   eq id(z) = id(z') .
@@ -943,11 +1200,200 @@ select M2O-LEMMAS
 :apply (rd)
 :apply (rd)
 show proof
+
+--> ****************************************************************************************
+--> Prove m2o-lemma22
+-->     = getLObject(S_X,link(Z)) in getXsOfZsInStates(S_X,S_Z,St_X)
+-->     when not S_X = empLObj and (state(getLObject(S_X,link(Z))) in St_X) and (Z in S_Z) .
+--> ****************************************************************************************
+select M2O-LEMMAS
+:goal {
+  eq m2o-lemma22(z,setZ,setX,setSX) = true .
+}
+:ctf {
+  eq setX = empLObj .
+}
+:apply (rd) -- 1
+:csp {
+  eq (z in setZ) = false .
+  eq setZ = (z setZ') .
+}
+:apply (rd) -- 2-1
+:ctf {
+  eq state(getLObject(setX,link(z))) in setSX = true .
+}
+:apply (rd) -- 2-2-1
+:apply (rd) -- 2-2-2
+show proof
+
+--> ********************************************************************************
+--> Prove m2o-lemma23(S_Z,S_Z',S_X,St_X)
+-->     = subset(S_Z,S_Z') implies 
+-->       subset(getXsOfZsInStates(S_X,S_Z,St_X),getXsOfZsInStates(S_X,S_Z',St_X)) .
+--> ********************************************************************************
+open M2O-LEMMAS .
+  ceq [m2o-lemma22]:
+     ((Z in S_Z) and
+      (getLObject(S_X,link(Z)) in getXsOfZsInStates(S_X,S_Z,St_X)))
+    = (Z in S_Z) 
+    if not S_X = empLObj and (state(getLObject(S_X,link(Z))) in St_X) .
+:goal {
+  eq m2o-lemma23(empObj,setZ',setX,setSX) = true .
+  eq m2o-lemma23(setZ,setZ',setX,setSX) implies m2o-lemma23((z setZ),setZ',setX,setSX) = true .
+}
+:ctf {
+  eq setX = empLObj .
+}
+:apply (rd) -- 1
+:ctf {
+  eq state(getLObject(setX,link(z))) in setSX = true .
+}
+:apply (rd) -- 2-1
+:apply (rd) -- 2-2
+show proof
+close
+
+--> ****************************************************************************************
+--> Prove m2o-lemma24(X,X',S_X,S_Z,St_X)
+-->     = changeLObjState(X,X') and not state(X') in St_X implies
+-->       subset(getXsOfZsInStates((X' S_X),S_Z,St_X),getXsOfZsInStates((X S_X),S_Z,St_X)) .
+--> ****************************************************************************************
+select M2O-LEMMAS
+:goal {
+  eq m2o-lemma24(x1,x2,setX,empObj,setSX) = true .
+  eq m2o-lemma24(x1,x2,setX,setZ,setSX) implies  m2o-lemma24(x1,x2,setX,(z setZ),setSX) = true .
+}
+:ctf {
+  eq (state(x2) in setSX) = true .
+}
+:apply (rd) -- 1
+:ctf {
+  eq id(x2) = id(x1) .
+}
+:ctf {
+  eq link(z) = id(x1) .
+}
+:ctf {
+  eq (state(x1) in setSX) = true .
+}
+:apply (rd) -- 2-1-1-1
+:apply (rd) -- 2-1-1-2
+:ctf {
+  eq (state(getLObject(setX,link(z))) in setSX) = true .
+}
+:apply (rd) -- 2-1-2-1
+:apply (rd) -- 2-1-2-2
+:apply (rd) -- 2-2
+show proof
+
+--> ********************************************************************************
+--> Prove m2o-lemma25(X,S_X,S_Z,St_Z)
+-->     = X in S_X implies 
+-->       subset(getZsOfXInStates(S_Z,id(X),St_Z),getZsOfXsInStates(S_Z,S_X,St_Z)) .
+--> ********************************************************************************
+select M2O-LEMMAS
+:goal {
+  eq m2o-lemma25(x,empLObj,setZ,setSZ) = true .
+  eq m2o-lemma25(x,setX,setZ,setSZ) implies m2o-lemma25(x,(x' setX),setZ,setSZ) = true .
+}
+:ctf {
+  eq setZ = empObj .
+}
+:apply (rd) -- 1
+:ctf {
+  eq x' = x .
+}
+:apply (rd) -- 2-1
+:apply (rd) -- 2-2
+show proof
+
+--> ********************************************************************************
+--> Prove m2o-lemma26(S_X,S_X',S_Z,St_Z)
+-->     = subset(S_X,S_X') implies 
+-->       subset(getZsOfXsInStates(S_Z,S_X,St_Z),getZsOfXsInStates(S_Z,S_X',St_Z)) .
+--> ********************************************************************************
+open M2O-LEMMAS .
+eq [m2o-lemma25&set-lemma10]:
+   (X in S_X and 
+    subset(S_Z',getZsOfXsInStates(S_Z,S_X,St_Z)) and
+    subset((S_Z' getZsOfXInStates(S_Z,id(X),St_Z)),getZsOfXsInStates(S_Z,S_X,St_Z)))
+  = X in S_X and
+    subset(S_Z',getZsOfXsInStates(S_Z,S_X,St_Z)) .
+:goal {
+  eq m2o-lemma26(empLObj,setX',setZ,setSZ) = true .
+  eq m2o-lemma26(setX,setX',setZ,setSZ) implies m2o-lemma26((x setX),setX',setZ,setSZ) = true .
+}
+:ctf {
+  eq setZ = empObj .
+}
+:apply (rd) -- 1
+:apply (rd) -- 2
+show proof
+close
+
+--> ****************************************************************************************
+--> Prove m2o-lemma27(Z,Z',S_Z,S_X,St_Z)
+-->     = changeObjState(Z,Z') and not state(Z') in St_Z implies
+-->       subset(getZsOfXsInStates((Z' S_Z),S_X,St_Z),getZsOfXsInStates((Z S_Z),S_X,St_Z)) .
+--> ****************************************************************************************
+select M2O-LEMMAS
+:goal {
+  eq m2o-lemma27(z1,z2,setZ,empLObj,setSZ) = true .
+  eq m2o-lemma27(z1,z2,setZ,setX,setSZ) implies  m2o-lemma27(z1,z2,setZ,(x setX),setSZ) = true .
+}
+:ctf {
+  eq (state(z2) in setSZ) = true .
+}
+:apply (rd) -- 1
+:ctf {
+  eq id(z2) = id(z1) .
+}
+:ctf {
+  eq id(x) = link(z1) .
+}
+:ctf {
+  eq (state(z1) in setSZ) = true .
+}
+:apply (rd) -- 2-1-1-1
+:apply (rd) -- 2-1-1-2
+:apply (rd) -- 2-1-2
+:apply (rd) -- 2-2
+show proof
+
+-- not copied yet!
+--> **********************************************************************************
+--> Prove m2o-lemma28(Z,Z',S_Z,X,St_Z)
+-->     = changeObjState(Z,Z') and not state(Z') in St_Z implies
+-->       subset(getZsOfXInStates((Z' S_Z),X,St_Z),getZsOfXInStates((Z S_Z),X,St_Z)) .
+--> **********************************************************************************
+select M2O-LEMMAS 
+:goal {
+  eq m2o-lemma28(z1,z2,setZ,x,setSZ) = true .
+}
+:ctf {
+  eq (state(z2) in setSZ) = true .
+}
+:apply (rd) -- 1
+:ctf {
+  eq id(z2) = id(z1) .
+}
+:ctf {
+  eq id(x) = link(z1) .
+}
+:ctf {
+  eq (state(z1) in setSZ) = true .
+}
+:apply (rd) -- 2-1-1-1
+:apply (rd) -- 2-1-1-2
+:apply (rd) -- 2-1-2
+:apply (rd) -- 2-2
+show proof
+
 select
 
 module! O2O-LEMMAS {
-  pr(LEMMAbase)
-  pr(OBJLINKONE2ONE)
+  protecting(LEMMAbase)
+  protecting(OBJLINKONE2ONE-)
 
   var IDX : LObjID 
   var IDY : ObjID 
@@ -975,7 +1421,7 @@ module! O2O-LEMMAS {
   eq o2o-lemma02(Y,Y',S_X,St_X,S_Y,St_Y)
      = ifXInStatesThenYInStates(S_X,St_X,(Y S_Y),St_Y)
          implies ifXInStatesThenYInStates(S_X,St_X,(Y' S_Y),St_Y)
-     when changeObjState(Y,Y') and (state(Y') \in St_Y) .
+     when changeObjState(Y,Y') and (state(Y') in St_Y) .
 
   pred o2o-lemma03 : SetOfLObject SetOfLObjState SetOfObject SetOfObjState
   eq o2o-lemma03(S_X,St_X,S_Y,St_Y)
@@ -992,7 +1438,12 @@ module! O2O-LEMMAS {
   eq o2o-lemma05(Y,Y',S_X,St_X,S_Y,St_Y)
      = ifXInStatesThenYInStates(S_X,St_X,(Y S_Y),St_Y)
          implies ifXInStatesThenYInStates(S_X,St_X,(Y' S_Y),St_Y)
-     when changeObjState(Y,Y') and not (state(Y) \in St_Y) .
+     when changeObjState(Y,Y') and not (state(Y) in St_Y) .
+
+  pred o2o-lemma06 : SetOfObject LObjID
+  eq o2o-lemma06(S_Y,IDX)
+     = (getYOfX(S_Y,IDX) = null)
+     when not existX(S_Y,IDX) .
 }
 
 --> *******************************************************************
@@ -1022,7 +1473,7 @@ show proof
 --> Prove o2o-lemma02(Y,Y',S_X,St_X,S_Y,St_Y)
 -->       = ifXInStatesThenYInStates(S_X,St_X,(Y S_Y),St_Y)
 -->           implies ifXInStatesThenYInStates(S_X,St_X,(Y' S_Y),St_Y)
--->       when changeObjState(Y,Y') and (state(Y') \in St_Y) = true .
+-->       when changeObjState(Y,Y') and (state(Y') in St_Y) = true .
 --> ******************************************************************
 select O2O-LEMMAS
 :goal {
@@ -1049,7 +1500,12 @@ show proof
 -->       = allObjInStates(S_Y,St_Y) implies ifXInStatesThenYInStates(S_X,St_X,S_Y,St_Y)
 -->       when uniqX(S_Y) and allXHaveY(S_X,S_Y).
 --> ************************************************************************************
-select O2O-LEMMAS
+open O2O-LEMMAS .
+  ceq [o2o-lemma01]:
+      (allObjInStates(S_Y,St_Y) and YOfXInStates(S_Y,IDX,St_Y))
+     = allObjInStates(S_Y,St_Y)
+     if uniqX(S_Y) and onlyOneYOfX(S_Y,IDX) .
+
 :goal {
   eq o2o-lemma03(empLObj,setSX,setY,setSY) = true .
   eq o2o-lemma03(setX,setSX,setY,setSY) implies o2o-lemma03((x setX),setSX,setY,setSY) = true .
@@ -1065,20 +1521,14 @@ select O2O-LEMMAS
   eq onlyOneYOfX(setY,id(x)) = true .
 }
 :ctf {
-  eq (state(x) \in setSX) = true .
-}
-:init ( ceq (allObjInStates(S_Y:SetOfObject,St_Y:SetOfObjState) and YOfXInStates(S_Y,IDX:LObjID,St_Y))
-	   = allObjInStates(S_Y,St_Y)
-           if uniqX(S_Y) and onlyOneYOfX(S_Y,IDX) . ) by {
-  S_Y:SetOfObject <- setY ;
-  St_Y:SetOfObjState <- setSY ;
-  IDX:LObjID <- id(x) ;
+  eq (state(x) in setSX) = true .
 }
 :apply (rd)
 :apply (rd)
 :apply (rd)
 :apply (rd)
 show proof
+close
 
 --> ******************************************************************
 --> Prove o2o-lemma04 
@@ -1110,7 +1560,7 @@ show proof
 --> Prove o2o-lemma05(Y,Y',S_X,St_X,S_Y,St_Y)
 -->       = ifXInStatesThenYInStates(S_X,St_X,(Y S_Y),St_Y)
 -->           implies ifXInStatesThenYInStates(S_X,St_X,(Y' S_Y),St_Y)
--->       when changeObjState(Y,Y') and not (state(Y) \in St_Y) .
+-->       when changeObjState(Y,Y') and not (state(Y) in St_Y) .
 --> ******************************************************************
 select O2O-LEMMAS
 :goal {
@@ -1132,62 +1582,18 @@ select O2O-LEMMAS
 :apply (rd)
 show proof
 
-module! CYCLE-LEMMAS {
-  pr(CYCLEPRED)
-
-  -- Since noCycleStructure(S) only uses DDS(O,S), it should be an invariant 
-  -- if it holds in initial states and DDS(O,S) is the same in any reachable states.
-  -- Then, cyc-lemma01 ensures noCycle(S) is also an invariant.
-
-  pred cyc-lemma01 : State
-  eq cyc-lemma01(S:State)
-     = noCycleStructure(S) implies noCycle(S) .
-
-  pred lemma : SetOfObject SetOfObject State
-  eq lemma(SetO:SetOfObject,V:SetOfObject,S:State)
-     = noCycleStructure(SetO,V,S) implies noCycle(SetO,V,S) .
-
-  ops s s' : -> State
-  op o : -> Object
-  ops setO v : -> SetOfObject
-
-  -- Axioms
-  eq (o \in empObj) = false .
-  eq (o empObj) = o .
-
-  eq [assumption :nonexec]: 
-    lemma(DDS(o,s),(o v),s) = true .
-}
-
---> ***********************************************
---> Prove cyc-lemma01(S)
--->      = noCycleStructure(S) implies noCycle(S) .
---> ***********************************************
-select CYCLE-LEMMAS
+--> ********************************
+--> Prove o2o-lemma06(S_Y,IDX)
+-->       = getYOfX(S_Y,IDX) = null
+-->       when not existX(S_Y,IDX) .
+--> ********************************
+select O2O-LEMMAS
 :goal {
-  eq lemma(getAllObjInState(s),empObj,s) implies cyc-lemma01(s) = true .
+  eq o2o-lemma06(empObj,idX) = true .
+  eq o2o-lemma06(setY,idX) implies o2o-lemma06((y setY),idX) = true .
 }
-:apply (rd)
+:apply (rd-)
 show proof
 
---> **************************************************************
---> Prove lemma(SetO,V,S)
--->       = noCycleStructure(SetO,V,S) implies noCycle(SetO,V,S) .
---> **************************************************************
-select CYCLE-LEMMAS
-:goal {
-  eq lemma(empObj,v,s) = true .
-  eq lemma(setO,v,s) implies lemma((o setO),v,s) = true .
-}
-:ctf {
-  eq state(o) = sx .
-}
-:ctf {
-  eq (o \in v) = true .
-}
-:apply (rd)
-:imply [assumption] .
-:apply (rd)
-:apply (rd)
-show proof
 select
+--> Totally 52 goals should be proved.

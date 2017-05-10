@@ -1,26 +1,33 @@
+require NatAxiom
 require Proof Proof.cafe
 
 --> *************************************************
 --> (3) inv(S) and not final(S) implies m(S) > m(SS).
 --> *************************************************
 
---> ******************************************
---> Step 3-0: Define a predicate to be proved.
---> ******************************************
 module! ProofMeasure {
-  pr(PROOFfuns)
+  protecting(ProofBase)
+
+--> *************************************
+--> Step 3-0: Use natural number axioms.
+--> *************************************
+  protecting(NATAXIOM)
+
+--> ******************************************
+--> Step 3-1: Define a predicate to be proved.
+--> ******************************************
+  vars S SS : State
+  var CC : Bool
+
   pred mmes : State State .
-  eq mmes(S:State,SS:State)
-     = wfs(S) and inv(S) and not final(S)
-       implies m(S) > m(SS) .
+  eq mmes(S,SS)
+     = inv(S) and not final(S) implies m(S) > m(SS) .
+
   pred mesmes : State .
-  eq mesmes(S:State)
-     = not (S =(*,1)=>+ SS:State if CC:Bool suchThat
+  eq mesmes(S)
+     = not (S =(*,1)=>+ SS if CC suchThat
             not ((CC implies mmes(S,SS)) == true)
      	   { S => SS !! CC ! inv(S) ! final(S) ! (m(S) > m(SS)) }) .
-
-  --> Axioms of Nat
-  eq (N:Nat.PNAT < s(N)) = true .
 }
 
 --> ********************************************
@@ -31,22 +38,20 @@ module! ProofMeasure {
 --> ********************************************
 select ProofMeasure .
 --> *************************************************************************
---> Step 3-1: Begin with the cases each of which matches to LHS of each rule.
+--> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
   eq mesmes(< (res(trs,idRS,initial) sRS), sPR >) = true .
 }
---> ************************************************************
---> Step 3-2: Split the most general case for a rule into cases
+--> ********************************************************
+--> Step 3-3: Split the current case for a rule into cases
 -->  where the condition of the rule does or does not hold. 
---> ************************************************************
+--> ********************************************************
 -- The condition of R01 does or does not hold for S.
-:ctf {
+:def ctf3-3 = :ctf {
   eq allPROfRSInStates(sPR,idRS,ready) = true .
 }
--- Case 1: When the condition of R01 holds:
-:apply (rd) -- 1
-:apply (rd) -- 2
+:apply (ctf3-3 rd-)
 show proof
 
 --> ****************************************************
@@ -57,43 +62,12 @@ show proof
 -->       (prop(TPR,IDPR,ready   ,IDRS,IDRRS) SetPR) > .
 --> ****************************************************
 --> *************************************************************************
---> Step 3-1: Begin with the cases each of which matches to LHS of each rule.
+--> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
   eq mesmes(< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >) = true .
 }
-:apply (rd) -- goal
+:apply (rd-)
 show proof
-
---> *******************************************************************
---> (4) inv(S) and (cont(S) or final(S)) and m(S) = 0 implies final(S).
---> *******************************************************************
-module! ProofMeasFinal {
-  pr(PROOFfuns)
-
---> ******************************************
---> Step 4-0: Define a predicate to be proved.
---> ******************************************
-  pred mesfinal : State .
-  eq mesfinal(S:State)
-     = wfs(S) and inv(S) and (cont(S) or final(S)) and m(S) = 0 implies final(S) .
-
---> ***************************************************
---> Step 4-1: Instantiate a general lemma, base-lemma3.
---> ***************************************************
-  var SetRS : SetOfResource
-  ceq [base-lemma3]:
-     allRSInStates(SetRS,started) = true
-     if #ResourceInStates(initial,SetRS) = 0 .
-
---> *************************************
---> Step 4-2: Use a natural number axiom.
---> *************************************
-  eq (N1:Nat.PNAT + N2:Nat.PNAT = 0)
-     = (N1 = 0) and (N2 = 0) .
-}
-
-select ProofMeasFinal
-reduce mesfinal(< sRS, sPR >) .
 
 select

@@ -1,8 +1,8 @@
 require ProofContCont Proof-contcont.cafe
 
---> **********************************************************************
---> (2) inv(S) and cont(S) and not final(S) implies cont(SS) or final(SS).
---> **********************************************************************
+--> **********************************************************
+--> (2) inv(S) and not final(S) implies cont(SS) or final(SS).
+--> **********************************************************
 
 --> ****************************************************
 -->  trans [R02]:
@@ -13,101 +13,148 @@ require ProofContCont Proof-contcont.cafe
 --> ****************************************************
 select ProofContCont .
 -- When R02 can be applied to the state S:
---> **************************************************************************
---> Step 2-1: Begin with the cases each of which matches to LHS of each rules.
---> **************************************************************************
+--> *************************************************************************
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq contcont(< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >) = true .
 }
---> ***********************************************************
---> Step 2-2: Split the most general case for a rule into cases
--->  where the condition of the rule does or does not hold.
---> ***********************************************************
+--> ******************************************************
+--> Step 2-2: Split the current case for a rule into cases
+--> where the condition of the rule does or does not hold.
+--> ******************************************************
 -- R02 is unconditional.
---> ***************************************************************
---> Step 2-3: Split the rule applied case into cases
--->  where predicate final does or does not hold in the next state.
---> ***************************************************************
--- All of the other resources are or are not started.
-:ctf {
-  eq allRSInStates(sRS,started) = true .
+--> *********************************************************
+--> Step 2-3: Split the current case into cases where
+-->  predicate final does or does not hold in the next state.
+--> *********************************************************
+-- If all of the other resources are started, the next state is final.
+-- But it is not the case because we know a notready property has
+-- an initial parent resource.
+--> *********************************************************************
+--> Step 2-7: When there are two identifier constants of the same sort,
+--> split the current case into cases where they are or are not the same.
+--> *********************************************************************
+-- idRRS and idRS are or are not the same.
+:def ctf2-7idRRS = :ctf {
+  eq idRRS = idRS .
 }
--- Case 1: When all of the other resources are started:
-:apply (rd) -- 1
--- Case 2: When all of the other resources are not started:
---> ***********************************************************
---> Step 1-5: When there is a dangling link, split the case
+:apply (ctf2-7idRRS rd-)
+-- When idRRS and idRS are not the same:
+--> ***************************************************************
+--> Step 2-8: When there is a dangling link, split the current case
 -->  into cases where the linked object does or does not exist.
---> ***********************************************************
+--> ***************************************************************
 -- The parent resource of the property does or does not exist.
-:csp {
+:def csp2-8idRSa = :csp {
   eq existRS(sRS,idRS) = false .
   eq sRS = (res(trs',idRS,srs') sRS') .
 }
--- Case 2-1: When the parent resource of the property does not exist:
-:apply (rd) -- 2-1
--- Case 2-2: When the parent resource of the property exists:
--- The parent resource is initial or started.
-:csp {
+:def csp2-8idRSb = :csp {
   eq srs' = initial .
   eq srs' = started .
 }
--- Case 2-2-1: When the parent resource is initial:
+:apply (csp2-8idRSa rd- csp2-8idRSb rd-)
+-- When the parent resource is initial:
 -- Cyclic Dependency Lemma ensures there is an initial resource R
--- where DDS(R,S) does not include any initial nodes.
-:init ( eq SRS:SetOfResource = (initRS(SRS) resSRS(SRS)) . ) by {
+-- where DDSRS(R,S) does not include any initial nodes.
+:init ( eq SRS:SetOfResource = (RS:Resource SRS':SetOfResource) . ) by {
   SRS:SetOfResource <- sRS';
-}
-:init ( eq initRS(SRS:SetOfResource) = res(trs'',idRS1,initial) . ) by {
-  SRS:SetOfResource <- sRS';
+  SRS':SetOfResource <- sRS'';
+  RS:Resource <- res(trs'',idRS1,initial);
 }
 --> ***************************************************************
---> Step 2-4: Think which rule can be applied to the next state
--->  and repeat case splitting similarly as Step 1-3, 1-4, and 1-5.
+--> Step 2-4: Consider which rule can be applied to the next state.
 --> ***************************************************************
 -- The next rule should be R01 for the resource of idRS1.
---> ****************************************************
---> Step 1-4: Split the first rule case into cases where
--->  the condition of the rule does or does not hold.
---> ****************************************************
--- The condition of R01 does or does not hold for the resource o idRS1.
-:csp {
+--> *************************************************************************************
+--> Step 2-5: Split the current case into cases which collectively cover the current case
+-->  and the next state of one of the split cases matches to LHS of the current rule.
+--> *************************************************************************************
+--> The case already matches to LHS of R01.
+--> ***************************************************************
+--> Step 2-6: Split the current case into cases where the condition
+-->  of the current rule does or does not hold in the next state.
+--> ***************************************************************
+-- The condition of R01 does or does not hold for the resource idRS1.
+:def csp2-6 = :csp {
   eq allPROfRSInStates(sPR,idRS1,ready) = true .
-  eq sPR = (prop(tpr',idPR1,notready,idRS1,idRRS1) sPR') .
+  eq sPR = (prop(tpr',idPR',notready,idRS1,idRS') sPR') .
 }
--- Case 2-2-1-1: When all the properties of the resource idRS1 are ready.
-:apply (rd) -- 2-2-1-1
--- Case 2-2-1-2: When one of properties of the resource idRS1 is not-ready.
---> ***********************************************************
---> Step 1-5: When there is a dangling link, split the case
+:apply (csp2-6 rd-)
+-- When one of properties of the resource idRS1 is not-ready.
+--> *********************************************************************
+--> Step 2-7: When there are two identifier constants of the same sort,
+--> split the current case into cases where they are or are not the same.
+--> *********************************************************************
+-- idRS' and idRS are or are not the same.
+:def ctf2-7idRS'a = :ctf {
+  eq idRS' = idRS .
+}
+:apply (ctf2-7idRS'a rd-)
+-- When idRS' and idRS are the same:
+--> ******************************************************************************
+--> Step 2-9: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
+--> ******************************************************************************
+-- The Cyclic Dependency Lemma rejects this case.
+:set(normalize-init,on)
+:init [noCycle] by {
+  O:Resource <- res(trs'',idRS1,initial);
+  S:State <- < (res(trs, idRRS, started) sRS),
+               (prop(tpr,idPR,notready,idRS,idRRS) sPR) >;
+  SS:SetOfRSState <- initial;
+}
+:set(normalize-init,off)
+:apply (rd-)
+-- When idRS' and idRS are not the same:
+--> *********************************************************************
+--> Step 2-7: When there are two identifier constants of the same sort,
+--> split the current case into cases where they are or are not the same.
+--> *********************************************************************
+-- idRS' and idRRS are or are not the same.
+:def ctf2-7idRS'b = :ctf {
+  eq idRS' = idRRS .
+}
+:apply (ctf2-7idRS'b rd-)
+-- When idRS' and idRRS are not the same:
+--> *********************************************************************
+--> Step 2-7: When there are two identifier constants of the same sort,
+--> split the current case into cases where they are or are not the same.
+--> *********************************************************************
+-- idRS' and idRS1 are or are not the same.
+:def ctf2-7idRS'c = :ctf {
+  eq idRS' = idRS1 .
+}
+:apply (ctf2-7idRS'c rd-)
+-- When idRS' and idRS1 are not the same:
+--> ***************************************************************
+--> Step 2-8: When there is a dangling link, split the current case
 -->  into cases where the linked object does or does not exist.
---> ***********************************************************
+--> ***************************************************************
 -- The resource referred by the property does or does not exist.
-:csp {
-  eq existRS(resSRS(sRS'),idRRS1) = false .
-  eq resSRS(sRS') = (res(trs''',idRRS1,srs''') sRS''') .
+:def csp2-8idRS'a = :csp {
+  eq existRS(sRS'',idRS') = false .
+  eq sRS'' = (res(trs''',idRS',srs''') sRS''') .
 }
--- Case 2-2-1-2-1: When the resource referred by the property does not exist:
-:apply (rd) -- 2-2-1-2-1
--- Case 2-2-1-2-2: When the resource referred by the property exists:
--- The state of the resource is initial or started.
-:csp { 
+:def csp2-8idRS'b = :csp {
   eq srs''' = initial .
   eq srs''' = started .
 }
--- Case 2-2-1-2-2-1: When the resource idRRS1 is initial:
+:apply (csp2-8idRS'a rd- csp2-8idRS'b rd-)
+-- When the resource idRS' is initial:
+--> ******************************************************************************
+--> Step 2-9: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
+--> ******************************************************************************
 -- The Cyclic Dependency Lemma rejects this case.
-:init [CycleR01] by {
-  T:RSType <- trs'';
-  I:RSID <- idRS1; 
+:set(normalize-init,on)
+:init [noCycle] by {
+  O:Resource <- res(trs'',idRS1,initial);
   S:State <- < (res(trs, idRRS, started) sRS),
                (prop(tpr,idPR,notready,idRS,idRRS) sPR) >;
+  SS:SetOfRSState <- initial;
 }
-:apply (rd) -- 2-2-1-2-2-1
--- Case 2-2-1-2-2-2: When the resource idRRS1 is started:
-:apply (rd) -- 2-2-1-2-2-2
--- Case 2-2-2: When the parent resource is started:
-:apply (rd) -- 2-2-2
+:set(normalize-init,off)
+:apply (rd-)
 show proof
 
 select
