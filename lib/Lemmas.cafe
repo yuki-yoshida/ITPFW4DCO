@@ -21,11 +21,7 @@ select BOOLLEMMAS
 :def ctf-2 = :ctf {
   eq y = true .
 }
-:apply (ctf-1 ctf-2)
-:apply (rd)
-:apply (rd)
-:apply (rd)
-:apply (rd)
+:apply (ctf-1 ctf-2 rd-)
 show proof
 
 module! SETLEMMAS {
@@ -144,12 +140,12 @@ select SETLEMMAS
   S:SetOfObject <- (o' s);
   S':SetOfObject <- s;
 }
-:apply (rd)  
+:apply (rd-)  
 :init ( eq s'(S:SetOfObject) = S':SetOfObject .) by {
   S:SetOfObject <- (o' s);
   S':SetOfObject <- (o' s'(s));
 }
-:apply (rd)  
+:apply (rd-)  
 show proof
 
 --> *******************************************************************************************************************
@@ -166,7 +162,7 @@ select SETLEMMAS
 :ctf {
   eq allObjP(s,a) = true .
 }
-:apply (rd)
+:apply (rd-)
 :init ( eq e(S:SetOfObject) = E:Object .) by {
   S:SetOfObject <- (o s);
   E:Object <- e(s);
@@ -175,7 +171,7 @@ select SETLEMMAS
   S:SetOfObject <- (o s);
   S':SetOfObject <- (o s'(s));
 }
-:apply (rd)
+:apply (rd-)
 :init ( eq e(S:SetOfObject) = E:Object .) by {
   S:SetOfObject <- (o s);
   E:Object <- o;
@@ -184,7 +180,7 @@ select SETLEMMAS
   S:SetOfObject <- (o s);
   S':SetOfObject <- s;
 }
-:apply (rd)
+:apply (rd-)
 show proof
 
 --> *****************************************************************************************************************************
@@ -206,7 +202,7 @@ select SETLEMMAS
   S:SetOfObject <- (o s);
   S':SetOfObject <- s;
 }
-:apply (rd)
+:apply (rd-)
 :init ( eq e(S:SetOfObject) = E:Object .) by {
   S:SetOfObject <- (o s);
   E:Object <- e(s);
@@ -215,7 +211,7 @@ select SETLEMMAS
   S:SetOfObject <- (o s);
   S':SetOfObject <- (o s'(s));
 }
-:apply (rd)
+:apply (rd-)
 show proof
 
 --> **************************************************
@@ -226,7 +222,7 @@ select SETLEMMAS
   eq set-lemma03(empObj,a) = true .
   eq set-lemma03(s,a) implies set-lemma03(o s,a) = true .
 }
-:apply (rd)
+:apply (rd-)
 show proof
 
 --> ******************************************************************************
@@ -237,11 +233,10 @@ select SETLEMMAS
   eq set-lemma04(empObj,o,a) = true .
   eq set-lemma04(s,o,a) implies set-lemma04(o' s,o,a) = true .
 }
-:ctf {
+:def ctfo' = :ctf {
   eq o' = o .
 }
-:apply (rd)
-:apply (rd)
+:apply (ctfo' rd-)
 show proof
 
 --> *****************************************************************
@@ -252,11 +247,10 @@ select SETLEMMAS
   eq set-lemma05(empObj,a) = true .
   eq set-lemma05(s,a) implies set-lemma05((o s),a) = true .
 }
-:ctf {
+:def ctfp = :ctf {
   eq p(o,a) = true .
 }
-:apply (rd)
-:apply (rd)
+:apply (ctfp rd-)
 show proof
 
 --> *****************************************************************************
@@ -266,11 +260,10 @@ select SETLEMMAS
 :goal {
   eq set-lemma06(o,s,a) = true .
 }
-:ctf {
+:def ctfp = :ctf {
   eq p(o,a) = true .
 }
-:apply (rd)
-:apply (rd)
+:apply (ctfp rd-)
 show proof
 
 --> *************************************************************
@@ -280,11 +273,10 @@ select SETLEMMAS
 :goal {
   eq set-lemma07(o,o',s) = true .
 }
-:ctf {
+:def ctfo' = :ctf {
   eq o' = o .
 }
-:apply (rd)
-:apply (rd)
+:apply (ctfo' rd-)
 show proof
 
 --> *****************************************************
@@ -295,11 +287,10 @@ select SETLEMMAS
   eq set-lemma08(o,empObj,s1) = true .
   eq set-lemma08(o,s,s1) implies set-lemma08(o,(o' s),s1) = true .
 }
-:ctf {
+:def ctfo' = :ctf {
   eq o' = o .
 }
-:apply (rd)
-:apply (rd)
+:apply (ctfo' rd-)
 show proof
 
 --> ****************************************************************
@@ -310,7 +301,7 @@ select SETLEMMAS
   eq set-lemma09(o,empObj,s2) = true .
   eq set-lemma09(o,s1,s2) implies set-lemma09(o,(o' s1),s2) = true .
 }
-:apply (rd)
+:apply (rd-)
 show proof
 
 --> **********************************************************************************
@@ -321,7 +312,7 @@ select SETLEMMAS
   eq set-lemma10(s,empObj,s2) = true .
   eq set-lemma10(s,s1,s2) implies set-lemma10(s,(o s1),s2) = true .
 }
-:apply (rd)
+:apply (rd-)
 show proof
 
 --> ******************************************************************
@@ -336,7 +327,7 @@ eq [set-lemma08]:
   eq set-lemma11(empObj,s1,s2) = true .
   eq set-lemma11(s,s1,s2) implies set-lemma11((o s),s1,s2) = true .
 }
-:apply (rd)
+:apply (rd-)
 show proof
 close
 
@@ -352,11 +343,9 @@ eq [set-lemma09]:
   eq set-lemma12(empObj) = true .
   eq set-lemma12(s) implies set-lemma12(o s) = true .
 }
-:apply (rd)
+:apply (rd-)
 show proof
 close
-
-select
 
 module! LEMMAbase {
   protecting(OBJECTBASE-)
@@ -503,7 +492,7 @@ select BASE-LEMMAS
   eq base-lemma01(setO,idO,o) = true .
   eq base-lemma02(o,idO,setO) = true .
 }
-:apply (rd)
+:apply (rd-)
 show proof
 
 --> *******************************************************************************
@@ -515,11 +504,10 @@ select BASE-LEMMAS
   eq base-lemma03(empObj,so,setSO) = true .
   eq base-lemma03(setO,so,setSO) implies base-lemma03((o setO),so,setSO) = true .
 }
-:ctf {
+:def ctfso = :ctf {
   eq state(o) = so .
 }
-:apply (rd)
-:apply (rd)
+:apply (ctfso rd-)
 show proof
 
 --> ***********************************************
@@ -533,19 +521,14 @@ select BASE-LEMMAS
   eq base-lemma04(empObj,ot,so,setSO) = true .
   eq base-lemma04(setO,ot,so,setSO) implies base-lemma04((o setO),ot,so,setSO) = true .
 }
-:ctf {
+:def ctfot = :ctf {
   eq type(o) = ot .
 }
-:ctf {
+:apply (ctfot rd-)
+:def ctfso = :ctf {
   eq (so in setSO) = true .
 }
-:ctf {
-  eq state(o) = so .
-}
-:apply (rd)
-:apply (rd)
-:apply (rd)
-:apply (rd)
+:apply (ctfso rd-)
 show proof
 
 --> ***********************************************
@@ -599,20 +582,10 @@ module! M2O-LEMMAS {
      = allObjInStates(S_Z,SZ) implies allZOfXInStates(S_Z,IDX,St_Z) 
      when (SZ in St_Z) .
 
-  ceq [m2o-lemma01]:
-      (allObjInStates(S_Z,SZ) and allZOfXInStates(S_Z,IDX,St_Z))
-     = allObjInStates(S_Z,SZ)
-     if (SZ in St_Z) . 
-
   pred m2o-lemma02 : LObjID SetOfObject ObjState ObjType SetOfObjState
   eq m2o-lemma02(IDX,S_Z,SZ,OT,St_Z)
      = allObjInStates(S_Z,SZ) implies allZOfTypeOfXInStates(S_Z,OT,IDX,St_Z) 
      when (SZ in St_Z) .
-
-  ceq [m2o-lemma02]:
-      (allObjInStates(S_Z,SZ) and allZOfTypeOfXInStates(S_Z,OT,IDX,St_Z))
-     = allObjInStates(S_Z,SZ)
-     if (SZ in St_Z) . 
 
   pred m2o-lemma03 : SetOfObject Object SetOfObjState
   eq m2o-lemma03(S_Z,Z,St_Z)
@@ -766,11 +739,10 @@ select M2O-LEMMAS
   eq m2o-lemma01(idX,empObj,sz,setSZ) = true .
   eq m2o-lemma01(idX,setZ,sz,setSZ) implies m2o-lemma01(idX,(z setZ),sz,setSZ) = true .
 }
-:ctf {
+:def ctfsz = :ctf {
   eq (sz in setSZ) = true .
 }
-:apply (rd)
-:apply (rd)
+:apply (ctfsz rd-)
 show proof
 
 --> ********************************************************************************
@@ -782,11 +754,10 @@ select M2O-LEMMAS
   eq m2o-lemma02(idX,empObj,sz,ot,setSZ) = true .
   eq m2o-lemma02(idX,setZ,sz,ot,setSZ) implies m2o-lemma02(idX,(z setZ),sz,ot,setSZ) = true .
 }
-:ctf {
+:def ctfsz = :ctf {
   eq (sz in setSZ) = true .
 }
-:apply (rd)
-:apply (rd)
+:apply (ctfsz rd-)
 show proof
 
 --> ********************************************************************
@@ -799,15 +770,10 @@ select M2O-LEMMAS
   eq m2o-lemma03(empObj,z,setSZ) = true .
   eq m2o-lemma03(setZ,z,setSZ) implies m2o-lemma03((z' setZ),z,setSZ) = true .
 }
-:ctf {
+:def ctfz' = :ctf {
   eq z' = z .
 }
-:apply (rd)
-:ctf {
-  eq (link(z') = link(z)) = true .
-}
-:apply (rd)
-:apply (rd)
+:apply (ctfz' rd-)
 show proof
 
 --> ************************************************
@@ -821,15 +787,14 @@ select M2O-LEMMAS
   eq m2o-lemma04(empObj,idX,sz,setSZ) = true .
   eq m2o-lemma04(setZ,idX,sz,setSZ) implies m2o-lemma04((z setZ),idX,sz,setSZ) = true .
 }
-:ctf {
+:def ctflink = :ctf {
   eq link(z) = idX .
 }
-:ctf {
+:apply (ctflink rd-)
+:def ctfstate = :ctf {
   eq state(z) = sz .
 }
-:apply (rd)
-:apply (rd)
-:apply (rd)
+:apply (ctfstate rd-)
 show proof
 
 --> **************************************************************
@@ -843,15 +808,10 @@ select M2O-LEMMAS
   eq m2o-lemma05(x,x',setZ,setX)
       implies m2o-lemma05(x,x',(z setZ),setX) = true .
 }
-:ctf {
+:def ctfx = :ctf {
   eq id(x) = id(x') .
 }
-:ctf {
-  eq link(z) = id(x') .
-}
-:apply (rd)
-:apply (rd)
-:apply (rd)
+:apply (ctfx rd-)
 show proof
 
 --> **********************************************************************************
@@ -860,26 +820,30 @@ show proof
 -->       when (SZ in St_Z) .
 -->    This proof requires M2O-lemma01.
 --> **********************************************************************************
-select M2O-LEMMAS
+open M2O-LEMMAS .
+  ceq [m2o-lemma01]:
+      (allObjInStates(S_Z,SZ) and allZOfXInStates(S_Z,IDX,St_Z))
+     = allObjInStates(S_Z,SZ)
+     if (SZ in St_Z) . 
+
 :goal {
   eq m2o-lemma06(empLObj,setSX,setZ,sz,setSZ) = true .
   eq m2o-lemma06(setX,setSX,setZ,sz,setSZ) implies m2o-lemma06((x setX),setSX,setZ,sz,setSZ) = true .
 }
-:apply (rd)
-:ctf {
+:def ctfsetZ = :ctf {
   eq setZ = empObj .
 }
-:apply (rd)
-:ctf {
+:apply (ctfsetZ rd-)
+:def ctfstate = :ctf {
   eq (state(x) in setSX) = true .
 }
-:ctf {
+:apply (ctfstate rd-)
+:def ctfsz = :ctf {
   eq (sz in setSZ) = true .
 }
-:apply (rd)
-:apply (rd)
-:apply (rd)
+:apply (ctfsz rd-)
 show proof
+close
 
 --> *******************************************************************************
 --> Prove m2o-lemma07
@@ -892,19 +856,18 @@ select M2O-LEMMAS
   eq m2o-lemma07(setX,sx,setSX,setZ,setSZ)
       implies m2o-lemma07((x setX),sx,setSX,setZ,setSZ) = true .
 }
-:ctf {
+:def ctfsx = :ctf {
   eq (sx in setSX) = true .
 }
-:apply (rd)
-:ctf {
+:apply (ctfsx rd-)
+:def ctfsetZ = :ctf {
   eq setZ = empObj .
 }
-:apply (rd)
-:ctf {
+:apply (ctfsetZ rd-)
+:def ctfstate = :ctf {
   eq state(x) = sx .
 }
-:apply (rd)
-:apply (rd)
+:apply (ctfstate rd-)
 show proof
 
 --> ******************************************************************
@@ -918,15 +881,14 @@ select M2O-LEMMAS
   eq m2o-lemma08(z,z',empLObj,setSX,setZ,setSZ) = true .
   eq m2o-lemma08(z,z',setX,setSX,setZ,setSZ) implies m2o-lemma08(z,z',(x setX),setSX,setZ,setSZ) = true .
 }
-:ctf {
+:def ctfz = :ctf {
   eq id(x) = link(z) .
 }
-:apply (rd)
-:ctf {
+:apply (ctfz rd-)
+:def ctfz' = :ctf {
   eq id(x) = link(z') .
 }
-:apply (rd)
-:apply (rd)
+:apply (ctfz' rd-)
 show proof
 
 --> ***************************************************************
@@ -939,15 +901,10 @@ select M2O-LEMMAS
   eq m2o-lemma09(empLObj,setSX,z,setZ,setSZ) = true .
   eq m2o-lemma09(setX,setSX,z,setZ,setSZ) implies m2o-lemma09((x setX),setSX,z,setZ,setSZ) = true .
 }
-:ctf {
+:def ctfsetZ = :ctf {
   eq setZ = empObj .
 }
-:apply (rd)
-:ctf {
-  eq (state(x) in setSX) = true .
-}
-:apply (rd)
-:apply (rd)
+:apply (ctfsetZ rd-)
 show proof
 
 --> *****************************************************************
@@ -960,11 +917,10 @@ select M2O-LEMMAS
 :goal {
   eq m2o-lemma10(x,x',setX,setSX,setZ,setSZ)= true .
 }
-:ctf {
+:def ctfsetZ = :ctf {
   eq setZ = empObj .
 }
-:apply (rd)
-:apply (rd)
+:apply (ctfsetZ rd-)
 show proof
 
 --> ******************************************************************
@@ -979,7 +935,7 @@ select M2O-LEMMAS
   eq m2o-lemma11(z,z',setX,setSX,setZ,setSZ)
       implies m2o-lemma11(z,z',(x setX),setSX,setZ,setSZ) = true .
 }
-:apply (rd)
+:apply (rd-)
 show proof
 
 --> ***********************************************************************
@@ -992,11 +948,10 @@ select M2O-LEMMAS
 :goal {
   eq m2o-lemma12(x,x',setX,setSX,setZ,setSZ) = true .
 }
-:ctf {
+:def ctfsetZ = :ctf {
   eq setZ = empObj .
 }
-:apply (rd)
-:apply (rd)
+:apply (ctfsetZ rd-)
 show proof
 
 --> ******************************************************************
@@ -1011,15 +966,14 @@ select M2O-LEMMAS
   eq m2o-lemma13(z,z',setX,setSX,setZ,setSZ)
       implies m2o-lemma13(z,z',(x setX),setSX,setZ,setSZ) = true .
 }
-:ctf {
+:def ctfz = :ctf {
   eq link(z) = id(x) .
 }
-:apply (rd)
-:ctf {
+:apply (ctfz rd-)
+:def ctfz' = :ctf {
   eq link(z') = id(x) .
 }
-:apply (rd)
-:apply (rd)
+:apply (ctfz' rd-)
 show proof
 
 --> *******************************************************************************************
@@ -1028,26 +982,29 @@ show proof
 -->       when (SZ in St_Z) .
 -->    This proof requires M2O-lemma01.
 --> *******************************************************************************************
-select M2O-LEMMAS
+open M2O-LEMMAS .
+  ceq [m2o-lemma02]:
+      (allObjInStates(S_Z,SZ) and allZOfTypeOfXInStates(S_Z,OT,IDX,St_Z))
+     = allObjInStates(S_Z,SZ)
+     if (SZ in St_Z) . 
 :goal {
   eq m2o-lemma14(empLObj,setSX,setZ,sz,ot,setSZ) = true .
   eq m2o-lemma14(setX,setSX,setZ,sz,ot,setSZ) implies m2o-lemma14((x setX),setSX,setZ,sz,ot,setSZ) = true .
 }
-:apply (rd)
-:ctf {
+:def ctfsetZ = :ctf {
   eq setZ = empObj .
 }
-:apply (rd)
-:ctf {
+:apply (ctfsetZ rd-)
+:def ctfstate = :ctf {
   eq (state(x) in setSX) = true .
 }
-:ctf {
+:apply (ctfstate rd-)
+:def ctfsz = :ctf {
   eq (sz in setSZ) = true .
 }
-:apply (rd)
-:apply (rd)
-:apply (rd)
+:apply (ctfsz rd-)
 show proof
+close
 
 --> ****************************************************************************************
 --> Prove m2o-lemma15
@@ -1060,19 +1017,18 @@ select M2O-LEMMAS
   eq m2o-lemma15(setX,sx,setSX,setZ,ot,setSZ)
       implies m2o-lemma15((x setX),sx,setSX,setZ,ot,setSZ) = true .
 }
-:ctf {
+:def ctfsx = :ctf {
   eq (sx in setSX) = true .
 }
-:apply (rd)
-:ctf {
+:apply (ctfsx rd-)
+:def ctfsetZ = :ctf {
   eq setZ = empObj .
 }
-:apply (rd)
-:ctf {
+:apply (ctfsetZ rd-)
+:def ctfstate = :ctf {
   eq state(x) = sx .
 }
-:apply (rd)
-:apply (rd)
+:apply (ctfstate rd-)
 show proof
 
 --> ***************************************************************************
@@ -1086,15 +1042,14 @@ select M2O-LEMMAS
   eq m2o-lemma16(z,z',empLObj,setSX,setZ,ot,setSZ) = true .
   eq m2o-lemma16(z,z',setX,setSX,setZ,ot,setSZ) implies m2o-lemma16(z,z',(x setX),setSX,setZ,ot,setSZ) = true .
 }
-:ctf {
+:def ctfz = :ctf {
   eq id(x) = link(z) .
 }
-:apply (rd)
-:ctf {
+:apply (ctfz rd-)
+:def ctfz' = :ctf {
   eq id(x) = link(z') .
 }
-:apply (rd)
-:apply (rd)
+:apply (ctfz' rd-)
 show proof
 
 --> ************************************************************************
@@ -1107,15 +1062,10 @@ select M2O-LEMMAS
   eq m2o-lemma17(empLObj,setSX,z,setZ,ot,setSZ) = true .
   eq m2o-lemma17(setX,setSX,z,setZ,ot,setSZ) implies m2o-lemma17((x setX),setSX,z,setZ,ot,setSZ) = true .
 }
-:ctf {
+:def ctfsetZ = :ctf {
   eq setZ = empObj .
 }
-:apply (rd)
-:ctf {
-  eq (state(x) in setSX) = true .
-}
-:apply (rd)
-:apply (rd)
+:apply (ctfsetZ rd-)
 show proof
 
 --> ********************************************************************
@@ -1128,11 +1078,10 @@ select M2O-LEMMAS
 :goal {
   eq m2o-lemma18(x,x',setX,setSX,setZ,ot,setSZ)= true .
 }
-:ctf {
+:def ctfsetZ = :ctf {
   eq setZ = empObj .
 }
-:apply (rd)
-:apply (rd)
+:apply (ctfsetZ rd-)
 show proof
 
 --> ************************************************************************
@@ -1147,7 +1096,7 @@ select M2O-LEMMAS
   eq m2o-lemma19(z,z',setX,setSX,setZ,ot,setSZ)
       implies m2o-lemma19(z,z',(x setX),setSX,setZ,ot,setSZ) = true .
 }
-:apply (rd)
+:apply (rd-)
 show proof
 
 --> ********************************************************************************
@@ -1160,11 +1109,10 @@ select M2O-LEMMAS
 :goal {
   eq m2o-lemma20(x,x',setX,setSX,setZ,ot,setSZ) = true .
 }
-:ctf {
+:def ctfsetZ = :ctf {
   eq setZ = empObj .
 }
-:apply (rd)
-:apply (rd)
+:apply (ctfsetZ rd-)
 show proof
 
 --> ***************************************************************************
@@ -1178,27 +1126,26 @@ select M2O-LEMMAS
   eq m2o-lemma21(empLObj,setSX,z,z',setZ,ot,setSZ) = true .
   eq m2o-lemma21(setX,setSX,z,z',setZ,ot,setSZ) implies m2o-lemma21((x setX),setSX,z,z',setZ,ot,setSZ) = true .
 }
-:ctf {
+:def ctfot = :ctf {
   eq type(z) = ot .
 }
-:apply (rd)
-:ctf {
+:apply (ctfot rd-)
+:def ctfstate = :ctf {
   eq (state(x) in setSX) = true .
 }
-:ctf {
+:apply (ctfstate rd-)
+:def ctfid = :ctf {
   eq id(z) = id(z') .
 }
-:ctf {
+:apply (ctfid rd-)
+:def ctflink = :ctf {
   eq link(z) = link(z') .
 }
-:ctf {
+:apply (ctflink rd-)
+:def ctftype = :ctf {
   eq type(z) = type(z') .
 }
-:apply (rd)
-:apply (rd)
-:apply (rd)
-:apply (rd)
-:apply (rd)
+:apply (ctftype rd-)
 show proof
 
 --> ****************************************************************************************
@@ -1210,20 +1157,19 @@ select M2O-LEMMAS
 :goal {
   eq m2o-lemma22(z,setZ,setX,setSX) = true .
 }
-:ctf {
+:def ctfsetX = :ctf {
   eq setX = empLObj .
 }
-:apply (rd) -- 1
-:csp {
+:apply (ctfsetX rd-)
+:def cspz = :csp {
   eq (z in setZ) = false .
   eq setZ = (z setZ') .
 }
-:apply (rd) -- 2-1
-:ctf {
+:apply (cspz rd-)
+:def ctfstate = :ctf {
   eq state(getLObject(setX,link(z))) in setSX = true .
 }
-:apply (rd) -- 2-2-1
-:apply (rd) -- 2-2-2
+:apply (ctfstate rd-)
 show proof
 
 --> ********************************************************************************
@@ -1241,15 +1187,14 @@ open M2O-LEMMAS .
   eq m2o-lemma23(empObj,setZ',setX,setSX) = true .
   eq m2o-lemma23(setZ,setZ',setX,setSX) implies m2o-lemma23((z setZ),setZ',setX,setSX) = true .
 }
-:ctf {
+:def ctfsetX = :ctf {
   eq setX = empLObj .
 }
-:apply (rd) -- 1
-:ctf {
+:apply (ctfsetX rd-)
+:def ctfstate = :ctf {
   eq state(getLObject(setX,link(z))) in setSX = true .
 }
-:apply (rd) -- 2-1
-:apply (rd) -- 2-2
+:apply (ctfstate rd-)
 show proof
 close
 
@@ -1263,27 +1208,24 @@ select M2O-LEMMAS
   eq m2o-lemma24(x1,x2,setX,empObj,setSX) = true .
   eq m2o-lemma24(x1,x2,setX,setZ,setSX) implies  m2o-lemma24(x1,x2,setX,(z setZ),setSX) = true .
 }
-:ctf {
+:def ctfx2 = :ctf {
   eq (state(x2) in setSX) = true .
 }
-:apply (rd) -- 1
-:ctf {
+:apply (ctfx2 rd-)
+:def ctfid = :ctf {
   eq id(x2) = id(x1) .
 }
-:ctf {
+:apply (ctfid rd-)
+:def ctflink = :ctf {
   eq link(z) = id(x1) .
 }
-:ctf {
+:def ctfx1 = :ctf {
   eq (state(x1) in setSX) = true .
 }
-:apply (rd) -- 2-1-1-1
-:apply (rd) -- 2-1-1-2
-:ctf {
+:def ctfstate = :ctf {
   eq (state(getLObject(setX,link(z))) in setSX) = true .
 }
-:apply (rd) -- 2-1-2-1
-:apply (rd) -- 2-1-2-2
-:apply (rd) -- 2-2
+:apply (ctflink ctfx1 ctfstate rd-)
 show proof
 
 --> ********************************************************************************
@@ -1296,15 +1238,14 @@ select M2O-LEMMAS
   eq m2o-lemma25(x,empLObj,setZ,setSZ) = true .
   eq m2o-lemma25(x,setX,setZ,setSZ) implies m2o-lemma25(x,(x' setX),setZ,setSZ) = true .
 }
-:ctf {
+:def ctfsetZ = :ctf {
   eq setZ = empObj .
 }
-:apply (rd) -- 1
-:ctf {
+:apply (ctfsetZ rd-)
+:def ctfx = :ctf {
   eq x' = x .
 }
-:apply (rd) -- 2-1
-:apply (rd) -- 2-2
+:apply (ctfx rd-)
 show proof
 
 --> ********************************************************************************
@@ -1323,11 +1264,10 @@ eq [m2o-lemma25&set-lemma10]:
   eq m2o-lemma26(empLObj,setX',setZ,setSZ) = true .
   eq m2o-lemma26(setX,setX',setZ,setSZ) implies m2o-lemma26((x setX),setX',setZ,setSZ) = true .
 }
-:ctf {
+:def ctfsetZ = :ctf {
   eq setZ = empObj .
 }
-:apply (rd) -- 1
-:apply (rd) -- 2
+:apply (ctfsetZ rd-)
 show proof
 close
 
@@ -1341,26 +1281,24 @@ select M2O-LEMMAS
   eq m2o-lemma27(z1,z2,setZ,empLObj,setSZ) = true .
   eq m2o-lemma27(z1,z2,setZ,setX,setSZ) implies  m2o-lemma27(z1,z2,setZ,(x setX),setSZ) = true .
 }
-:ctf {
+:def ctfstate = :ctf {
   eq (state(z2) in setSZ) = true .
 }
-:apply (rd) -- 1
-:ctf {
+:apply (ctfstate rd-)
+:def ctfidz = :ctf {
   eq id(z2) = id(z1) .
 }
-:ctf {
+:apply (ctfidz rd-)
+:def ctfidx = :ctf {
   eq id(x) = link(z1) .
 }
-:ctf {
+:apply (ctfidx rd-)
+:def ctfz1 = :ctf {
   eq (state(z1) in setSZ) = true .
 }
-:apply (rd) -- 2-1-1-1
-:apply (rd) -- 2-1-1-2
-:apply (rd) -- 2-1-2
-:apply (rd) -- 2-2
+:apply (ctfz1 rd-)
 show proof
 
--- not copied yet!
 --> **********************************************************************************
 --> Prove m2o-lemma28(Z,Z',S_Z,X,St_Z)
 -->     = changeObjState(Z,Z') and not state(Z') in St_Z implies
@@ -1370,23 +1308,22 @@ select M2O-LEMMAS
 :goal {
   eq m2o-lemma28(z1,z2,setZ,x,setSZ) = true .
 }
-:ctf {
+:def ctfstatez2 = :ctf {
   eq (state(z2) in setSZ) = true .
 }
-:apply (rd) -- 1
-:ctf {
+:apply (ctfstatez2 rd-)
+:def ctfz2 = :ctf {
   eq id(z2) = id(z1) .
 }
-:ctf {
+:apply (ctfz2 rd-)
+:def ctfx = :ctf {
   eq id(x) = link(z1) .
 }
-:ctf {
+:apply (ctfx rd-)
+:def ctfstatez1 = :ctf {
   eq (state(z1) in setSZ) = true .
 }
-:apply (rd) -- 2-1-1-1
-:apply (rd) -- 2-1-1-2
-:apply (rd) -- 2-1-2
-:apply (rd) -- 2-2
+:apply (ctfstatez1 rd-)
 show proof
 
 select
@@ -1462,11 +1399,7 @@ select O2O-LEMMAS
 :def ctf-2 = :ctf {
   eq link(y) = idX .
 }
-:apply (ctf-1 ctf-2)
-:apply (rd)
-:apply (rd)
-:apply (rd)
-:apply (rd)
+:apply (ctf-1 ctf-2 rd-)
 show proof
 
 --> ******************************************************************
@@ -1480,19 +1413,13 @@ select O2O-LEMMAS
   eq o2o-lemma02(y,y',empLObj,setSX,setY,setSY) = true .
   eq o2o-lemma02(y,y',setX,setSX,setY,setSY) implies o2o-lemma02(y,y',(x setX),setSX,setY,setSY) = true .
 }
-:ctf {
+:def ctfy = :ctf {
   eq link(y) = id(x) .
 }
-:ctf {
+:def ctfy' = :ctf {
   eq link(y') = id(x) .
 }
-:apply (rd)
-:apply (rd)
-:ctf {
-  eq link(y') = id(x) .
-}
-:apply (rd)
-:apply (rd)
+:apply (ctfy ctfy' rd-)
 show proof
 
 --> ************************************************************************************
@@ -1510,23 +1437,18 @@ open O2O-LEMMAS .
   eq o2o-lemma03(empLObj,setSX,setY,setSY) = true .
   eq o2o-lemma03(setX,setSX,setY,setSY) implies o2o-lemma03((x setX),setSX,setY,setSY) = true .
 }
-:ctf {
+:def ctfsetY = :ctf {
   eq setY = empObj .
 }
-:apply (rd)
-:ctf {
+:apply (ctfsetY rd-)
+:def ctfuniqX = :ctf {
   eq uniqX(setY) = true .
 }
-:ctf {
+:apply (ctfuniqX rd-)
+:def ctfonly = :ctf {
   eq onlyOneYOfX(setY,id(x)) = true .
 }
-:ctf {
-  eq (state(x) in setSX) = true .
-}
-:apply (rd)
-:apply (rd)
-:apply (rd)
-:apply (rd)
+:apply (ctfonly rd-)
 show proof
 close
 
@@ -1541,19 +1463,13 @@ select O2O-LEMMAS
   eq o2o-lemma04(y,y',empLObj,setSX,setY,setSY) = true .
   eq o2o-lemma04(y,y',setX,setSX,setY,setSY) implies o2o-lemma04(y,y',(x setX),setSX,setY,setSY) = true .
 }
-:ctf {
+:def ctfy = :ctf {
   eq link(y) = id(x) .
 }
-:ctf {
+:def ctfy' = :ctf {
   eq link(y') = id(x) .
 }
-:apply (rd)
-:apply (rd)
-:ctf {
-  eq link(y') = id(x) .
-}
-:apply (rd)
-:apply (rd)
+:apply (ctfy ctfy' rd-)
 show proof
 
 --> ******************************************************************
@@ -1567,19 +1483,13 @@ select O2O-LEMMAS
   eq o2o-lemma05(y,y',empLObj,setSX,setY,setSY) = true .
   eq o2o-lemma05(y,y',setX,setSX,setY,setSY) implies o2o-lemma05(y,y',(x setX),setSX,setY,setSY) = true .
 }
-:ctf {
+:def ctfy = :ctf {
   eq link(y) = id(x) .
 }
-:ctf {
+:def ctfy' = :ctf {
   eq link(y') = id(x) .
 }
-:apply (rd)
-:apply (rd)
-:ctf {
-  eq link(y') = id(x) .
-}
-:apply (rd)
-:apply (rd)
+:apply (ctfy ctfy' rd-)
 show proof
 
 --> ********************************

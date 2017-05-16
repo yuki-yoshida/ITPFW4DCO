@@ -297,7 +297,7 @@ module! OBJECTBASE {
      = allObjInStates(S_O,SO) 
      if SO in St_O .
 
-  ceq [basic-lemma05]:
+  ceq [base-lemma05]:
     getObject(S_O,IDO) = null
     if not existObj(S_O,IDO) .
 
