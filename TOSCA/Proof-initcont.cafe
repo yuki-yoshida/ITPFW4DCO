@@ -46,16 +46,16 @@ select ProofInitCont .
 -->  the current case and one of which matches to LHS of the current rule.
 --> **********************************************************************
 -- LHS of R01 requires at least one initial node.
-:def csp1-3a = :csp { 
+:def csp1-3R01a = :csp { 
   eq sND = empND .
   eq sND = (node(tnd,idND,snd) sND') .
 }
-:def csp1-3b = :csp { 
+:def csp1-3R01b = :csp { 
   eq snd = initial .
   eq snd = created .
   eq snd = started .
 }
-:apply (csp1-3a rd- csp1-3b rd-)
+:apply (csp1-3R01a rd- csp1-3R01b rd-)
 show proof
 select
 --> Totally 1 goal should be proved.

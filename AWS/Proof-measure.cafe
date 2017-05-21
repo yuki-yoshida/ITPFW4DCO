@@ -48,10 +48,10 @@ select ProofMeasure .
 -->  where the condition of the rule does or does not hold. 
 --> ********************************************************
 -- The condition of R01 does or does not hold for S.
-:def ctf3-3 = :ctf {
+:def ctf3-3R01 = :ctf {
   eq allPROfRSInStates(sPR,idRS,ready) = true .
 }
-:apply (ctf3-3 rd-)
+:apply (ctf3-3R01 rd-)
 show proof
 
 --> ****************************************************

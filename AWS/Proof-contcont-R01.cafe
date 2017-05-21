@@ -23,10 +23,10 @@ select ProofContCont .
 --> where the condition of the rule does or does not hold.
 --> ******************************************************
 -- The condition of R01 does or does not hold for the resource of idRS.
-:def ctf2-2 = :ctf {
+:def ctf2-2R01 = :ctf {
   eq allPROfRSInStates(sPR,idRS,ready) = true .
 }
-:apply (ctf2-2 rd-)
+:apply (ctf2-2R01 rd-)
 -- When the condition of R01 holds for the resource of idRS:
 --> *********************************************************
 --> Step 2-3: Split the current case into cases where
@@ -62,11 +62,11 @@ select ProofContCont .
 -->  of the current rule does or does not hold in the next state.
 --> ***************************************************************
 -- The condition of R01 does or does not hold for the resource o idRS'.
-:def csp2-6 = :csp {
+:def csp2-6R01 = :csp {
   eq allPROfRSInStates(sPR,idRS',ready) = true .
   eq sPR = (prop(tpr,idPR,notready,idRS',idRRS) sPR') .
 }
-:apply (csp2-6 rd-)
+:apply (csp2-6R01 rd-)
 -- When at least one of properties of the resource idRS' is not-ready.
 --> *********************************************************************
 --> Step 2-7: When there are two identifier constants of the same sort,
@@ -94,15 +94,15 @@ select ProofContCont .
 -->  into cases where the linked object does or does not exist.
 --> ***************************************************************
 -- The resource referred by the property does or does not exist.
-:def csp2-8a = :csp {
+:def csp2-8idRRSa = :csp {
   eq existRS(sRS',idRRS) = false .
   eq sRS' = (res(trs'',idRRS,srs'') sRS'') .
 }
-:def csp2-8b = :csp { 
+:def csp2-8idRRSb = :csp { 
   eq srs'' = initial .
   eq srs'' = started .
 }
-:apply (csp2-8a rd- csp2-8b rd-)
+:apply (csp2-8idRRSa rd- csp2-8idRRSb rd-)
 -- When the resource idRRS is initial:
 --> ******************************************************************************
 --> Step 2-9: When falling in a cyclic situation, use the Cyclic Dependency Lemma.

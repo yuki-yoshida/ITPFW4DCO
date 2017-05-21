@@ -32,15 +32,15 @@ select ProofInitCont .
 -->  the current case and one of which matches to LHS of the current rule.
 --> **********************************************************************
 -- LHS of R01 requires at least one initial resource.
-:def csp1-3a = :csp  { 
+:def csp1-3R01a = :csp  { 
   eq sRS = empRS .
   eq sRS = (res(trs,idRS,srs) sRS') .
 }
-:def csp1-3b = :csp { 
+:def csp1-3R01b = :csp { 
   eq srs = initial .
   eq srs = started .
 }
-:apply (csp1-3a rd- csp1-3b rd-)
+:apply (csp1-3R01a rd- csp1-3R01b rd-)
 -- When the resource is initial:
 -- Note that res(trs,idRS,initial) is arbitrary selected.
 -- Thus, we can assume that all of DDSRS(res(trs,idRS,initial),S) are not initial,
@@ -50,11 +50,11 @@ select ProofInitCont .
 -->  the condition of the current rule does or does not hold. 
 --> *********************************************************
 -- The condition of R01 is allPROfRSInStates(sPR,idRS,ready) .
-:def csp1-4 = :csp { 
+:def csp1-4R01 = :csp { 
   eq allPROfRSInStates(sPR,idRS,ready) = true .
   eq sPR = (prop(tpr,idPR,notready,idRS,idRRS) sPR') .
 }
-:apply (csp1-4 rd-)
+:apply (csp1-4R01 rd-)
 -- When there is a not-ready property of the resource:
 --> **********************************************************************
 --> Step 1-5: When there are two identifier constants of the same sort,

@@ -49,16 +49,16 @@ select ProofContCont .
 --> *************************************************************************************
 -- LHS of R12 requires a corresponding relationship.
 -- There is or is not a corresponding relationship.
-:def csp2-5a = :csp {
+:def csp2-5R12a = :csp {
   eq onlyOneRLOfCP(sRL,idCP) = false .
   eq sRL = (rel(trl,idRL,idCP,idRQ) sRL') .
 }
-:def csp2-5b = :csp {
+:def csp2-5R12b = :csp {
   eq trl = hostedOn .
   eq trl = dependsOn .
   eq trl = connectsTo .
 }
-:apply (csp2-5a rd- csp2-5b rd-)
+:apply (csp2-5R12a rd- csp2-5R12b rd-)
 -- When the relationship is connectsTo:
 -- There is or is not a corresponding requirement.
 :def csp2-8idRQa = :csp {
@@ -86,10 +86,10 @@ select ProofContCont .
 --> ************************************************************
 -- The node of the requirement of idRQ does or does not exist.
 -- idND and idND' are or are not the same.
-:def ctfidND' = :ctf {
+:def ctf2-7idND' = :ctf {
   eq idND' = idND .
 }
-:apply (ctfidND' rd-)
+:apply (ctf2-7idND' rd-)
 -- When idND and idND' are not the same.
 --> ***************************************************************
 --> Step 2-8: When there is a dangling link, split the current case

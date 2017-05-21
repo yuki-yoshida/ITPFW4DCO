@@ -101,10 +101,12 @@ to see how to model the structure and behavior of the orchestration.
  - Define `inv(S)` as follows using CITP Technique (1) ii.
 
   ```
-  ceq inv(S) = false if not wfs-atLeastOneRS(S) .
-  ceq inv(S) = false if not wfs-allPRHaveRS(S) .
-  ceq inv(S) = false if not wfs-allPRHaveRRS(S) .
+  ceq wfs(S) = false if not wfs-atLeastOneRS(S) .
+  ceq wfs(S) = false if not wfs-allPRHaveRS(S) .
+  ceq wfs(S) = false if not wfs-allPRHaveRRS(S) .
+  ceq inv(S) = false if not wfs(S) .
   ceq inv(S) = false if not inv-ifRSStartedThenPRReady(S) .
+  ceq inv(S) = false if not noRSCycle(S) .
   ```
 
 ### Step 0-5: Prepare arbitrary constants.

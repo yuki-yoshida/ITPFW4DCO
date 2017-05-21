@@ -1,63 +1,15 @@
-### This ReadMe describes the previous version of proofs and will be revised soon later.
 
 # Verification Sample for a leads-to property of OASIS TOSCA
-## Memo of CITP(Constructor-based Inductive Theorem Prover)
-### goal Command
- `:goal {eq EXPRESSION = true .}`
- - Define the goal to be proved and let it be the current case. 
+Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
 
-### ctf Command
- `:ctf {eq LHS = RHS .}`
- - Split the current case into two cases adding "eq LHS = RHS ." to one case and "eq (LHS = RHS) = false ." to another.
-
-### csp Command
- `:csp {eq LHS1 = RHS1 . eq LHS2 = RHS2 . ...}`
- - Split the current case into several cases adding "eq LHS1 = RHS1 .", "eq LHS2 = RHS2 .", and so on.
-
-### init Command
- `:init [LABEL] by { SUBSTITUTION }`
- - Introduce a nonexec LABELed lemma proven by other proof scores. SUBSTITUTION specifies
-   how to unify the lemma to the current case. 
-
-### apply Command
- `:apply (rd)`
- - Try to reduce the goal in the current case.
- - When succeeding to reduce, select the next case as current.
-
-### show proof Command
- `show proof`
- - Summarize the proof tree consisting of split cases. Proven cases are shown by ``*'' marks.
-
-## Several CITP Techniques
-### Technique (1)
- - Typically a lemma has a form `A implies B`. When using such lemmas to prove a GOAL, we may define the proof goal as `:goal { eq (A1 implies B1) and (A2 implies B2) and ... implies GOAL . }`. This style is not only complicated but also very expensive to execute. Instead, we can introduce each of such lemmas as an equation in one of the following styles.
-   1. `ceq B = true if A .`
-   2. `ceq A = false if not B .`
-   3. `eq (A and B) = A .`
-
- - Style i. is suitable when the goal has a form `X implies Y` and the lemma is used to claim Y is true.
- - Style ii. is suitable when the goal has a form `X implies Y` and the lemma is used to claim X is false.
- - However, all variables included in the conditional clause should appear in the left hand side clause.
- - Style iii. is not easy to understand but can be used in both cases without concerning appearance of variables.
- 
-### Technique (2)
- - When a case including an equation `eq pred(sPR) = true .` where sPR is a proof constant of sort SetOfProperty is split into several cases, some of its descendant may include another equation such as `eq sPR = (aPR sPR') .` where aPR is a proof constant of sort Property and sPR' is of sort SetOfProperty. Then, pred(sPR) reduces to true when it is evaluated from outermost whereas it may not reduce to true when evaluated from innermost. The following idiom can be used to avoid depending on the evaluation strategy of the prover.
-
-  ```
-  :set(normalize-init,on)
-  :init ( ceq B1 = true if not B2 . ) by { B1 <- pred(sPR) ; B2 <- pred(sPR) == true ; }
-  :set(normalize-init,off)
-  ```
-
- - `:set(normalize-init,on)` specifies that the substituted terms be normalized (reduced) before substitution. Then, if pred(sPR) reduces to true, both of B1 and B2 reduce to true and so the introduced equation is `ceq true = true if not true .` which has no meaning. Whereas, if pred(sPR) reduces to B1' which is not true, B2 reduces to false and so the introduced equation is `ceq B1' = true if not false .` which makes B1 reduce to true. As the result, B1 reduces to true anyway.
-
-## Preparation of Proof (Domain.cafe)
+## Preparation of Proof (DomainModel.cafe)
 ### Step 0-1: Define `init(S)` and `final(S)`.
- - Among conditions explicitly composing init(S), one referring to no local states of objects and being expected to be an invariant is called a wfs (well-formed state).
- - Define `wfs(S)` as a conjunction of all wfs's.
+ - Among conditions explicitly composing `init(S)`, one referring to no local states of objects and being expected to be an invariant is called a wfs (well-formed state).
+ - Define `wfs(S)` as a conjunction of all wfs's and include it in the definition of `init(S)`.
+ - Since too long `wfs` causes a large evaluation cost, here we only declare which predicates constitute `wfs` and the equation is specified as `:nonexec` which means it is not used in reduction. In each use case, e.g. simulation or verification, the valid and minimal definition of `wfs` should be used.
 
   ```
-  eq wfs(S)
+  eq [:nonexec]: wfs(S)
      = wfs-uniqND(S) and wfs-uniqCP(S) and wfs-uniqRQ(S) and wfs-uniqRL(S) and
        wfs-allCPHaveND(S) and wfs-allRQHaveND(S) and 
        wfs-allCPHaveRL(S) and wfs-allRQHaveRL(S) and 
@@ -91,28 +43,29 @@
   ```
   eq m(< SetND,SetCP,SetRQ,SetRL,MP >)
      = (( (#NodeInStates(initial,SetND)        * 2) + #NodeInStates(created,SetND))
-     +  ( (#CapabilityInStates(closed,SetCP)    * 2) + #CapabilityInStates(open,SetCP)))
+     +  ( (#CapabilityInStates(closed,SetCP)   * 2) + #CapabilityInStates(open,SetCP)))
      +  ( (#RequirementInStates(unbound,SetRQ) * 2) + #RequirementInStates(waiting,SetRQ)) .
   ```
 ### Step 0-4: Define `inv(S)`.
- - Each of wfs's and invariants is recommended to define as inv-AAA(S) or wfs-BBB(S).
+ - Each of invariants and wfs's is recommended to define as inv-AAA(S) or wfs-BBB(S).
  - Define `inv(S)` as follows using CITP Technique (1) ii.
 
   ```
-  ceq inv(S) = false if not wfs-uniqND(S) .
-  ceq inv(S) = false if not wfs-uniqCP(S) .
-  ceq inv(S) = false if not wfs-uniqRQ(S) .
-  ceq inv(S) = false if not wfs-uniqRL(S) .
-  ceq inv(S) = false if not wfs-allCPHaveND(S) .
-  ceq inv(S) = false if not wfs-allRQHaveND(S) .
-  ceq inv(S) = false if not wfs-allRLHaveCP(S) .
-  ceq inv(S) = false if not wfs-allRLHaveRQ(S) .
-  ceq inv(S) = false if not wfs-allCPHaveRL(S) .
-  ceq inv(S) = false if not wfs-allRQHaveRL(S) .
-  ceq inv(S) = false if not wfs-allRLHaveSameTypeCPRQ(S) .
-  ceq inv(S) = false if not wfs-allRLNotInSameND(S) .
-  ceq inv(S) = false if not wfs-allRLHoldLocality(S) .
-  ceq inv(S) = false if not wfs-allNDHaveAtMostOneHost(S) .
+  ceq wfs(S) = false if not wfs-uniqND(S) .
+  ceq wfs(S) = false if not wfs-uniqCP(S) .
+  ceq wfs(S) = false if not wfs-uniqRQ(S) .
+  ceq wfs(S) = false if not wfs-uniqRL(S) .
+  ceq wfs(S) = false if not wfs-allCPHaveND(S) .
+  ceq wfs(S) = false if not wfs-allRQHaveND(S) .
+  ceq wfs(S) = false if not wfs-allRLHaveCP(S) .
+  ceq wfs(S) = false if not wfs-allRLHaveRQ(S) .
+  ceq wfs(S) = false if not wfs-allCPHaveRL(S) .
+  ceq wfs(S) = false if not wfs-allRQHaveRL(S) .
+  ceq wfs(S) = false if not wfs-allRLHaveSameTypeCPRQ(S) .
+  ceq wfs(S) = false if not wfs-allRLNotInSameND(S) .
+  ceq wfs(S) = false if not wfs-allRLHoldLocality(S) .
+  ceq wfs(S) = false if not wfs-allNDHaveAtMostOneHost(S) .
+  ceq inv(S) = false if not wfs(S) .
   ceq inv(S) = false if not inv-ifNDInitialThenRQUnboundReady(S) .
   ceq inv(S) = false if not inv-ifNDCreatedThenHostedOnRQReady(S) .
   ceq inv(S) = false if not inv-ifNDStartedThenRQReady(S) .
@@ -120,34 +73,19 @@
   ceq inv(S) = false if not inv-ifCPOpenThenRQUnboundWaiting(S) .
   ceq inv(S) = false if not inv-HostedOnCPNotOpen(S) .
   ceq inv(S) = false if not inv-HostedOnRQNotWaiting(S) .
+  ceq inv(S) = false if not noNDCycle(S) .
   ceq inv(S) = false if not inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg(S) .
   ceq inv(S) = false if not inv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg(S) .
   ceq inv(S) = false if not inv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg(S) .
   ceq inv(S) = false if not inv-ifOpenMsgThenCPActivated(S) .
   ceq inv(S) = false if not inv-ifAvailableMsgThenCPAvailable(S).
   ```
-### Step 0-5: Prepare for using the Cyclic Dependency Lemma.
- - Prepare a nonexec lemma which means that `DDS` of a specified initial node never includes other initial nodes for rule R01.
-
+### Step 0-5: Prepare arbitrary constants.
   ```
-  ceq [CycleR01 :nonexec]: 
-     true = false if someNDInStates(DDSC(node(T:NDType,I:NDID,initial),S:State),initial) .
-  ```
-
- - Prepare a nonexec lemma which means that `DDS` of a specified created node never includes other created nodes for rule R02.
-
-  ```
-  ceq [CycleR02 :nonexec]: 
-     true = false if someNDInStates(DDSC(node(T:NDType,I:NDID,created),S:State),created) .
-  ```
-
-### Step 0-6: Prepare arbitrary constants.
-
-  ```
-  ops idND idND' idND1 idND2 idND3 : -> NDIDLt
-  ops idCP idCP' idCP1 idCP2 idCP3 : -> CPIDLt
-  ops idRQ idRQ' idRQ1 idRQ2 idRQ3 : -> RQIDLt
-  ops idRL idRL' idRL1 idRL2 idRL3 : -> RLIDLt
+  ops idND idND' : -> NDID
+  ops idCP idCP' : -> CPID
+  ops idRQ idRQ' : -> RQID
+  ops idRL idRL' : -> RLID
   ops sND sND' sND'' sND''' : -> SetOfNode
   ops sCP sCP' sCP'' sCP''' : -> SetOfCapability
   ops sRQ sRQ' sRQ'' sRQ''' : -> SetOfRequirement
@@ -162,7 +100,11 @@
   op stRQ : -> SetOfRQState
   ops mp mp' : -> PoolOfMsg
   op msg : -> Msg
+  op idND1 : -> NDID
+  eq (idND1 = idND) = false .
   ```
+
+ - `idND1` is defined as an identifier different from `idND`. It is used for CDL.
 
 ## Proof of Condition (1): `init(S) implies cont(S)` (Proof-initcont.cafe)
 ### Step 1-0: Define a predicate to be proved.
@@ -172,6 +114,10 @@
   ```
 
  - Also introduce the Initial Cont Lemma which ensures that `cont(S)` holds if `S` include an initial node.
+  ```
+  eq cont(< (node(T, I, initial) SetND), 
+            SetCP, SetRQ, SetRL, M >) = true .
+  ```
 
 ### Step 1-1: Begin with the most general case. 
 
@@ -184,10 +130,10 @@
 
 ### Step 1-3: Split the current case into cases which collectively cover the current case and one of which matches to LHS of the current rule.
  - Since LHS of R01 requires at least one initial node, the root case should be split into following four cases:
-  - Case 1: When there is no resource => the goal holds because `init(S)` reduces to false.
-  - Case 2-1: When at least one initial node => the goal holds because `cont(S)` reduces to true because of the Initial Cont Lemma.
-  - Case 2-2: When at least one created node => the goal holds because `init(S)` reduces to false.
-  - Case 2-3: When at least one started node => the goal holds because `init(S)` reduces to false.
+  - Case 1*: When there is no resource => the goal holds because `init(S)` reduces to false.
+  - Case 2-1*: When at least one initial node => the goal holds because `cont(S)` reduces to true because of the Initial Cont Lemma.
+  - Case 2-2*: When at least one created node => the goal holds because `init(S)` reduces to false.
+  - Case 2-3*: When at least one started node => the goal holds because `init(S)` reduces to false.
 
 ## Proof of Condition (2): `inv(S) and not final(S) implies cont(SS) or final(SS)` (Proof-contcont.cafe)
 ### Step 2-0: Define a predicate to be proved.
@@ -202,7 +148,20 @@
   ```
 
  - Also introduce the Initial Cont Lemma which ensures that `cont(S)` holds if `S` include an initial node
- - And also introduce the Created Cont Lemma which ensures that `cont(S)` holds if `S` include a created node.
+
+  ```
+  eq cont(< (node(T, I, initial) SetND), 
+	    SetCP, SetRQ, SetRL, M >)
+     = true .
+  ```
+
+- And also introduce the Created Cont Lemma which ensures that `cont(S)` holds if `S` include a created node.
+
+  ```
+  eq cont(< (node(T, I, created) SetND), 
+	    SetCP, SetRQ, SetRL, M >)
+     = true .
+  ```
 
 ## Proof of Condition (2) for R01 (Proof-contcont-R01.cafe)
 ### Step 2-1: Begin with the cases each of which matches to LHS of each rule.
@@ -214,8 +173,8 @@
 
 ### Step 2-2: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
  - The root case should be split into following two cases:
-  - Case 1: All hostedOn requirements of the initial node are ready => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
-  - Case 2: Not all hostedOn requirements of the initial node are ready => the goal holds because there is no next state.
+  - Case 1*: All hostedOn requirements of the initial node are ready => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
+  - Case 2*: Not all hostedOn requirements of the initial node are ready => the goal holds because there is no next state.
 
 ## Proof of Condition (2) for R02 (Proof-contcont-R02.cafe)
 ### Step 2-1: Begin with the cases each of which matches to LHS of each rule.
@@ -228,13 +187,13 @@
 ### Step 2-2: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
  - The root case should be split into following two cases:
   - Case 1: All requirements of the created node are ready.
-  - Case 2: Not all requirements of the created node are ready => the goal holds because there is no next state.
+  - Case 2*: Not all requirements of the created node are ready => the goal holds because there is no next state.
 
 ### Step 2-3: Split the current case into cases where predicate final does or does not hold in the next state.
  - Since the next state includes one started node and so `final(SS)` holds when all of the rest nodes are started, the current case should be split into following two cases:
-  - Case 1-1: When all of the other nodes are started => the goal holds because `final(SS)` reduces to true.
-  - Case 1-2: When there is an initial node => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
-  - Case 1-3: When there is a created node => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
+  - Case 1-1*: When all of the other nodes are started => the goal holds because `final(SS)` reduces to true.
+  - Case 1-2*: When there is an initial node => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
+  - Case 1-3*: When there is a created node => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
 
 ## Proof of Condition (2) for R03 (Proof-contcont-R03.cafe)
 ### Step 2-1: Begin with the cases each of which matches to LHS of each rule.
@@ -247,7 +206,7 @@
 ### Step 2-2: Split the current case for a rule into cases where the condition of the rule does or does not hold.
  - The root case should be split into following two cases:
   - Case 1: The parent node of the closed capability has been created (isCreated).
-  - Case 2: The parent node of the closed capability has not been created yet => the goal holds because there is no next state.
+  - Case 2*: The parent node of the closed capability has not been created yet => the goal holds because there is no next state.
 
 ### Step 2-3: Split the current case into cases where predicate final does or does not hold in the next state.
  - The next state after applying R03 is not final because we know a closed capability has an initial parent node.
@@ -257,19 +216,22 @@
 
 ### Step 2-5: Split the current case into cases which collectively cover the current case and the next state of one of the split cases matches to LHS of the current rule.
  - Since LHS of R04 requires a relationship corresponding to the available capability and an unbound requirement corresponding to the relationship, the current case should be split into following cases:
-  - Case 1-1: There is no corresponding relationship => the goal holds because `wfs-allCPHaveRL(S)` reduces to false.
+  - Case 1-1*: There is no corresponding relationship => the goal holds because `wfs-allCPHaveRL(S)` reduces to false.
   - Case 1-2: There is a corresponding relationship.
     - Case 1-2-1: The relationship is hostedOn.
-      - Case 1-2-1-1: There is no corresponding requirement => the goal holds because `wfs-allRLHaveRQ(S)` reduces to false.
-      - Case 1-2-1-2: There is a corresponding requirement.
-        - Case 1-2-1-2-1: The requirement is hostedOn.
-          - Case 1-2-1-2-1-1: The requirement is unbound => the goal holds because `cont(SS)` reduces to true since R04 is available.
-          - Case 1-2-1-2-1-2: The requirement is waiting => the goal holds because `inv-ifCPClosedThenRQUnbound(S)` reduces to false.
-          - Case 1-2-1-2-1-3: The requirement is ready => the goal holds because `inv-ifCPClosedThenRQUnbound(S)` reduces to false.
-        - Case 1-2-1-2-2: The requirement is dependsOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
-        - Case 1-2-1-2-3: The requirement is connectsTo => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
-    - Case 1-2-2: The relationship is dependsOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
-    - Case 1-2-3: The relationship is connectsTo => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+    - Case 1-2-2*: The relationship is dependsOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+    - Case 1-2-3*: The relationship is connectsTo => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+
+### Step 2-8: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
+ - Since the relationship has a dangling `req` link, the current case should be split into following six cases:
+    - Case 1-2-1-1*: There is no corresponding requirement => the goal holds because `wfs-allRLHaveRQ(S)` reduces to false.
+    - Case 1-2-1-2: There is a corresponding requirement.
+      - Case 1-2-1-2-1: The requirement is hostedOn.
+        - Case 1-2-1-2-1-1*: The requirement is unbound => the goal holds because `cont(SS)` reduces to true since R04 is available.
+        - Case 1-2-1-2-1-2*: The requirement is waiting => the goal holds because `inv-ifCPClosedThenRQUnbound(S)` reduces to false.
+        - Case 1-2-1-2-1-3*: The requirement is ready => the goal holds because `inv-ifCPClosedThenRQUnbound(S)` reduces to false.
+      - Case 1-2-1-2-2*: The requirement is dependsOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+      - Case 1-2-1-2-3*: The requirement is connectsTo => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
 
 ## Proof of Condition (2) for R04 (Proof-contcont-R04.cafe)
 ### Step 2-1: Begin with the cases each of which matches to LHS of each rule.
@@ -295,12 +257,13 @@
 
 ### Step 2-5: Split the current case into cases which collectively cover the current case and the next state of one of the split cases matches to LHS of the current rule.
  - Since LHS of R01 requires an initial parent node of the ready requirement, the current case should be split into following four cases:
-  - Case 1: There is no such parent node. => the goal holds because `wfs-allRQHaveND(S)` reduces to false.
+  - Case 1*: There is no such parent node. => the goal holds because `wfs-allRQHaveND(S)` reduces to false.
   - Case 2: There is such a parent node
-    - Case 2-1: The node is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
-    - Case 2-2: The node is created => the goal holds because `inv-ifNDCreatedThenHostedOnRQReady(S)` reduces to false.
-    - Case 2-2: The node is started => the goal holds because `inv-ifNDStartedThenRQReady(S)` reduces to false.
+    - Case 2-1*: The node is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
+    - Case 2-2*: The node is created => the goal holds because `inv-ifNDCreatedThenHostedOnRQReady(S)` reduces to false.
+    - Case 2-2*: The node is started => the goal holds because `inv-ifNDStartedThenRQReady(S)` reduces to false.
 
+## Revised until here!!
 ## Proof of Condition (2) for R05 (Proof-contcont-R05.cafe)
 ### Step 2-1: Begin with the cases each of which matches to LHS of each rule.
  - The most general state matching to LHS of R05 can be represented by replacing all variables of the LHS by proof constants.

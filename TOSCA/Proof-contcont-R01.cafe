@@ -23,9 +23,9 @@ select ProofContCont .
 --> where the condition of the rule does or does not hold.
 --> ******************************************************
 -- The condition of R01 does or does not hold for the node of idND.
-:def ctf2-2 = :ctf {
+:def ctf2-2R01 = :ctf {
   eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
 }
-:apply (ctf2-2 rd-)
+:apply (ctf2-2R01 rd-)
 show proof
 select

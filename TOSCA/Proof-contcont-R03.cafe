@@ -23,10 +23,10 @@ select ProofContCont .
 --> where the condition of the rule does or does not hold.
 --> ******************************************************
 -- The condition of R03 does or does not hold for the node of idND.
-:def ctf2-2 = :ctf {
+:def ctf2-2R03 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
-:apply (ctf2-2 rd-)
+:apply (ctf2-2R03 rd-)
 -- When the condition of R03 holds for the node of idND:
 --> *********************************************************
 --> Step 2-3: Split the current case into cases where
@@ -43,35 +43,39 @@ select ProofContCont .
 --> *************************************************************************************
 -- LHS of R04 requires a corresponding relationship.
 -- There is or is not a corresponding relationship.
-:def csp2-5a = :csp {
+:def csp2-5R04a = :csp {
   eq onlyOneRLOfCP(sRL,idCP) = false .
   eq sRL = (rel(trl,idRL,idCP,idRQ) sRL') .
 }
-:def csp2-5b = :csp {
+:def csp2-5R04b = :csp {
   eq trl = hostedOn .
   eq trl = dependsOn .
   eq trl = connectsTo .
 }
-:apply (csp2-5a rd- csp2-5b rd-)
+:apply (csp2-5R04a rd- csp2-5R04b rd-)
 -- The relationship is hostedOn:
--- There is or is not a corresponding requirement.
-:def csp1-6idRQa = :csp {
+--> ***************************************************************
+--> Step 2-8: When there is a dangling link, split the current case
+-->  into cases where the linked object does or does not exist.
+--> ***************************************************************
+-- The requirement of the relationship of idRL does or does not exist.
+:def csp2-8idRQa = :csp {
   eq existRQ(sRQ,idRQ) = false .
   eq sRQ = (req(trl',idRQ,srq,idND') sRQ') .
 }
-:def csp1-6idRQb = :csp {
+:def csp2-8idRQb = :csp {
   eq trl' = hostedOn .
   eq trl' = dependsOn .
   eq trl' = connectsTo .
 }
-:apply (csp1-6idRQa rd- csp1-6idRQb rd-)
+:apply (csp2-8idRQa rd- csp2-8idRQb rd-)
 -- The requirement is hostedOn:
 -- The requirement is unbound, waiting, or ready.
-:def cspsrq = :csp {
+:def csp2-8idRQc = :csp {
   eq srq = unbound .
   eq srq = waiting .
   eq srq = ready .
 }
-:apply (cspsrq rd-)
+:apply (csp2-8idRQc rd-)
 show proof
 select

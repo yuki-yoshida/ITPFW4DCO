@@ -75,10 +75,10 @@ show proof
 --> Step 5-2: Split the current case for a rule into cases
 -->  where the condition of the rule does or does not hold. 
 --> *******************************************************
-:def ctf5-2 = :ctf {
+:def ctf5-2R01 = :ctf {
   eq allPROfRSInStates(sPR,idRS,ready) = true .
 }
-:apply (ctf5-2 rd-)
+:apply (ctf5-2R01 rd-)
 show proof
 
 --> ****************************************************
@@ -135,10 +135,10 @@ select Proofwfs-allPRHaveRS
 --> Step 5-2: Split the current case for a rule into cases
 -->  where the condition of the rule does or does not hold. 
 --> ********************************************************
-:def ctf5-2 = :ctf {
+:def ctf5-2R01 = :ctf {
   eq allPROfRSInStates(sPR,idRS,ready) = true .
 }
-:apply (ctf5-2 rd-)
+:apply (ctf5-2R01 rd-)
 show proof
 
 --> ****************************************************
@@ -195,10 +195,10 @@ select Proofwfs-allPRHaveRRS
 --> Step 5-2: Split the current case for a rule into cases
 -->  where the condition of the rule does or does not hold. 
 --> *******************************************************
-:def ctf5-2 = :ctf {
+:def ctf5-2R01 = :ctf {
   eq allPROfRSInStates(sPR,idRS,ready) = true .
 }
-:apply (ctf5-2 rd-)
+:apply (ctf5-2R01 rd-)
 show proof
 
 --> ****************************************************
@@ -255,10 +255,10 @@ select Proofwfs-atLeastOneRS
 --> Step 5-2: Split the current case for a rule into cases
 -->  where the condition of the rule does or does not hold. 
 --> *******************************************************
-:def ctf5-2 = :ctf {
+:def ctf5-2R01 = :ctf {
   eq allPROfRSInStates(sPR,idRS,ready) = true .
 }
-:apply (ctf5-2 rd-)
+:apply (ctf5-2R01 rd-)
 show proof
 
 --> ****************************************************
@@ -326,10 +326,10 @@ select Proof-noRSCycle
 --> Step 5-2: Split the current case for a rule into cases
 -->  where the condition of the rule does or does not hold. 
 --> *******************************************************
-:def ctf5-2 = :ctf {
+:def ctf5-2R01 = :ctf {
   eq allPROfRSInStates(sPR,idRS,ready) = true .
 }
-:apply (ctf5-2 rd-)
+:apply (ctf5-2R01 rd-)
 -- When the condition of R01 holds for the resource of idRS:
 :def ctfx = :ctf {
   eq x = res(trs,idRS,initial) .

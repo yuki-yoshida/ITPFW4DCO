@@ -23,15 +23,15 @@ select ProofContCont .
 -->  into cases where the linked object does or does not exist.
 --> ***************************************************************
 -- The node of the capability of idCP does or does not exist.
-:def csp2-8a = :csp {
+:def csp2-8idNDa = :csp {
   eq existND(sND,idND) = false .
   eq sND = (node(tnd,idND,snd) sND') .
 }
-:def csp2-8b = :csp {
+:def csp2-8idNDb = :csp {
   eq snd = initial .
   eq snd = created .
   eq snd = started .
 }
-:apply (csp2-8a rd- csp2-8b rd-)
+:apply (csp2-8idNDa rd- csp2-8idNDb rd-)
 show proof
 select
