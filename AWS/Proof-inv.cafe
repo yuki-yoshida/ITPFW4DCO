@@ -8,7 +8,7 @@ require Proof Proof.cafe
 --> **********************************************
 --> Step 4-0,5-0: Define a predicate to be proved.
 --> **********************************************
-module! ProofInv {
+module ProofInv {
   protecting(ProofBase)
   protecting(STATERules)
 
@@ -37,7 +37,7 @@ module! ProofInv {
 -->     = ifRSInStatesThenPRInStates(SetRS,started,SetPR,ready) .
 --> *************************************************************
 --> Proof of inv(S) implies inv(SS)
-module! Proofinv-ifRSStartedThenPRReady {
+module Proofinv-ifRSStartedThenPRReady {
   protecting(ProofInv)
   var S : State
   eq invK(S) = inv-ifRSStartedThenPRReady(S) .
@@ -104,7 +104,7 @@ select
 -->     = allPRHaveRS(SetPR,SetRS) .
 --> ***********************************
 --> Proof of inv(S) implies inv(SS)
-module! Proofwfs-allPRHaveRS {
+module Proofwfs-allPRHaveRS {
   protecting(ProofInv)
   var S : State
   eq invK(S) = wfs-allPRHaveRS(S) .
@@ -164,7 +164,7 @@ select
 -->     = allPRHaveRRS(SetPR,SetRS) .
 --> ***********************************
 --> Proof of inv(S) implies inv(SS)
-module! Proofwfs-allPRHaveRRS {
+module Proofwfs-allPRHaveRRS {
   protecting(ProofInv)
   var S : State
   eq invK(S) = wfs-allPRHaveRRS(S) .
@@ -224,7 +224,7 @@ select
 -->     = atLeastOneRS(SetPR,SetRS) .
 --> ***********************************
 --> Proof of inv(S) implies inv(SS)
-module! Proofwfs-atLeastOneRS {
+module Proofwfs-atLeastOneRS {
   protecting(ProofInv)
   var S : State
   eq invK(S) = wfs-atLeastOneRS(S) .
@@ -282,7 +282,7 @@ select
 --> Proof of noRSCycle.
 --> *************************************j
 --> Proof of inv(S) implies inv(SS)
-module! Proof-noRSCycle {
+module Proof-noRSCycle {
   protecting(ProofInv)
 
   vars S SS : State

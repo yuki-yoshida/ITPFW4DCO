@@ -52,6 +52,6 @@ This package includes following files:
 - TOSCA/Proof-cyclelemma.cafe: Proof scores for two special lemmas.
 - TOSCA/all.cafe: Execute all proof scores.
 
-- CafeOBJ/*.cafe: Sample proof scores for my theses.
+- CafeOBJ/*.cafe: Sample proof scores for the preliminaries of CafeOBJ.
 
 CafeOBJ system can be downloaded at http://cafeobj.org.

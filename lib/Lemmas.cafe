@@ -3,7 +3,7 @@ require Template Template.cafe
 provide Lemmas
 
 :set(normalize-init,off)
-module! BOOLLEMMAS {
+module BOOLLEMMAS {
   pred bool-lemma1 : Bool Bool .
   -- (X implies Y) can be written as an equation, eq (X and Y) = X .
   eq bool-lemma1(X:Bool,Y:Bool)
@@ -24,7 +24,7 @@ select BOOLLEMMAS
 :apply (ctf-1 ctf-2 rd-)
 show proof
 
-module! SETLEMMAS {
+module SETLEMMAS {
   protecting(ALLOBJPRED1)
   op _ in _ : Object SetOfObject -> Bool
   op subset : SetOfObject SetOfObject -> Bool
@@ -347,7 +347,7 @@ eq [set-lemma09]:
 show proof
 close
 
-module! LEMMAbase {
+module LEMMAbase {
   protecting(OBJECTBASE-)
   protecting(PRMOBJLINKPRED)
 
@@ -447,7 +447,7 @@ module! LEMMAbase {
      = subset(S_Z1,S_Z2) .
 }
 
-module! BASE-LEMMAS {
+module BASE-LEMMAS {
   protecting(LEMMAbase)
 
   var IDO : ObjID 
@@ -544,7 +544,7 @@ select BASE-LEMMAS
 :apply (rd-)
 show proof
 
-module! M2O-LEMMAS {
+module M2O-LEMMAS {
   protecting(LEMMAbase)
   protecting(OBJLINKMANY2ONE-)
 
@@ -1328,7 +1328,7 @@ show proof
 
 select
 
-module! O2O-LEMMAS {
+module O2O-LEMMAS {
   protecting(LEMMAbase)
   protecting(OBJLINKONE2ONE-)
 

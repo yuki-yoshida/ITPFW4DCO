@@ -373,15 +373,13 @@ to see how to model the structure and behavior of the orchestration.
 
 ## Proof of Condition (3): `inv(S) and not final(S) implies m(S) > m(SS)` (Proof-measure.cafe)
 ### Step 3-0: Use natural number axioms.
- - Protecting include module NATAXIOM provided by the framework.
+ - Protecting import module NATAXIOM provided by the framework.
 
 ### Step 3-1: Define a predicate to be proved.
 
   ```
   eq mmes(S,SS)
      = inv(S) and not final(S) implies m(S) > m(SS) .
-
-  pred mesmes : State .
   eq mesmes(S)
      = not (S =(*,1)=>+ SS if CC suchThat
             not ((CC implies mmes(S,SS)) == true)

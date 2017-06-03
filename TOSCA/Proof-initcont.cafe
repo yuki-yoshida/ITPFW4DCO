@@ -7,7 +7,7 @@ require Proof Proof.cafe
 --> ******************************************
 --> Step 1-0: Define a predicate to be proved.
 --> ******************************************
-module! ProofInitCont {
+module ProofInitCont {
   protecting(ProofBase)
 
   var S : State

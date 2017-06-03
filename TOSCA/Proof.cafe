@@ -2,7 +2,7 @@ require DomainModel DomainModel.cafe
 
 provide Proof
 
-module! ProofBase {
+module ProofBase {
   protecting(STATERules)
 
   op _!_ : Bool Bool -> Bool {constr assoc}

@@ -1,4 +1,3 @@
-
 # Verification Sample for a leads-to property of OASIS TOSCA
 Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
 
@@ -190,7 +189,7 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   - Case 2*: Not all requirements of the created node are ready => the goal holds because there is no next state.
 
 ### Step 2-3: Split the current case into cases where predicate final does or does not hold in the next state.
- - Since the next state includes one started node and so `final(SS)` holds when all of the rest nodes are started, the current case should be split into following two cases:
+ - Since the next state includes one started node and so `final(SS)` holds when all of the rest nodes are started, the current case should be split into following three cases:
   - Case 1-1*: When all of the other nodes are started => the goal holds because `final(SS)` reduces to true.
   - Case 1-2*: When there is an initial node => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
   - Case 1-3*: When there is a created node => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
@@ -223,7 +222,7 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
     - Case 1-2-3*: The relationship is connectsTo => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
 
 ### Step 2-8: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the relationship has a dangling `req` link, the current case should be split into following six cases:
+ - Since the relationship has a dangling `req` link, the current case should be split into following cases:
     - Case 1-2-1-1*: There is no corresponding requirement => the goal holds because `wfs-allRLHaveRQ(S)` reduces to false.
     - Case 1-2-1-2: There is a corresponding requirement.
       - Case 1-2-1-2-1: The requirement is hostedOn.
@@ -263,7 +262,6 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
     - Case 2-2*: The node is created => the goal holds because `inv-ifNDCreatedThenHostedOnRQReady(S)` reduces to false.
     - Case 2-2*: The node is started => the goal holds because `inv-ifNDStartedThenRQReady(S)` reduces to false.
 
-## Revised until here!!
 ## Proof of Condition (2) for R05 (Proof-contcont-R05.cafe)
 ### Step 2-1: Begin with the cases each of which matches to LHS of each rule.
  - The most general state matching to LHS of R05 can be represented by replacing all variables of the LHS by proof constants.
@@ -272,16 +270,13 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   :goal { eq contcont(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true . }
   ```
 
-### Step 2-8: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the capability has a dangling `node` link, the current case should be split into following two cases:
-  - Case 1: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
-  - Case 2: There is such a node.
-
 ### Step 2-2: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
- - The current case should be split into following two cases:
-  - Case 2-1: The node corresponding to the capability is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
-  - Case 2-2: The node corresponding to the capability is created => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
-  - Case 2-3: The node corresponding to the capability is started => the goal holds because `cont(SS)` reduces to true because R06 is available to the next state.
+ - The current case should be split into following four cases:
+  - Case 1*: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
+  - Case 2: There is such a node.
+   - Case 2-1*: The node corresponding to the capability is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
+   - Case 2-2*: The node corresponding to the capability is created => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
+   - Case 2-3*: The node corresponding to the capability is started => the goal holds because `cont(SS)` reduces to true because R06 is available to the next state.
 
 ## Proof of Condition (2) for R06 (Proof-contcont-R06.cafe)
 ### Step 2-1: Begin with the cases each of which matches to LHS of each rule.
@@ -291,16 +286,13 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   :goal { eq contcont(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >) = true . }
   ```
 
-### Step 2-8: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the capability has a dangling `node` link, the current case should be split into following two cases:
-  - Case 1: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
-  - Case 2: There is such a node.
-
 ### Step 2-2: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
- - The current case should be split into following two cases:
-  - Case 2-1: The node corresponding to the capability is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
-  - Case 2-2: The node corresponding to the capability is created => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
-  - Case 2-3: The node corresponding to the capability is started
+ - The current case should be split into following four cases:
+  - Case 1*: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
+  - Case 2: There is such a node.
+   - Case 2-1*: The node corresponding to the capability is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
+   - Case 2-2*: The node corresponding to the capability is created => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
+   - Case 2-3: The node corresponding to the capability is started
 
 ### Step 2-3: Split the current case into cases where predicate final does or does not hold in the next state.
  - The next state after applying R06 is not final because we know a open dependsOn capability has a waiting requirement whose parent node is not started.
@@ -312,22 +304,25 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
  - Since LHS of R08 requires a relationship corresponding to the available capability and a waiting requirement corresponding to the relationship, the current case should be split into following cases:
   - Case 2-3-1: There is no corresponding relationship => the goal holds because `wfs-allCPHaveRL(S)` reduces to false.
   - Case 2-3-2: There is a corresponding relationship.
-    - Case 2-3-2-1: The corresponding relationship is hostedOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ` reduces to false.
+    - Case 2-3-2-1*: The corresponding relationship is hostedOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ` reduces to false.
     - Case 2-3-2-2: The corresponding relationship is dependsOn
-      - Case 2-3-2-2-1: There is no corresponding requirement => the goal holds because `wfs-allRLHaveRQ(S)(S)` reduces to false.
-      - Case 2-3-2-2-2: There is a corresponding requirement.
-        - Case 2-3-2-2-2-1: The corresponding requirement is hostedOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
-        - Case 2-3-2-2-2-2: The corresponding requirement is dependsOn
-          - Case 2-3-2-2-2-2-1: The corresponding requirement is unbound.
-          - Case 2-3-2-2-2-2-2: The corresponding requirement is waiting => the goal holds because`cont(SS)` reduces to true because R08 is available to the next state.
-          - Case 2-3-2-2-2-2-3: The corresponding requirement is ready => the goal holds because `inv-ifCPClosedThenRQUnbound(S)` reduces to false.
-        - Case 2-3-2-2-2-3: The corresponding requirement is connectsTo => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
-    - Case 2-3-2-3: The corresponding relationship is connectsTo => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+    - Case 2-3-2-3*: The corresponding relationship is connectsTo => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+
+### Step 2-8: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
+ - Since the relationship has a dangling `req` link, the current case should be split into following cases:
+    - Case 2-3-2-2-1*: There is no corresponding requirement => the goal holds because `wfs-allRLHaveRQ(S)(S)` reduces to false.
+    - Case 2-3-2-2-2: There is a corresponding requirement.
+      - Case 2-3-2-2-2-1*: The corresponding requirement is hostedOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+      - Case 2-3-2-2-2-2: The corresponding requirement is dependsOn
+        - Case 2-3-2-2-2-2-1: The corresponding requirement is unbound.
+        - Case 2-3-2-2-2-2-2*: The corresponding requirement is waiting => the goal holds because`cont(SS)` reduces to true because R08 is available to the next state.
+        - Case 2-3-2-2-2-2-3*: The corresponding requirement is ready => the goal holds because `inv-ifCPClosedThenRQUnbound(S)` reduces to false.
+      - Case 2-3-2-2-2-3*: The corresponding requirement is connectsTo => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
 
   - Here, Case 2-3-2-2-2-2-1 remains not to be proved where the current global state is
 
   ```
-  < (node(dependsOn,idND,started) sND'), 
+  < (node(tnd,idND,started) sND'), 
     (cap(dependsOn,idCP,open,idND) sCP), 
     (req(dependsOn,idRQ,unbound,idND')), 
     (rel(dependsOn,idRL,idCP,idRQ) sRL'), mp >
@@ -336,16 +331,18 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
 ### Step 2-4: Consider which rule can be applied to the next state.
  - Since there is an unbound dependsOn requirement in the next state, the next rule should be R07.
 
-### Step 2-8: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the requirement has a dangling `node` link, the current case should be split into following two cases
-  - Case 2-3-2-2-2-2-1-1: There is no such node => the goal holds because `wfs-allRQHaveND(S)` reduces to false.
-  - Case 2-3-2-2-2-2-1-2: There is such a node.
+### Step 2-7: When there are two identifier constants of the same sort, split the current case into cases where they are or are not the same.
+ - Since each of the nodes of the capability and the requirement has its identifier, the current case should be split into following two cases:
+  - Case 2-3-2-2-2-2-1-1*: Both identifiers are the same.
+  - Case 2-3-2-2-2-2-1-2: They are different.
 
-### Step 2-6: Split the current case into cases where the condition of the current rule does or does not hold in the next state.
- - The current case should be split into following three cases:
-  - Case 2-3-2-2-2-2-1-2-1: The node is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
-  - Case 2-3-2-2-2-2-1-2-2: The node is created => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
-  - Case 2-3-2-2-2-2-1-2-3: The node is started => the goal holds because `inv-ifNDStartedThenRQReady(S)` reduces to false.
+### Step 2-8: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
+ - Since the requirement has a dangling `node` link, the current case should be split into following four cases
+  - Case 2-3-2-2-2-2-1-2-1*: There is no such node => the goal holds because `wfs-allRQHaveND(S)` reduces to false.
+  - Case 2-3-2-2-2-2-1-2-2: There is such a node.
+   - Case 2-3-2-2-2-2-1-2-2-1*: The node is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
+   - Case 2-3-2-2-2-2-1-2-2-2*: The node is created => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
+   - Case 2-3-2-2-2-2-1-2-2-3*: The node is started => the goal holds because `inv-ifNDStartedThenRQReady(S)` reduces to false.
 
 ## Proof of Condition (2) for R07 (Proof-contcont-R07.cafe)
 ### Step 2-1: Begin with the cases each of which matches to LHS of each rule.
@@ -361,15 +358,12 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   ```
 
 ### Step 2-8: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the requirement has a dangling `node` link, the current case should be split into following two cases:
-  - Case 1: There is no such node => the goal holds because `wfs-allRQHaveND(S)` reduces to false.
+ - Since the requirement has a dangling `node` link, the current case should be split into following four cases:
+  - Case 1*: There is no such node => the goal holds because `wfs-allRQHaveND(S)` reduces to false.
   - Case 2: There is such a node.
-
-### Step 2-2: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
- - The current case should be split into following two cases:
-  - Case 2-1: The node corresponding to the requirement is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
-  - Case 2-2: The node corresponding to the requirement is created => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
-  - Case 2-3: The node corresponding to the requirement is started => the goal holds because There is no next state.
+   - Case 2-1*: The node corresponding to the requirement is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
+   - Case 2-2*: The node corresponding to the requirement is created => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
+   - Case 2-3*: The node corresponding to the requirement is started => the goal holds because There is no next state.
 
 ## Proof of Condition (2) for R08 (Proof-contcont-R08.cafe)
 ### Step 2-1: Begin with the cases each of which matches to LHS of each rule.
@@ -385,24 +379,12 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   ```
   
 ### Step 2-8: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the requirement has a dangling `node` link, the current case should be split into following two cases:
-  - Case 1: There is no such node => the goal holds because `wfs-allRQHaveND(S)` reduces to false.
+ - Since the requirement has a dangling `node` link, the current case should be split into following four cases:
+  - Case 1*: There is no such node => the goal holds because `wfs-allRQHaveND(S)` reduces to false.
   - Case 2: There is such a node.
-
-### Step 2-2: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
- - Since R08 is unconditional, this step is ignored.
-
-### Step 2-3: Split the current case into cases where predicate final does or does not hold in the next state.
- - The next state after applying R08 is not final because we know a waiting dependsOn requirement has an parent node which is not started.
-
-### Step 2-4: Consider which rule can be applied to the next state.
- - Since there is a ready requirement in the next state, the next rule should be R02.
-
-### Step 2-5: Split the current case into cases which collectively cover the current case and the next state of one of the split cases matches to LHS of the current rule.
- - Since LHS of R02 requires a node corresponding to the requirement is created, the current case should be split into following three cases:
-  - Case 2-1: The node corresponding to the requirement is initial => the goal holds because `inv-ifNDInitialThenRQUnboundReady(S)` reduces to false.
-  - Case 2-2: The node corresponding to the requirement is created => the goal holds because `cont(SS)` reduces to true because R02 is available to the next state.
-  - Case 2-3: The node corresponding to the requirement is started => the goal holds because `inv-ifNDStartedThenRQReady(S)` reduces to false.
+   - Case 2-1*: The node corresponding to the requirement is initial => the goal holds because `inv-ifNDInitialThenRQUnboundReady(S)` reduces to false.
+   - Case 2-2*: The node corresponding to the requirement is created => the goal holds because `cont(SS)` reduces to true because R02 is available to the next state.
+   - Case 2-3*: The node corresponding to the requirement is started => the goal holds because `inv-ifNDStartedThenRQReady(S)` reduces to false.
 
 ## Proof of Condition (2) for R09 (Proof-contcont-R09.cafe)
 ### Step 2-1: Begin with the cases each of which matches to LHS of each rule.
@@ -414,15 +396,12 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   ```
   
 ### Step 2-8: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the capability has a dangling `node` link, the current case should be split into following two cases:
-  - Case 1: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
+ - Since the capability has a dangling `node` link, the current case should be split into following four cases:
+  - Case 1*: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
   - Case 2: There is such a node.
-
-### Step 2-2: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
- - The current case should be split into following two cases:
-  - Case 2-1: The node corresponding to the capability is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
-  - Case 2-2: The node corresponding to the capability is created => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
-  - Case 2-3: The node corresponding to the capability is started => the goal holds because `cont(SS)` reduces to true because R10 is available to the next state.
+   - Case 2-1*: The node corresponding to the capability is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
+   - Case 2-2*: The node corresponding to the capability is created => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
+   - Case 2-3*: The node corresponding to the capability is started => the goal holds because `cont(SS)` reduces to true because R10 is available to the next state.
 
 ## Proof of Condition (2) for R10 (Proof-contcont-R10.cafe)
 ### Step 2-1: Begin with the cases each of which matches to LHS of each rule.
@@ -432,16 +411,14 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   :goal { eq contcont(< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >) = true . }
   ```
   
-### Step 2-8: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the capability has a dangling `node` link, the current case should be split into following two cases:
-  - Case 1: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
+### Step 2-2: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
+ - The current case should be split into following four cases:
+  - Case 1*: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
   - Case 2: There is such a node.
 
-### Step 2-2: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
- - The current case should be split into following two cases:
-  - Case 2-1: The node corresponding to the capability is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
-  - Case 2-2: The node corresponding to the capability is created => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
-  - Case 2-3: The node corresponding to the capability is started
+   - Case 2-1*: The node corresponding to the capability is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
+   - Case 2-2*: The node corresponding to the capability is created => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
+   - Case 2-3: The node corresponding to the capability is started
 
 ### Step 2-3: Split the current case into cases where predicate final does or does not hold in the next state.
  - The next state after applying R10 is not final because we know a open connectsTo capability has a waiting requirement whose parent node is not started.
@@ -451,41 +428,43 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
 
 ### Step 2-5: Split the current case into cases which collectively cover the current case and the next state of one of the split cases matches to LHS of the current rule.
  - Since LHS of R12 requires a relationship corresponding to the available capability and a waiting requirement corresponding to the relationship, the current case should be split into following cases:
-  - Case 2-3-1: There is no corresponding relationship => the goal holds because `wfs-allCPHaveRL(S)` reduces to false.
+  - Case 2-3-1*: There is no corresponding relationship => the goal holds because `wfs-allCPHaveRL(S)` reduces to false.
   - Case 2-3-2: There is a corresponding relationship.
-    - Case 2-3-2-1: The corresponding relationship is hostedOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ` reduces to false.
-    - Case 2-3-2-2: The corresponding relationship is dependsOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+    - Case 2-3-2-1*: The corresponding relationship is hostedOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ` reduces to false.
+    - Case 2-3-2-2*: The corresponding relationship is dependsOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
     - Case 2-3-2-3: The corresponding relationship is connectsTo
-      - Case 2-3-2-3-1: There is no corresponding requirement => the goal holds because `wfs-allRLHaveRQ(S)(S)` reduces to false.
-      - Case 2-3-2-3-2: There is a corresponding requirement.
-        - Case 2-3-2-3-2-1: The corresponding requirement is hostedOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
-        - Case 2-3-2-3-2-2: The corresponding requirement is dependsOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
-        - Case 2-3-2-3-2-3: The corresponding requirement is connectsTo
-          - Case 2-3-2-3-2-3-1: The corresponding requirement is unbound
-          - Case 2-3-2-3-2-3-2: The corresponding requirement is waiting => the goal holds because`cont(SS)` reduces to true because R12 is available to the next state.
-          - Case 2-3-2-3-2-3-3: The corresponding requirement is ready => the goal holds because `inv-ifCPClosedThenRQUnbound(S)` reduces to false.
+
+### Step 2-8: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
+ - Since the relationship has a dangling `req` link, the current case should be split into following cases:
+    - Case 2-3-2-3-1*: There is no corresponding requirement => the goal holds because `wfs-allRLHaveRQ(S)(S)` reduces to false.
+    - Case 2-3-2-3-2: There is a corresponding requirement.
+      - Case 2-3-2-3-2-1*: The corresponding requirement is hostedOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+      - Case 2-3-2-3-2-2*: The corresponding requirement is dependsOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+      - Case 2-3-2-3-2-3: The corresponding requirement is connectsTo
+        - Case 2-3-2-3-2-3-1: The corresponding requirement is unbound
+        - Case 2-3-2-3-2-3-2*: The corresponding requirement is waiting => the goal holds because`cont(SS)` reduces to true because R12 is available to the next state.
+        - Case 2-3-2-3-2-3-3*: The corresponding requirement is ready => the goal holds because `inv-ifCPClosedThenRQUnbound(S)` reduces to false.
 
   - Here, Case 2-3-2-3-2-3-1 remains not to be proved where the current global state is
   ```
-  < (node(started,idND,snd) sND'),
+  < (node(tnd,idND,started) sND'),
     (cap(connectsTo,idCP,open,idND) sCP),
     (req(connectsTo,idRQ,unbound,idND') sRQ'),
     (rel(connectsTo,idRL,idCP,idRQ) sRL'), mp >
   ```
 
-### Step 2-4: Consider which rule can be applied to the next state.
- - Since there is an unbound connectsTo requirement in the next state, the next rule should be R11.
+### Step 2-7: When there are two identifier constants of the same sort, split the current case into cases where they are or are not the same.
+ - Since each of the nodes of the capability and the requirement has its identifier, the current case should be split into following two cases:
+  - Case 2-3-2-3-2-3-1-1*: Both identifiers are the same.
+  - Case 2-3-2-3-2-3-1-2: They are different.
 
 ### Step 2-8: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the requirement has a dangling `node` link, the current case should be split into following two cases:
-  - Case 2-3-2-3-2-3-1-1: There is no such node => the goal holds because `wfs-allRQHaveND(S)` reduces to false.
-  - Case 2-3-2-3-2-3-1-2: There is such a node.
-
-### Step 2-6: Split the current case into cases where the condition of the current rule does or does not hold in the next state.
- - The current case should be split into following three cases:
-  - Case 2-3-2-3-2-3-1-2-1: The node corresponding to the unbound requirement is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
-  - Case 2-3-2-3-2-3-1-2-2: The node corresponding to the unbound requirement is created => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
-  - Case 2-3-2-3-2-3-1-2-3: The node corresponding to the unbound requirement is started => the goal holds because `inv-ifNDStartedThenRQReady(S)` reduces to false.
+ - Since the requirement has a dangling `node` link, the current case should be split into following four cases:
+  - Case 2-3-2-3-2-3-1-2-1*: There is no such node => the goal holds because `wfs-allRQHaveND(S)` reduces to false.
+  - Case 2-3-2-3-2-3-1-2-2: There is such a node.
+   - Case 2-3-2-3-2-3-1-2-2-1*: The node corresponding to the unbound requirement is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
+   - Case 2-3-2-3-2-3-1-2-2-2*: The node corresponding to the unbound requirement is created => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
+   - Case 2-3-2-3-2-3-1-2-2-3*: The node corresponding to the unbound requirement is started => the goal holds because `inv-ifNDStartedThenRQReady(S)` reduces to false.
 
 ## Proof of Condition (2) for R11 (Proof-contcont-R11.cafe)
 ### Step 2-1: Begin with the cases each of which matches to LHS of each rule.
@@ -501,15 +480,12 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   ```
   
 ### Step 2-8: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the requirement has a dangling `node` link, the current case should be split into following two cases:
-  - Case 1: There is no such node => the goal holds because `wfs-allRQHaveND(S)` reduces to false.
+ - Since the requirement has a dangling `node` link, the current case should be split into following four cases:
+  - Case 1*: There is no such node => the goal holds because `wfs-allRQHaveND(S)` reduces to false.
   - Case 2: There is such a node.
-
-### Step 2-2: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
- - The current case should be split into following two cases:
-  - Case 2-1: The node corresponding to the requirement is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
-  - Case 2-2: The node corresponding to the requirement is created => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
-  - Case 2-3: The node corresponding to the requirement is started => the goal holds because There is no next state.
+   - Case 2-1*: The node corresponding to the requirement is initial => the goal holds because `cont(SS)` reduces to true because of the Initial Cont Lemma.
+   - Case 2-2*: The node corresponding to the requirement is created => the goal holds because `cont(SS)` reduces to true because of the Created Cont Lemma.
+   - Case 2-3*: The node corresponding to the requirement is started => the goal holds because There is no next state.
 
 ## Proof of Condition (2) for R12 (Proof-contcont-R12.cafe)
 ### Step 2-1: Begin with the cases each of which matches to LHS of each rule.
@@ -525,28 +501,16 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   ```
   
 ### Step 2-8: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the requirement has a dangling `node` link, the current case should be split into following two cases:
-  - Case 1: There is no such node => the goal holds because `wfs-allRQHaveND(S)` reduces to false.
+ - Since the requirement has a dangling `node` link, the current case should be split into following four cases:
+  - Case 1*: There is no such node => the goal holds because `wfs-allRQHaveND(S)` reduces to false.
   - Case 2: There is such a node.
-
-### Step 2-2: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
- - Since R12 is unconditional, this step is ignored.
-
-### Step 2-3: Split the current case into cases where predicate final does or does not hold in the next state.
- - The next state after applying R12 is not final because we know a waiting connectsTo requirement has an parent node which is not started.
-
-### Step 2-4: Consider which rule can be applied to the next state.
- - Since there is a ready requirement in the next state, the next rule should be R02.
-
-### Step 2-5: Split the current case into cases which collectively cover the current case and the next state of one of the split cases matches to LHS of the current rule.
- - Since LHS of R02 requires a node corresponding to the waiting requirement, the current case should be split into following three cases:
-  - Case 2-1: The node corresponding to the requirement is initial => the goal holds because `inv-ifNDInitialThenRQUnboundReady(S)` reduces to false.
-  - Case 2-2: The node corresponding to the requirement is created => the goal holds because `cont(SS)` reduces to true because R02 is available to the next state.
-  - Case 2-3: The node corresponding to the requirement is started => the goal holds because `inv-ifNDStartedThenRQReady(S)` reduces to false.
+   - Case 2-1*: The node corresponding to the requirement is initial => the goal holds because `inv-ifNDInitialThenRQUnboundReady(S)` reduces to false.
+   - Case 2-2*: The node corresponding to the requirement is created => the goal holds because `cont(SS)` reduces to true because R02 is available to the next state.
+   - Case 2-3*: The node corresponding to the requirement is started => the goal holds because `inv-ifNDStartedThenRQReady(S)` reduces to false.
 
 ## Proof of Condition (3): `inv(S) and not final(S) implies m(S) > m(SS)` (Proof-measure.cafe)
 ### Step 3-0: Use natural number axioms.
- - Protecting import model NATAXIOM provided by the framework.
+ - Protecting import module NATAXIOM provided by the framework.
 
 ### Step 3-1: Define a predicate to be proved.
 
@@ -567,10 +531,10 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   :goal { eq mesmes(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >) = true . }
   ```
 
-### Step 3-3: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
+### Step 3-3: Split the most general case for a rule into cases where the condition of the rule does or does not hold. 
  - The root case should be split into following two cases:
-  - Case 1: All hostedOn requirements of the initial node are ready => the goal holds because `m(S) > m(SS)` reduces to true.
-  - Case 2: Not all hostedOn requirements of the initial node are ready => the goal holds because there is no next state.
+  - Case 1*: All hostedOn requirements of the initial node are ready => the goal holds because `m(S) > m(SS)` reduces to true.
+  - Case 2*: Not all hostedOn requirements of the initial node are ready => the goal holds because there is no next state.
 
 ## Proof of Condition (3) for R02
 ### Step 3-2: Begin with the cases each of which matches to LHS of each rule.
@@ -580,10 +544,10 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   :goal { eq mesmes(< (node(tnd,idND,created) sND), sCP, sRQ, sRL, mp >) = true . }
   ```
 
-### Step 3-3: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
+### Step 3-3: Split the most general case for a rule into cases where the condition of the rule does or does not hold. 
  - The root case should be split into following two cases:
-  - Case 1: All requirements of the created node are ready => the goal holds because `m(S) > m(SS)` reduces to true.
-  - Case 2: Not all requirements of the created node are ready => the goal holds because there is no next state.
+  - Case 1*: All requirements of the created node are ready => the goal holds because `m(S) > m(SS)` reduces to true.
+  - Case 2*: Not all requirements of the created node are ready => the goal holds because there is no next state.
 
 ## Proof of Condition (3) for R03
 ### Step 3-2: Begin with the cases each of which matches to LHS of each rule.
@@ -593,10 +557,10 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   :goal { eq mesmes(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true . }
   ```
 
-### Step 3-3: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
+### Step 3-3: Split the most general case for a rule into cases where the condition of the rule does or does not hold. 
  - The root case should be split into following two cases:
-  - Case 1: The parent node of the closed capability has been created (isCreated)  => the goal holds because `m(S) > m(SS)` reduces to true.
-  - Case 2: The parent node of the closed capability has not been created yet => the goal holds because there is no next state.
+  - Case 1*: The parent node of the closed capability has been created (isCreated)  => the goal holds because `m(S) > m(SS)` reduces to true.
+  - Case 2*: The parent node of the closed capability has not been created yet => the goal holds because there is no next state.
 
 ## Proof of Condition (3) for R04
 ### Step 3-2: Begin with the cases each of which matches to LHS of each rule.
@@ -611,9 +575,9 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   }
   ```
 
-### Step 3-3: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
+### Step 3-3: Split the most general case for a rule into cases where the condition of the rule does or does not hold. 
  - Since R04 is unconditional, this step is ignored.
-  - Case 1: The goal holds because `m(S) > m(SS)` reduces to true.
+  - Case 1*: The goal holds because `m(S) > m(SS)` reduces to true.
 
 ## Proof of Condition (3) for R05
 ### Step 3-2: Begin with the cases each of which matches to LHS of each rule.
@@ -623,10 +587,10 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   :goal { eq mesmes(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true . }
   ```
 
-### Step 3-3: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
+### Step 3-3: Split the most general case for a rule into cases where the condition of the rule does or does not hold. 
  - The root case should be split into following two cases:
-  - Case 1: The parent node of the closed capability has been created (isCreated)  => the goal holds because `m(S) > m(SS)` reduces to true.
-  - Case 2: The parent node of the closed capability has not been created yet => the goal holds because there is no next state.
+  - Case 1*: The parent node of the closed capability has been created (isCreated)  => the goal holds because `m(S) > m(SS)` reduces to true.
+  - Case 2*: The parent node of the closed capability has not been created yet => the goal holds because there is no next state.
 
 ## Proof of Condition (3) for R06
 ### Step 3-2: Begin with the cases each of which matches to LHS of each rule.
@@ -636,10 +600,10 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   :goal { eq mesmes(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >) = true . }
   ```
 
-### Step 3-3: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
+### Step 3-3: Split the most general case for a rule into cases where the condition of the rule does or does not hold. 
  - The current case should be split into following two cases:
-  - Case 1: The parent node of the open capability is started => the goal holds because `m(S) > m(SS)` reduces to true.
-  - Case 2: The parent node of the open capability is note started => the goal holds because there is no next state.
+  - Case 1*: The parent node of the open capability is started => the goal holds because `m(S) > m(SS)` reduces to true.
+  - Case 2*: The parent node of the open capability is note started => the goal holds because there is no next state.
 
 ## Proof of Condition (3) for R07
 ### Step 3-2: Begin with the cases each of which matches to LHS of each rule.
@@ -654,10 +618,10 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   }
   ```
 
-### Step 3-3: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
+### Step 3-3: Split the most general case for a rule into cases where the condition of the rule does or does not hold. 
  - The current case should be split into following two cases:
-  - Case 1: The parent node of the requirement is created and the capability is activated => the goal holds because `m(S) > m(SS)` reduces to true.
-  - Case 2: The parent node of the requirement is not created or the capability is not activated => the goal holds because there is no next state.
+  - Case 1*: The parent node of the requirement is created and the capability is activated => the goal holds because `m(S) > m(SS)` reduces to true.
+  - Case 2*: The parent node of the requirement is not created or the capability is not activated => the goal holds because there is no next state.
 
 ## Proof of Condition (3) for R08
 ### Step 3-2: Begin with the cases each of which matches to LHS of each rule.
@@ -672,9 +636,9 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   }
   ```
   
-### Step 3-3: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
+### Step 3-3: Split the most general case for a rule into cases where the condition of the rule does or does not hold. 
  - Since R08 is unconditional, this step is ignored.
-  - Case 1: The goal holds because `m(S) > m(SS)` reduces to true.
+  - Case 1*: The goal holds because `m(S) > m(SS)` reduces to true.
 
 ## Proof of Condition (3) for R09
 ### Step 3-2: Begin with the cases each of which matches to LHS of each rule.
@@ -685,10 +649,10 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
 
   ```
   
-### Step 3-3: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
+### Step 3-3: Split the most general case for a rule into cases where the condition of the rule does or does not hold. 
  - The current case should be split into following two cases:
-  - Case 1: The parent node of the closed capability has been created (isCreated)  => the goal holds because `m(S) > m(SS)` reduces to true.
-  - Case 2: The parent node of the closed capability has not been created yet => the goal holds because there is no next state.
+  - Case 1*: The parent node of the closed capability has been created (isCreated)  => the goal holds because `m(S) > m(SS)` reduces to true.
+  - Case 2*: The parent node of the closed capability has not been created yet => the goal holds because there is no next state.
 
 ## Proof of Condition (3) for R10
 ### Step 3-2: Begin with the cases each of which matches to LHS of each rule.
@@ -703,10 +667,10 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   }
   ```
 
-### Step 3-3: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
+### Step 3-3: Split the most general case for a rule into cases where the condition of the rule does or does not hold. 
  - The current case should be split into following two cases:
-  - Case 1: The parent node of the open capability is started => the goal holds because `m(S) > m(SS)` reduces to true.
-  - Case 2: The parent node of the open capability is note started => the goal holds because there is no next state.
+  - Case 1*: The parent node of the open capability is started => the goal holds because `m(S) > m(SS)` reduces to true.
+  - Case 2*: The parent node of the open capability is note started => the goal holds because there is no next state.
 
 ## Proof of Condition (3) for R11
 ### Step 3-2: Begin with the cases each of which matches to LHS of each rule.
@@ -721,10 +685,10 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
   }
   ```
   
-### Step 3-3: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
+### Step 3-3: Split the most general case for a rule into cases where the condition of the rule does or does not hold. 
  - The current case should be split into following two cases:
-  - Case 1: The parent node of the requirement is created => the goal holds because `m(S) > m(SS)` reduces to true.
-  - Case 2: The parent node of the requirement is not created => the goal holds because there is no next state.
+  - Case 1*: The parent node of the requirement is created => the goal holds because `m(S) > m(SS)` reduces to true.
+  - Case 2*: The parent node of the requirement is not created => the goal holds because there is no next state.
 
 ## Proof of Condition (3) for R12
 ### Step 3-2: Begin with the cases each of which matches to LHS of each rule.
@@ -735,19 +699,20 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
 
   ```
   
-### Step 3-3: Split the current case for a rule into cases where the condition of the rule does or does not hold. 
+### Step 3-3: Split the most general case for a rule into cases where the condition of the rule does or does not hold. 
  - Since R08 is unconditional, this step is ignored.
-  - Case 1: The goal holds because `m(S) > m(SS)` reduces to true.
+  - Case 1*: The goal holds because `m(S) > m(SS)` reduces to true.
 
 ## Proof of Condition (4)(5): `init(S) implies inv(S) . inv(S) implies inv(SS) .` (Proof-inv.cafe)
+### Step 4-0,5-0: Define a predicate to be proved.
 
   ```
-  eq initinv(S:State)
+  eq initinv(S)
      = init(S) implies invK(S) .
-  eq iinv(S:State,SS:State)
+  eq iinv(S,SS)
      = inv(S) and invK(S) implies invK(SS) .
-  eq invinv(S:State)
-     = not (S =(*,1)=>+ SS:State if CC:Bool suchThat
+  eq invinv(S)
+     = not (S =(*,1)=>+ SS if CC suchThat
             not ((CC implies iinv(S,SS)) == true)
      	   { S => SS !! CC ! inv(S) ! invK(S) ! invK(SS) }) .
   ```
@@ -758,64 +723,76 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
 ### Step 1-0: Define a predicate to be proved.
 
   ```
-  eq invcont(S) 
-    = cont(S) = true
-    when inv(S) .
+  eq someInitialNode(< SND, SCP, SRQ, SRL, MP >)
+    = someNDInStates(SND,initial) .
+  eq initialcont(S) 
+    = inv(S) and someInitialNode(S) implies cont(S) .
   ```
  - Prove that invcont(S) holds when S includes at least one initial node.
 
 ### Step 1-1: Begin with the most general case.
 
   ```
-  :goal { eq invcont(< (node(tnd, idND, initial) sND), sCP, sRQ, sRL, mp >) = true .}
+  :goal {eq initialcont(< sND, sCP, sRQ, sRL, mp >) = true .}
   ```
 
- - Since node idND is an arbitrary initial node, the CDL assures that DDS of the node does not include any other initial node.
+ - Firstly, the most general case is split into cases where there is or is not an initial node.
+  - Case 1*: There is no initial node => the goal holds because the antecedent does not hold.
+  - Case 2: There is an initial node.
+
+ - Since node idND is an arbitrary initial node, the CDL assures that DDSC of the node does not include any other initial node.
 
 ### Step 1-2 Consider which rule can be applied to the next state.
  - Since there is an initial node, the next rule should be R01.
 
 ### Step 1-4: Split the current case into cases where the condition of the rule does or does not hold. 
  - The current case should be split into following three cases:
-  - Case 1: All hostedOn requirements of the initial node are ready => the goal holds because R01 is applicable and so `cont(S)` reduces to true.
-  - Case 2: At least one  hostedOn requirement of the initial node is unbound.
-  - Case 3: At least one  hostedOn requirement of the initial node is waiting =>  the goal holds because `inv-HostedOnRQNotWaiting(S)` reduces to false.
+  - Case 2-1*: All hostedOn requirements of the initial node are ready => the goal holds because R01 is applicable and so `cont(S)` reduces to true.
+  - Case 2-2: At least one  hostedOn requirement of the initial node is unbound.
+  - Case 2-3*: At least one  hostedOn requirement of the initial node is waiting =>  the goal holds because `inv-HostedOnRQNotWaiting(S)` reduces to false.
 
 ### Step 1-2: Consider which rule can be applied to the next state.
  - Since there is an unbound hostedOn requirement, the next rule should be R04.
 
 ### Step 1-6: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the requirement has a dangling `rel` link, the current case should be split into following two cases:
-   - Case 2-1: There is no corresponding relationship => the goal holds because `wfs-allRQHaveRL(S)` reduces to false.
-   - Case 2-2: There is a corresponding relationship.
+ - Since the requirement has a dangling `rel` link, the current case should be split into following four cases:
+   - Case 2-2-1*: There is no corresponding relationship => the goal holds because `wfs-allRQHaveRL(S)` reduces to false.
+   - Case 2-2-2: There is a corresponding relationship.
+    - Case 2-2-2-1: The corresponding relationship is hostedOn.
 
- - Since the relationship has a dangling `cap` link, the current case should be split into following two cases:
-   - Case 2-2-1: There is no corresponding capability => the goal holds because `wfs-allRLHaveCP(S)` reduces to false.
-   - Case 2-2-2: There is a corresponding capability.
+    - Case 2-2-2-2*: The corresponding relationship is dependsOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+    - Case 2-2-2-3*: The corresponding relationship is connectsTo => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+
+ - Since the relationship has a dangling `cap` link, the current case should be split into following four cases:
+   - Case 2-2-2-1-1*: There is no corresponding capability => the goal holds because `wfs-allRLHaveCP(S)` reduces to false.
+   - Case 2-2-2-1-2: There is a corresponding capability.
+    - Case 2-2-2-1-2-1: The corresponding capability is hostedOn.
+    - Case 2-2-2-1-2-2*: The corresponding capability is dependsOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+    - Case 2-2-2-1-2-3*: The corresponding capability is connectsTo => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
    
  - The current case should be split into following two cases:
-   - Case 2-2-2-1: The node of the capability is the same as of the requirement => the goal holds because `wfs-allRLNotInSameND(S)` reduces to false.
-   - Case 2-2-2-2: The node of the capability is different from the node of the requirement.
+   - Case 2-2-2-1-2-1-1*: The node of the capability is the same as of the requirement => the goal holds because `wfs-allRLNotInSameND(S)` reduces to false.
+   - Case 2-2-2-1-2-1-2: The node of the capability is different from the node of the requirement.
 
 ### Step 1-3: Split the current case into cases which collectively cover the current case and one of which matches to LHS of the current rule.
  - Since LHS of R04 requires a relationship corresponding to the available capability, the current case should be split into following three cases:
-  - Case 2-2-2-2-1: The corresponding capability is closed.
-  - Case 2-2-2-2-2: The corresponding capability is open => the goal holds because `inv-HostedOnCPNotOpen(S)` reduces to false.
-  - Case 2-2-2-2-3: The corresponding capability is available => the goal holds because R04 is applicable and so `cont(S)` reduces to true.
+  - Case 2-2-2-1-2-1-2-1: The corresponding capability is closed.
+  - Case 2-2-2-1-2-1-2-2*: The corresponding capability is open => the goal holds because `inv-HostedOnCPNotOpen(S)` reduces to false.
+  - Case 2-2-2-1-2-1-2-3*: The corresponding capability is available => the goal holds because R04 is applicable and so `cont(S)` reduces to true.
 
 ### Step 1-2: Consider which rule can be applied to the next state.
  - Since there is a closed hostedOn capability, the next rule should be R03.
 
 ### Step 1-6: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
  - Since the capability has a dangling `node` link, the current case should be split into following two cases:
-   - Case 2-2-2-2-1-1: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
-   - Case 2-2-2-2-1-2: There is such a node.
+   - Case 2-2-2-1-2-1-2-1-1*: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
+   - Case 2-2-2-1-2-1-2-1-2: There is such a node.
 
 ### Step 1-4: Split the current case into cases where the condition of the rule does or does not hold. 
  - The current case should be split into following three cases:
-   - Case 2-2-2-2-1-2-1: the node of the capability is initial => the goal holds because DDSR01 of the initial node includes another initial node which is a contradiction. 
-   - Case 2-2-2-2-1-2-2: the node of the capability is created => the goal holds because R03 is applicable and so `cont(S)` reduces to true.
-   - Case 2-2-2-2-1-2-3: the node of the capability is started => the goal holds because R03 is applicable and so `cont(S)` reduces to true.
+   - Case 2-2-2-1-2-1-2-1-2-1*: the node of the capability is initial => the goal holds because DDSC of the initial node includes another initial node which is a contradiction. 
+   - Case 2-2-2-1-2-1-2-1-2-2*: the node of the capability is created => the goal holds because R03 is applicable and so `cont(S)` reduces to true.
+   - Case 2-2-2-1-2-1-2-1-2-3*: the node of the capability is started => the goal holds because R03 is applicable and so `cont(S)` reduces to true.
 
 ## Created Cont Lemmaの証明譜(Proof-cyclelemma.cafe)
 ### Step 1-0: Define a predicate to be proved.
@@ -824,34 +801,43 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
 
   ```
   eq cont(< (node(T, I, initial) SetND), 
-             SetCP, SetRQ, SetRL, M >) = true .
+             SetCP, SetRQ, SetRL, MP >) = true .
+
+  eq someCreatedNode(< SetND, SetCP, SetRQ, SetRL, MP >)
+    = someNDInStates(SetND,created) .
+  eq createdcont(S) 
+    = inv(S) and someCreatedNode(S) implies cont(S) .
   ```
 
 ### Step 1-1: Begin with the most general case. 
 
   ```
-  :goal {eq invcont(< (node(tnd, idND, created) sND), sCP, sRQ, sRL, mp >)  = true .}
+  :goal {eq createdcont(< sND, sCP, sRQ, sRL, mp >) = true .}
   ```
 
- - Since node idND is an arbitrary initial node, the CDL assures that DDS of the node does not include any other created node.
+ - Firstly, the most general case is split into cases where there is or is not a created node.
+  - Case 1*: There is no created node => the goal holds because the antecedent does not hold.
+  - Case 2: There is a created node.
+
+ - Since node idND is an arbitrary created node, the CDL assures that DDSC of the node does not include any other created node.
 
 ### Step 1-2: Consider which rule can be applied to the global state in the current case. 
  - Since there is a created node, the next rule should be R02.
 
 ### Step 1-4: Split the current case into cases where the condition of the rule does or does not hold. 
  - The current case should be split into following three cases:
-  - Case 1: All requirements of the created node are ready => the goal holds because R02 is applicable and so `cont(S)` reduces to true.
-  - Case 2: One of requirements of the created node is unbound.
-  - Case 3: One of requirements of the created node is waiting.
+  - Case 2-1*: All requirements of the created node are ready => the goal holds because R02 is applicable and so `cont(S)` reduces to true.
+  - Case 2-2: One of requirements of the created node is unbound.
+  - Case 2-3: One of requirements of the created node is waiting.
 
-### Case 2: One of requirements of the created node is unbound.
+### Case 2-2: One of requirements of the created node is unbound.
 ### Step 1-2: Consider which rule can be applied to the global state in the current case. 
  - Since the next applicable rule depends on the type of the unbound requirement, the current case should be split into following three cases:
-  - Case 2-1: The type of the unbound requirement is hostedOn => the goal holds because `inv-ifNDCreatedThenHostedOnRQReady(S)` reduces to false.
-  - Case 2-2: The type of the unbound requirement is dependsOn.
-  - Case 2-3: The type of the unbound requirement is connectsTo.
+  - Case 2-2-1*: The type of the unbound requirement is hostedOn => the goal holds because `inv-ifNDCreatedThenHostedOnRQReady(S)` reduces to false.
+  - Case 2-2-2: The type of the unbound requirement is dependsOn.
+  - Case 2-2-3: The type of the unbound requirement is connectsTo.
 
-### Case 2-2: The type of the unbound requirement is dependsOn.
+### Case 2-2-2: The type of the unbound requirement is dependsOn.
 ### Step 1-2: Consider which rule can be applied to the global state in the current case. 
  - Since there is an unbound dependsOn requirement, the next rule should be R07.
 
@@ -859,22 +845,32 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
  - LHS of R07 requires a relationship corresponding to the requiement and a capability corresponding to the relationship.
 
 ### Step 1-6: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the requirement has a dangling `rel` link, the current case should be split into following two cases:
-   - Case 2-2-1: There is no corresponding relationship => the goal holds because `wfs-allRQHaveRL(S)` reduces to false.
-   - Case 2-2-2: There is a corresponding relationship.
+ - Since the requirement has a dangling `rel` link, the current case should be split into following four cases:
+   - Case 2-2-2-1*: There is no corresponding relationship => the goal holds because `wfs-allRQHaveRL(S)` reduces to false.
+   - Case 2-2-2-2: There is a corresponding relationship.
+    - Case 2-2-2-2-1*: The corresponding relationship is hostedOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
 
- - Since the relationship has a dangling `cap` link, the current case should be split into following two case   - Case 2-2-2-1: There is no corresponding capability => the goal holds because `wfs-allRLHaveCP(S)` reduces to false.
-   - Case 2-2-2-2: There is a corresponding capability.
+    - Case 2-2-2-2-2: The corresponding relationship is dependsOn.
+    - Case 2-2-2-2-3*: The corresponding relationship is connectsTo => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+
+ - Since the relationship has a dangling `cap` link, the current case should be split into following three case  - Case 2-2-2-2-2-1*: There is no corresponding capability => the goal holds because `wfs-allRLHaveCP(S)` reduces to false.
+   - Case 2-2-2-2-2-2: There is a corresponding capability.
+    - Case 2-2-2-2-2-2-1*: The corresponding capability is hostedOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+    - Case 2-2-2-2-2-2-2: The corresponding capability is dependsOn.
+    - Case 2-2-2-2-2-2-3*: The corresponding capability is connectsTo => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
    
  - The current case should be split into following two cases:
-   - Case 2-2-2-2-1: The node of the capability is the same as of the requirement => the goal holds because `wfs-allRLNotInSameND(S)` reduces to false.
-   - Case 2-2-2-2-2: The node of the capability is different from the node of the requirement.
+  - Case 2-2-2-2-2-2-2-1*: The node of the capability is the same as of the requirement => the goal holds because `wfs-allRLNotInSameND(S)` reduces to false.
+  - Case 2-2-2-2-2-2-2-2: The node of the capability is different from the node of the requirement.
+
+### Step 1-2: Consider which rule can be applied to the global state in the current case. 
+ - Since there is an unbound dependsOn requirement whose node is created, the next rule should be R07.
 
 ### Step 1-3: Split the current case into cases which collectively cover the current case and one of which matches to LHS of the current rule.
  - Since LHS of R07 requires an activated capability corresponding to the requirement, the current case should be split into following three cases:
-  - Case 2-2-2-2-2-1: The corresponding capability is closed.
-  - Case 2-2-2-2-2-2: The corresponding capability is open => the goal holds because R07 is applicable and so `cont(S)` reduces to true.
-  - Case 2-2-2-2-2-3: The corresponding capability is available => the goal holds because R07 is applicable and so `cont(S)` reduces to true.
+  - Case 2-2-2-2-2-2-2-2-1: The corresponding capability is closed.
+  - Case 2-2-2-2-2-2-2-2-2*: The corresponding capability is open => the goal holds because R07 is applicable and so `cont(S)` reduces to true.
+  - Case 2-2-2-2-2-2-2-2-3*: The corresponding capability is available => the goal holds because R07 is applicable and so `cont(S)` reduces to true.
 
 ### Step 1-2: Consider which rule can be applied to the global state in the current case. 
  - Since there is a closed dependsOn capability, the next rule should be R05.
@@ -883,17 +879,14 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
  - The condition of R05 requires the parent node of the capability of idCP is created or started.
 
 ### Step 1-6: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the capability has a dangling `node` link, the current case should be split into following two cases:
-   - Case 2-2-2-2-2-1-1: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
-   - Case 2-2-2-2-2-1-2: There is such a node.
+ - Since the capability has a dangling `node` link, the current case should be split into following four cases:
+   - Case 2-2-2-2-2-2-2-2-1-1*: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
+   - Case 2-2-2-2-2-2-2-2-1-2: There is such a node.
+    - Case 2-2-2-2-2-2-2-2-1-2-1*: the node of the capability is initial => the goal holds because of the Initial Cont Lemma.
+    - Case 2-2-2-2-2-2-2-2-1-2-2*: the node of the capability is created => the goal holds because R05 is applicable and so `cont(S)` reduces to true.
+    - Case 2-2-2-2-2-2-2-2-1-2-3*: the node of the capability is started => the goal holds because R05 is applicable and so `cont(S)` reduces to true.
 
-### Step 1-4: Split the current case into cases where the condition of the rule does or does not hold. 
- - The current case should be split into following three cases:
-   - Case 2-2-2-2-2-1-2-1: the node of the capability is initial => the goal holds because of the Initial Cont Lemma.
-   - Case 2-2-2-2-2-1-2-2: the node of the capability is created => the goal holds because R05 is applicable and so `cont(S)` reduces to true.
-   - Case 2-2-2-2-2-1-2-3: the node of the capability is started => the goal holds because R05 is applicable and so `cont(S)` reduces to true.
-
-### Case 2-3: The type of the unbound requirement is connectsTo.
+### Case 2-2-3: The type of the unbound requirement is connectsTo.
 ### Step 1-2: Consider which rule can be applied to the global state in the current case. 
  - Since there is an unboud connectsTo requirement, the next rule should be R11.
 
@@ -901,146 +894,126 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
  - LHS of R11 requires a relationship corresponding to the requirement.
 
 ### Step 1-6: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the requirement has a dangling `rel` link, the current case should be split into following two cases:
-   - Case 2-3-1: There is no corresponding relationship => the goal holds because `wfs-allRQHaveRL(S)` reduces to false.
-   - Case 2-3-2: There is a corresponding relationship.
+ - Since the requirement has a dangling `rel` link, the current case should be split into following four cases:
+   - Case 2-2-3-1*: There is no corresponding relationship => the goal holds because `wfs-allRQHaveRL(S)` reduces to false.
+   - Case 2-2-3-2: There is a corresponding relationship.
+    - Case 2-2-3-2-1*: The corresponding relationship is hostedOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+
+    - Case 2-2-3-2-2*: The corresponding relationship is dependsOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+    - Case 2-2-3-2-3: The corresponding relationship is connectsTo.
 
 ### Step 1-3: Split the current case into cases which collectively cover the current case and one of which matches to LHS of the current rule.
  - Since LHS of R11 requires an open message, the current case should be split into following two cases:
-  - Case 2-3-2-1: There is no corresponding open message.
-  - Case 2-3-2-2: There is a corresponding open message => the goal holds because R11 is applicable and so `cont(S)` reduces to true.
+  - Case 2-2-3-2-3-1: There is no corresponding open message.
+  - Case 2-2-3-2-3-2*: There is a corresponding open message => the goal holds because R11 is applicable and so `cont(S)` reduces to true.
 
 ### Step 1-6: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the open message has a dangling `cap` link, the current case should be split into following two cases:
-   - Case 2-3-2-1-1: There is no corresponding capability => the goal holds because `wfs-allRLHaveCP(S)` reduces to false.
-   - Case 2-3-2-1-2: There is a corresponding capability.
+ - Since the open message has a dangling `cap` link, the current case should be split into following four cases:
+   - Case 2-2-3-2-3-1-1*: There is no corresponding capability => the goal holds because `wfs-allRLHaveCP(S)` reduces to false.
+   - Case 2-2-3-2-3-1-2: There is a corresponding capability.
+    - Case 2-2-3-2-3-1-2-1*: The corresponding capability is hostedOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+    - Case 2-2-3-2-3-1-2-2*: The corresponding capability is dependsOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+    - Case 2-2-3-2-3-1-2-3: The corresponding capability is connectsTo.
    
- - The current case should be split into following two cases:
-   - Case 2-3-2-1-2-1: The node of the capability is the same as of the requirement => the goal holds because `wfs-allRLNotInSameND(S)` reduces to false.
-   - Case 2-3-2-1-2-2: The node of the capability is different from the node of the requirement.
+ - The current case should be split into following four cases:
+  - Case 2-2-3-2-3-1-2-3-1*: The node of the capability is the same as of the requirement => the goal holds because `wfs-allRLNotInSameND(S)` reduces to false.
+  - Case 2-2-3-2-3-1-2-3-2: The node of the capability is different from the node of the requirement.
+   - Case 2-2-3-2-3-1-2-3-2-1: The capability is closed.
+   - Case 2-2-3-2-3-1-2-3-2-2*: The capability is open => the goal holds because `inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg(S)` reduces to false.
+   - Case 2-2-3-2-3-1-2-3-2-3*: The capability is available => the goal holds because `inv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg(S)` reduces to false.
 
-### Step 1-2: Consider which rule is applied to the global state in the current case. 
- - Since the next applicable rule depends on the local state of the connectsTo capability, the current case should be split into following three cases:
-  - Case 2-3-2-1-2-2-1: The capability is closed.
-  - Case 2-3-2-1-2-2-2: The capability is open.
-  - Case 2-3-2-1-2-2-3: The capability is available => the goal holds because `inv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg(S)` reduces to false.
-
-### Case 2-3-2-1-2-2-1: The capability is closed.
 ### Step 1-2: Consider which rule is applied to the global state in the current case. 
  - Since there is a closed connectsTo capability, the next rule should be R09.
 
-### Step 1-4: Split the current case into cases where the condition of the rule does or does not hold. 
- - The condition of R09 requires the parent node of the capability of idCP is created or started.
-
 ### Step 1-6: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the capability has a dangling `node` link, the current case should be split into following two cases:
-   - Case 2-3-2-1-2-2-1-1: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
-   - Case 2-3-2-1-2-2-1-2: There is such a node.
+ - Since the capability has a dangling `node` link, the current case should be split into following four cases:
+   - Case 2-2-3-2-3-1-2-3-2-1-1*: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
+   - Case 2-2-3-2-3-1-2-3-2-1-2: There is such a node.
+    - Case 2-2-3-2-3-1-2-3-2-1-2-1*: the node of the capability is initial => the goal holds because of the Initial Cont Lemma.
+    - Case 2-2-3-2-3-1-2-3-2-1-2-2*: the node of the capability is created => the goal holds because R09 is applicable and so `cont(S)` reduces to true.
+    - Case 2-2-3-2-3-1-2-3-2-1-2-3*: the node of the capability is started => the goal holds because R09 is applicable and so `cont(S)` reduces to true.
 
-### Step 1-4: Split the current case into cases where the condition of the rule does or does not hold. 
- - The current case should be split into following three cases:
-   - Case 2-3-2-1-2-2-1-2-1: the node of the capability is initial => the goal holds because of the Initial Cont Lemma.
-   - Case 2-3-2-1-2-2-1-2-2: the node of the capability is created => the goal holds because R09 is applicable and so `cont(S)` reduces to true.
-   - Case 2-3-2-1-2-2-1-2-3: the node of the capability is started => the goal holds because R09 is applicable and so `cont(S)` reduces to true.
+  - Here, Case 2-3 remains not to be proved where the current global state is
+  ```
+  < (node(tnd,idND,created) sND) , sCP , 
+    (req(trl,idRQ,waiting,idND) sRQ') , sRL , mp >
+  ```
 
-### Case 2-3-2-1-2-2-2: The capability is open.
-### Step 1-2: Consider which rule is applied to the global state in the current case. 
- - Since there is an open connectsTo capability, the next rule should be R10.
-
-### Step 1-4: Split the current case into cases where the condition of the rule does or does not hold. 
--- The condition of R10 requires the parent node of the capability of idCP is started.
-
-### Step 1-6: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the capability has a dangling `node` link, the current case should be split into following two cases:
-   - Case 2-3-2-1-2-2-2-1: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
-   - Case 2-3-2-1-2-2-2-2: There is such a node.
-
-### Step 1-4: Split the current case into cases where the condition of the rule does or does not hold. 
- - The current case should be split into following three cases:
-   - Case 2-3-2-1-2-2-2-2-1: the node of the capability is initial => the goal holds because of the Initial Cont Lemma.
-   - Case 2-3-2-1-2-2-2-2-2: the node of the capability is created => the goal holds because `inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg(S)` reduces to false.
-   - Case 2-3-2-1-2-2-2-2-3: the node of the capability is started => the goal holds because R10 is applicable and so `cont(S)` reduces to true.
-
-### Case 3: One of requirements of the created node is waiting.
+### Case 2-3: One of requirements of the created node is waiting.
 ### Step 1-2: Consider which rule is applied to the global state in the current case. 
  - Since the next applicable rule depends on the type of the waiting requirement, the current case should be split into following three cases:
-  - Case 3-1: The type of the waiting requirement is hostedOn => the goal holds because `inv-HostedOnRQNotWaiting(S)` reduces to false.
-  - Case 3-2: The type of the waiting requirement is dependsOn.
-  - Case 3-3: The type of the waiting requirement is connectsTo.
+  - Case 2-3-1: The type of the waiting requirement is hostedOn => the goal holds because `inv-HostedOnRQNotWaiting(S)` reduces to false.
+  - Case 2-3-2: The type of the waiting requirement is dependsOn.
+  - Case 2-3-3: The type of the waiting requirement is connectsTo.
 
-### Case 3-2: The type of the waiting requirement is dependsOn.
+### Case 2-3-2: The type of the waiting requirement is dependsOn.
 ### Step 1-2: Consider which rule is applied to the global state in the current case. 
  - Since there is a waiting dependsOn requirement, the next rule should be R08.
 
-### Step 1-3: Split the current case into cases which collectively cover the current case and one of which matches to LHS of the current rule.
- - LHS of R08 requires a relationship corresponding to the requirement and a capability corresponding to the relationship.
-
 ### Step 1-6: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the requirement has a dangling `rel` link, the current case should be split into following two cases:
-   - Case 3-2-1: There is no corresponding relationship => the goal holds because `wfs-allRQHaveRL(S)` reduces to false.
-   - Case 3-2-2: There is a corresponding relationship.
+ - Since the requirement has a dangling `rel` link, the current case should be split into following four cases:
+   - Case 2-3-2-1*: There is no corresponding relationship => the goal holds because `wfs-allRQHaveRL(S)` reduces to false.
+   - Case 2-3-2-2: There is a corresponding relationship.
+    - Case 2-3-2-2-1*: The corresponding relationship is hostedOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
 
- - Since the relationship has a dangling `cap` link, the current case should be split into following two case   - Case 3-2-2-1: There is no corresponding capability => the goal holds because `wfs-allRLHaveCP(S)` reduces to false.
-   - Case 3-2-2-2: There is a corresponding capability.
-   
- - The current case should be split into following two cases:
-   - Case 3-2-2-2-1: The node of the capability is the same as of the requirement => the goal holds because `wfs-allRLNotInSameND(S)` reduces to false.
-   - Case 3-2-2-2-2: The node of the capability is different from the node of the requirement.
+    - Case 2-3-2-2-2: The corresponding relationship is dependsOn.
+    - Case 2-3-2-2-3*: The corresponding relationship is connectsTo => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
 
-### Step 1-3: Split the current case into cases which collectively cover the current case and one of which matches to LHS of the current rule.
- - Since LHS of R08 requires an available capability corresponding to the requirement, the current case should be split into following three cases:
-  - Case 3-2-2-2-2-1: The corresponding capability is closed => the goal holds because `inv-ifCPClosedThenRQUnbound(S)` reduces to false.
-  - Case 3-2-2-2-2-2: The corresponding capability is open.
-  - Case 3-2-2-2-2-3: The corresponding capability is available => the goal holds because R08 is applicable and so `cont(S)` reduces to true.
+ - Since the relationship has a dangling `cap` link, the current case should be split into following cases:
+   - Case 2-3-2-2-2-1*: There is no corresponding capability => the goal holds because `wfs-allRLHaveCP(S)` reduces to false.
+   - Case 2-3-2-2-2-2: There is a corresponding capability.
+    - Case 2-3-2-2-2-2-1*: The corresponding capability is hostedOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+    - Case 2-3-2-2-2-2-2: The corresponding capability is dependsOn.
+    - Case 2-3-2-2-2-2-3*: The corresponding capability is connectsTo => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
 
+- The current case should be split into following four cases:
+  - Case 2-3-2-2-2-2-2-1*: The node of the capability is the same as of the requirement => the goal holds because `wfs-allRLNotInSameND(S)` reduces to false.
+  - Case 2-3-2-2-2-2-2-2: The node of the capability is different from the node of the requirement.
+   - Case 2-3-2-2-2-2-2-2-1*: The corresponding capability is closed => the goal holds because `inv-ifCPClosedThenRQUnbound(S)` reduces to false.
+   - Case 2-3-2-2-2-2-2-2-2: The corresponding capability is open.
+   - Case 2-3-2-2-2-2-2-2-3*: The corresponding capability is available => the goal holds because R08 is applicable and so `cont(S)` reduces to true.
 ### Step 1-2: Consider which rule is applied to the global state in the current case. 
  - Since there is an open dependsOn capability, the next rule should be R06.
 
-### Step 1-4: Split the current case into cases where the condition of the rule does or does not hold. 
- - The condition of R06 requires the parent node of the capability of idCP is started.
-
 ### Step 1-6: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the capability has a dangling `node` link, the current case should be split into following two cases:
-   - Case 3-2-2-2-2-1-1: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
-   - Case 3-2-2-2-2-1-2: There is such a node.
-
-### Step 1-4: Split the current case into cases where the condition of the rule does or does not hold. 
- - The current case should be split into following three cases:
-   - Case 3-2-2-2-2-1-2-1: the node of the capability is initial => the goal holds because of the Initial Cont Lemma.
-   - Case 3-2-2-2-2-1-2-2: the node of the capability is created => the goal holds because DDSR02 of the created node includes another created node which is a contradiction.
-   - Case 3-2-2-2-2-1-2-3: the node of the capability is started => the goal holds because R06 is applicable and so `cont(S)` reduces to true.
-
-### Case 3-3: The type of the waiting requirement is connectsTo.
+ - Since the capability has a dangling `node` link, the current case should be split into following four cases:
+   - Case 2-3-2-2-2-2-2-2-2-1*: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
+   - Case 2-3-2-2-2-2-2-2-2-2: There is such a node.
+    - Case 2-3-2-2-2-2-2-2-2-2-1*: the node of the capability is initial => the goal holds because of the Initial Cont Lemma.
+    - Case 2-3-2-2-2-2-2-2-2-2-2*: the node of the capability is created => the goal holds because DDSC of the created node includes another created node which is a contradiction.
+    - Case 2-3-2-2-2-2-2-2-2-2-3*: the node of the capability is started => the goal holds because R06 is applicable and so `cont(S)` reduces to true.
+### Case 2-3-3: The type of the waiting requirement is connectsTo.
 ### Step 1-2: Consider which rule is applied to the global state in the current case. 
  - Since there is a waiting connectsTo requirement, the next rule should be R12.
 
-### Step 1-3: Split the current case into cases which collectively cover the current case and one of which matches to LHS of the current rule.
- - LHS of R12 requires a relationship corresponding to the requirement.
-
 ### Step 1-6: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
  - Since the requirement has a dangling `rel` link, the current case should be split into following two cases:
-   - Case 3-3-1: There is no corresponding relationship => the goal holds because `wfs-allRQHaveRL(S)` reduces to false.
-   - Case 3-3-2: There is a corresponding relationship.
+   - Case 2-3-3-1*: There is no corresponding relationship => the goal holds because `wfs-allRQHaveRL(S)` reduces to false.
+   - Case 2-3-3-2: There is a corresponding relationship.
+    - Case 2-3-3-2-1*: The corresponding relationship is hostedOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+
+    - Case 2-3-3-2-2*: The corresponding relationship is dependsOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+    - Case 2-3-3-2-3: The corresponding relationship is connectsTo.
 
 ### Step 1-3: Split the current case into cases which collectively cover the current case and one of which matches to LHS of the current rule.
  - Since LHS of R12 requires an available message corresponding to the requirement, the current case should be split into following two cases:
-  - Case 3-3-2-1: There is no corresponding available message.
-  - Case 3-3-2-2: There is a corresponding available message => the goal holds because R12 is applicable and so `cont(S)` reduces to true.
+  - Case 2-3-3-2-3-1: There is no corresponding available message.
+  - Case 2-3-3-2-3-2*: There is a corresponding available message => the goal holds because R12 is applicable and so `cont(S)` reduces to true.
 
 ### Step 1-6: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the available message has a dangling `cap` link, the current case should be split into following two cases:
-   - Case 3-3-2-1-1: There is no corresponding capability => the goal holds because `wfs-allRLHaveCP(S)` reduces to false.
-   - Case 3-3-2-1-2: There is a corresponding capability.
-   
- - The current case should be split into following two cases:
-   - Case 3-3-2-1-2-1: The node of the capability is the same as of the requirement => the goal holds because `wfs-allRLNotInSameND(S)` reduces to false.
-   - Case 3-3-2-1-2-2: The node of the capability is different from the node of the requirement.
+ - Since the available message has a dangling `cap` link, the current case should be split into following cases:
+   - Case 2-3-3-2-3-1-1*: There is no corresponding capability => the goal holds because `wfs-allRLHaveCP(S)` reduces to false.
+   - Case 2-3-3-2-3-1-2: There is a corresponding capability.
+    - Case 2-3-3-2-3-1-2-1*: The corresponding capability is hostedOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+    - Case 2-3-3-2-3-1-2-2: The corresponding capability is dependsOn => the goal holds because `wfs-allRLHaveSameTypeCPRQ(S)` reduces to false.
+    - Case 2-3-3-2-3-1-2-3*: The corresponding capability is connectsTo.
 
-### Step 1-2: Consider which rule is applied to the global state in the current case. 
- - Since the next applicable rule depends on the local state of the connectsTo capability, the current case should be split into following three cases:
-  - Case 3-3-2-1-2-2-1: The capability is closed => the goal holds because `inv-ifCPClosedThenRQUnbound(S)` reduces to false.
-  - Case 3-3-2-1-2-2-2: The capability is open.
-  - Case 3-3-2-1-2-2-3: The capability is available => the goal holds because `inv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg(S)` reduces to false.
+- The current case should be split into following four cases:
+    - Case 2-3-3-2-3-1-2-3-1*: The node of the capability is the same as of the requirement => the goal holds because `wfs-allRLNotInSameND(S)` reduces to false.
+    - Case 2-3-3-2-3-1-2-3-2: The node of the capability is different from the node of the requirement.
+     - Case 2-3-3-2-3-1-2-3-2-1*: The capability is closed => the goal holds because `inv-ifCPClosedThenRQUnbound(S)` reduces to false.
+     - Case 2-3-3-2-3-1-2-3-2-2: The capability is open.
+     - Case 2-3-3-2-3-1-2-3-2-3*: The capability is available => the goal holds because `inv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg(S)` reduces to false.
  
 ### Step 1-2: Consider which rule is applied to the global state in the current case. 
  - Since there is an open connectsTo capability, the next rule should be R10.
@@ -1049,15 +1022,12 @@ Please refer to [ReadMe.md of AWS](../AWS/ReadMe.md) for CITP techniques.
  - The condition of R10 requires the parent node of the capability of idCP is started.
 
 ### Step 1-6: When there is a dangling link, split the current case into cases where the linked object does or does not exist.
- - Since the capability has a dangling `node` link, the current case should be split into following two cases:
-   - Case 3-3-2-1-2-2-2-1: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
-   - Case 3-3-2-1-2-2-2-2: There is such a node.
-
-### Step 1-4: Split the current case into cases where the condition of the rule does or does not hold. 
- - The current case should be split into following three cases:
-   - Case 3-3-2-1-2-2-2-2-1: The node of the capability is initial => the goal holds because of the Initial Cont Lemma.
-   - Case 3-3-2-1-2-2-2-2-2: The node of the capability is created => the goal holds because DDSR02 of the created node includes another created node which is a contradiction.
-   - Case 3-3-2-1-2-2-2-2-3: The node of the capability is started => the goal holds because R10 is applicable and so `cont(S)` reduces to true.
+ - Since the capability has a dangling `node` link, the current case should be split into following four cases:
+   - Case 2-3-3-2-3-1-2-3-2-2-1*: There is no such node => the goal holds because `wfs-allCPHaveND(S)` reduces to false.
+   - Case 2-3-3-2-3-1-2-3-2-2-2: There is such a node.
+    - Case 2-3-3-2-3-1-2-3-2-2-2-1*: The node of the capability is initial => the goal holds because of the Initial Cont Lemma.
+    - Case 2-3-3-2-3-1-2-3-2-2-2-2*: The node of the capability is created => the goal holds because DDSC of the created node includes another created node which is a contradiction.
+    - Case 2-3-3-2-3-1-2-3-2-2-2-3*: The node of the capability is started => the goal holds because R10 is applicable and so `cont(S)` reduces to true.
 
 ## Proof of other lemmas (Proof-lemma.cafe)
 - Omitted.

@@ -2,7 +2,7 @@ require Proof Proof.cafe
 
 --> Common lemmas in this domain.
 
-module! TOSCALEMMA {
+module TOSCALEMMA {
   protecting(ProofBase)
 
   pred (_when _) : Bool Bool { prec: 63 r-assoc }
@@ -249,7 +249,7 @@ module! TOSCALEMMA {
 -- used by :init commands. However, the current version of CafeOBJ
 -- has a bug where it does not appropriately process a nonexec equation
 -- when its LHS has a form A and B.
-module! TOSCALEMMA+01 {
+module TOSCALEMMA+01 {
   protecting(TOSCALEMMA)
   vars IDCP1 IDCP2 : CPID
   var IDRQ : RQID
@@ -262,7 +262,7 @@ module! TOSCALEMMA+01 {
          existCP(SetRL,IDCP1) and existCP(SetRL,IDCP2) .
 }
 
-module! TOSCALEMMA+03 {
+module TOSCALEMMA+03 {
   protecting(TOSCALEMMA)
   var IDCP : CPID
   var IDND : NDID

@@ -70,7 +70,7 @@ open UPDATE .
 
 close
 
-module! ProofUPDATE {
+module ProofUPDATE {
  protecting(UPDATE)
  -- Theorem to be proved.
  pred theorem : Nat LocalState Nat LocalState SvSet

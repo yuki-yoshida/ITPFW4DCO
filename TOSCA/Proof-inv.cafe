@@ -5,7 +5,7 @@ require Proof Proof.cafe
 --> (5) inv(S) implies inv(SS).
 --> ***************************
 
-module! ProofInv {
+module ProofInv {
   protecting(ProofBase)
   pred invK : State
 
@@ -247,7 +247,7 @@ module! ProofInv {
 -->     = ifNDInStatesThenRQInStates(SetND,initial,SetRQ,(unbound ready)) .
 --> ***********************************************************************
 --> Proof of inv(S) implies inv(SS)
-module! Proofinv-ifNDInitialThenRQUnboundReady {
+module Proofinv-ifNDInitialThenRQUnboundReady {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifNDInitialThenRQUnboundReady(S) .
 }
@@ -483,7 +483,7 @@ select
 -->     = ifNDInStatesThenRQOfTypeInStates(SetND,(created started),SetRQ,hostedOn,ready) .
 --> **************************************************************************************
 --> Proof of inv(S) implies inv(SS)
-module! Proofinv-ifNDCreatedThenHostedOnRQReady {
+module Proofinv-ifNDCreatedThenHostedOnRQReady {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifNDCreatedThenHostedOnRQReady(S) .
 }
@@ -695,7 +695,7 @@ select
 -->     = ifNDInStatesThenRQInStates(SetND,started,SetRQ,ready) .
 --> **************************************************************
 --> Proof of inv(S) implies inv(SS)
-module! Proofinv-ifNDStartedThenRQReady {
+module Proofinv-ifNDStartedThenRQReady {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifNDStartedThenRQReady(S) .
 }
@@ -904,7 +904,7 @@ select
 --> ********************************************************************
 --> This proof requires inv-ifOpenMsgThenCPActivated.
 --> Proof of inv(S) implies inv(SS)
-module! Proofinv-ifCPClosedThenRQUnbound {
+module Proofinv-ifCPClosedThenRQUnbound {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifCPClosedThenRQUnbound(S) .
 }
@@ -1186,7 +1186,7 @@ select
 --> ****************************************************************************
 --> This proof requires inv-ifCPClosedThenRQUnbound, inv-ifAvailableMsgThenCPAvailable.
 --> Proof of inv(S) implies inv(SS)
-module! Proofinv-ifCPOpenThenRQUnboundWaiting {
+module Proofinv-ifCPOpenThenRQUnboundWaiting {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifCPOpenThenRQUnboundWaiting(S) .
 }
@@ -1482,7 +1482,7 @@ select
 -->     = allHostedOnCPInStates(SetCP,(closed available)) .
 --> ************************************************************
 --> Proof of inv(S) implies inv(SS)
-module! Proofinv-HostedOnCPNotOpen {
+module Proofinv-HostedOnCPNotOpen {
   protecting(ProofInv)
   eq invK(S:State) = inv-HostedOnCPNotOpen(S) .
 }
@@ -1690,7 +1690,7 @@ select
 -->     = HostedOnRQInState(SetCP,(closed available)) .
 --> *********************************************************
 --> Proof of inv(S) implies inv(SS)
-module! Proofinv-HostedOnRQNotWaiting {
+module Proofinv-HostedOnRQNotWaiting {
   protecting(ProofInv)
   eq invK(S:State) = inv-HostedOnRQNotWaiting(S) .
 }
@@ -1899,7 +1899,7 @@ select
 --> ****************************************************************************************
 --> This proof requires inv-ifAvailableMsgThenCPAvailable.
 --> Proof of inv(S) implies inv(SS)
-module! Proofinv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg {
+module Proofinv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg(S) .
 }
@@ -2121,7 +2121,7 @@ select
 --> *****************************************************************************************************
 --> This proof requires inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg.
 --> Proof of inv(S) implies inv(SS)
-module! Proofinv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg {
+module Proofinv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg(S) .
 }
@@ -2348,7 +2348,7 @@ select
 -->     = ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg(SetCP,available,SetRQ,ready,SetRL,MP) .
 --> ************************************************************************************************
 --> Proof of inv(S) implies inv(SS)
-module! Proofinv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg {
+module Proofinv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg(S) .
 }
@@ -2556,7 +2556,7 @@ select
 -->     = ifOpenMsgThenCPInStates(MP,SetCP,(open available)) .
 --> ****************************************************************
 --> Proof of inv(S) implies inv(SS)
-module! Proofinv-ifOpenMsgThenCPActivated {
+module Proofinv-ifOpenMsgThenCPActivated {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifOpenMsgThenCPActivated(S) .
 }
@@ -2767,7 +2767,7 @@ select
 -->     = ifAvailableMsgThenCPInStates(MP,SetCP,available) .
 --> *********************************************************************
 --> Proof of inv(S) implies inv(SS)
-module! Proofinv-ifAvailableMsgThenCPAvailable {
+module Proofinv-ifAvailableMsgThenCPAvailable {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifAvailableMsgThenCPAvailable(S) .
 }

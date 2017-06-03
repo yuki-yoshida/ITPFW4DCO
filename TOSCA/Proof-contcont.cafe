@@ -8,7 +8,7 @@ provide ProofContCont
 --> ******************************************
 --> Step 2-0: Define a predicate to be proved.
 --> ******************************************
-module! ProofContCont {
+module ProofContCont {
   protecting(ProofBase)
 
   vars S SS : State
