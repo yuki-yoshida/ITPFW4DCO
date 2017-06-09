@@ -74,24 +74,19 @@ module ProofUPDATE {
  protecting(UPDATE)
  -- Theorem to be proved.
  pred theorem : Nat LocalState Nat LocalState SvSet
- pred lemma : Nat LocalState SvSet
 
- vars N N1 N2 : Nat  vars L S1 S2 : LocalState .
+ vars N N1 N2 : Nat  vars S1 S2 : LocalState .
  var SVS : SvSet     var SS : State
 
  eq theorem(N1,S1,N2,S2,SVS)
    = ((S1 == ready) = false and (S2 == ready) = false)
      implies < sv(N1,S1) sv(N2,S2) SVS > =(*,1)=>+ SS .
 
- eq lemma(N,L,SVS)
-   = ((L == ready) = false and (# SVS > 0 ))
-     implies < sv(N,L) SVS > =(*,1)=>+ SS .
-
  eq (1 + N > 0) = true . -- Axiom of Nat
 
  -- Arbitrary constants.
- ops l s1 s2 : -> LocalState
- ops n n1 n2 : -> Nat op svs : -> SvSet}
+ ops s1 s2 : -> LocalState
+ ops n1 n2 : -> Nat op svs : -> SvSet}
 
 -- The most general case.
 open ProofUPDATE .
@@ -129,27 +124,3 @@ select ProofUPDATE .
 describe proof
 show proof
 
-select ProofUPDATE .
-:goal {
-  eq lemma(n,l,svs) = true .
-}
--- Root Case
-:ctf {
-  eq (# svs > 0) = true .
-}
--- Case 1: Two or More Services
-:csp {
-  eq l = closed .
-  eq l = open .
-  eq l = ready .
-}  
--- Case 1-1: A closed Service
-:apply (rd)
--- Case 1-2: An open Service
-:apply (rd)
--- Case 1-3: A ready Service
-:apply (rd)
--- Case 2: Only One Service
-:apply (rd)
-
-select
