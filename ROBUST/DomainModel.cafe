@@ -1,0 +1,294 @@
+require Template Template.cafe
+provide DomainModel
+
+-- An abstract model for Robust Reconfiguration Algorithm by F. Boyer et al.
+
+-- There are two kinds of objects:
+-- Component(CO): a component of which a cloud system composes.
+-- Import(IM): a directed relationship of two components
+--  which means one of them (the importer) requires a service provided by other (exporter).
+
+module! COMPONENT {
+  -- Instantiation of Template
+  extending(OBJECTBASE
+	* {sort Object -> Component,
+	   sort ObjIDLt -> COIDLt,
+	   sort ObjID -> COID,
+	   sort ObjTypeLt -> COTypeLt,
+	   sort ObjType -> COType,
+	   sort ObjStateLt -> COStateLt,
+	   sort ObjState -> COState,
+	   sort SetOfObject -> SetOfComponent,
+	   sort SetOfObjState -> SetOfCOState,
+	   op empObj -> empCO,
+	   op empState -> empSCO,
+	   op existObj -> existCO,
+	   op existObjInStates -> existCOInStates,
+	   op uniqObj -> uniqCO,
+	   op #ObjInStates -> #ComponentInStates,
+	   op getObject -> getComponent,
+	   op allObjInStates -> allCOInStates,
+	   op allObjNotInStates -> allCONotInStates,
+	   op someObjInStates -> someCOInStates})
+
+  -- Constructor
+  -- cmp(COID, COState) is a Component.
+  op cmp : COID COState -> Component {constr}
+
+  -- Variables
+  var IDCO : COID
+  var SCO : COState
+
+  -- Selectors
+  eq id(cmp(IDCO,SCO)) = IDCO .
+  eq state(cmp(IDCO,SCO)) = SCO .
+
+  -- Local States
+  ops stopped started failed : -> COStateLt {constr}
+  eq (stopped > started) = true .
+  eq (started > failed) = true .
+}
+
+module! IMPORT {
+  protecting(COMPONENT)
+
+  -- Instantiation of Template
+  extending(OBJECTBASE
+	* {sort Object -> Import,
+	   sort ObjIDLt -> IMIDLt,
+	   sort ObjID -> IMID,
+	   sort ObjTypeLt -> IMTypeLt,
+	   sort ObjType -> IMType,
+	   sort ObjStateLt -> IMStateLt,
+	   sort ObjState -> IMState,
+	   sort SetOfObject -> SetOfImport,
+	   sort SetOfObjState -> SetOfIMState,
+	   op empObj -> empIM,
+	   op empState -> empSIM,
+	   op existObj -> existIM,
+	   op existObjInStates -> existIMInStates,
+	   op uniqObj -> uniqIM,
+	   op #ObjInStates -> #ImportInStates,
+	   op getObject -> getImport,
+	   op allObjInStates -> allIMInStates,
+	   op allObjNotInStates -> allIMNotInStates,
+	   op someObjInStates -> someIMInStates})
+
+  -- Constructor
+  -- imp(IMType, IMID, COID, COID) is an Import
+  --   from an importer Component to an exporter Component
+  op imp : IMType IMID COID COID -> Import {constr}
+
+  ops mandatoryIM optionalIM : -> IMTypeLt
+
+  -- Variables
+  var TIM : IMType
+  var IDIM : IMID
+  vars IDCO1 IDCO2 : COID
+
+  -- Selectors
+  op importer : Import -> COID
+  op exporter : Import -> COID
+  eq type(imp(TIM,IDIM,IDCO1,IDCO2)) = TIM .
+  eq id(imp(TIM,IDIM,IDCO1,IDCO2)) = IDIM .
+  eq importer(imp(TIM,IDIM,IDCO1,IDCO2)) = IDCO1 .
+  eq exporter(imp(TIM,IDIM,IDCO1,IDCO2)) = IDCO2 .
+  
+  -- Local States
+}
+
+module! LINKS {
+  extending(OBJLINKMANY2ONE(
+	IMPORT {sort Object -> Import,
+		sort ObjID -> IMID,
+		sort ObjType -> IMType,
+		sort ObjState -> IMState,
+		sort SetOfObject -> SetOfImport,
+		sort SetOfObjState -> SetOfIMState,
+		sort LObject -> Component,
+		sort LObjID -> COID,
+		sort LObjState -> COState,
+		sort SetOfLObject -> SetOfComponent,
+		sort SetOfLObjState -> SetOfCOState,
+		op allObjInStates -> allIMInStates,
+		op link -> importer,
+		op empLObj -> empCO,
+		op existLObj -> existCO,
+		op allLObjInStates -> allCOInStates,
+		op existLObjInStates -> existCOInStates,
+		op getLObject -> getComponent})
+	* {op hasLObj -> hasImporter,
+	   op getXOfZ -> getCOOfIM,
+	   op getZsOfX -> getIMsOfCO,
+	   op getZsOfXInStates -> getIMsOfCOInStates,
+	   op getXsOfZs -> getCOsOfIMs,
+	   op getXsOfZsInStates -> getCOsOfIMsInStates,
+	   op getZsOfXs -> getIMsOfCOs,
+	   op getZsOfXsInStates -> getIMsOfCOsInStates,
+	   op allZHaveX -> allIMHaveCO,
+	   op allZOfXInStates -> allIMOfCOInStates,
+	   op ifOfXThenInStates -> ifOfCOThenInStates,
+	   op ifXInStatesThenZInStates -> ifCOInStatesThenIMInStates}
+	)
+
+  extending(OBJLINKMANY2ONE(
+	IMPORT {sort Object -> Import,
+		sort ObjID -> IMID,
+		sort ObjType -> IMType,
+		sort ObjState -> IMState,
+		sort SetOfObject -> SetOfImport,
+		sort SetOfObjState -> SetOfIMState,
+		sort LObject -> Component,
+		sort LObjID -> COID,
+		sort LObjState -> COState,
+		sort SetOfLObject -> SetOfComponent,
+		sort SetOfLObjState -> SetOfCOState,
+		op allObjInStates -> allIMInStates,
+		op link -> exporter,
+		op empLObj -> empCO,
+		op existLObj -> existCO,
+		op allLObjInStates -> allCOInStates,
+		op existLObjInStates -> existCOInStates,
+		op getLObject -> getComponent})
+	* {op hasLObj -> hasExporter,
+	   op getXOfZ -> getCOOfIM,
+	   op getZsOfX -> getIMsOfCO,
+	   op getZsOfXInStates -> getIMsOfCOInStates,
+	   op getXsOfZs -> getCOsOfIMs,
+	   op getXsOfZsInStates -> getCOsOfIMsInStates,
+	   op getZsOfXs -> getIMsOfCOs,
+	   op getZsOfXsInStates -> getIMsOfCOsInStates,
+	   op allZHaveX -> allIMHaveCO,
+	   op allZOfXInStates -> allIMOfCOInStates,
+	   op ifOfXThenInStates -> ifOfCOThenInStates,
+	   op ifXInStatesThenZInStates -> ifCOInStatesThenIMInStates}
+	)
+
+}
+
+module! LOG {
+  protecting(IMPORT)
+  protecting(STRING)
+  [Log]
+  op clog : String Component -> Log {constr}
+  op ilog : String Import -> Log {constr}
+}
+
+module! STATE {
+  protecting(LINKS)
+  protecting(SET+NAT(LOG {sort Elt -> Log})
+      * {sort Set -> SetOfLog,
+      	 op empty -> empLog})
+
+  [State]
+  -- A State consists of
+  --  a set of current Components and a set of current Imports,
+  --  a set of target Components and a set of target Imports,
+  --  a set of Components to be stopped and a set of Imports to be unwired,
+  --  a set of Components to be started and a set of Imports to be wired,
+  --  and set of logs
+  op <_,_, _,_, _,_, _,_, _> :
+    SetOfComponent SetOfImport
+      SetOfComponent SetOfImport
+	SetOfComponent SetOfImport
+	  SetOfComponent SetOfImport
+	    SetOfLog
+      -> State {constr}
+
+  pred wfs : State
+  pred init : State
+  pred final : State
+  pred inv : State
+}
+eof
+module! STATECyclefuns {
+  protecting(STATE)
+
+  var CO : Component
+  var SetCO : SetOfComponent
+  var SetIM : SetOfImport
+
+  op getAllCOInState : State -> SetOfComponent
+  eq getAllCOInState(< SetCO,SetIM >) = SetCO .
+
+  op DDSCO : Component State -> SetOfComponent
+  eq DDSCO(CO,< SetCO,SetIM >)
+    = if state(CO) = initial then
+         getRCOsOfIMsInStates(SetCO,getIMsOfCOInStates(SetIM,CO,notready),initial)
+      else empCO fi .
+}
+
+module! STATEfuns {
+  protecting(STATE)
+
+  var SetCO : SetOfComponent
+  var SetIM : SetOfImport
+  var S : State
+
+  extending(CYCLEIMED(
+  	STATECyclefuns {sort Object -> Component,
+  	       		sort SetOfObject -> SetOfComponent,
+			sort ObjState -> COState,
+			sort SetOfObjState -> SetOfCOState,
+			op DDSC -> DDSCO,
+  	       		op empObj -> empCO,
+			op someObjInStates -> someCOInStates,
+  	       		op getAllObjInState -> getAllCOInState})
+  	* {op noCycleC -> noCOCycle}
+  	)
+
+  pred wfs-atLeastOneCO : State
+  eq wfs-atLeastOneCO(< SetCO,SetIM >) = not (SetCO = empCO) .
+  pred wfs-uniqCO : State
+  eq wfs-uniqCO(< SetCO,SetIM >) = uniqCO(SetCO) .
+  pred wfs-uniqIM : State
+  eq wfs-uniqIM(< SetCO,SetIM >) = uniqIM(SetIM) .
+  pred wfs-allIMHaveCO : State
+  eq wfs-allIMHaveCO(< SetCO,SetIM >) = allIMHaveCO(SetIM,SetCO) .
+  pred wfs-allIMHaveRCO : State
+  eq wfs-allIMHaveRCO(< SetCO,SetIM >) = allIMHaveRCO(SetIM,SetCO) .
+  
+--> **************************************
+--> Step 0-1: Define init(S) and final(S).
+--> **************************************
+  -- wfs is a conjunction of invariants which are intentionally imposed by the init condition.
+  -- Since too long wfs causes a large evalutaion cost, define wfs minimally for each use case.
+  eq [:nonexec]: wfs(S)
+     = wfs-atLeastOneCO(S) and
+       wfs-uniqCO(S) and wfs-uniqIM(S) and 
+       wfs-allIMHaveCO(S) and wfs-allIMHaveRCO(S) .
+
+  eq init(< SetCO,SetIM >)
+     = wfs(< SetCO,SetIM >) and
+       noCOCycle(< SetCO,SetIM >) and
+       allCOInStates(SetCO,initial) and 
+       allIMInStates(SetIM,notready) .
+
+  eq final(< SetCO,SetIM >)
+     = allCOInStates(SetCO,started) .
+}
+
+module! STATERules {
+  protecting(STATEfuns)
+
+  -- Variables
+  vars IDCO IDRCO : COID 
+  var IDIM : IMID
+  var TCO : COType
+  var TIM : IMType
+  var SetCO : SetOfComponent
+  var SetIM : SetOfImport
+
+  -- Start an initial component if all of its imperties are ready.
+  ctrans [R01]:
+     < (cmp(TCO,IDCO,initial) SetCO), SetIM >
+  => < (cmp(TCO,IDCO,started) SetCO), SetIM > 
+     if allIMOfCOInStates(SetIM,IDCO,ready) .
+
+  -- Let a not-ready import be ready if its referring component is started.
+  trans [R02]:
+     < (cmp(TCO,IDRCO,started) SetCO), 
+       (imp(TIM,IDIM,notready,IDCO,IDRCO) SetIM) >
+  => < (cmp(TCO,IDRCO,started) SetCO), 
+       (imp(TIM,IDIM,ready   ,IDCO,IDRCO) SetIM) > .
+}
