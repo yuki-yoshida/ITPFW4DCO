@@ -267,28 +267,28 @@ module! STATEfuns {
 --   eq final(< SetCO,SetIM >)
 --      = allCOInStates(SetCO,started) .
 }
-eof
+
 module! STATERules {
   protecting(STATEfuns)
 
-  -- Variables
-  var IDCO : COID 
-  var IDIM : IMID
-  var TIM : IMType
-  var SetCCO : SetOfComponent -- current Components
-  var SetCIM : SetOfImport    -- current Imports
-  var SetTCO : SetOfComponent -- target Components
-  var SetTIM : SetOfImport    -- target Imports
-  var SetDCO : SetOfComponent -- Components to be stopped
-  var SetDIM : SetOfImport    -- Imports to be unwired
-  var SetUCO : SetOfComponent -- Components to be started
-  var SetUIM : SetOfImport    -- Imports to be wired
-  var SetLG : SetOfLG
+  -- -- Variables
+  -- var IDCO : COID 
+  -- var IDIM : IMID
+  -- var TIM : IMType
+  -- var SetCCO : SetOfComponent -- current Components
+  -- var SetCIM : SetOfImport    -- current Imports
+  -- var SetTCO : SetOfComponent -- target Components
+  -- var SetTIM : SetOfImport    -- target Imports
+  -- var SetDCO : SetOfComponent -- Components to be stopped
+  -- var SetDIM : SetOfImport    -- Imports to be unwired
+  -- var SetUCO : SetOfComponent -- Components to be started
+  -- var SetUIM : SetOfImport    -- Imports to be wired
+  -- var SetLG : SetOfLG
 
-  -- Start an initial component if all of its imperties are ready.
-  ctrans [R01]:
-     < (cmp(TCO,IDCO,initial) SetCO), SetIM >
-  => < (cmp(TCO,IDCO,started) SetCO), SetIM > 
-     if allIMOfCOInStates(SetIM,IDCO,ready) .
+  -- -- Start an initial component if all of its imperties are ready.
+  -- ctrans [R01]:
+  --    < (cmp(TCO,IDCO,initial) SetCO), SetIM >
+  -- => < (cmp(TCO,IDCO,started) SetCO), SetIM > 
+  --    if allIMOfCOInStates(SetIM,IDCO,ready) .
 
 }

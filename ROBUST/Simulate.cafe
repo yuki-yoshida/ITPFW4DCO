@@ -1,0 +1,34 @@
+require DomainModel DomainModel.cafe
+
+--> Sample Simulation
+open STATERules .
+
+ops COC COC1 COC2 COD : -> COIDLt .
+ops IMW IMV IMW1 IMW2 : -> IMIDLt .
+eq isMandatory(IMW) = true .
+eq isMandatory(IMV) = false .
+eq isMandatory(IMW1) = true .
+eq isMandatory(IMW2) = true .
+
+ops currentComponents targetComponents : -> SetOfComponent .
+eq currentComponents =
+  (cmp(COD, started), cmp(COC, started), cmp(COC1, started), cmp(COC2, started)) .
+eq targetComponents =
+  (cmp(COD, started), cmp(COC, started), cmp(COC1, started), cmp(COC2, started)) .
+
+ops currentWires targetWires : -> SetOfImport .
+eq currentWires =
+  (wired(IMW,COD,COC), wired(IMV,COC1,COC), wired(IMW1,COC,COC1)) .
+eq targetWires =
+  (wired(IMW,COD,COC), wired(IMV,COC1,COC), wired(IMW2,COC,COC2)) .
+
+op s0 : -> State .
+eq s0 =
+  < currentComponents, currentWires,
+    targetComponents, targetWires,
+    empCO, empIM, empIM, empLog >
+      
+red s0 .
+exec s0 .
+
+close
