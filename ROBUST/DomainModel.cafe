@@ -184,14 +184,14 @@ module! STATE {
   -- A State consists of
   --  a set of current Components and a set of current Imports,
   --  a set of target Components and a set of target Imports,
-  --  a set of Components to be stopped and a set of Imports to be unwired,
-  --  a set of Components to be started and a set of Imports to be wired,
+  --  a set of Components whose states be changed,
+  --  a set of Imports to be unwired, a set of Imports to be wired,
   --  and set of logs
-  op <_,_, _,_, _,_, _,_, _> :
+  op <_,_, _,_, _,_,_, _> :
     SetOfComponent SetOfImport
       SetOfComponent SetOfImport
-	SetOfComponent SetOfImport
-	  SetOfComponent SetOfImport
+	SetOfComponent
+	  SetOfImport SetOfImport
 	    SetOfLog
       -> State {constr}
 
