@@ -75,24 +75,24 @@ module! IMPORT {
 	   op someObjInStates -> someIMInStates})
 
   -- Constructor
-  -- imp(IMType, IMID, COID, COID) is an Import
-  --   from an importer Component to an exporter Component
-  op imp : IMType IMID COID COID -> Import {constr}
-
-  ops mandatoryIM optionalIM : -> IMTypeLt
+  -- wired(IMID, COID, COID) means that
+  --   an importer Component and an exporter Component are wired with an Import
+  op wired : IMID COID COID -> Import {constr}
 
   -- Variables
-  var TIM : IMType
   var IDIM : IMID
   vars IDCO1 IDCO2 : COID
 
   -- Selectors
+  pred isMandatory : IMID
+  pred isOptional  : IMID
+  eq isOptional(IDIM) = not isMandatory(IDIM) .
+
   op importer : Import -> COID
   op exporter : Import -> COID
-  eq type(imp(TIM,IDIM,IDCO1,IDCO2)) = TIM .
-  eq id(imp(TIM,IDIM,IDCO1,IDCO2)) = IDIM .
-  eq importer(imp(TIM,IDIM,IDCO1,IDCO2)) = IDCO1 .
-  eq exporter(imp(TIM,IDIM,IDCO1,IDCO2)) = IDCO2 .
+  eq id(wired(IDIM,IDCO1,IDCO2)) = IDIM .
+  eq importer(wired(IDIM,IDCO1,IDCO2)) = IDCO1 .
+  eq exporter(wired(IDIM,IDCO1,IDCO2)) = IDCO2 .
   
   -- Local States
 }
@@ -200,84 +200,90 @@ module! STATE {
   pred final : State
   pred inv : State
 }
-eof
-module! STATECyclefuns {
-  protecting(STATE)
 
-  var CO : Component
-  var SetCO : SetOfComponent
-  var SetIM : SetOfImport
+-- module! STATECyclefuns {
+--   protecting(STATE)
 
-  op getAllCOInState : State -> SetOfComponent
-  eq getAllCOInState(< SetCO,SetIM >) = SetCO .
+--   var CO : Component
+--   var SetCO : SetOfComponent
+--   var SetIM : SetOfImport
 
-  op DDSCO : Component State -> SetOfComponent
-  eq DDSCO(CO,< SetCO,SetIM >)
-    = if state(CO) = initial then
-         getRCOsOfIMsInStates(SetCO,getIMsOfCOInStates(SetIM,CO,notready),initial)
-      else empCO fi .
-}
+--   op getAllCOInState : State -> SetOfComponent
+--   eq getAllCOInState(< SetCO,SetIM >) = SetCO .
+
+--   op DDSCO : Component State -> SetOfComponent
+--   eq DDSCO(CO,< SetCO,SetIM >)
+--     = if state(CO) = initial then
+--          getRCOsOfIMsInStates(SetCO,getIMsOfCOInStates(SetIM,CO,notready),initial)
+--       else empCO fi .
+-- }
 
 module! STATEfuns {
   protecting(STATE)
 
-  var SetCO : SetOfComponent
-  var SetIM : SetOfImport
-  var S : State
+--   var SetCO : SetOfComponent
+--   var SetIM : SetOfImport
+--   var S : State
 
-  extending(CYCLEIMED(
-  	STATECyclefuns {sort Object -> Component,
-  	       		sort SetOfObject -> SetOfComponent,
-			sort ObjState -> COState,
-			sort SetOfObjState -> SetOfCOState,
-			op DDSC -> DDSCO,
-  	       		op empObj -> empCO,
-			op someObjInStates -> someCOInStates,
-  	       		op getAllObjInState -> getAllCOInState})
-  	* {op noCycleC -> noCOCycle}
-  	)
+--   extending(CYCLEIMED(
+--   	STATECyclefuns {sort Object -> Component,
+--   	       		sort SetOfObject -> SetOfComponent,
+-- 			sort ObjState -> COState,
+-- 			sort SetOfObjState -> SetOfCOState,
+-- 			op DDSC -> DDSCO,
+--   	       		op empObj -> empCO,
+-- 			op someObjInStates -> someCOInStates,
+--   	       		op getAllObjInState -> getAllCOInState})
+--   	* {op noCycleC -> noCOCycle}
+--   	)
 
-  pred wfs-atLeastOneCO : State
-  eq wfs-atLeastOneCO(< SetCO,SetIM >) = not (SetCO = empCO) .
-  pred wfs-uniqCO : State
-  eq wfs-uniqCO(< SetCO,SetIM >) = uniqCO(SetCO) .
-  pred wfs-uniqIM : State
-  eq wfs-uniqIM(< SetCO,SetIM >) = uniqIM(SetIM) .
-  pred wfs-allIMHaveCO : State
-  eq wfs-allIMHaveCO(< SetCO,SetIM >) = allIMHaveCO(SetIM,SetCO) .
-  pred wfs-allIMHaveRCO : State
-  eq wfs-allIMHaveRCO(< SetCO,SetIM >) = allIMHaveRCO(SetIM,SetCO) .
+--   pred wfs-atLeastOneCO : State
+--   eq wfs-atLeastOneCO(< SetCO,SetIM >) = not (SetCO = empCO) .
+--   pred wfs-uniqCO : State
+--   eq wfs-uniqCO(< SetCO,SetIM >) = uniqCO(SetCO) .
+--   pred wfs-uniqIM : State
+--   eq wfs-uniqIM(< SetCO,SetIM >) = uniqIM(SetIM) .
+--   pred wfs-allIMHaveCO : State
+--   eq wfs-allIMHaveCO(< SetCO,SetIM >) = allIMHaveCO(SetIM,SetCO) .
+--   pred wfs-allIMHaveRCO : State
+--   eq wfs-allIMHaveRCO(< SetCO,SetIM >) = allIMHaveRCO(SetIM,SetCO) .
   
---> **************************************
---> Step 0-1: Define init(S) and final(S).
---> **************************************
-  -- wfs is a conjunction of invariants which are intentionally imposed by the init condition.
-  -- Since too long wfs causes a large evalutaion cost, define wfs minimally for each use case.
-  eq [:nonexec]: wfs(S)
-     = wfs-atLeastOneCO(S) and
-       wfs-uniqCO(S) and wfs-uniqIM(S) and 
-       wfs-allIMHaveCO(S) and wfs-allIMHaveRCO(S) .
+-- --> **************************************
+-- --> Step 0-1: Define init(S) and final(S).
+-- --> **************************************
+--   -- wfs is a conjunction of invariants which are intentionally imposed by the init condition.
+--   -- Since too long wfs causes a large evalutaion cost, define wfs minimally for each use case.
+--   eq [:nonexec]: wfs(S)
+--      = wfs-atLeastOneCO(S) and
+--        wfs-uniqCO(S) and wfs-uniqIM(S) and 
+--        wfs-allIMHaveCO(S) and wfs-allIMHaveRCO(S) .
 
-  eq init(< SetCO,SetIM >)
-     = wfs(< SetCO,SetIM >) and
-       noCOCycle(< SetCO,SetIM >) and
-       allCOInStates(SetCO,initial) and 
-       allIMInStates(SetIM,notready) .
+--   eq init(< SetCO,SetIM >)
+--      = wfs(< SetCO,SetIM >) and
+--        noCOCycle(< SetCO,SetIM >) and
+--        allCOInStates(SetCO,initial) and 
+--        allIMInStates(SetIM,notready) .
 
-  eq final(< SetCO,SetIM >)
-     = allCOInStates(SetCO,started) .
+--   eq final(< SetCO,SetIM >)
+--      = allCOInStates(SetCO,started) .
 }
-
+eof
 module! STATERules {
   protecting(STATEfuns)
 
   -- Variables
-  vars IDCO IDRCO : COID 
+  var IDCO : COID 
   var IDIM : IMID
-  var TCO : COType
   var TIM : IMType
-  var SetCO : SetOfComponent
-  var SetIM : SetOfImport
+  var SetCCO : SetOfComponent -- current Components
+  var SetCIM : SetOfImport    -- current Imports
+  var SetTCO : SetOfComponent -- target Components
+  var SetTIM : SetOfImport    -- target Imports
+  var SetDCO : SetOfComponent -- Components to be stopped
+  var SetDIM : SetOfImport    -- Imports to be unwired
+  var SetUCO : SetOfComponent -- Components to be started
+  var SetUIM : SetOfImport    -- Imports to be wired
+  var SetLG : SetOfLG
 
   -- Start an initial component if all of its imperties are ready.
   ctrans [R01]:
@@ -285,10 +291,4 @@ module! STATERules {
   => < (cmp(TCO,IDCO,started) SetCO), SetIM > 
      if allIMOfCOInStates(SetIM,IDCO,ready) .
 
-  -- Let a not-ready import be ready if its referring component is started.
-  trans [R02]:
-     < (cmp(TCO,IDRCO,started) SetCO), 
-       (imp(TIM,IDIM,notready,IDCO,IDRCO) SetIM) >
-  => < (cmp(TCO,IDRCO,started) SetCO), 
-       (imp(TIM,IDIM,ready   ,IDCO,IDRCO) SetIM) > .
 }
