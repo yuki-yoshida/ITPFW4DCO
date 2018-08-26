@@ -132,17 +132,17 @@ module! LINKS {
 		op existLObjInStates -> existCOInStates,
 		op getLObject -> getComponent})
 	* {op hasLObj -> hasImporter,
-	   op getXOfZ -> getCOOfIM,
-	   op getZsOfX -> getIMsOfCO,
-	   op getZsOfXInStates -> getIMsOfCOInStates,
-	   op getXsOfZs -> getCOsOfIMs,
-	   op getXsOfZsInStates -> getCOsOfIMsInStates,
-	   op getZsOfXs -> getIMsOfCOs,
-	   op getZsOfXsInStates -> getIMsOfCOsInStates,
-	   op allZHaveX -> allIMHaveCO,
-	   op allZOfXInStates -> allIMOfCOInStates,
-	   op ifOfXThenInStates -> ifOfCOThenInStates,
-	   op ifXInStatesThenZInStates -> ifCOInStatesThenIMInStates}
+	   op getXOfZ -> getICOOfIM,
+	   op getZsOfX -> getIMsOfICO,
+	   op getZsOfXInStates -> getIMsOfICOInStates,
+	   op getXsOfZs -> getICOsOfIMs,
+	   op getXsOfZsInStates -> getICOsOfIMsInStates,
+	   op getZsOfXs -> getIMsOfICOs,
+	   op getZsOfXsInStates -> getIMsOfICOsInStates,
+	   op allZHaveX -> allIMHaveICO,
+	   op allZOfXInStates -> allIMOfICOInStates,
+	   op ifOfXThenInStates -> ifOfICOThenInStates,
+	   op ifXInStatesThenZInStates -> ifICOInStatesThenIMInStates}
 	)
 
   extending(OBJLINKMANY2ONE(
@@ -165,17 +165,17 @@ module! LINKS {
 		op existLObjInStates -> existCOInStates,
 		op getLObject -> getComponent})
 	* {op hasLObj -> hasExporter,
-	   op getXOfZ -> getCOOfIM,
-	   op getZsOfX -> getIMsOfCO,
-	   op getZsOfXInStates -> getIMsOfCOInStates,
-	   op getXsOfZs -> getCOsOfIMs,
-	   op getXsOfZsInStates -> getCOsOfIMsInStates,
-	   op getZsOfXs -> getIMsOfCOs,
-	   op getZsOfXsInStates -> getIMsOfCOsInStates,
-	   op allZHaveX -> allIMHaveCO,
-	   op allZOfXInStates -> allIMOfCOInStates,
-	   op ifOfXThenInStates -> ifOfCOThenInStates,
-	   op ifXInStatesThenZInStates -> ifCOInStatesThenIMInStates}
+	   op getXOfZ -> getECOOfIM,
+	   op getZsOfX -> getIMsOfECO,
+	   op getZsOfXInStates -> getIMsOfECOInStates,
+	   op getXsOfZs -> getECOsOfIMs,
+	   op getXsOfZsInStates -> getECOsOfIMsInStates,
+	   op getZsOfXs -> getIMsOfECOs,
+	   op getZsOfXsInStates -> getIMsOfECOsInStates,
+	   op allZHaveX -> allIMHaveECO,
+	   op allZOfXInStates -> allIMOfECOInStates,
+	   op ifOfXThenInStates -> ifOfECOThenInStates,
+	   op ifXInStatesThenZInStates -> ifECOInStatesThenIMInStates}
 	)
 
 }
@@ -338,7 +338,7 @@ module! STATERules {
        (ilog("Should Unwire", IDIM) ListLG) > .
 
   -- A Component should be started if it is targeted.
-  trans [RS-stop1]:
+  trans [RS-start1]:
      < (cmp(IDCO, stopped, stopped) SetCCO), SetCIM,
        (cmp(IDCO, started, TSCO) SetTCO), SetTIM,
        ListLG >
@@ -408,4 +408,13 @@ module! STATERules {
        SetTCO, SetTIM,
        (ilog("Do Unwire", IDIM) ListLG) > .
 
+  -- A Component can be stopped only if there is no started component importing it.
+  ctrans [RD-stop]:
+     < (cmp(IDCO, started, stopped) SetCCO), SetCIM,
+       SetTCO, SetTIM,
+       ListLG >
+  => < (cmp(IDCO, stopped, stopped) SetCCO), SetCIM,
+       SetTCO, SetTIM,
+       (clog("Do Stop", IDCO) ListLG) > 
+     if getICOsOfIMsInStates(SetCCO,getIMsOfECO(SetCIM,IDCO),started) == empCO .
 }
