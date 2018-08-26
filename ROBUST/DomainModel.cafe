@@ -391,20 +391,20 @@ module! STATERules {
 
   -- An Optional Imports can be unwired only if the component is started or stopped.
   ctrans [RD-unwire1]:
-     < (cmp(IDCO, CSCO, CSCO) SetCCO), (imp(optional,IDIM,IDCO,EIDCO,wired,unwired) SetCIM),
+     < (cmp(IDCO, CSCO, TSCO) SetCCO), (imp(optional,IDIM,IDCO,EIDCO,wired,unwired) SetCIM),
        SetTCO, SetTIM,
        ListLG >
-  => < (cmp(IDCO, CSCO, CSCO) SetCCO), (imp(optional,IDIM,IDCO,EIDCO,unwired,unwired) SetCIM),
+  => < (cmp(IDCO, CSCO, TSCO) SetCCO), (imp(optional,IDIM,IDCO,EIDCO,unwired,unwired) SetCIM),
        SetTCO, SetTIM,
        (ilog("Do Unwire", IDIM) ListLG) > 
-     if CSCO = started or CSCO = stopped .
+     if (CSCO = started and TSCO = started) or CSCO = stopped .
 
   -- A Mandatory Imports can be unwired only if the component is stopped.
   trans [RD-unwire2]:
-     < (cmp(IDCO, stopped, stopped) SetCCO), (imp(mandatory,IDIM,IDCO,EIDCO,wired,unwired) SetCIM),
+     < (cmp(IDCO, stopped, TSCO) SetCCO), (imp(mandatory,IDIM,IDCO,EIDCO,wired,unwired) SetCIM),
        SetTCO, SetTIM,
        ListLG >
-  => < (cmp(IDCO, stopped, stopped) SetCCO), (imp(mandatory,IDIM,IDCO,EIDCO,unwired,unwired) SetCIM),
+  => < (cmp(IDCO, stopped, TSCO) SetCCO), (imp(mandatory,IDIM,IDCO,EIDCO,unwired,unwired) SetCIM),
        SetTCO, SetTIM,
        (ilog("Do Unwire", IDIM) ListLG) > .
 
