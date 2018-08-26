@@ -416,5 +416,5 @@ module! STATERules {
   => < (cmp(IDCO, stopped, stopped) SetCCO), SetCIM,
        SetTCO, SetTIM,
        (clog("Do Stop", IDCO) ListLG) > 
-     if getICOsOfIMsInStates(SetCCO,getIMsOfECO(SetCIM,IDCO),started) == empCO .
+     if getICOsOfIMsInStates(SetCCO,getIMsOfECOInStates(SetCIM,IDCO,wired),started) == empCO .
 }
