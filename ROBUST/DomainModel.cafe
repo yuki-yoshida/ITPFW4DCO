@@ -380,11 +380,11 @@ module! STATERules {
   -- A Mandatory Imports can be wired only if the component is stopped
   --           and also the export component is started.
   trans [RD-wire2]:
-     < (cmp(IIDCO, stopped, stopped) cmp(EIDCO, started, started) SetCCO), 
+     < (cmp(IIDCO, stopped, TSCO) cmp(EIDCO, started, started) SetCCO), 
                (imp(mandatory,IDIM,IIDCO,EIDCO,unwired,wired) SetCIM),
        SetTCO, SetTIM,
        ListLG >
-  => < (cmp(IIDCO, stopped, stopped) cmp(EIDCO, started, started) SetCCO), 
+  => < (cmp(IIDCO, stopped, TSCO) cmp(EIDCO, started, started) SetCCO), 
                (imp(mandatory,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
        SetTCO, SetTIM,
        (ilog("Do Wire", IDIM) ListLG) > .
