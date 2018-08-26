@@ -1,4 +1,5 @@
 require Template Template.cafe
+require LIST LIST.cafe
 provide DomainModel
 
 -- An abstract model for Robust Reconfiguration Algorithm by F. Boyer et al.
@@ -32,19 +33,23 @@ module! COMPONENT {
 	   op someObjInStates -> someCOInStates})
 
   -- Constructor
-  -- cmp(COID, COState) is a Component.
-  op cmp : COID COState -> Component {constr}
+  -- cmp(ID, CState, TState) is a Component where the identifier is ID,
+  --    the current local state is CState, and the target local state is TState
+  op cmp : COID COState COState -> Component {constr}
 
   -- Variables
   var IDCO : COID
-  var SCO : COState
+  vars CSCO TSCO : COState
 
   -- Selectors
-  eq id(cmp(IDCO,SCO)) = IDCO .
-  eq state(cmp(IDCO,SCO)) = SCO .
+  op target : Component -> COState
+  eq id(cmp(IDCO,CSCO,TSCO)) = IDCO .
+  eq state(cmp(IDCO,CSCO,TSCO)) = CSCO .
+  eq target(cmp(IDCO,CSCO,TSCO)) = TSCO .
 
   -- Local States
-  ops stopped started failed : -> COStateLt {constr}
+  ops notalive stopped started failed : -> COStateLt {constr}
+  eq (notalive > stopped) = true .
   eq (stopped > started) = true .
   eq (started > failed) = true .
 }
@@ -75,26 +80,35 @@ module! IMPORT {
 	   op someObjInStates -> someIMInStates})
 
   -- Constructor
-  -- wired(IMID, COID, COID) means that
-  --   an importer Component and an exporter Component are wired with an Import
-  op wired : IMID COID COID -> Import {constr}
+  -- imp(Type, ID, IID, EID, CState, TState) is an Imports where the identifier is ID,
+  --    the importer Component is IID, the exporter Component is EID,
+  --    the current local state is CState, and the target local state is TState
+
+  op imp : IMType IMID COID COID IMState IMState -> Import {constr}
 
   -- Variables
+  var TIM : IMType
   var IDIM : IMID
-  vars IDCO1 IDCO2 : COID
+  vars IIDCO EIDCO : COID
+  vars CSIM TSIM : IMState
+
+  -- Types
+  ops mandatory optional : -> IMType
 
   -- Selectors
-  pred isMandatory : IMID
-  pred isOptional  : IMID
-  eq isOptional(IDIM) = not isMandatory(IDIM) .
-
+  op target : Import -> IMState
   op importer : Import -> COID
   op exporter : Import -> COID
-  eq id(wired(IDIM,IDCO1,IDCO2)) = IDIM .
-  eq importer(wired(IDIM,IDCO1,IDCO2)) = IDCO1 .
-  eq exporter(wired(IDIM,IDCO1,IDCO2)) = IDCO2 .
+  eq type(imp(TIM,IDIM,IIDCO,EIDCO,CSIM,TSIM)) = TIM .
+  eq id(imp(TIM,IDIM,IIDCO,EIDCO,CSIM,TSIM)) = IDIM .
+  eq state(imp(TIM,IDIM,IIDCO,EIDCO,CSIM,TSIM)) = CSIM .
+  eq target(imp(TIM,IDIM,IIDCO,EIDCO,CSIM,TSIM)) = TSIM .
+  eq importer(imp(TIM,IDIM,IIDCO,EIDCO,CSIM,TSIM)) = IIDCO .
+  eq exporter(imp(TIM,IDIM,IIDCO,EIDCO,CSIM,TSIM)) = EIDCO .
   
   -- Local States
+  ops wired unwired : -> IMStateLt {constr}
+  eq (wired > unwired) = true .
 }
 
 module! LINKS {
@@ -170,29 +184,25 @@ module! LOG {
   protecting(IMPORT)
   protecting(STRING)
   [Log]
-  op clog : String Component -> Log {constr}
-  op ilog : String Import -> Log {constr}
+  op clog : String COID -> Log {constr}
+  op ilog : String IMID -> Log {constr}
 }
 
 module! STATE {
   protecting(LINKS)
-  protecting(SET+NAT(LOG {sort Elt -> Log})
-      * {sort Set -> SetOfLog,
+  protecting(LIST(LOG {sort Elt -> Log})
+      * {sort List -> ListOfLog,
       	 op empty -> empLog})
 
   [State]
   -- A State consists of
   --  a set of current Components and a set of current Imports,
   --  a set of target Components and a set of target Imports,
-  --  a set of Components whose states be changed,
-  --  a set of Imports to be unwired, a set of Imports to be wired,
   --  and set of logs
-  op <_,_, _,_, _,_,_, _> :
+  op <_,_, _,_, _> :
     SetOfComponent SetOfImport
       SetOfComponent SetOfImport
-	SetOfComponent
-	  SetOfImport SetOfImport
-	    SetOfLog
+	ListOfLog
       -> State {constr}
 
   pred wfs : State
@@ -271,24 +281,131 @@ module! STATEfuns {
 module! STATERules {
   protecting(STATEfuns)
 
-  -- -- Variables
-  -- var IDCO : COID 
-  -- var IDIM : IMID
-  -- var TIM : IMType
-  -- var SetCCO : SetOfComponent -- current Components
-  -- var SetCIM : SetOfImport    -- current Imports
-  -- var SetTCO : SetOfComponent -- target Components
-  -- var SetTIM : SetOfImport    -- target Imports
-  -- var SetDCO : SetOfComponent -- Components to be stopped
-  -- var SetDIM : SetOfImport    -- Imports to be unwired
-  -- var SetUCO : SetOfComponent -- Components to be started
-  -- var SetUIM : SetOfImport    -- Imports to be wired
-  -- var SetLG : SetOfLG
+  -- Variables
+  vars IDCO IIDCO EIDCO : COID 
+  vars CSCO TSCO : COState
+  var IDIM : IMID
+  var TIM : IMType
+  vars CSIM TSIM : IMState
 
-  -- -- Start an initial component if all of its imperties are ready.
-  -- ctrans [R01]:
-  --    < (cmp(TCO,IDCO,initial) SetCO), SetIM >
-  -- => < (cmp(TCO,IDCO,started) SetCO), SetIM > 
-  --    if allIMOfCOInStates(SetIM,IDCO,ready) .
+  var SetCCO : SetOfComponent -- current Components
+  var SetCIM : SetOfImport    -- current Imports
+  var SetTCO : SetOfComponent -- target Components
+  var SetTIM : SetOfImport    -- target Imports
+
+  var ListLG : ListOfLog
+
+  -- An Imports should be wired if it is trageted.
+  ctrans [RS-wire1]:
+     < SetCCO, SetCIM,
+       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired,TSIM) SetTIM),
+       ListLG >
+  => < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,unwired,wired) SetCIM),
+       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired,TSIM) SetTIM),
+       (ilog("Should Wire", IDIM) ListLG) >
+     if not existIM(SetCIM, IDIM) .
+
+  ctrans [RS-wire2]:
+     < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired) SetCIM),
+       SetTCO, SetTIM,
+       ListLG >
+  => < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,unwired,wired) SetCIM),
+       SetTCO, SetTIM,
+       (ilog("Should Wire", IDIM) ListLG) > 
+     if existIMInStates(SetTIM, IDIM, wired) .
+
+  -- A wired Imports should be unwired
+  --         if it does not exist in the target or it is targeted.
+  ctrans [RS-unwire1]:
+     < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
+       SetTCO, SetTIM,
+       ListLG >
+  => < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired,unwired) SetCIM),
+       SetTCO, SetTIM,
+       (ilog("Should Unwire", IDIM) ListLG) >
+     if not existIM(SetTIM, IDIM) or existIMInStates(SetTIM, IDIM, unwired) .
+
+  -- A wired Imports should be unwired if the component is started
+  --         in order to stop the export component.
+  trans [RS-unwire2]:
+     < (cmp(IIDCO, started, TSCO) cmp(EIDCO, started, stopped) SetCCO), 
+                       (imp(TIM,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
+       SetTCO, SetTIM,
+       ListLG >
+  => < (cmp(IIDCO, started, TSCO) cmp(EIDCO, started, stopped) SetCCO), 
+                       (imp(TIM,IDIM,IIDCO,EIDCO,wired,unwired) SetCIM),
+       SetTCO, SetTIM,
+       (ilog("Should Unwire", IDIM) ListLG) > .
+
+  -- A Component should be started if it is targeted.
+  trans [RS-stop1]:
+     < (cmp(IDCO, stopped, stopped) SetCCO), SetCIM,
+       (cmp(IDCO, started, TSCO) SetTCO), SetTIM,
+       ListLG >
+  => < (cmp(IDCO, stopped, started) SetCCO), SetCIM,
+       (cmp(IDCO, started, TSCO) SetTCO), SetTIM,
+       (clog("Should Start", IDCO) ListLG) > .
+
+  -- A Component should be stopped if it is targeted.
+  trans [RS-stop1]:
+     < (cmp(IDCO, started, started) SetCCO), SetCIM,
+       (cmp(IDCO, stopped, TSCO) SetTCO), SetTIM,
+       ListLG >
+  => < (cmp(IDCO, started, stopped) SetCCO), SetCIM,
+       (cmp(IDCO, stopped, TSCO) SetTCO), SetTIM,
+       (clog("Should Stop", IDCO) ListLG) > .
+
+  -- A Component should be stopped in order to unwire its mandatory Imports.
+  trans [RS-stop2]:
+     < (cmp(IDCO, started, started) SetCCO), (imp(mandatory,IDIM,IDCO,EIDCO,wired,unwired) SetCIM),
+       SetTCO, SetTIM,
+       ListLG >
+  => < (cmp(IDCO, started, stopped) SetCCO), (imp(mandatory,IDIM,IDCO,EIDCO,wired,unwired) SetCIM),
+       SetTCO, SetTIM,
+       (clog("Should Stop", IDCO) ListLG) > .
+
+  -- An Optional Imports can be wired only if the component is started or stopped
+  --           and also the export component is started.
+  ctrans [RD-wire1]:
+     < (cmp(IIDCO, CSCO, CSCO) cmp(EIDCO, started, started) SetCCO), 
+               (imp(optional,IDIM,IIDCO,EIDCO,unwired,wired) SetCIM),
+       SetTCO, SetTIM,
+       ListLG >
+  => < (cmp(IIDCO, CSCO, CSCO) cmp(EIDCO, started, started) SetCCO), 
+               (imp(optional,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
+       SetTCO, SetTIM,
+       (ilog("Do Wire", IDIM) ListLG) >
+     if CSCO = started or CSCO = stopped .
+
+  -- A Mandatory Imports can be wired only if the component is stopped
+  --           and also the export component is started.
+  trans [RD-wire2]:
+     < (cmp(IIDCO, stopped, stopped) cmp(EIDCO, started, started) SetCCO), 
+               (imp(mandatory,IDIM,IIDCO,EIDCO,unwired,wired) SetCIM),
+       SetTCO, SetTIM,
+       ListLG >
+  => < (cmp(IIDCO, stopped, stopped) cmp(EIDCO, started, started) SetCCO), 
+               (imp(mandatory,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
+       SetTCO, SetTIM,
+       (ilog("Do Wire", IDIM) ListLG) > .
+
+  -- An Optional Imports can be unwired only if the component is started or stopped.
+  ctrans [RD-unwire1]:
+     < (cmp(IDCO, CSCO, CSCO) SetCCO), (imp(optional,IDIM,IDCO,EIDCO,wired,unwired) SetCIM),
+       SetTCO, SetTIM,
+       ListLG >
+  => < (cmp(IDCO, CSCO, CSCO) SetCCO), (imp(optional,IDIM,IDCO,EIDCO,unwired,unwired) SetCIM),
+       SetTCO, SetTIM,
+       (ilog("Do Unwire", IDIM) ListLG) > 
+     if CSCO = started or CSCO = stopped .
+
+  -- A Mandatory Imports can be unwired only if the component is stopped.
+  trans [RD-unwire2]:
+     < (cmp(IDCO, stopped, stopped) SetCCO), (imp(mandatory,IDIM,IDCO,EIDCO,wired,unwired) SetCIM),
+       SetTCO, SetTIM,
+       ListLG >
+  => < (cmp(IDCO, stopped, stopped) SetCCO), (imp(mandatory,IDIM,IDCO,EIDCO,unwired,unwired) SetCIM),
+       SetTCO, SetTIM,
+       (ilog("Do Unwire", IDIM) ListLG) > .
 
 }

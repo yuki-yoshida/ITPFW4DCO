@@ -5,30 +5,33 @@ open STATERules .
 
 ops COC COC1 COC2 COD : -> COIDLt .
 ops IMW IMV IMW1 IMW2 : -> IMIDLt .
-eq isMandatory(IMW) = true .
-eq isMandatory(IMV) = false .
-eq isMandatory(IMW1) = true .
-eq isMandatory(IMW2) = true .
 
 ops currentComponents targetComponents : -> SetOfComponent .
 eq currentComponents =
-  (cmp(COD, started), cmp(COC, started), cmp(COC1, started), cmp(COC2, started)) .
+  (cmp(COD,  started, started) cmp(COC,  started, started) 
+   cmp(COC1, started, started) cmp(COC2, started, started)) .
 eq targetComponents =
-  (cmp(COD, started), cmp(COC, started), cmp(COC1, started), cmp(COC2, started)) .
+  (cmp(COD,  started, started) cmp(COC,  started, started)
+   cmp(COC1, started, started) cmp(COC2, started, started)) .
 
-ops currentWires targetWires : -> SetOfImport .
-eq currentWires =
-  (wired(IMW,COD,COC), wired(IMV,COC1,COC), wired(IMW1,COC,COC1)) .
-eq targetWires =
-  (wired(IMW,COD,COC), wired(IMV,COC1,COC), wired(IMW2,COC,COC2)) .
+ops currentImports targetImports : -> SetOfImport .
+eq currentImports =
+  (imp(mandatory, IMW,  COD,  COC,  wired, wired)
+   imp(optional,  IMV,  COC1, COC,  wired, wired)
+   imp(mandatory, IMW1, COC,  COC1, wired, wired)) .
+eq targetImports =
+  (imp(mandatory, IMW,  COD,  COC,  wired, wired)
+   imp(optional,  IMV,  COC1, COC,  wired, wired)
+   imp(mandatory, IMW2, COC,  COC2, wired, wired)) .
 
 op s0 : -> State .
 eq s0 =
-  < currentComponents, currentWires,
-    targetComponents, targetWires,
-    empCO, empIM, empIM, empLog >
+  < currentComponents, currentImports,
+    targetComponents, targetImports,
+    empLog > .
       
 red s0 .
+-- set trace on .
 exec s0 .
 
 close
