@@ -298,27 +298,18 @@ module! STATEfuns {
 -- (4) There are no cycles through mandatory imports
 
 -- Rules to keep invariants
--- A stopped Component should be started if
---   an Imports should be wired from a started component to it. -- by (2)
--- A started Compoennt should be stopped if
---   one of its mandatory Imports should be unwired or
---   it is wired a Component which should be stopped.           -- by (2)
--- A mandatory Imports should be wired if
---   its Component should be started.                           -- by (1)
--- An Imports should be unwired if
---   its Component should be stopped.                           -- by (2)
--- A stopped Component can be started only when
---   all of its mandatory Imports are wired and                 -- by (1)
---   all of its wired Imports are wired to started Components.  -- by (2)
--- A started Component can be stopped only when
---   there is no Imports which wires a started Component to it. -- by (2)
--- An Imports can be wired only when
---   its Component is stopped or
---   it will be wired to a started Component.                   -- by (2)
--- A mandatory Imports can be unwired only when
---   its Component is stopped.                                  -- by (1)
-
-
+-- A Component can start
+--    all its mandatory Imports are wired to started Components and				
+--    all its optional Imports to stopped Components are unwired.				
+-- A Component can stop when all its Imports from started Components are unwired.		
+-- An optional Import can be wired when its Component is stopped or its export Component is started	
+-- A mandatory Import can be unwired when its Component is stopped.
+-- A mandatory Import should be wired to started Component when its Component should start.
+-- An export Component of a mandatory Import should start when its import component should start.
+-- An optional Import to stopped Compoent should be unwired when its Component should start.
+-- *An Import of a started Component should be unwired when its export Component should stop.
+-- *A Component should start when its optional Import from started Component should be wired.
+-- *A Component should stop when its mandatory Import should be unwired.
 
 module! STATERules {
   protecting(STATEfuns)
@@ -344,17 +335,18 @@ module! STATERules {
        ListLG >
   => < (cmp(IDCO, stopped, started) SetCCO), SetCIM,
        (cmp(IDCO, started, TSCO) SetTCO), SetTIM,
-       (clog("Should Start", IDCO) ListLG) > .
+       (clog("RS-start1:Should Start", IDCO) ListLG) > .
 
-  -- A Component should be started
-  -- if an Imports should be wired from a started component to it. 
+  -- A Component should start when its optional Import from started Component should be writed.
+  -- N.B. The following rule need not to check the types of Imports
+  --      because a mandatory Import from started Component be always wired.
   ctrans [RS-start2]:
      < (cmp(IDCO, stopped, stopped) SetCCO), SetCIM,
        SetTCO, SetTIM,
        ListLG >
   => < (cmp(IDCO, stopped, started) SetCCO), SetCIM,
        SetTCO, SetTIM,
-       (clog("Should Start", IDCO) ListLG) > 
+       (clog("RS-start2:Should Start", IDCO) ListLG) > 
      if someCOInStates(getICOsOfIMs(SetCCO,
                                     getIMsOfECOInTargetStates(SetCIM,IDCO,wired)),
                        started) .
@@ -366,16 +358,16 @@ module! STATERules {
        ListLG >
   => < (cmp(IDCO, started, stopped) SetCCO), SetCIM,
        (cmp(IDCO, stopped, TSCO) SetTCO), SetTIM,
-       (clog("Should Stop", IDCO) ListLG) > .
+       (clog("RS-stop1:Should Stop", IDCO) ListLG) > .
 
-  -- A Component should be stopped in order to unwire its mandatory Imports.
+  -- A Component should stop when its mandatory Import should be unwired.
   trans [RS-stop2]:
      < (cmp(IDCO, started, started) SetCCO), (imp(mandatory,IDIM,IDCO,EIDCO,wired,unwired) SetCIM),
        SetTCO, SetTIM,
        ListLG >
   => < (cmp(IDCO, started, stopped) SetCCO), (imp(mandatory,IDIM,IDCO,EIDCO,wired,unwired) SetCIM),
        SetTCO, SetTIM,
-       (clog("Should Stop", IDCO) ListLG) > .
+       (clog("RS-stop2:Should Stop", IDCO) ListLG) > .
 
   -- An Imports should be wired if it is trageted.
   ctrans [RS-wire1]:
@@ -384,7 +376,7 @@ module! STATERules {
        ListLG >
   => < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,unwired,wired) SetCIM),
        SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired,TSIM) SetTIM),
-       (ilog("Should Wire", IDIM) ListLG) >
+       (ilog("RS-wire1:Should Wire", IDIM) ListLG) >
      if not existIM(SetCIM, IDIM) .
 
   ctrans [RS-wire2]:
@@ -393,7 +385,7 @@ module! STATERules {
        ListLG >
   => < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,unwired,wired) SetCIM),
        SetTCO, SetTIM,
-       (ilog("Should Wire", IDIM) ListLG) > 
+       (ilog("RS-wire2:Should Wire", IDIM) ListLG) > 
      if existIMInStates(SetTIM, IDIM, wired) .
 
   -- A wired Imports should be unwired
@@ -404,11 +396,10 @@ module! STATERules {
        ListLG >
   => < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired,unwired) SetCIM),
        SetTCO, SetTIM,
-       (ilog("Should Unwire", IDIM) ListLG) >
+       (ilog("RS-unwire1:Should Unwire", IDIM) ListLG) >
      if not existIM(SetTIM, IDIM) or existIMInStates(SetTIM, IDIM, unwired) .
 
-  -- A wired Imports should be unwired if the component is started
-  --         in order to stop the export component.
+  -- An Import of a started Component should be unwired when its export Component should stop.
   trans [RS-unwire2]:
      < (cmp(IIDCO, started, TSCO) cmp(EIDCO, started, stopped) SetCCO), 
                        (imp(TIM,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
@@ -417,7 +408,7 @@ module! STATERules {
   => < (cmp(IIDCO, started, TSCO) cmp(EIDCO, started, stopped) SetCCO), 
                        (imp(TIM,IDIM,IIDCO,EIDCO,wired,unwired) SetCIM),
        SetTCO, SetTIM,
-       (ilog("Should Unwire", IDIM) ListLG) > .
+       (ilog("RS-unwire2:Should Unwire", IDIM) ListLG) > .
 
   -- An Optional Imports can be wired only if the component is started or stopped
   --           and also the export component is started.
@@ -429,7 +420,7 @@ module! STATERules {
   => < (cmp(IIDCO, CSCO, CSCO) cmp(EIDCO, started, started) SetCCO), 
                (imp(optional,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
        SetTCO, SetTIM,
-       (ilog("Do Wire", IDIM) ListLG) >
+       (ilog("RD-wire1:Do Wire", IDIM) ListLG) >
      if CSCO = started or CSCO = stopped .
 
   -- A Mandatory Imports can be wired only if the component is stopped
@@ -442,7 +433,7 @@ module! STATERules {
   => < (cmp(IIDCO, stopped, TSCO) cmp(EIDCO, started, started) SetCCO), 
                (imp(mandatory,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
        SetTCO, SetTIM,
-       (ilog("Do Wire", IDIM) ListLG) > .
+       (ilog("RD-wire2:Do Wire", IDIM) ListLG) > .
 
   -- An Optional Imports can be unwired only if the component is started or stopped.
   ctrans [RD-unwire1]:
@@ -451,7 +442,7 @@ module! STATERules {
        ListLG >
   => < (cmp(IDCO, CSCO, TSCO) SetCCO), (imp(optional,IDIM,IDCO,EIDCO,unwired,unwired) SetCIM),
        SetTCO, SetTIM,
-       (ilog("Do Unwire", IDIM) ListLG) > 
+       (ilog("RD-unwire1:Do Unwire", IDIM) ListLG) > 
      if (CSCO = started and TSCO = started) or CSCO = stopped .
 
   -- A Mandatory Imports can be unwired only if the component is stopped.
@@ -461,7 +452,7 @@ module! STATERules {
        ListLG >
   => < (cmp(IDCO, stopped, TSCO) SetCCO), (imp(mandatory,IDIM,IDCO,EIDCO,unwired,unwired) SetCIM),
        SetTCO, SetTIM,
-       (ilog("Do Unwire", IDIM) ListLG) > .
+       (ilog("RD-unwire2:Do Unwire", IDIM) ListLG) > .
 
   -- A Component can be stopped only if there is no started component importing it.
   ctrans [RD-stop]:
@@ -470,6 +461,6 @@ module! STATERules {
        ListLG >
   => < (cmp(IDCO, stopped, stopped) SetCCO), SetCIM,
        SetTCO, SetTIM,
-       (clog("Do Stop", IDCO) ListLG) > 
+       (clog("RD-stop:Do Stop", IDCO) ListLG) > 
      if getICOsOfIMsInStates(SetCCO,getIMsOfECOInStates(SetCIM,IDCO,wired),started) == empCO .
 }
