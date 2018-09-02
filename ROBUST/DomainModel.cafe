@@ -258,7 +258,7 @@ module! STATEfuns {
      = (imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) getIMsOfECOInTargetStates(SetIM,IDCO,TSIM)) .
   ceq getIMsOfECOInTargetStates((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,TSIM1) SetIM),IDCO,TSIM) 
      = getIMsOfECOInTargetStates(SetIM,IDCO,TSIM)
-     if not EIDCO == IDCO or not TSIM1 == TSIM .
+     if not EIDCO = IDCO or not TSIM1 = TSIM .
 
 --   pred wfs-atLeastOneCO : State
 --   eq wfs-atLeastOneCO(< SetCO,SetIM >) = not (SetCO = empCO) .
@@ -301,10 +301,10 @@ module! STATEfuns {
 -- A Component can start
 --    all its mandatory Imports are wired to started Components and				
 --    all its optional Imports to stopped Components are unwired.				
--- A Component can stop when all its Imports from started Components are unwired.		
+-- [RD-stop]:A Component can be stopped when there is no started component importing it.
 -- [RD-wire1/2]An optional Import can be wired when its Component is stopped or its export Component is started.
--- A mandatory import can be wired anytime.
--- An optional import can be unwired anytime.
+-- [RD-wire3]:A mandatory Import can be wired anytime.
+-- [RD-unwire1]:An optional Import can be unwired anytime.
 -- A mandatory Import can be unwired when its Component is stopped.
 -- A mandatory Import should be wired to started Component when its Component should start.
 -- An export Component of a mandatory Import should start when its import component should start.
@@ -453,27 +453,28 @@ module! STATERules {
        SetTCO, SetTIM,
        (ilog("RD-wire2:Do Wire", IDIM) ListLG) > .
 
-  -- A Mandatory Imports can be wired only if the component is stopped
-  --           and also the export component is started.
-  trans [RD-wire3]:
-     < (cmp(IIDCO, stopped, TSCO) cmp(EIDCO, started, started) SetCCO), 
+  -- A mandatory Import can be wired anytime.
+  ctrans [RD-wire3]:
+     < (cmp(IIDCO, CSCO, TSCO) SetCCO), 
                (imp(mandatory,IDIM,IIDCO,EIDCO,unwired,wired) SetCIM),
        SetTCO, SetTIM,
        ListLG >
-  => < (cmp(IIDCO, stopped, TSCO) cmp(EIDCO, started, started) SetCCO), 
-               (imp(mandatory,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
+  => < (cmp(IIDCO, CSCO, TSCO) SetCCO), 
+               (imp(mandatory,IDIM,IIDCO,EIDCO,wired,  wired) SetCIM),
        SetTCO, SetTIM,
-       (ilog("RD-wire3:Do Wire", IDIM) ListLG) > .
+       (ilog("RD-wire3:Do Wire", IDIM) ListLG) > 
+     if not CSCO = failed .
 
-  -- An Optional Imports can be unwired only if the component is started or stopped.
+  -- An Optional Imports can be unwired anytime.
+  -- N.B. "Anytime" means the component is not failed.
   ctrans [RD-unwire1]:
-     < (cmp(IDCO, CSCO, TSCO) SetCCO), (imp(optional,IDIM,IDCO,EIDCO,wired,unwired) SetCIM),
+     < (cmp(IDCO, CSCO, CSCO) SetCCO), (imp(optional,IDIM,IDCO,EIDCO,wired,unwired) SetCIM),
        SetTCO, SetTIM,
        ListLG >
-  => < (cmp(IDCO, CSCO, TSCO) SetCCO), (imp(optional,IDIM,IDCO,EIDCO,unwired,unwired) SetCIM),
+  => < (cmp(IDCO, CSCO, CSCO) SetCCO), (imp(optional,IDIM,IDCO,EIDCO,unwired,unwired) SetCIM),
        SetTCO, SetTIM,
        (ilog("RD-unwire1:Do Unwire", IDIM) ListLG) > 
-     if (CSCO = started and TSCO = started) or CSCO = stopped .
+     if not CSCO = failed .
 
   -- A Mandatory Imports can be unwired only if the component is stopped.
   trans [RD-unwire2]:
@@ -484,7 +485,8 @@ module! STATERules {
        SetTCO, SetTIM,
        (ilog("RD-unwire2:Do Unwire", IDIM) ListLG) > .
 
-  -- A Component can be stopped only if there is no started component importing it.
+  -- A Component can be stopped when there is no started component importing it.
+  -- N.B. This rule requires to check not cause loops.
   ctrans [RD-stop]:
      < (cmp(IDCO, started, stopped) SetCCO), SetCIM,
        SetTCO, SetTIM,
@@ -492,5 +494,5 @@ module! STATERules {
   => < (cmp(IDCO, stopped, stopped) SetCCO), SetCIM,
        SetTCO, SetTIM,
        (clog("RD-stop:Do Stop", IDCO) ListLG) > 
-     if getICOsOfIMsInStates(SetCCO,getIMsOfECOInStates(SetCIM,IDCO,wired),started) == empCO .
+     if getICOsOfIMsInStates(SetCCO,getIMsOfECOInStates(SetCIM,IDCO,wired),started) = empCO .
 }
