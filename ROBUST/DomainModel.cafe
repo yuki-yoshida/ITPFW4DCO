@@ -302,15 +302,17 @@ module! STATEfuns {
 --    all its mandatory Imports are wired to started Components and				
 --    all its optional Imports to stopped Components are unwired.				
 -- A Component can stop when all its Imports from started Components are unwired.		
--- An optional Import can be wired when its Component is stopped or its export Component is started	
+-- [RD-wire1/2]An optional Import can be wired when its Component is stopped or its export Component is started.
+-- A mandatory import can be wired anytime.
+-- An optional import can be unwired anytime.
 -- A mandatory Import can be unwired when its Component is stopped.
 -- A mandatory Import should be wired to started Component when its Component should start.
 -- An export Component of a mandatory Import should start when its import component should start.
 -- An optional Import to stopped Compoent should be unwired when its Component should start.
--- *An optional Import of a started Component should be unwired when its export Component should stop.
--- *A Component should stop when its mandatory Import is wired to a Component which should stop.
--- *A Component should start when its optional Import from started Component should be wired.
--- *A Component should stop when its mandatory Import should be unwired.
+-- [RS-unwire3]:An optional Import of a started Component should be unwired when its export Component should stop.
+-- [RS-stop3]:A Component should stop when its mandatory Import is wired to a Component which should stop.
+-- [RS-start2]:A Component should start when its optional Import from started Component should be wired.
+-- [RS-stop2]:A Component should stop when its mandatory Import should be unwired.
 
 module! STATERules {
   protecting(STATEfuns)
@@ -382,7 +384,6 @@ module! STATERules {
        SetTCO, SetTIM,
        (clog("RS-stop3:Should Stop", IIDCO) ListLG) > .
 
-
   -- An Imports should be wired if it is trageted.
   ctrans [RS-wire1]:
      < SetCCO, SetCIM,
@@ -393,14 +394,13 @@ module! STATERules {
        (ilog("RS-wire1:Should Wire", IDIM) ListLG) >
      if not existIM(SetCIM, IDIM) .
 
-  ctrans [RS-wire2]:
+  trans [RS-wire2]:
      < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired) SetCIM),
-       SetTCO, SetTIM,
+       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired,  wired)   SetTIM),
        ListLG >
   => < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,unwired,wired) SetCIM),
-       SetTCO, SetTIM,
-       (ilog("RS-wire2:Should Wire", IDIM) ListLG) > 
-     if existIMInStates(SetTIM, IDIM, wired) .
+       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired,  wired)   SetTIM),
+       (ilog("RS-wire2:Should Wire", IDIM) ListLG) > .
 
   -- A wired Imports should be unwired
   --         if it does not exist in the target or it is targeted.
@@ -411,35 +411,51 @@ module! STATERules {
   => < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired,unwired) SetCIM),
        SetTCO, SetTIM,
        (ilog("RS-unwire1:Should Unwire", IDIM) ListLG) >
-     if not existIM(SetTIM, IDIM) or existIMInStates(SetTIM, IDIM, unwired) .
+     if not existIM(SetTIM, IDIM).
+
+  trans [RS-unwire2]:
+     < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired,  wired)   SetCIM),
+       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired) SetTIM),
+       ListLG >
+  => < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired,  unwired) SetCIM),
+       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired) SetTIM),
+       (ilog("RS-unwire2:Should Unwire", IDIM) ListLG) > .
 
   -- An optional Import of a started Component should be unwired when its export Component should stop.
-  trans [RS-unwire2]:
+  trans [RS-unwire3]:
      < (cmp(IIDCO, started, TSCO) cmp(EIDCO, started, stopped) SetCCO), 
-                       (imp(optional,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
+                       (imp(optional,IDIM,IIDCO,EIDCO,wired,wired)   SetCIM),
        SetTCO, SetTIM,
        ListLG >
   => < (cmp(IIDCO, started, TSCO) cmp(EIDCO, started, stopped) SetCCO), 
                        (imp(optional,IDIM,IIDCO,EIDCO,wired,unwired) SetCIM),
        SetTCO, SetTIM,
-       (ilog("RS-unwire2:Should Unwire", IDIM) ListLG) > .
+       (ilog("RS-unwire3:Should Unwire", IDIM) ListLG) > .
 
-  -- An Optional Imports can be wired only if the component is started or stopped
-  --           and also the export component is started.
-  ctrans [RD-wire1]:
-     < (cmp(IIDCO, CSCO, CSCO) cmp(EIDCO, started, started) SetCCO), 
+  -- An optional Import can be wired when its Component is stopped or its export Component is started.
+  trans [RD-wire1]:
+     < (cmp(IIDCO, stopped, stopped) SetCCO), 
                (imp(optional,IDIM,IIDCO,EIDCO,unwired,wired) SetCIM),
        SetTCO, SetTIM,
        ListLG >
-  => < (cmp(IIDCO, CSCO, CSCO) cmp(EIDCO, started, started) SetCCO), 
+  => < (cmp(IIDCO, stopped, stopped) SetCCO), 
                (imp(optional,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
        SetTCO, SetTIM,
-       (ilog("RD-wire1:Do Wire", IDIM) ListLG) >
-     if CSCO = started or CSCO = stopped .
+       (ilog("RD-wire1:Do Wire", IDIM) ListLG) > .
+
+  trans [RD-wire2]:
+     < (cmp(EIDCO, started, started) SetCCO), 
+               (imp(optional,IDIM,IIDCO,EIDCO,unwired,wired) SetCIM),
+       SetTCO, SetTIM,
+       ListLG >
+  => < (cmp(EIDCO, started, started) SetCCO), 
+               (imp(optional,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
+       SetTCO, SetTIM,
+       (ilog("RD-wire2:Do Wire", IDIM) ListLG) > .
 
   -- A Mandatory Imports can be wired only if the component is stopped
   --           and also the export component is started.
-  trans [RD-wire2]:
+  trans [RD-wire3]:
      < (cmp(IIDCO, stopped, TSCO) cmp(EIDCO, started, started) SetCCO), 
                (imp(mandatory,IDIM,IIDCO,EIDCO,unwired,wired) SetCIM),
        SetTCO, SetTIM,
@@ -447,7 +463,7 @@ module! STATERules {
   => < (cmp(IIDCO, stopped, TSCO) cmp(EIDCO, started, started) SetCCO), 
                (imp(mandatory,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
        SetTCO, SetTIM,
-       (ilog("RD-wire2:Do Wire", IDIM) ListLG) > .
+       (ilog("RD-wire3:Do Wire", IDIM) ListLG) > .
 
   -- An Optional Imports can be unwired only if the component is started or stopped.
   ctrans [RD-unwire1]:
