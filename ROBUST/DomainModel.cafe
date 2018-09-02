@@ -307,7 +307,8 @@ module! STATEfuns {
 -- A mandatory Import should be wired to started Component when its Component should start.
 -- An export Component of a mandatory Import should start when its import component should start.
 -- An optional Import to stopped Compoent should be unwired when its Component should start.
--- *An Import of a started Component should be unwired when its export Component should stop.
+-- *An optional Import of a started Component should be unwired when its export Component should stop.
+-- *A Component should stop when its mandatory Import is wired to a Component which should stop.
 -- *A Component should start when its optional Import from started Component should be wired.
 -- *A Component should stop when its mandatory Import should be unwired.
 
@@ -369,6 +370,19 @@ module! STATERules {
        SetTCO, SetTIM,
        (clog("RS-stop2:Should Stop", IDCO) ListLG) > .
 
+  -- A Component should stop when its mandatory Import is wired to a Component which should stop.
+  -- N.B. When the Import will be unwired, the component need not stop.
+  trans [RS-stop3]:
+     < (cmp(IIDCO, started, started) cmp(EIDCO, started, stopped) SetCCO), 
+                     (imp(mandatory,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
+       SetTCO, SetTIM,
+       ListLG >
+  => < (cmp(IIDCO, started, stopped) cmp(EIDCO, started, stopped) SetCCO), 
+                     (imp(mandatory,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
+       SetTCO, SetTIM,
+       (clog("RS-stop3:Should Stop", IIDCO) ListLG) > .
+
+
   -- An Imports should be wired if it is trageted.
   ctrans [RS-wire1]:
      < SetCCO, SetCIM,
@@ -399,14 +413,14 @@ module! STATERules {
        (ilog("RS-unwire1:Should Unwire", IDIM) ListLG) >
      if not existIM(SetTIM, IDIM) or existIMInStates(SetTIM, IDIM, unwired) .
 
-  -- An Import of a started Component should be unwired when its export Component should stop.
+  -- An optional Import of a started Component should be unwired when its export Component should stop.
   trans [RS-unwire2]:
      < (cmp(IIDCO, started, TSCO) cmp(EIDCO, started, stopped) SetCCO), 
-                       (imp(TIM,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
+                       (imp(optional,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
        SetTCO, SetTIM,
        ListLG >
   => < (cmp(IIDCO, started, TSCO) cmp(EIDCO, started, stopped) SetCCO), 
-                       (imp(TIM,IDIM,IIDCO,EIDCO,wired,unwired) SetCIM),
+                       (imp(optional,IDIM,IIDCO,EIDCO,wired,unwired) SetCIM),
        SetTCO, SetTIM,
        (ilog("RS-unwire2:Should Unwire", IDIM) ListLG) > .
 
