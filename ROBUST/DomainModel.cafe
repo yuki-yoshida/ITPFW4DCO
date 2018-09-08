@@ -76,6 +76,7 @@ module! IMPORT {
 	   op #ObjInStates -> #ImportInStates,
 	   op getObject -> getImport,
 	   op allObjInStates -> allIMInStates,
+	   op allObjOfTypeInStates -> allIMOfTypeInStates,
 	   op allObjNotInStates -> allIMNotInStates,
 	   op someObjInStates -> someIMInStates})
 
@@ -383,6 +384,17 @@ module! STATERules {
                      (imp(mandatory,IDIM,IIDCO,EIDCO,wired,wired) SetCIM),
        SetTCO, SetTIM,
        (clog("RS-stop3:Should Stop", IIDCO) ListLG) > .
+
+  -- ctrans [RD-start]:
+  --    < (cmp(IDCO, stopped, started) SetCCO), SetCIM,
+  --      SetTCO, SetTIM,
+  --      ListLG >
+  -- => < (cmp(IDCO, started, started) SetCCO), SetCIM,
+  --      SetTCO, SetTIM,
+  --      (clog("RD-start:Do Start", IDCO) ListLG) > 
+  --    if allIMInStates(getICOsOfIMs(SetCCO,
+  --                                   getIMsOfECOInTargetStates(SetCIM,IDCO,wired)),
+  --                      started) .
 
   -- An Imports should be wired if it is trageted.
   ctrans [RS-wire1]:
