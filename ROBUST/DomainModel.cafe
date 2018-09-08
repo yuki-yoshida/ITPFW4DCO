@@ -240,7 +240,8 @@ module! STATEfuns {
   vars CSCO TSCO : COState
   var IDIM : IMID
   var TIM : IMType
-  vars CSIM TSIM TSIM1 : IMState
+  vars CSIM TSIM : IMState
+  var StIM : SetOfIMState
   var S : State
 
 --   extending(CYCLEIMED(
@@ -255,13 +256,19 @@ module! STATEfuns {
 --   	* {op noCycleC -> noCOCycle}
 --   	)
 
-  op getIMsOfECOInTargetStates : SetOfImport COID IMState -> SetOfImport
-  eq getIMsOfECOInTargetStates(empIM,IDCO,TSIM) = empIM .
-  eq getIMsOfECOInTargetStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SetIM),IDCO,TSIM) 
-     = (imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) getIMsOfECOInTargetStates(SetIM,IDCO,TSIM)) .
-  ceq getIMsOfECOInTargetStates((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,TSIM1) SetIM),IDCO,TSIM) 
-     = getIMsOfECOInTargetStates(SetIM,IDCO,TSIM)
-     if not EIDCO = IDCO or not TSIM1 = TSIM .
+  op getIMsOfECOInTargetStates : SetOfImport COID SetOfIMState -> SetOfImport
+  eq getIMsOfECOInTargetStates(empIM,IDCO,StIM) = empIM .
+  ceq getIMsOfECOInTargetStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SetIM),IDCO,StIM) 
+     = (imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) getIMsOfECOInTargetStates(SetIM,IDCO,StIM))
+     if TSIM in StIM .
+  ceq getIMsOfECOInTargetStates((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,TSIM) SetIM),IDCO,StIM) 
+     = getIMsOfECOInTargetStates(SetIM,IDCO,StIM)
+     if not EIDCO = IDCO or not TSIM in StIM .
+
+  pred allIMInTargetStates : SetOfImport SetOfIMState 
+  eq allIMInTargetStates(empIM,StIM) = true .
+  eq allIMInTargetStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SetIM),StIM) 
+     = not (TSIM in StIM) and allIMInTargetStates(SetIM,StIM) .
 
 --   pred wfs-atLeastOneCO : State
 --   eq wfs-atLeastOneCO(< SetCO,SetIM >) = not (SetCO = empCO) .
@@ -394,7 +401,9 @@ module! STATERules {
   => < (cmp(IDCO, started, started) SetCCO), SetCIM,
        SetTCO, SetTIM,
        (clog("RD-start:Do Start", IDCO) ListLG) > 
-     if allIMOfTypeOfICOInStates(SetCIM,mandatory,IDCO,wired) .
+     if allIMInStates(getIMsOfTypeOfICO(SetCIM,mandatory,IDCO),wired) and
+        allIMInTargetStates(getIMsOfTypeOfICO(SetCIM,mandatory,IDCO),wired) .
+
 
   -- An Imports should be wired if it is trageted.
   ctrans [RS-wire1]:
