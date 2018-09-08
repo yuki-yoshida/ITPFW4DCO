@@ -241,6 +241,7 @@ module! STATEfuns {
   var IDIM : IMID
   var TIM : IMType
   vars CSIM TSIM : IMState
+  var StCO : SetOfCOState
   var StIM : SetOfIMState
   var S : State
 
@@ -256,6 +257,11 @@ module! STATEfuns {
 --   	* {op noCycleC -> noCOCycle}
 --   	)
 
+  pred allCOInBothStates : SetOfComponent SetOfCOState 
+  eq allCOInBothStates(empCO,StCO) = true .
+  eq allCOInBothStates((cmp(IDCO,CSCO,TSCO) SetCO),StCO) 
+     = (TSCO in StCO) and (CSCO in StCO) and allCOInBothStates(SetCO,StCO) .
+
   op getIMsOfECOInTargetStates : SetOfImport COID SetOfIMState -> SetOfImport
   eq getIMsOfECOInTargetStates(empIM,IDCO,StIM) = empIM .
   ceq getIMsOfECOInTargetStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SetIM),IDCO,StIM) 
@@ -268,7 +274,12 @@ module! STATEfuns {
   pred allIMInTargetStates : SetOfImport SetOfIMState 
   eq allIMInTargetStates(empIM,StIM) = true .
   eq allIMInTargetStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SetIM),StIM) 
-     = not (TSIM in StIM) and allIMInTargetStates(SetIM,StIM) .
+     = (TSIM in StIM) and allIMInTargetStates(SetIM,StIM) .
+
+  pred allIMInBothStates : SetOfImport SetOfIMState 
+  eq allIMInBothStates(empIM,StIM) = true .
+  eq allIMInBothStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SetIM),StIM) 
+     = (TSIM in StIM) and (CSIM in StIM) and allIMInBothStates(SetIM,StIM) .
 
 --   pred wfs-atLeastOneCO : State
 --   eq wfs-atLeastOneCO(< SetCO,SetIM >) = not (SetCO = empCO) .
@@ -308,9 +319,10 @@ module! STATEfuns {
 -- (4) There are no cycles through mandatory imports
 
 -- Rules to keep invariants
--- A Component can start
+-- [RD-start]:A Component can start
 --    all its mandatory Imports are wired to started Components and				
---    all its optional Imports to stopped Components are unwired.				
+--    (all its optional Imports to stopped Components are unwired.)
+--    all its optional Imports are wired only to started components.
 -- [RD-stop]:A Component can be stopped when there is no started component importing it.
 -- [RD-wire1/2]An optional Import can be wired when its Component is stopped or its export Component is started.
 -- [RD-wire3]:A mandatory Import can be wired anytime.
@@ -399,11 +411,9 @@ module! STATERules {
        SetTCO, SetTIM,
        ListLG >
   => < (cmp(IDCO, started, started) SetCCO), SetCIM,
-       SetTCO, SetTIM,
+       SetTCO, empIM,
        (clog("RD-start:Do Start", IDCO) ListLG) > 
-     if allIMInStates(getIMsOfTypeOfICO(SetCIM,mandatory,IDCO),wired) and
-        allIMInTargetStates(getIMsOfTypeOfICO(SetCIM,mandatory,IDCO),wired) .
-
+     if allIMInBothStates(getIMsOfTypeOfICO(SetCIM,mandatory,IDCO),wired) .
 
   -- An Imports should be wired if it is trageted.
   ctrans [RS-wire1]:
@@ -505,6 +515,15 @@ module! STATERules {
   => < (cmp(IDCO, stopped, TSCO) SetCCO), (imp(mandatory,IDIM,IDCO,EIDCO,unwired,unwired) SetCIM),
        SetTCO, SetTIM,
        (ilog("RD-unwire2:Do Unwire", IDIM) ListLG) > .
+
+  ctrans [RD-remove]:
+     < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired) SetCIM),
+       SetTCO, SetTIM,
+       ListLG >
+  => < SetCCO, SetCIM,
+       SetTCO, SetTIM,
+       (ilog("RD-remove:Do Remove", IDIM) ListLG) >
+     if not existIM(SetTIM, IDIM).
 
   -- A Component can be stopped when there is no started component importing it.
   -- N.B. This rule requires to check not cause loops.
