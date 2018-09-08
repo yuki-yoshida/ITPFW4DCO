@@ -135,6 +135,7 @@ module! LINKS {
 	* {op hasLObj -> hasImporter,
 	   op getXOfZ -> getICOOfIM,
 	   op getZsOfX -> getIMsOfICO,
+	   op getZsOfTypeOfX -> getIMsOfTypeOfICO,
 	   op getZsOfXInStates -> getIMsOfICOInStates,
 	   op getXsOfZs -> getICOsOfIMs,
 	   op getXsOfZsInStates -> getICOsOfIMsInStates,
@@ -142,6 +143,7 @@ module! LINKS {
 	   op getZsOfXsInStates -> getIMsOfICOsInStates,
 	   op allZHaveX -> allIMHaveICO,
 	   op allZOfXInStates -> allIMOfICOInStates,
+	   op allZOfTypeOfXInStates -> allIMOfTypeOfICOInStates,
 	   op ifOfXThenInStates -> ifOfICOThenInStates,
 	   op ifXInStatesThenZInStates -> ifICOInStatesThenIMInStates}
 	)
@@ -385,16 +387,14 @@ module! STATERules {
        SetTCO, SetTIM,
        (clog("RS-stop3:Should Stop", IIDCO) ListLG) > .
 
-  -- ctrans [RD-start]:
-  --    < (cmp(IDCO, stopped, started) SetCCO), SetCIM,
-  --      SetTCO, SetTIM,
-  --      ListLG >
-  -- => < (cmp(IDCO, started, started) SetCCO), SetCIM,
-  --      SetTCO, SetTIM,
-  --      (clog("RD-start:Do Start", IDCO) ListLG) > 
-  --    if allIMInStates(getICOsOfIMs(SetCCO,
-  --                                   getIMsOfECOInTargetStates(SetCIM,IDCO,wired)),
-  --                      started) .
+  ctrans [RD-start]:
+     < (cmp(IDCO, stopped, started) SetCCO), SetCIM,
+       SetTCO, SetTIM,
+       ListLG >
+  => < (cmp(IDCO, started, started) SetCCO), SetCIM,
+       SetTCO, SetTIM,
+       (clog("RD-start:Do Start", IDCO) ListLG) > 
+     if allIMOfTypeOfICOInStates(SetCIM,mandatory,IDCO,wired) .
 
   -- An Imports should be wired if it is trageted.
   ctrans [RS-wire1]:
