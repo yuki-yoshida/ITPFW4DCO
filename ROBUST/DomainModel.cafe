@@ -271,6 +271,7 @@ module! STATEfuns {
      = getIMsOfECOInTargetStates(SetIM,IDCO,StIM)
      if not EIDCO = IDCO or not TSIM in StIM .
 
+
   pred allIMInTargetStates : SetOfImport SetOfIMState 
   eq allIMInTargetStates(empIM,StIM) = true .
   eq allIMInTargetStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SetIM),StIM) 
@@ -411,9 +412,10 @@ module! STATERules {
        SetTCO, SetTIM,
        ListLG >
   => < (cmp(IDCO, started, started) SetCCO), SetCIM,
-       SetTCO, empIM,
+       SetTCO, SetTIM,
        (clog("RD-start:Do Start", IDCO) ListLG) > 
-     if allIMInBothStates(getIMsOfTypeOfICO(SetCIM,mandatory,IDCO),wired) .
+     if allIMInBothStates(getIMsOfTypeOfICO(SetCIM,mandatory,IDCO),wired) and
+        allCOInBothStates(getECOsOfIMs(SetCCO,getIMsOfICOInStates(SetCIM,IDCO,wired)),started) .
 
   -- An Imports should be wired if it is trageted.
   ctrans [RS-wire1]:
