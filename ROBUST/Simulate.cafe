@@ -1,7 +1,7 @@
 require DomainModel DomainModel.cafe
 
 --> Sample Simulation
-open STATERules .
+open ProofBase .
 
 ops COC COC1 COC2 COD : -> COIDLt .
 ops IMW IMV IMW1 IMW2 : -> IMIDLt .
@@ -31,7 +31,11 @@ eq s0 =
     empLog > .
       
 red s0 .
+red final(s0) .
 -- set trace on .
 exec s0 .
+exec final(s0) .
+
+red contcont(s0) .
 
 close
