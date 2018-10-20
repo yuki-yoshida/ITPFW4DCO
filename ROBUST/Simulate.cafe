@@ -1,4 +1,5 @@
 require DomainModel DomainModel.cafe
+require Proof Proof.cafe
 
 --> Sample Simulation
 open ProofBase .
