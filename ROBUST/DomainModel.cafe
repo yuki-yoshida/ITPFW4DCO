@@ -249,7 +249,7 @@ module! STATEfuns {
   var L : ListOfLog
 
   vars IDCO IIDCO EIDCO : COID 
-  vars CSCO TSCO : COState
+  vars CSCO TSCO CSCO' TSCO' : COState
   var IDIM : IMID
   var TIM : IMType
   vars CSIM TSIM : IMState
@@ -294,6 +294,16 @@ module! STATEfuns {
   eq allIMInBothStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SCIM),StIM) 
      = (TSIM in StIM) and (CSIM in StIM) and allIMInBothStates(SCIM,StIM) .
 
+  pred wfs-sameCOinCT : State
+  eq wfs-sameCOinCT(< empCO,SCIM,empCO,STIM,L >)
+     = true .
+  ceq wfs-sameCOinCT(< empCO,SCIM,STCO,STIM,L >)
+     = false if not STCO == empCO .
+  ceq wfs-sameCOinCT(< (cmp(IDCO,CSCO,TSCO) SCCO),SCIM,STCO,STIM,L >)
+     = false if not existCO(STCO,IDCO) .
+  ceq wfs-sameCOinCT(< (cmp(IDCO,CSCO,TSCO) SCCO),SCIM,(cmp(IDCO,CSCO',TSCO') STCO),STIM,L >)
+     = true if wfs-sameCOinCT(< SCCO,SCIM,STCO,STIM,L >) .
+
 --   pred wfs-atLeastOneCO : State
 --   eq wfs-atLeastOneCO(< SCCO,SCIM >) = not (SCCO = empCO) .
 --   pred wfs-uniqCO : State
@@ -315,11 +325,10 @@ module! STATEfuns {
 --        wfs-uniqCO(S) and wfs-uniqIM(S) and 
 --        wfs-allIMHaveCO(S) and wfs-allIMHaveRCO(S) .
 
---   eq init(< SCCO,SCIM >)
---      = wfs(< SCCO,SCIM >) and
---        noCOCycle(< SCCO,SCIM >) and
---        allCOInStates(SCCO,initial) and 
---        allIMInStates(SCIM,notready) .
+  eq init(< SCCO,SCIM,STCO,STIM,L >)
+     = wfs(< SCCO,SCIM,STCO,STIM,L >) and
+       not final(< SCCO,SCIM,STCO,STIM,L >) .
+--        noCOCycle(< SCCO,SCIM >) .
 
   eq final(< SCCO,SCIM,STCO,STIM,L >)
      = (SCCO = STCO) and (SCIM = STIM) .

@@ -37,4 +37,7 @@ red final(s0) .
 exec s0 .
 exec final(s0) .
 
+red wfs(s0) .
+exec wfs(s0) .
+
 close
