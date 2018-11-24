@@ -304,26 +304,27 @@ module! STATEfuns {
   ceq wfs-sameCOinCT(< (cmp(IDCO,CSCO,TSCO) SCCO),SCIM,(cmp(IDCO,CSCO',TSCO') STCO),STIM,L >)
      = true if wfs-sameCOinCT(< SCCO,SCIM,STCO,STIM,L >) .
 
---   pred wfs-atLeastOneCO : State
---   eq wfs-atLeastOneCO(< SCCO,SCIM >) = not (SCCO = empCO) .
---   pred wfs-uniqCO : State
---   eq wfs-uniqCO(< SCCO,SCIM >) = uniqCO(SCCO) .
---   pred wfs-uniqIM : State
---   eq wfs-uniqIM(< SCCO,SCIM >) = uniqIM(SCIM) .
---   pred wfs-allIMHaveCO : State
---   eq wfs-allIMHaveCO(< SCCO,SCIM >) = allIMHaveCO(SCIM,SCCO) .
---   pred wfs-allIMHaveRCO : State
---   eq wfs-allIMHaveRCO(< SCCO,SCIM >) = allIMHaveRCO(SCIM,SCCO) .
+  pred wfs-uniqCO : State
+  eq wfs-uniqCO(< SCCO,SCIM,STCO,STIM,L >) = uniqCO(SCCO) .
+
+  pred wfs-uniqIM : State
+  eq wfs-uniqIM(< SCCO,SCIM,STCO,STIM,L >) = uniqIM(SCIM) and uniqIM(STIM) .
+
+  pred wfs-allIMHaveICO : State
+  eq wfs-allIMHaveICO(< SCCO,SCIM,STCO,STIM,L >) = allIMHaveICO(SCIM,SCCO) and allIMHaveICO(STIM,STCO) .
+
+  pred wfs-allIMHaveECO : State
+  eq wfs-allIMHaveECO(< SCCO,SCIM,STCO,STIM,L >) = allIMHaveECO(SCIM,SCCO) and allIMHaveECO(STIM,STCO) .
   
--- --> **************************************
--- --> Step 0-1: Define init(S) and final(S).
--- --> **************************************
---   -- wfs is a conjunction of invariants which are intentionally imposed by the init condition.
---   -- Since too long wfs causes a large evalutaion cost, define wfs minimally for each use case.
---   eq [:nonexec]: wfs(S)
---      = wfs-atLeastOneCO(S) and
---        wfs-uniqCO(S) and wfs-uniqIM(S) and 
---        wfs-allIMHaveCO(S) and wfs-allIMHaveRCO(S) .
+--> **************************************
+--> Step 0-1: Define init(S) and final(S).
+--> **************************************
+  -- wfs is a conjunction of invariants which are intentionally imposed by the init condition.
+  -- Since too long wfs causes a large evalutaion cost, define wfs minimally for each use case.
+  eq [:nonexec]: wfs(S)
+     = wfs-sameCOinCT(S) and
+       wfs-uniqCO(S) and wfs-uniqIM(S) and 
+       wfs-allIMHaveICO(S) and wfs-allIMHaveECO(S) .
 
   eq init(< SCCO,SCIM,STCO,STIM,L >)
      = wfs(< SCCO,SCIM,STCO,STIM,L >) and
