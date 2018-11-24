@@ -218,9 +218,6 @@ module! STATE {
   eq cImps(< SCCO,SCIM,STCO,STIM,L >) = SCIM .
   eq tImps(< SCCO,SCIM,STCO,STIM,L >) = STIM .
 
-  eq final(< SCCO,SCIM,STCO,STIM,L >)
-     = (SCCO = STCO) and (SCIM = STIM) .
-
   pred wfs : State
   pred init : State
   pred final : State
@@ -247,8 +244,10 @@ module! STATE {
 module! STATEfuns {
   protecting(STATE)
 
-  var SetCO : SetOfComponent
-  var SetIM : SetOfImport
+  vars SCCO STCO : SetOfComponent
+  vars SCIM STIM : SetOfImport
+  var L : ListOfLog
+
   vars IDCO IIDCO EIDCO : COID 
   vars CSCO TSCO : COState
   var IDIM : IMID
@@ -272,39 +271,39 @@ module! STATEfuns {
 
   pred allCOInBothStates : SetOfComponent SetOfCOState 
   eq allCOInBothStates(empCO,StCO) = true .
-  eq allCOInBothStates((cmp(IDCO,CSCO,TSCO) SetCO),StCO) 
-     = (TSCO in StCO) and (CSCO in StCO) and allCOInBothStates(SetCO,StCO) .
+  eq allCOInBothStates((cmp(IDCO,CSCO,TSCO) SCCO),StCO) 
+     = (TSCO in StCO) and (CSCO in StCO) and allCOInBothStates(SCCO,StCO) .
 
   op getIMsOfECOInTargetStates : SetOfImport COID SetOfIMState -> SetOfImport
   eq getIMsOfECOInTargetStates(empIM,IDCO,StIM) = empIM .
-  ceq getIMsOfECOInTargetStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SetIM),IDCO,StIM) 
-     = (imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) getIMsOfECOInTargetStates(SetIM,IDCO,StIM))
+  ceq getIMsOfECOInTargetStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SCIM),IDCO,StIM) 
+     = (imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) getIMsOfECOInTargetStates(SCIM,IDCO,StIM))
      if TSIM in StIM .
-  ceq getIMsOfECOInTargetStates((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,TSIM) SetIM),IDCO,StIM) 
-     = getIMsOfECOInTargetStates(SetIM,IDCO,StIM)
+  ceq getIMsOfECOInTargetStates((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,TSIM) SCIM),IDCO,StIM) 
+     = getIMsOfECOInTargetStates(SCIM,IDCO,StIM)
      if not EIDCO = IDCO or not TSIM in StIM .
 
 
   pred allIMInTargetStates : SetOfImport SetOfIMState 
   eq allIMInTargetStates(empIM,StIM) = true .
-  eq allIMInTargetStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SetIM),StIM) 
-     = (TSIM in StIM) and allIMInTargetStates(SetIM,StIM) .
+  eq allIMInTargetStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SCIM),StIM) 
+     = (TSIM in StIM) and allIMInTargetStates(SCIM,StIM) .
 
   pred allIMInBothStates : SetOfImport SetOfIMState 
   eq allIMInBothStates(empIM,StIM) = true .
-  eq allIMInBothStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SetIM),StIM) 
-     = (TSIM in StIM) and (CSIM in StIM) and allIMInBothStates(SetIM,StIM) .
+  eq allIMInBothStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SCIM),StIM) 
+     = (TSIM in StIM) and (CSIM in StIM) and allIMInBothStates(SCIM,StIM) .
 
 --   pred wfs-atLeastOneCO : State
---   eq wfs-atLeastOneCO(< SetCO,SetIM >) = not (SetCO = empCO) .
+--   eq wfs-atLeastOneCO(< SCCO,SCIM >) = not (SCCO = empCO) .
 --   pred wfs-uniqCO : State
---   eq wfs-uniqCO(< SetCO,SetIM >) = uniqCO(SetCO) .
+--   eq wfs-uniqCO(< SCCO,SCIM >) = uniqCO(SCCO) .
 --   pred wfs-uniqIM : State
---   eq wfs-uniqIM(< SetCO,SetIM >) = uniqIM(SetIM) .
+--   eq wfs-uniqIM(< SCCO,SCIM >) = uniqIM(SCIM) .
 --   pred wfs-allIMHaveCO : State
---   eq wfs-allIMHaveCO(< SetCO,SetIM >) = allIMHaveCO(SetIM,SetCO) .
+--   eq wfs-allIMHaveCO(< SCCO,SCIM >) = allIMHaveCO(SCIM,SCCO) .
 --   pred wfs-allIMHaveRCO : State
---   eq wfs-allIMHaveRCO(< SetCO,SetIM >) = allIMHaveRCO(SetIM,SetCO) .
+--   eq wfs-allIMHaveRCO(< SCCO,SCIM >) = allIMHaveRCO(SCIM,SCCO) .
   
 -- --> **************************************
 -- --> Step 0-1: Define init(S) and final(S).
@@ -316,14 +315,15 @@ module! STATEfuns {
 --        wfs-uniqCO(S) and wfs-uniqIM(S) and 
 --        wfs-allIMHaveCO(S) and wfs-allIMHaveRCO(S) .
 
---   eq init(< SetCO,SetIM >)
---      = wfs(< SetCO,SetIM >) and
---        noCOCycle(< SetCO,SetIM >) and
---        allCOInStates(SetCO,initial) and 
---        allIMInStates(SetIM,notready) .
+--   eq init(< SCCO,SCIM >)
+--      = wfs(< SCCO,SCIM >) and
+--        noCOCycle(< SCCO,SCIM >) and
+--        allCOInStates(SCCO,initial) and 
+--        allIMInStates(SCIM,notready) .
 
---   eq final(< SetCO,SetIM >)
---      = allCOInStates(SetCO,started) .
+  eq final(< SCCO,SCIM,STCO,STIM,L >)
+     = (SCCO = STCO) and (SCIM = STIM) .
+
 }
 
 -- Architecture Invariants

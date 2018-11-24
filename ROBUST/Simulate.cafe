@@ -37,6 +37,4 @@ red final(s0) .
 exec s0 .
 exec final(s0) .
 
-red contcont(s0) .
-
 close
