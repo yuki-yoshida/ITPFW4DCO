@@ -1,8 +1,7 @@
 require DomainModel DomainModel.cafe
-require Proof Proof.cafe
 
 --> Sample Simulation
-open ProofBase .
+open STATERules .
 
 ops COC COC1 COC2 COD : -> COIDLt .
 ops IMW IMV IMW1 IMW2 : -> IMIDLt .

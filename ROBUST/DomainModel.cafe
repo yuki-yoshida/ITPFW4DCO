@@ -259,10 +259,10 @@ module! STATEfuns {
   var L : ListOfLog
 
   vars IDCO IIDCO EIDCO : COID 
-  vars CSCO TSCO CSCO' TSCO' : COState
+  vars CSCO CSCO' TSCO : COState
   var IDIM : IMID
   var TIM : IMType
-  vars CSIM TSIM : IMState
+  vars CSIM CSIM' TSIM : IMState
   var StCO : SetOfCOState
   var StIM : SetOfIMState
   var S : State
@@ -279,18 +279,17 @@ module! STATEfuns {
 --   	* {op noCycleC -> noCOCycle}
 --   	)
 
-  pred sameCOSet : SetOfComponent SetOfComponent
-  eq sameCOSet(empCO,STCO) = (STCO = empCO) .
-  eq sameCOSet((cmp(IDCO,CSCO,TSCO) SCCO),(cmp(IDCO,CSCO) STCO))
-    = sameCOSet(SCCO,STCO) .
-  ceq sameCOSet((cmp(IDCO,CSCO,TSCO) SCCO),STCO)
-    = false if not existCO(STCO,IDCO) . 
+  pred equivCOSet : SetOfComponent SetOfComponent
+  -- Assuming that wfs-sameCOinCT holds.
+  eq equivCOSet(empCO,empCO) = true .
+  eq equivCOSet((cmp(IDCO,CSCO,TSCO) SCCO),(cmp(IDCO,CSCO') STCO))
+    = (CSCO = CSCO') and equivCOSet(SCCO,STCO) .
 
-  pred sameIMSet : SetOfImport SetOfImport
-  eq sameIMSet(empIM,STIM) = (STIM = empIM) .
-  eq sameIMSet((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SCIM),(imp(TIM,IDIM,IIDCO,IDCO,CSIM) STIM))
-    = sameIMSet(SCIM,STIM) .
-  ceq sameIMSet((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SCIM),STIM)
+  pred equivIMSet : SetOfImport SetOfImport
+  eq equivIMSet(empIM,STIM) = (STIM = empIM) .
+  eq equivIMSet((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SCIM),(imp(TIM,IDIM,IIDCO,IDCO,CSIM') STIM))
+    = equivIMSet(SCIM,STIM) .
+  ceq equivIMSet((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SCIM),STIM)
     = false if not existIM(STIM,IDIM) . 
 
   pred allCOInBothStates : SetOfComponent SetOfCOState 
@@ -354,7 +353,7 @@ module! STATEfuns {
 --        noCOCycle(< SCCO,SCIM >) .
 
   eq final(< SCCO,SCIM,STCO,STIM,L >)
-     = sameCOSet(SCCO,STCO) and sameIMSet(SCIM,STIM) .
+     = equivCOSet(SCCO,STCO) and equivIMSet(SCIM,STIM) .
 
 }
 
