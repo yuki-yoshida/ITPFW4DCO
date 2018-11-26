@@ -35,7 +35,8 @@ module! COMPONENT {
   -- Constructor
   -- cmp(ID, CState, TState) is a Component where the identifier is ID,
   --    the current local state is CState, and the target local state is TState
-  op cmp : COID COState COState -> Component {constr}
+  op cmp : COID COState COState -> Component {constr} -- for current component
+  op cmp : COID COState -> Component {constr}         -- for target component
 
   -- Variables
   var IDCO : COID
@@ -46,6 +47,9 @@ module! COMPONENT {
   eq id(cmp(IDCO,CSCO,TSCO)) = IDCO .
   eq state(cmp(IDCO,CSCO,TSCO)) = CSCO .
   eq target(cmp(IDCO,CSCO,TSCO)) = TSCO .
+
+  eq id(cmp(IDCO,CSCO)) = IDCO .
+  eq state(cmp(IDCO,CSCO)) = CSCO .
 
   -- Local States
   ops notalive stopped started failed : -> COStateLt {constr}
@@ -84,8 +88,8 @@ module! IMPORT {
   -- imp(Type, ID, IID, EID, CState, TState) is an Imports where the identifier is ID,
   --    the importer Component is IID, the exporter Component is EID,
   --    the current local state is CState, and the target local state is TState
-
-  op imp : IMType IMID COID COID IMState IMState -> Import {constr}
+  op imp : IMType IMID COID COID IMState IMState -> Import {constr} -- for current import
+  op imp : IMType IMID COID COID IMState -> Import {constr}         -- for target import
 
   -- Variables
   var TIM : IMType
@@ -106,6 +110,12 @@ module! IMPORT {
   eq target(imp(TIM,IDIM,IIDCO,EIDCO,CSIM,TSIM)) = TSIM .
   eq importer(imp(TIM,IDIM,IIDCO,EIDCO,CSIM,TSIM)) = IIDCO .
   eq exporter(imp(TIM,IDIM,IIDCO,EIDCO,CSIM,TSIM)) = EIDCO .
+
+  eq type(imp(TIM,IDIM,IIDCO,EIDCO,CSIM)) = TIM .
+  eq id(imp(TIM,IDIM,IIDCO,EIDCO,CSIM)) = IDIM .
+  eq state(imp(TIM,IDIM,IIDCO,EIDCO,CSIM)) = CSIM .
+  eq importer(imp(TIM,IDIM,IIDCO,EIDCO,CSIM)) = IIDCO .
+  eq exporter(imp(TIM,IDIM,IIDCO,EIDCO,CSIM)) = EIDCO .
   
   -- Local States
   ops wired unwired : -> IMStateLt {constr}
@@ -269,6 +279,20 @@ module! STATEfuns {
 --   	* {op noCycleC -> noCOCycle}
 --   	)
 
+  pred sameCOSet : SetOfComponent SetOfComponent
+  eq sameCOSet(empCO,STCO) = (STCO = empCO) .
+  eq sameCOSet((cmp(IDCO,CSCO,TSCO) SCCO),(cmp(IDCO,CSCO) STCO))
+    = sameCOSet(SCCO,STCO) .
+  ceq sameCOSet((cmp(IDCO,CSCO,TSCO) SCCO),STCO)
+    = false if not existCO(STCO,IDCO) . 
+
+  pred sameIMSet : SetOfImport SetOfImport
+  eq sameIMSet(empIM,STIM) = (STIM = empIM) .
+  eq sameIMSet((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SCIM),(imp(TIM,IDIM,IIDCO,IDCO,CSIM) STIM))
+    = sameIMSet(SCIM,STIM) .
+  ceq sameIMSet((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SCIM),STIM)
+    = false if not existIM(STIM,IDIM) . 
+
   pred allCOInBothStates : SetOfComponent SetOfCOState 
   eq allCOInBothStates(empCO,StCO) = true .
   eq allCOInBothStates((cmp(IDCO,CSCO,TSCO) SCCO),StCO) 
@@ -301,7 +325,7 @@ module! STATEfuns {
      = false if not STCO == empCO .
   ceq wfs-sameCOinCT(< (cmp(IDCO,CSCO,TSCO) SCCO),SCIM,STCO,STIM,L >)
      = false if not existCO(STCO,IDCO) .
-  ceq wfs-sameCOinCT(< (cmp(IDCO,CSCO,TSCO) SCCO),SCIM,(cmp(IDCO,CSCO',TSCO') STCO),STIM,L >)
+  ceq wfs-sameCOinCT(< (cmp(IDCO,CSCO,TSCO) SCCO),SCIM,(cmp(IDCO,CSCO') STCO),STIM,L >)
      = true if wfs-sameCOinCT(< SCCO,SCIM,STCO,STIM,L >) .
 
   pred wfs-uniqCO : State
@@ -332,7 +356,7 @@ module! STATEfuns {
 --        noCOCycle(< SCCO,SCIM >) .
 
   eq final(< SCCO,SCIM,STCO,STIM,L >)
-     = (SCCO = STCO) and (SCIM = STIM) .
+     = sameCOSet(SCCO,STCO) and sameIMSet(SCIM,STIM) .
 
 }
 
@@ -367,7 +391,7 @@ module! STATERules {
   vars CSCO TSCO : COState
   var IDIM : IMID
   var TIM : IMType
-  vars CSIM TSIM : IMState
+  var CSIM : IMState
 
   var SetCCO : SetOfComponent -- current Components
   var SetCIM : SetOfImport    -- current Imports
@@ -379,10 +403,10 @@ module! STATERules {
   -- A Component should be started if it is targeted.
   trans [RS-start1]:
      < (cmp(IDCO, stopped, stopped) SetCCO), SetCIM,
-       (cmp(IDCO, started, TSCO) SetTCO), SetTIM,
+       (cmp(IDCO, started)         SetTCO), SetTIM,
        ListLG >
   => < (cmp(IDCO, stopped, started) SetCCO), SetCIM,
-       (cmp(IDCO, started, TSCO) SetTCO), SetTIM,
+       (cmp(IDCO, started)         SetTCO), SetTIM,
        (clog("RS-start1:Should Start", cmp(IDCO, stopped, started)) ListLG) > .
 
   -- A Component should start when its optional Import from started Component should be writed.
@@ -402,11 +426,11 @@ module! STATERules {
   -- A Component should be stopped if it is targeted.
   trans [RS-stop1]:
      < (cmp(IDCO, started, started) SetCCO), SetCIM,
-       (cmp(IDCO, stopped, TSCO) SetTCO), SetTIM,
+       (cmp(IDCO, stopped)         SetTCO), SetTIM,
        ListLG >
   => < (cmp(IDCO, started, stopped) SetCCO), SetCIM,
-       (cmp(IDCO, stopped, TSCO) SetTCO), SetTIM,
-       (clog("RS-stop1:Should Stop", cmp(IDCO, stopped, TSCO)) ListLG) > .
+       (cmp(IDCO, stopped)         SetTCO), SetTIM,
+       (clog("RS-stop1:Should Stop", cmp(IDCO, started, stopped)) ListLG) > .
 
   -- A Component should stop when its mandatory Import should be unwired.
   trans [RS-stop2]:
@@ -442,19 +466,19 @@ module! STATERules {
   -- An Imports should be wired if it is trageted.
   ctrans [RS-wire1]:
      < SetCCO, SetCIM,
-       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired,TSIM) SetTIM),
+       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired) SetTIM),
        ListLG >
   => < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,unwired,wired) SetCIM),
-       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired,TSIM) SetTIM),
+       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired) SetTIM),
        (ilog("RS-wire1:Should Wire", imp(TIM,IDIM,IIDCO,EIDCO,unwired,wired)) ListLG) >
      if not existIM(SetCIM, IDIM) .
 
   trans [RS-wire2]:
      < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired) SetCIM),
-       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired,  wired)   SetTIM),
+       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired)   SetTIM),
        ListLG >
   => < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,unwired,wired) SetCIM),
-       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired,  wired)   SetTIM),
+       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired)   SetTIM),
        (ilog("RS-wire2:Should Wire", imp(TIM,IDIM,IIDCO,EIDCO,unwired,wired)) ListLG) > .
 
   -- A wired Imports should be unwired
@@ -470,10 +494,10 @@ module! STATERules {
 
   trans [RS-unwire2]:
      < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired,  wired)   SetCIM),
-       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired) SetTIM),
+       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,unwired) SetTIM),
        ListLG >
   => < SetCCO, (imp(TIM,IDIM,IIDCO,EIDCO,wired,  unwired) SetCIM),
-       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired) SetTIM),
+       SetTCO, (imp(TIM,IDIM,IIDCO,EIDCO,unwired) SetTIM),
        (ilog("RS-unwire2:Should Unwire", imp(TIM,IDIM,IIDCO,EIDCO,wired,  unwired)) ListLG) > .
 
   -- An optional Import of a started Component should be unwired when its export Component should stop.

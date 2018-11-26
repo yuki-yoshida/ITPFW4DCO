@@ -12,8 +12,8 @@ eq currentComponents =
   (cmp(COD,  started, started) cmp(COC,  started, started) 
    cmp(COC1, started, started) cmp(COC2, started, started)) .
 eq targetComponents =
-  (cmp(COD,  started, started) cmp(COC,  started, started)
-   cmp(COC1, started, started) cmp(COC2, started, started)) .
+  (cmp(COD,  started) cmp(COC,  started)
+   cmp(COC1, started) cmp(COC2, started)) .
 
 ops currentImports targetImports : -> SetOfImport .
 eq currentImports =
@@ -21,9 +21,9 @@ eq currentImports =
    imp(optional,  IMV,  COC1, COC,  wired, wired)
    imp(mandatory, IMW1, COC,  COC1, wired, wired)) .
 eq targetImports =
-  (imp(mandatory, IMW,  COD,  COC,  wired, wired)
-   imp(optional,  IMV,  COC1, COC,  wired, wired)
-   imp(mandatory, IMW2, COC,  COC2, wired, wired)) .
+  (imp(mandatory, IMW,  COD,  COC,  wired)
+   imp(optional,  IMV,  COC1, COC,  wired)
+   imp(mandatory, IMW2, COC,  COC2, wired)) .
 
 op s0 : -> State .
 eq s0 =
@@ -40,4 +40,4 @@ exec final(s0) .
 red not (wfs(s0) == false) .
 exec not (wfs(s0) == false) .
 
-close
+-- close
