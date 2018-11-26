@@ -31,12 +31,13 @@ eq s0 =
     empLog > .
       
 red s0 .
-red final(s0) .
--- set trace on .
 exec s0 .
-exec final(s0) .
 
 red not (wfs(s0) == false) .
-exec not (wfs(s0) == false) .
+red init(s0) = wfs(s0) .
+red final(s0) == false .
 
+exec not (wfs(s0) == false) .
+exec init(s0) == false .
+exec final(s0) .
 -- close

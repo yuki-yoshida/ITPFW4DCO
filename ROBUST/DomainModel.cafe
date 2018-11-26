@@ -292,6 +292,16 @@ module! STATEfuns {
   ceq equivIMSet((imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SCIM),STIM)
     = false if not existIM(STIM,IDIM) . 
 
+  pred stableCOSet : SetOfComponent
+  eq stableCOSet(empCO) = true .
+  eq stableCOSet(cmp(IDCO,CSCO,TSCO) SCCO)
+     = (CSCO = TSCO) and stableCOSet(SCCO) .
+
+  pred stableIMSet : SetOfImport
+  eq stableIMSet(empIM) = true .
+  eq stableIMSet(imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM) SCIM)
+     = (CSIM = TSIM) and stableIMSet(SCIM) .
+
   pred allCOInBothStates : SetOfComponent SetOfCOState 
   eq allCOInBothStates(empCO,StCO) = true .
   eq allCOInBothStates((cmp(IDCO,CSCO,TSCO) SCCO),StCO) 
@@ -349,6 +359,7 @@ module! STATEfuns {
 
   eq init(< SCCO,SCIM,STCO,STIM,L >)
      = wfs(< SCCO,SCIM,STCO,STIM,L >) and
+       stableCOSet(SCCO) and stableIMSet(SCIM) and
        not final(< SCCO,SCIM,STCO,STIM,L >) .
 --        noCOCycle(< SCCO,SCIM >) .
 
