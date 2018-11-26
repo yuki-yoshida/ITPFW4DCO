@@ -56,51 +56,36 @@ select ProofInitCont .
 :def csp1-1d = :csp  { 
   eq stCO = empCO .
   eq existCO(stCO,idcCO) = false .
-  eq stCO = (cmp(idcCO,cCOs',tCOs') stCO') .
+  eq stCO = (cmp(idcCO,cCOs') stCO') .
 }
 
 :apply (csp1-1d rd-)
-eof
+
 :set(normalize-init,on)
--- :init (ceq wfs(< scCO , scIM , stCO , stIM , lg >) = false
+-- :init eq (cCOs = cCOs') = false .
 :init (ceq true = false
-	if CCOS:COState = CCOS':COState and TCOS:COState = TCOS':COState . ) by {
+	if CCOS:COState = CCOS':COState . ) by {
   CCOS:COState <- cCOs;
   CCOS':COState <- cCOs';
-  TCOS:COState <- tCOs;
-  TCOS':COState <- tCOs';
 }
 :set(normalize-init,off)
 
-:def csp1-1d = :csp {
-  eq cCOs = notalive .
+:def csp1-1e = :csp {
   eq cCOs = stopped .
   eq cCOs = started .
-  eq cCOs = failed .
-}
-
-:def csp1-1e = :csp {
-  eq cCOs' = notalive .
-  eq cCOs' = stopped .
-  eq cCOs' = started .
-  eq cCOs' = failed .
 }
 
 :def csp1-1f = :csp {
-  eq tCOs = notalive .
-  eq tCOs = stopped .
-  eq tCOs = started .
-  eq tCOs = failed .
+  eq cCOs' = stopped .
+  eq cCOs' = started .
 }
 
 :def csp1-1g = :csp {
-  eq tCOs' = notalive .
-  eq tCOs' = stopped .
-  eq tCOs' = started .
-  eq tCOs' = failed .
+  eq tCOs = stopped .
+  eq tCOs = started .
 }
 
-:apply (csp1-1d csp1-1e csp1-1f csp1-1g rd-)
+:apply (csp1-1e csp1-1f csp1-1g rd-)
 eof
 --> *************************************************************************************
 --> Step 1-2: Consider which rule can be applied to the global state in the current case. 
