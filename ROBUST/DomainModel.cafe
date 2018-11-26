@@ -319,7 +319,7 @@ module! STATEfuns {
 
   pred wfs-sameCOinCT : State
   eq wfs-sameCOinCT(< empCO,SCIM,STCO,STIM,L >)
-     = (STCO == empCO) .
+     = (STCO = empCO) .
   eq wfs-sameCOinCT(< (cmp(IDCO,CSCO,TSCO) SCCO),SCIM,(cmp(IDCO,CSCO') STCO),STIM,L >)
      = wfs-sameCOinCT(< SCCO,SCIM,STCO,STIM,L >) .
   ceq wfs-sameCOinCT(< (cmp(IDCO,CSCO,TSCO) SCCO),SCIM,STCO,STIM,L >)

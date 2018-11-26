@@ -25,24 +25,42 @@ select ProofInitCont .
 
 :def csp1-1a = :csp  { 
   eq final(< scCO, scIM, stCO, stIM, lg >) = true .
-  eq (scCO = stCO) = false .
-  eq (scIM = stIM) = false .
+  eq equivCOSet(scCO,stCO) = false .
+  eq equivIMSet(scIM,stIM) = false .
 }
 
 :apply (csp1-1a rd-)
+
+:set(normalize-init,on)
+-- :init eq equivCOSet(scCO,stCO) = false .
+:init (ceq true = false
+	if equivCOSet(SCCO:SetOfComponent,STCO:SetOfComponent) . ) by {
+  SCCO:SetOfComponent <- scCO;
+  STCO:SetOfComponent <- stCO;
+}
+:set(normalize-init,off)
 
 :def csp1-1b = :csp  { 
   eq scCO = empCO .
   eq scCO = (cmp(idcCO,cCOs,tCOs) scCO') .
 }
 
-:def csp1-1c = :csp  { 
+:apply (csp1-1b rd-)
+
+:def ctf1-1c = :csp  { 
+  eq stCO = empCO .
+}
+
+:apply (ctf1-1c rd-)
+
+:def csp1-1d = :csp  { 
+  eq stCO = empCO .
   eq existCO(stCO,idcCO) = false .
   eq stCO = (cmp(idcCO,cCOs',tCOs') stCO') .
 }
 
-:apply (csp1-1b csp1-1c rd-)
-
+:apply (csp1-1d rd-)
+eof
 :set(normalize-init,on)
 -- :init (ceq wfs(< scCO , scIM , stCO , stIM , lg >) = false
 :init (ceq true = false
