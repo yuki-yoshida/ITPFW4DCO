@@ -319,14 +319,12 @@ module! STATEfuns {
      = (TSIM in StIM) and (CSIM in StIM) and allIMInBothStates(SCIM,StIM) .
 
   pred wfs-sameCOinCT : State
-  eq wfs-sameCOinCT(< empCO,SCIM,empCO,STIM,L >)
-     = true .
-  ceq wfs-sameCOinCT(< empCO,SCIM,STCO,STIM,L >)
-     = false if not STCO == empCO .
+  eq wfs-sameCOinCT(< empCO,SCIM,STCO,STIM,L >)
+     = (STCO == empCO) .
+  eq wfs-sameCOinCT(< (cmp(IDCO,CSCO,TSCO) SCCO),SCIM,(cmp(IDCO,CSCO') STCO),STIM,L >)
+     = wfs-sameCOinCT(< SCCO,SCIM,STCO,STIM,L >) .
   ceq wfs-sameCOinCT(< (cmp(IDCO,CSCO,TSCO) SCCO),SCIM,STCO,STIM,L >)
      = false if not existCO(STCO,IDCO) .
-  ceq wfs-sameCOinCT(< (cmp(IDCO,CSCO,TSCO) SCCO),SCIM,(cmp(IDCO,CSCO') STCO),STIM,L >)
-     = true if wfs-sameCOinCT(< SCCO,SCIM,STCO,STIM,L >) .
 
   pred wfs-uniqCO : State
   eq wfs-uniqCO(< SCCO,SCIM,STCO,STIM,L >) = uniqCO(SCCO) .
