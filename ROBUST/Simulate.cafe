@@ -6,29 +6,21 @@ open STATERules .
 ops COC COC1 COC2 COD : -> COIDLt .
 ops IMW IMV IMW1 IMW2 : -> IMIDLt .
 
-ops currentComponents targetComponents : -> SetOfComponent .
-eq currentComponents =
-  (cmp(COD,  started, started) cmp(COC,  started, started) 
-   cmp(COC1, started, started) cmp(COC2, started, started)) .
-eq targetComponents =
-  (cmp(COD,  started) cmp(COC,  started)
-   cmp(COC1, started) cmp(COC2, started)) .
+op components : -> SetOfComponent .
+eq components =
+  (cmp(COD,  started, started, started) cmp(COC,  started, started, started) 
+   cmp(COC1, started, started, started) cmp(COC2, started, started, started)) .
 
-ops currentImports targetImports : -> SetOfImport .
-eq currentImports =
-  (imp(mandatory, IMW,  COD,  COC,  wired, wired)
-   imp(optional,  IMV,  COC1, COC,  wired, wired)
-   imp(mandatory, IMW1, COC,  COC1, wired, wired)) .
-eq targetImports =
-  (imp(mandatory, IMW,  COD,  COC,  wired)
-   imp(optional,  IMV,  COC1, COC,  wired)
-   imp(mandatory, IMW2, COC,  COC2, wired)) .
+op imports : -> SetOfImport .
+eq imports =
+  (imp(mandatory, IMW,  COD,  COC,    wired,   wired,  wired)
+   imp(optional,  IMV,  COC1, COC,    wired,   wired,  wired)
+   imp(mandatory, IMW1, COC,  COC1,   wired,   wired, unwired)
+   imp(mandatory, IMW2, COC,  COC2, unwired, unwired,  wired)) .
 
 op s0 : -> State .
 eq s0 =
-  < currentComponents, currentImports,
-    targetComponents, targetImports,
-    empLog > .
+  < components, imports, empLog > .
       
 red s0 .
 exec s0 .
