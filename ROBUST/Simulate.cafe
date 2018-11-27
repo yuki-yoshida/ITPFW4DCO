@@ -13,10 +13,10 @@ eq components =
 
 op imports : -> SetOfImport .
 eq imports =
-  (imp(mandatory, IMW,  COD,  COC,    wired,   wired,  wired)
-   imp(optional,  IMV,  COC1, COC,    wired,   wired,  wired)
-   imp(mandatory, IMW1, COC,  COC1,   wired,   wired, unwired)
-   imp(mandatory, IMW2, COC,  COC2, unwired, unwired,  wired)) .
+  (imp(mandatory, IMW,  COD,  COC,   wired,  wired,  wired)
+   imp(optional,  IMV,  COC1, COC,   wired,  wired,  wired)
+   imp(mandatory, IMW1, COC,  COC1,  wired,  wired, unused)
+   imp(mandatory, IMW2, COC,  COC2, unused, unused,  wired)) .
 
 op s0 : -> State .
 eq s0 =

@@ -436,7 +436,7 @@ module! STATERules {
        ListLG >
   => < (cmp(IDCO, started, started, TSCO) SCO), SIM,
        (clog("RD-start:Do Start", cmp(IDCO, started, started, TSCO)) ListLG) > 
-     if allIMInBothStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),wired) and
+     if allIMInBothStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(wired unused)) and
         allCOInBothStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,wired)),started) .
 
   -- An Imports should be wired if it is targeted.
