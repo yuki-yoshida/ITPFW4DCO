@@ -511,6 +511,12 @@ module! STATERules {
        (imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM) SIM),
        (ilog("RD-unwire2:Do Unwire", imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM)) ListLG) > .
 
+  trans [RD-unwire3]:
+     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused,  unused, unwired) SIM),
+       ListLG >
+  => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, unwired) SIM),
+       (ilog("RD-unwire3:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, unwired)) ListLG) > .
+
   trans [RD-remove]:
      < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, unused) SIM),
        ListLG >

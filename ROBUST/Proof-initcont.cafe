@@ -21,93 +21,104 @@ select ProofInitCont .
 --> *******************************************
 --> Step 1-1: Begin with the most general case. 
 --> *******************************************
-:goal {eq initcont(< scCO, scIM, stCO, stIM, lg >) = true .}
+:goal {eq initcont(< sCO, sIM, lg >) = true .}
 
 :def csp1-1final = :csp  { 
-  eq final(< scCO, scIM, stCO, stIM, lg >) = true .
-  eq equivCOSet(scCO,stCO) = false .
-  eq equivIMSet(scIM,stIM) = false .
+  eq final(< sCO, sIM, lg >) = true .
+  eq equivCOSet(sCO) = false .
+  eq equivIMSet(sIM) = false .
 }
 
 :apply (csp1-1final rd-)
 
+-- Case 2:
 :set(normalize-init,on)
--- :init eq equivCOSet(scCO,stCO) = false .
+-- :init eq equivCOSet(sCO) = false .
 :init (ceq true = false
-	if equivCOSet(SCCO:SetOfComponent,STCO:SetOfComponent) . ) by {
-  SCCO:SetOfComponent <- scCO;
-  STCO:SetOfComponent <- stCO;
+	if equivCOSet(SCO:SetOfComponent) . ) by {
+  SCO:SetOfComponent <- sCO;
 }
 :set(normalize-init,off)
 
 :def csp1-1eqc1 = :csp  { 
-  eq scCO = empCO .
-  eq scCO = (cmp(idcCO,cCOs,tCOs) scCO') .
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
 }
 
 :apply (csp1-1eqc1 rd-)
 
-:def ctf1-1eqc2 = :ctf  { 
-  eq stCO = empCO .
-}
-
-:apply (ctf1-1eqc2 rd-)
-
-:def csp1-1eqc3 = :csp  { 
-  eq stCO = empCO .
-  eq existCO(stCO,idcCO) = false .
-  eq stCO = (cmp(idcCO,cCOs') stCO') .
-}
-
-:apply (csp1-1eqc3 rd-)
-
-:set(normalize-init,on)
--- :init eq (cCOs = cCOs') = false .
-:init (ceq true = false
-	if CCOS:COState = CCOS':COState . ) by {
-  CCOS:COState <- cCOs;
-  CCOS':COState <- cCOs';
-}
-:set(normalize-init,off)
-
-:def csp1-1eqc4 = :csp {
+:def csp1-1eqc2 = :csp  { 
   eq cCOs = stopped .
   eq cCOs = started .
 }
 
-:def csp1-1eqc5 = :csp {
-  eq cCOs' = stopped .
-  eq cCOs' = started .
+:def csp1-1eqc3 = :csp  { 
+  eq nCOs = stopped .
+  eq nCOs = started .
 }
 
-:def csp1-1eqc6 = :csp {
+:def csp1-1eqc4 = :csp  { 
   eq tCOs = stopped .
   eq tCOs = started .
 }
 
-:apply (csp1-1eqc4 csp1-1eqc5 csp1-1eqc6 rd-)
-
 :set(normalize-init,on)
--- :init eq equivCOSet(scCO,stCO) = true .
-:init (eq equivCOSet(SCCO:SetOfComponent,STCO:SetOfComponent) = true . ) by {
-  SCCO:SetOfComponent <- scCO;
-  STCO:SetOfComponent <- stCO;
+-- :init eq (cCOs = tCOs) = false .
+:init (ceq true = false
+	if CCOS:COState = TCOS:COState . ) by {
+  CCOS:COState <- cCOs;
+  TCOS:COState <- tCOs;
 }
 :set(normalize-init,off)
 
-:def csp1-1eqi1 = :csp {
-  eq scIM = empIM .
-  eq scIM = (imp(cIMt,idcIM,idcCO,idcCO',cIMs,cIMs') scIM') .
+:apply (csp1-1eqc2 csp1-1eqc3 csp1-1eqc4 rd-)
+
+-- Case 3:
+:set(normalize-init,on)
+-- :init eq equivIMSet(sIM) = false .
+:init (ceq true = false
+	if equivIMSet(SIM:SetOfImport) . ) by {
+  SIM:SetOfImport <- sIM;
+}
+:set(normalize-init,off)
+
+:def csp1-1eqc5 = :csp  { 
+  eq sIM = empIM .
+  eq sIM = (imp(tIM,idIM,iidCO,eidCO,cIMs,nIMs,tIMs) sIM') .
 }
 
-:apply (csp1-1eqi1 rd-)
+:apply (csp1-1eqc5 rd-)
 
-:def ctf1-1eqi2 = :ctf {
-  eq stIM = empIM .
+:def csp1-1eqc6 = :csp  { 
+  eq cIMs = unused .
+  eq cIMs = unwired .
+  eq cIMs = wired .
 }
 
-:apply (ctf1-1eqi2 rd-)
+:def csp1-1eqc7 = :csp  { 
+  eq nIMs = unused .
+  eq nIMs = unwired .
+  eq nIMs = wired .
+}
+
+:def csp1-1eqc8 = :csp  { 
+  eq tIMs = unused .
+  eq tIMs = unwired .
+  eq tIMs = wired .
+}
+
+:set(normalize-init,on)
+-- :init eq (cIMs = tIMs) = false .
+:init (ceq true = false
+	if CIMS:IMState = TIMS:IMState . ) by {
+  CIMS:IMState <- cIMs;
+  TIMS:IMState <- tIMs;
+}
+:set(normalize-init,off)
+:apply (csp1-1eqc6 csp1-1eqc7 csp1-1eqc8 rd-)
+
 eof
+
 --> *************************************************************************************
 --> Step 1-2: Consider which rule can be applied to the global state in the current case. 
 --> *************************************************************************************
