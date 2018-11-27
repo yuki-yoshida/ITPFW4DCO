@@ -23,13 +23,13 @@ select ProofInitCont .
 --> *******************************************
 :goal {eq initcont(< scCO, scIM, stCO, stIM, lg >) = true .}
 
-:def csp1-1a = :csp  { 
+:def csp1-1final = :csp  { 
   eq final(< scCO, scIM, stCO, stIM, lg >) = true .
   eq equivCOSet(scCO,stCO) = false .
   eq equivIMSet(scIM,stIM) = false .
 }
 
-:apply (csp1-1a rd-)
+:apply (csp1-1final rd-)
 
 :set(normalize-init,on)
 -- :init eq equivCOSet(scCO,stCO) = false .
@@ -40,26 +40,26 @@ select ProofInitCont .
 }
 :set(normalize-init,off)
 
-:def csp1-1b = :csp  { 
+:def csp1-1eqc1 = :csp  { 
   eq scCO = empCO .
   eq scCO = (cmp(idcCO,cCOs,tCOs) scCO') .
 }
 
-:apply (csp1-1b rd-)
+:apply (csp1-1eqc1 rd-)
 
-:def ctf1-1c = :csp  { 
+:def ctf1-1eqc2 = :ctf  { 
   eq stCO = empCO .
 }
 
-:apply (ctf1-1c rd-)
+:apply (ctf1-1eqc2 rd-)
 
-:def csp1-1d = :csp  { 
+:def csp1-1eqc3 = :csp  { 
   eq stCO = empCO .
   eq existCO(stCO,idcCO) = false .
   eq stCO = (cmp(idcCO,cCOs') stCO') .
 }
 
-:apply (csp1-1d rd-)
+:apply (csp1-1eqc3 rd-)
 
 :set(normalize-init,on)
 -- :init eq (cCOs = cCOs') = false .
@@ -70,22 +70,43 @@ select ProofInitCont .
 }
 :set(normalize-init,off)
 
-:def csp1-1e = :csp {
+:def csp1-1eqc4 = :csp {
   eq cCOs = stopped .
   eq cCOs = started .
 }
 
-:def csp1-1f = :csp {
+:def csp1-1eqc5 = :csp {
   eq cCOs' = stopped .
   eq cCOs' = started .
 }
 
-:def csp1-1g = :csp {
+:def csp1-1eqc6 = :csp {
   eq tCOs = stopped .
   eq tCOs = started .
 }
 
-:apply (csp1-1e csp1-1f csp1-1g rd-)
+:apply (csp1-1eqc4 csp1-1eqc5 csp1-1eqc6 rd-)
+
+:set(normalize-init,on)
+-- :init eq equivCOSet(scCO,stCO) = true .
+:init (eq equivCOSet(SCCO:SetOfComponent,STCO:SetOfComponent) = true . ) by {
+  SCCO:SetOfComponent <- scCO;
+  STCO:SetOfComponent <- stCO;
+}
+:set(normalize-init,off)
+
+:def csp1-1eqi1 = :csp {
+  eq scIM = empIM .
+  eq scIM = (imp(cIMt,idcIM,idcCO,idcCO',cIMs,cIMs') scIM') .
+}
+
+:apply (csp1-1eqi1 rd-)
+
+:def ctf1-1eqi2 = :ctf {
+  eq stIM = empIM .
+}
+
+:apply (ctf1-1eqi2 rd-)
 eof
 --> *************************************************************************************
 --> Step 1-2: Consider which rule can be applied to the global state in the current case. 
