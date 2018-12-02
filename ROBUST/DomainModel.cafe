@@ -246,8 +246,8 @@ module! STATE {
 module! STATEfuns {
   protecting(STATE)
 
-  var SCCO : SetOfComponent
-  var SCIM : SetOfImport
+  var SCO : SetOfComponent
+  var SIM : SetOfImport
   var L : ListOfLog
 
   vars IDCO IIDCO EIDCO : COID 
@@ -273,61 +273,92 @@ module! STATEfuns {
 
   pred stableCOSet : SetOfComponent
   eq stableCOSet(empCO) = true .
-  eq stableCOSet((cmp(IDCO,CSCO,NSCO,TSCO) SCCO))
-     = (CSCO = NSCO) and stableCOSet(SCCO) .
+  eq stableCOSet((cmp(IDCO,CSCO,NSCO,TSCO) SCO))
+     = (CSCO = NSCO) and stableCOSet(SCO) .
 
   pred stableIMSet : SetOfImport
   eq stableIMSet(empIM) = true .
-  eq stableIMSet((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SCIM))
-     = (CSIM = NSIM) and stableIMSet(SCIM) .
+  eq stableIMSet((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM))
+     = (CSIM = NSIM) and stableIMSet(SIM) .
 
   pred equivCOSet : SetOfComponent
   eq equivCOSet(empCO) = true .
-  eq equivCOSet(cmp(IDCO,CSCO,NSCO,TSCO) SCCO)
-     = (CSCO = NSCO) and (CSCO = TSCO) and equivCOSet(SCCO) .
+  eq equivCOSet(cmp(IDCO,CSCO,NSCO,TSCO) SCO)
+     = (CSCO = NSCO) and (CSCO = TSCO) and equivCOSet(SCO) .
 
   pred equivIMSet : SetOfImport
   eq equivIMSet(empIM) = true .
-  eq equivIMSet(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SCIM)
-     = (CSIM = NSIM) and (CSIM = TSIM) and equivIMSet(SCIM) .
+  eq equivIMSet(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM)
+     = (CSIM = NSIM) and (CSIM = TSIM) and equivIMSet(SIM) .
+
+  pred allIMInTargetStates : SetOfImport SetOfIMState
+  pred allCOInTargetStates : SetOfComponent SetOfCOState
+
+  pred validTargetComponent : SetOfComponent SetOfImport
+  eq validTargetComponent(empCO,SIM) = true .
+  eq validTargetComponent((cmp(IDCO,CSCO,NSCO,started) SCO),SIM)
+     = allIMInTargetStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(wired unused)) and
+       allCOInTargetStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,wired)),started) and
+       validTargetComponent(SCO,SIM) .
+  ceq validTargetComponent((cmp(IDCO,CSCO,NSCO,TSCO) SCO),SIM)
+     = validTargetComponent(SCO,SIM)
+     if not (TSCO = started) .
+
+  pred validTargetImport : SetOfImport SetOfComponent
+  eq validTargetImport(empIM,SCO) = true .
+  eq validTargetImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,wired) SIM),SCO) 
+     = allCOInTargetStates(getComponent(SCO,IIDCO),(started stopped)) and
+       allCOInTargetStates(getComponent(SCO,EIDCO),(started stopped)) and
+       validTargetImport(SIM,SCO) .
+  ceq validTargetImport((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM),SCO)
+     = validTargetImport(SIM,SCO)
+     if not (TSIM = wired) .
+
+  pred validTarget : SetOfComponent SetOfImport
+  eq validTarget(SCO,SIM)
+     = validTargetComponent(SCO,SIM) and validTargetImport(SIM,SCO) .
+  -- and noCycleTraget(SCO,SIM) .
 
   pred allCOInBothStates : SetOfComponent SetOfCOState 
   eq allCOInBothStates(empCO,StCO) = true .
-  eq allCOInBothStates((cmp(IDCO,CSCO,NSCO,TSCO) SCCO),StCO) 
-     = (CSCO in StCO) and (NSCO in StCO) and allCOInBothStates(SCCO,StCO) .
+  eq allCOInBothStates((cmp(IDCO,CSCO,NSCO,TSCO) SCO),StCO) 
+     = (CSCO in StCO) and (NSCO in StCO) and allCOInBothStates(SCO,StCO) .
 
   op getIMsOfECOInNextStates : SetOfImport COID SetOfIMState -> SetOfImport
   eq getIMsOfECOInNextStates(empIM,IDCO,StIM) = empIM .
-  ceq getIMsOfECOInNextStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SCIM),IDCO,StIM) 
-     = (imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) getIMsOfECOInNextStates(SCIM,IDCO,StIM))
+  ceq getIMsOfECOInNextStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM),IDCO,StIM) 
+     = (imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) getIMsOfECOInNextStates(SIM,IDCO,StIM))
      if NSIM in StIM .
-  ceq getIMsOfECOInNextStates((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,TSIM) SCIM),IDCO,StIM) 
-     = getIMsOfECOInNextStates(SCIM,IDCO,StIM)
+  ceq getIMsOfECOInNextStates((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,TSIM) SIM),IDCO,StIM) 
+     = getIMsOfECOInNextStates(SIM,IDCO,StIM)
      if not EIDCO = IDCO or not NSIM in StIM .
 
 
   pred allIMInNextStates : SetOfImport SetOfIMState 
   eq allIMInNextStates(empIM,StIM) = true .
-  eq allIMInNextStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SCIM),StIM) 
-     = (NSIM in StIM) and allIMInNextStates(SCIM,StIM) .
+  eq allIMInNextStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM),StIM) 
+     = (NSIM in StIM) and allIMInNextStates(SIM,StIM) .
 
   pred allIMInBothStates : SetOfImport SetOfIMState 
   eq allIMInBothStates(empIM,StIM) = true .
-  eq allIMInBothStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SCIM),StIM) 
-     = (CSIM in StIM) and (NSIM in StIM) and allIMInBothStates(SCIM,StIM) .
+  eq allIMInBothStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM),StIM) 
+     = (CSIM in StIM) and (NSIM in StIM) and allIMInBothStates(SIM,StIM) .
 
   pred wfs-uniqCO : State
-  eq wfs-uniqCO(< SCCO,SCIM,L >) = uniqCO(SCCO) .
+  eq wfs-uniqCO(< SCO,SIM,L >) = uniqCO(SCO) .
 
   pred wfs-uniqIM : State
-  eq wfs-uniqIM(< SCCO,SCIM,L >) = uniqIM(SCIM) .
+  eq wfs-uniqIM(< SCO,SIM,L >) = uniqIM(SIM) .
 
   pred wfs-allIMHaveICO : State
-  eq wfs-allIMHaveICO(< SCCO,SCIM,L >) = allIMHaveICO(SCIM,SCCO) .
+  eq wfs-allIMHaveICO(< SCO,SIM,L >) = allIMHaveICO(SIM,SCO) .
 
   pred wfs-allIMHaveECO : State
-  eq wfs-allIMHaveECO(< SCCO,SCIM,L >) = allIMHaveECO(SCIM,SCCO) .
+  eq wfs-allIMHaveECO(< SCO,SIM,L >) = allIMHaveECO(SIM,SCO) .
   
+  pred wfs-validTarget : State
+  eq wfs-validTarget(< SCO,SIM,L >) = validTarget(SCO,SIM) .
+
 --> **************************************
 --> Step 0-1: Define init(S) and final(S).
 --> **************************************
@@ -337,14 +368,14 @@ module! STATEfuns {
      = wfs-uniqCO(S) and wfs-uniqIM(S) and 
        wfs-allIMHaveICO(S) and wfs-allIMHaveECO(S) .
 
-  eq init(< SCCO,SCIM,L >)
-     = wfs(< SCCO,SCIM,L >) and
-       stableCOSet(SCCO) and stableIMSet(SCIM) and
-       not final(< SCCO,SCIM,L >) .
---        noCOCycle(< SCCO,SCIM >) .
+  eq init(< SCO,SIM,L >)
+     = wfs(< SCO,SIM,L >) and
+       stableCOSet(SCO) and stableIMSet(SIM) and
+       not final(< SCO,SIM,L >) .
+--        noCOCycle(< SCO,SIM >) .
 
-  eq final(< SCCO,SCIM,L >)
-     = equivCOSet(SCCO) and equivIMSet(SCIM) .
+  eq final(< SCO,SIM,L >)
+     = equivCOSet(SCO) and equivIMSet(SIM) .
 
 }
 

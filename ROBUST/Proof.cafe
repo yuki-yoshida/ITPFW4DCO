@@ -39,6 +39,7 @@ module ProofBase {
   -- wfs-*:
   ceq wfs(S) = false if not wfs-allIMHaveICO(S) .
   ceq wfs(S) = false if not wfs-allIMHaveECO(S) .
+  ceq wfs(S) = false if not wfs-validTarget(S) .
   ceq inv(S) = false if not wfs(S) .
 
   -- inv-*:
