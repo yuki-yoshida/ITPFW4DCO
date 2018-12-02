@@ -517,11 +517,17 @@ module! STATERules {
   => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, unwired) SIM),
        (ilog("RD-unwire3:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, unwired)) ListLG) > .
 
-  trans [RD-remove]:
+  trans [RD-remove1]:
      < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, unused) SIM),
        ListLG >
   => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused,  unused, unused) SIM),
-       (ilog("RD-remove:Do Remove", imp(TIM, IDIM, IIDCO, EIDCO, unused, unused, unused)) ListLG) > .
+       (ilog("RD-remove1:Do Remove", imp(TIM, IDIM, IIDCO, EIDCO, unused, unused, unused)) ListLG) > .
+
+  trans [RD-remove2]:
+     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unused, TSIM) SIM),
+       ListLG >
+  => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused,  unused, TSIM) SIM),
+       (ilog("RD-remove2:Do Remove", imp(TIM, IDIM, IIDCO, EIDCO, unused, unused, TSIM)) ListLG) > .
 
   -- A Component can be stopped when there is no started component importing it.
   -- N.B. This rule requires to check not cause loops.
