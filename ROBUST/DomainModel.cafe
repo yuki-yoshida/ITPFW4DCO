@@ -1,5 +1,5 @@
-require Template Template.cafe
-require LIST LIST.cafe
+require TEMPLATE ../lib/Template.cafe
+require LIST ../lib/LIST.cafe
 provide DomainModel
 
 -- An abstract model for Robust Reconfiguration Algorithm by F. Boyer et al.

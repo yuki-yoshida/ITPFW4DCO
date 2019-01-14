@@ -1,4 +1,4 @@
-require SET SET.cafe
+require SET ../lib/SET.cafe
 provide TEMPLATE
 
 module* OBJECT {
