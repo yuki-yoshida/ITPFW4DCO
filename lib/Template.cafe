@@ -1,5 +1,5 @@
 require SET ../lib/SET.cafe
-provide TEMPLATE
+provide Template
 
 module* OBJECT {
   pr(NAT)
@@ -25,6 +25,8 @@ module* OBJECT {
   op id : Object -> ObjID
   op type : Object -> ObjType
   op state : Object -> ObjState
+  op state2 : Object -> ObjState
+  op state3 : Object -> ObjState
 
   ceq (ID:ObjID = id(null) ) = false
     if not (ID == id(null)) .
@@ -32,6 +34,10 @@ module* OBJECT {
     if not (T == type(null)) .
   ceq (ST:ObjState = state(null) ) = false
     if not (ST == state(null)) .
+  ceq (ST:ObjState = state2(null) ) = false
+    if not (ST == state2(null)) .
+  ceq (ST:ObjState = state3(null) ) = false
+    if not (ST == state3(null)) .
 
   eq (O1:Object = O2:Object)
       = (id(O1) = id(O2)) .
@@ -45,11 +51,11 @@ module! SET+NAT {
   eq # (E:Elt.X S:Set) = 1 + # S .
 }
 
-module! SETOBJECT {
-  protecting(SET+NAT(OBJECT {sort Elt -> Object})
+module! SETOBJECT(OBJ :: OBJECT) {
+  protecting(SET+NAT(OBJ {sort Elt -> Object})
       * {sort Set -> SetOfObject,
       	 op empty -> empObj})
-  protecting(SET+NAT(OBJECT {sort Elt -> ObjState})
+  protecting(SET+NAT(OBJ {sort Elt -> ObjState})
       * {sort Set -> SetOfObjState,
       	 op empty -> empState})
 }
@@ -196,7 +202,7 @@ module! PRMOBJBASE {
 
   pred hasID : Object ObjID
   pred isType : Object ObjType
-  pred isInStates : Object SetOfObjState
+  pred isInStates0 : Object SetOfObjState
 
   eq hasID(O:Object,ID:ObjID)
      = id(O) = ID .
@@ -204,77 +210,70 @@ module! PRMOBJBASE {
   eq isType(O:Object,T:ObjType)
      = type(O) = T .
 
-  eq isInStates(O:Object,SetS:SetOfObjState)
+  eq isInStates0(O:Object,SetS:SetOfObjState)
      = state(O) in SetS .
 
-  pred ifOfTypeThenInStates : Object ObjType SetOfObjState
-  eq ifOfTypeThenInStates(O:Object,T:ObjType,SetSO:SetOfObjState)
+  pred ifOfTypeThenInStates0 : Object ObjType SetOfObjState
+  eq ifOfTypeThenInStates0(O:Object,T:ObjType,SetSO:SetOfObjState)
      = (type(O) = T) implies (state(O) in SetSO) .
 
-  pred hasIDInStates : Object ObjID SetOfObjState
-  eq hasIDInStates(O:Object,ID:ObjID,SetS:SetOfObjState)
-     = hasID(O,ID) and isInStates(O,SetS) .
+  pred hasIDInStates0 : Object ObjID SetOfObjState
+  eq hasIDInStates0(O:Object,ID:ObjID,SetS:SetOfObjState)
+     = hasID(O,ID) and isInStates0(O,SetS) .
     
 }
 
 module! OBJECTBASE- {
-  protecting(SETOBJECT)
-
-  pred uniqObj : SetOfObject
-  op #ObjInStates : SetOfObjState SetOfObject -> Nat
-  op getObject : SetOfObject ObjID -> Object
-  
-  var ID : ObjID
-  var O : Object
-  var S_O : SetOfObject
-  var S : ObjState
-  var SetS : SetOfObjState
 
   protecting(ALLOBJPRED1(PRMOBJBASE {sort Arg -> ObjID,
   	                             op p -> hasID})
                     * {op someObjP -> existObj})
 
   protecting(ALLOBJPRED1(PRMOBJBASE {sort Arg -> SetOfObjState,
-  			       	     op p -> isInStates})
-                    * {op allObjP -> allObjInStates,
-		       op allObjNotP -> allObjNotInStates,
-		       op someObjP -> someObjInStates})
+  			             op p -> isInStates0})
+                    * {op allObjP -> allObjInStates0,
+		       op allObjNotP -> allObjNotInStates0,
+		       op someObjP -> someObjInStates0})
 
   protecting(ALLOBJPRED2(PRMOBJBASE {sort Arg1 -> ObjType,
                                      sort Arg2 -> SetOfObjState,
-  			       	     op p -> ifOfTypeThenInStates})
-                    * {op allObjP -> allObjOfTypeInStates})
+  			             op p -> ifOfTypeThenInStates0})
+                    * {op allObjP -> allObjOfTypeInStates0})
 
   protecting(ALLOBJPRED2(PRMOBJBASE {sort Arg1 -> ObjID,
                                      sort Arg2 -> SetOfObjState,
-  			       	     op p -> hasIDInStates})
-                    * {op someObjP -> existObjInStates})
+  			             op p -> hasIDInStates0})
+                    * {op someObjP -> existObjInStates0})
+
+  pred uniqObj : SetOfObject
+  op #ObjInStates0 : SetOfObjState SetOfObject -> Nat
+  op getObject : SetOfObject ObjID -> Object
+  
+  vars ID IDO : ObjID
+
+  vars O O' : Object
+  vars S_O S_O' S_O1 S_O2 : SetOfObject
+
+  vars S SO : ObjState 
+  vars St_O SetS : SetOfObjState
+
+  var OT : ObjType
 
   eq uniqObj(empObj)
      = true .
   eq uniqObj((O S_O))
      = not existObj(S_O,id(O)) and uniqObj(S_O) .
 
-  eq #ObjInStates(SetS,empObj)
+  eq #ObjInStates0(SetS,empObj)
      = 0 .
-  eq #ObjInStates(SetS,(O S_O))
+  eq #ObjInStates0(SetS,(O S_O))
      = if (state(O) in SetS) then 1 else 0 fi
-       + #ObjInStates(SetS,S_O) .
+       + #ObjInStates0(SetS,S_O) .
 
   eq getObject(empObj,ID:ObjID)
      = null .
   eq getObject((O:Object S:SetOfObject),ID:ObjID)
      = if (id(O) = ID) then O else getObject(S,ID) fi .
-}
-
-module! OBJECTBASE {
-  protecting(OBJECTBASE-)
-  vars O O' : Object
-  var IDO : ObjID
-  var SO : ObjState 
-  var OT : ObjType
-  vars S_O S_O' S_O1 S_O2 : SetOfObject
-  var St_O : SetOfObjState
 
   -- Proved Lemmas
   eq [base-lemma01]:
@@ -286,15 +285,15 @@ module! OBJECTBASE {
      = (id(O) = IDO) .
 
   eq [base-lemma03]:
-      (allObjInStates(S_O,(SO St_O)) and 
-       #ObjInStates(SO,S_O) = 0 and
-       allObjInStates(S_O,St_O))
-     = (allObjInStates(S_O,(SO St_O)) and #ObjInStates(SO,S_O) = 0) .
+      (allObjInStates0(S_O,(SO St_O)) and 
+       #ObjInStates0(SO,S_O) = 0 and
+       allObjInStates0(S_O,St_O))
+     = (allObjInStates0(S_O,(SO St_O)) and #ObjInStates0(SO,S_O) = 0) .
 
   ceq [base-lemma04]:
-      (allObjInStates(S_O,SO) and
-       allObjOfTypeInStates(S_O,OT,St_O))
-     = allObjInStates(S_O,SO) 
+      (allObjInStates0(S_O,SO) and
+       allObjOfTypeInStates0(S_O,OT,St_O))
+     = allObjInStates0(S_O,SO) 
      if SO in St_O .
 
   ceq [base-lemma05]:
@@ -327,6 +326,44 @@ module! OBJECTBASE {
      subset(S_O,S_O) = true .
 }
 
+module! OBJECTBASE1 {
+  protecting(OBJECTBASE-(OBJECT)
+                    * {op #ObjInStates0 -> #ObjInStates,
+                       op existObjInStates0 -> existObjInStates,
+                       op allObjOfTypeInStates0 -> allObjOfTypeInStates,
+                       op allObjNotInStates0 -> allObjNotInStates,
+                       op allObjInStates0 -> allObjInStates,
+                       op someObjInStates0 -> someObjInStates,
+                       op hasIDInStates0 -> hasIDInStates,
+                       op ifOfTypeThenInStates0 -> ifOfTypeThenInStates,
+                       op isInStates0 -> isInStates})
+}
+module! OBJECTBASE2 {
+  protecting(OBJECTBASE-(OBJECTBASE1 {op state -> state2})
+                    * {op #ObjInStates0 -> #ObjInStates2,
+                       op existObjInStates0 -> existObjInStates2,
+                       op allObjOfTypeInStates0 -> allObjOfTypeInStates2,
+                       op allObjNotInStates0 -> allObjNotInStates2,
+                       op allObjInStates0 -> allObjInStates2,
+                       op someObjInStates0 -> someObjInStates2,
+                       op hasIDInStates0 -> hasIDInStates2,
+                       op ifOfTypeThenInStates0 -> ifOfTypeThenInStates2,
+                       op isInStates0 -> isInStates2})
+}
+module! OBJECTBASE {
+  protecting(OBJECTBASE-(OBJECTBASE2 {op state -> state3})
+                    * {op #ObjInStates0 -> #ObjInStates3,
+                       op existObjInStates0 -> existObjInStates3,
+                       op allObjOfTypeInStates0 -> allObjOfTypeInStates3,
+                       op allObjNotInStates0 -> allObjNotInStates3,
+                       op allObjInStates0 -> allObjInStates3,
+                       op someObjInStates0 -> someObjInStates3,
+                       op hasIDInStates0 -> hasIDInStates3,
+                       op ifOfTypeThenInStates0 -> ifOfTypeThenInStates3,
+                       op isInStates0 -> isInStates3})
+}
+
+eof
 module* PRMOBJLINK {
   protecting(SETOBJECT)
   pred allObjInStates : SetOfObject SetOfObjState

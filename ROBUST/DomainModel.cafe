@@ -1,4 +1,4 @@
-require TEMPLATE ../lib/Template.cafe
+require Template ../lib/Template.cafe
 require LIST ../lib/LIST.cafe
 provide DomainModel
 
