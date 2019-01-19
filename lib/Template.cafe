@@ -249,13 +249,13 @@ module! OBJECTBASE- {
   op #ObjInStates0 : SetOfObjState SetOfObject -> Nat
   op getObject : SetOfObject ObjID -> Object
   
-  vars ID IDO : ObjID
+  var ID : ObjID
 
   vars O O' : Object
   vars S_O S_O' S_O1 S_O2 : SetOfObject
 
-  vars S SO : ObjState 
-  vars St_O SetS : SetOfObjState
+  var St : ObjState 
+  var S_St : SetOfObjState
 
   var OT : ObjType
 
@@ -264,11 +264,11 @@ module! OBJECTBASE- {
   eq uniqObj((O S_O))
      = not existObj(S_O,id(O)) and uniqObj(S_O) .
 
-  eq #ObjInStates0(SetS,empObj)
+  eq #ObjInStates0(S_St,empObj)
      = 0 .
-  eq #ObjInStates0(SetS,(O S_O))
-     = if (state(O) in SetS) then 1 else 0 fi
-       + #ObjInStates0(SetS,S_O) .
+  eq #ObjInStates0(S_St,(O S_O))
+     = if (state(O) in S_St) then 1 else 0 fi
+       + #ObjInStates0(S_St,S_O) .
 
   eq getObject(empObj,ID:ObjID)
      = null .
@@ -277,28 +277,28 @@ module! OBJECTBASE- {
 
   -- Proved Lemmas
   eq [base-lemma01]:
-      (existObj(S_O,IDO) and existObj((O S_O),IDO))
-     = existObj(S_O,IDO) .
+      (existObj(S_O,ID) and existObj((O S_O),ID))
+     = existObj(S_O,ID) .
 
   eq [base-lemma02]:
-      ((id(O) = IDO) and existObj((O S_O),IDO))
-     = (id(O) = IDO) .
+      ((id(O) = ID) and existObj((O S_O),ID))
+     = (id(O) = ID) .
 
   eq [base-lemma03]:
-      (allObjInStates0(S_O,(SO St_O)) and 
-       #ObjInStates0(SO,S_O) = 0 and
-       allObjInStates0(S_O,St_O))
-     = (allObjInStates0(S_O,(SO St_O)) and #ObjInStates0(SO,S_O) = 0) .
+      (allObjInStates0(S_O,(St S_St)) and 
+       #ObjInStates0(St,S_O) = 0 and
+       allObjInStates0(S_O,S_St))
+     = (allObjInStates0(S_O,(St S_St)) and #ObjInStates0(St,S_O) = 0) .
 
   ceq [base-lemma04]:
-      (allObjInStates0(S_O,SO) and
-       allObjOfTypeInStates0(S_O,OT,St_O))
-     = allObjInStates0(S_O,SO) 
-     if SO in St_O .
+      (allObjInStates0(S_O,St) and
+       allObjOfTypeInStates0(S_O,OT,S_St))
+     = allObjInStates0(S_O,St) 
+     if St in S_St .
 
   ceq [base-lemma05]:
-    getObject(S_O,IDO) = null
-    if not existObj(S_O,IDO) .
+    getObject(S_O,ID) = null
+    if not existObj(S_O,ID) .
 
   ceq [set-lemma07]:
       ((O' in O) and (O' in S_O))
