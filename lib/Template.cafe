@@ -335,13 +335,14 @@ module! OBJECTBASE0 {
      subset(S_O,S_O) = true .
 }
 
+**> remove '(OBJECT)'
 module! OBJECTBASE1 {
-  protecting(OBJECTBASE0(OBJECT)
+  protecting(OBJECTBASE0
                     * {op #ObjInStates0 -> #ObjInStates,
                        op existObjInStates0 -> existObjInStates,
                        op allObjOfTypeInStates0 -> allObjOfTypeInStates,
                        op allObjNotInStates0 -> allObjNotInStates,
-                       op allObjInStates0 -> allObjInStates0,
+                       op allObjInStates0 -> allObjInStates,
                        op someObjInStates0 -> someObjInStates,
                        op hasIDInStates0 -> hasIDInStates,
                        op ifOfTypeThenInStates0 -> ifOfTypeThenInStates,
@@ -353,7 +354,7 @@ module! OBJECTBASE2 {
                        op existObjInStates0 -> existObjInStates2,
                        op allObjOfTypeInStates0 -> allObjOfTypeInStates2,
                        op allObjNotInStates0 -> allObjNotInStates2,
-                       op allObjInStates0 -> allObjInStates02,
+                       op allObjInStates0 -> allObjInStates2,
                        op someObjInStates0 -> someObjInStates2,
                        op hasIDInStates0 -> hasIDInStates2,
                        op ifOfTypeThenInStates0 -> ifOfTypeThenInStates2,
@@ -365,7 +366,7 @@ module! OBJECTBASE {
                        op existObjInStates0 -> existObjInStates3,
                        op allObjOfTypeInStates0 -> allObjOfTypeInStates3,
                        op allObjNotInStates0 -> allObjNotInStates3,
-                       op allObjInStates0 -> allObjInStates03,
+                       op allObjInStates0 -> allObjInStates3,
                        op someObjInStates0 -> someObjInStates3,
                        op hasIDInStates0 -> hasIDInStates3,
                        op ifOfTypeThenInStates0 -> ifOfTypeThenInStates3,
@@ -398,8 +399,10 @@ module* PRMOBJLINK {
   pred subset : SetOfLObject SetOfLObject
 }
 
-module! PRMOBJLINKPRED(LINK :: PRMOBJLINK) {
-
+**> remove '(LINK :: PRMOBJLINK)'
+module! PRMOBJLINKPRED {
+**> add 'pr(PRMOBJLINK)'
+  protecting(PRMOBJLINK)
   pred hasLObj : Object SetOfLObject
   eq hasLObj(O:Object,SetLO:SetOfLObject)
      = existLObj(SetLO,link(O)) .
@@ -949,8 +952,10 @@ module! OBJLINKMANY2ONE0 {
      if changeObjState0(Z,Z') and not state(Z') in St_Z .
 }
 
-module! OBJLINKMANY2ONE(LINK :: PRMOBJLINK) {
-  protecting(OBJLINKMANY2ONE0(LINK)
+**> remove '(LINK :: PRMOBJLINK)'
+module! OBJLINKMANY2ONE {
+**> remove '(LINK)'
+  protecting(OBJLINKMANY2ONE0
 	     * {op existLObjInStates0 -> existLObjInStates,
 		op allLObjInStates0 -> allLObjInStates,
 		op allObjInStates0 -> allObjInStates,
@@ -961,19 +966,18 @@ module! OBJLINKMANY2ONE(LINK :: PRMOBJLINK) {
 		op getXsOfZsInStates0 -> getXsOfZsInStates,
 		op getZsOfTypeOfXsInStates0 -> getZsOfTypeOfXsInStates,
 		op getZsOfXsInStates0 -> getZsOfXsInStates,
+		op getZsOfTypeOfXInStates0 -> getZsOfTypeOfXInStates,
+		op getZsOfXInStates0 -> getZsOfXInStates,
 		op ifOfTypeOfXThenInStates0 -> ifOfTypeOfXThenInStates,
 		op ifOfXThenInStates0 -> ifOfXThenInStates,
 		op ifXInStatesThenZInStates0 -> ifXInStatesThenZInStates,
 		op ifXInStatesThenZOfTypeInStates0 -> ifXInStatesThenZOfTypeInStates})
 }
-		-- op getZsOfTypeOfXInStates0 -> getZsOfTypeOfXInStates,
-		-- op getZsOfXInStates0 -> getZsOfXInStates,
 
-module! OBJLINKMANY2ONE2(LINK :: PRMOBJLINK) {
-  protecting(OBJLINKMANY2ONE0(OBJLINKMANY2ONE(LINK) {op state -> state2})
-	     )
-}
-eof
+**> remove '(LINK :: PRMOBJLINK)'
+module! OBJLINKMANY2ONE2 {
+**> remove '(LINK)'
+  protecting(OBJLINKMANY2ONE0(OBJLINKMANY2ONE {op state -> state2})
 	     * {op existLObjInStates0 -> existLObjInStates2,
 		op allLObjInStates0 -> allLObjInStates2,
 		op allObjInStates0 -> allObjInStates2,
@@ -986,12 +990,13 @@ eof
 		op getZsOfXsInStates0 -> getZsOfXsInStates2,
 		op getZsOfTypeOfXsInStates0 -> getZsOfTypeOfXsInStates2,
 		op getZsOfXsInStates0 -> getZsOfXsInStates2,
+		op getZsOfTypeOfXInStates0 -> getZsOfTypeOfXInStates2,
+		op getZsOfXInStates0 -> getZsOfXInStates2,
 		op ifOfTypeOfXThenInStates0 -> ifOfTypeOfXThenInStates2,
 		op ifOfXThenInStates0 -> ifOfXThenInStates2,
 		op ifXInStatesThenZInStates0 -> ifXInStatesThenZInStates2,
 		op ifXInStatesThenZOfTypeInStates0 -> ifXInStatesThenZOfTypeInStates2})
-		-- op getZsOfTypeOfXInStates0 -> getZsOfTypeOfXInStates2,
-		-- op getZsOfXInStates0 -> getZsOfXInStates2,
+}
 
 module! OBJLINKMANY2ONE3 {
   protecting(OBJLINKMANY2ONE0(OBJLINKMANY2ONE2 {op state -> state3})
@@ -1005,13 +1010,13 @@ module! OBJLINKMANY2ONE3 {
 		op getXsOfZsInStates0 -> getXsOfZsInStates3,
 		op getZsOfTypeOfXsInStates0 -> getZsOfTypeOfXsInStates3,
 		op getZsOfXsInStates0 -> getZsOfXsInStates3,
+		op getZsOfTypeOfXInStates0 -> getZsOfTypeOfXInStates3,
+		op getZsOfXInStates0 -> getZsOfXInStates3,
 		op ifOfTypeOfXThenInStates0 -> ifOfTypeOfXThenInStates3,
 		op ifOfXThenInStates0 -> ifOfXThenInStates3,
 		op ifXInStatesThenZInStates0 -> ifXInStatesThenZInStates3,
 		op ifXInStatesThenZOfTypeInStates0 -> ifXInStatesThenZOfTypeInStates3})
 }
-		-- op getZsOfTypeOfXInStates0 -> getZsOfTypeOfXInStates3,
-		-- op getZsOfXInStates0 -> getZsOfXInStates3,
 
 module* PRMCYCLE {
   [Object < SetOfObject]
