@@ -374,7 +374,7 @@ module! OBJECTBASE {
 }
 
 module* PRMOBJLINK {
-  protecting(SETOBJECT)
+  protecting(SETOBJECT(OBJECT))
   pred allObjInStates0 : SetOfObject SetOfObjState
   -- Linked Object which exists only one
   [LObject < SetOfLObject]
@@ -399,10 +399,7 @@ module* PRMOBJLINK {
   pred subset : SetOfLObject SetOfLObject
 }
 
-**> remove '(LINK :: PRMOBJLINK)'
-module! PRMOBJLINKPRED {
-**> add 'pr(PRMOBJLINK)'
-  protecting(PRMOBJLINK)
+module! PRMOBJLINKPRED(LINK :: PRMOBJLINK) {
   pred hasLObj : Object SetOfLObject
   eq hasLObj(O:Object,SetLO:SetOfLObject)
      = existLObj(SetLO,link(O)) .
