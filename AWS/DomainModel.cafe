@@ -110,18 +110,27 @@ module! LINKS {
   		  sort ObjState -> PRState,
   		  sort SetOfObject -> SetOfProperty,
   		  sort SetOfObjState -> SetOfPRState,
+		  op empObj -> empPR,
+		  op getObject(X:SetOfObject,Y:ObjID) 
+		     -> getProperty(X:SetOfProperty,Y:PRID),
+		  op existObj(X:SetOfObject,Y:ObjID)
+		     -> existPR(X:SetOfProperty,Y:PRID),
+		  op allObjInStates(X:SetOfObject,Y:SetOfObjState)
+		     -> allPRInStates(X:SetOfProperty,Y:SetOfPRState),
 		  sort LObject -> Resource,
 		  sort LObjID -> RSID,
   	          sort LObjState -> RSState,
   	          sort SetOfLObject -> SetOfResource,
   	          sort SetOfLObjState -> SetOfRSState,
-		  op allObjInStates -> allPRInStates,
 		  op link -> parent,
 		  op empLObj -> empRS,
-		  op existLObj -> existRS,
-		  op allLObjInStates -> allRSInStates,
-		  op existLObjInStates -> existRSInStates,
-		  op getLObject -> getResource})
+		  op getObject(X:SetOfLObject,Y:LObjID) 
+		     -> getResource(X:SetOfResource,Y:RSID),
+		  op existObj(X:SetOfLObject,Y:LObjID)
+		     -> existRS(X:SetOfResource,Y:RSID),
+		  op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
+		     -> allRSInStates(X:SetOfResource,Y:SetOfRSState),
+		  op existObjInStates -> existRSInStates})
 	* {op hasLObj -> hasParent,
 	   op getXOfZ -> getRSOfPR,
 	   op getZsOfX -> getPRsOfRS,
@@ -137,24 +146,33 @@ module! LINKS {
 	)
 
   extending(OBJLINKMANY2ONE(
-  	PROPERTY {sort Object -> Property,
+	PROPERTY {sort Object -> Property,
   		  sort ObjID -> PRID,
-		  sort ObjType -> PRType,
+  		  sort ObjType -> PRType,
   		  sort ObjState -> PRState,
   		  sort SetOfObject -> SetOfProperty,
   		  sort SetOfObjState -> SetOfPRState,
-  		  sort LObject -> Resource,
-  		  sort LObjID -> RSID,
+		  op empObj -> empPR,
+		  op getObject(X:SetOfObject,Y:ObjID) 
+		     -> getProperty(X:SetOfProperty,Y:PRID),
+		  op existObj(X:SetOfObject,Y:ObjID)
+		     -> existPR(X:SetOfProperty,Y:PRID),
+		  op allObjInStates(X:SetOfObject,Y:SetOfObjState)
+		     -> allPRInStates(X:SetOfProperty,Y:SetOfPRState),
+		  sort LObject -> Resource,
+		  sort LObjID -> RSID,
   	          sort LObjState -> RSState,
   	          sort SetOfLObject -> SetOfResource,
   	          sort SetOfLObjState -> SetOfRSState,
-		  op allObjInStates -> allPRInStates,
   		  op link -> refer,
-  		  op empLObj -> empRS,
-  		  op existLObj -> existRS,
-  		  op allLObjInStates -> allRSInStates,
-  		  op existLObjInStates -> existRSInStates,
-  		  op getLObject -> getResource})
+		  op empLObj -> empRS,
+		  op getObject(X:SetOfLObject,Y:LObjID) 
+		     -> getResource(X:SetOfResource,Y:RSID),
+		  op existObj(X:SetOfLObject,Y:LObjID)
+		     -> existRS(X:SetOfResource,Y:RSID),
+		  op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
+		     -> allRSInStates(X:SetOfResource,Y:SetOfRSState),
+		  op existObjInStates -> existRSInStates})
 	* {op hasLObj -> hasRefRS,
   	   op getXOfZ -> getRRSOfPR,
   	   op getZsOfX -> getPRsOfRRS,
