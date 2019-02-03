@@ -859,14 +859,15 @@ module! OBJLINKMANY2ONE(LINK :: PRMOBJLINK) {
 		op ifXInStatesThenZOfTypeInStates0 -> ifXInStatesThenZOfTypeInStates3})
 }
 
-module! OBJLINKONE2ONE- {
+module! OBJLINKONE2ONE-(LINK :: PRMOBJLINK) {
   -- one X has exactly one coressponding Y
   -- Y has a link to X
 
-  protecting(ALLOBJPRED1(PRMOBJLINKPRED {sort Arg -> LObjID,
-  			       	         op p -> isOfX})
-                    * {op someObjP -> existX,
-		       op onlyOneObjP -> onlyOneYOfX})
+  protecting(ALLOBJPRED1(PRMOBJLINKPRED(LINK)
+			 {sort Arg -> LObjID,
+			  op p -> isOfX})
+                    * {op someObjP -> existX0,
+		       op onlyOneObjP -> onlyOneYOfX0})
 
   var X : LObject
   var Y : Object
@@ -881,118 +882,118 @@ module! OBJLINKONE2ONE- {
   ceq (IDX = link(null) ) = false
     if not (IDX == link(null)) .
 
-  op getXOfY : SetOfLObject Object -> LObject
-  eq getXOfY(S_X,Y)
-     = getLObject(S_X,link(Y)) .
+  op getXOfY0 : SetOfLObject Object -> LObject
+  eq getXOfY0(S_X,Y)
+     = getObject(S_X,link(Y)) .
 
-  op getXsOfYs : SetOfLObject SetOfObject -> SetOfLObject
-  eq getXsOfYs(S_X,empObj)
+  op getXsOfYs0 : SetOfLObject SetOfObject -> SetOfLObject
+  eq getXsOfYs0(S_X,empObj)
      = empLObj .
-  eq getXsOfYs(S_X,(Y S_Y))
-     = (getXOfY(S_X,Y) getXsOfYs(S_X,S_Y)) .
+  eq getXsOfYs0(S_X,(Y S_Y))
+     = (getXOfY0(S_X,Y) getXsOfYs0(S_X,S_Y)) .
 
-  op getXsOfYsInStates : SetOfLObject SetOfObject SetOfLObjState -> SetOfLObject
-  op getXsOfYsInStates : SetOfLObject SetOfLObject SetOfObject SetOfLObjState -> SetOfLObject
-  eq getXsOfYsInStates(empLObj,S_Y,St_X)
+  op getXsOfYsInStates0 : SetOfLObject SetOfObject SetOfLObjState -> SetOfLObject
+  op getXsOfYsInStates0 : SetOfLObject SetOfLObject SetOfObject SetOfLObjState -> SetOfLObject
+  eq getXsOfYsInStates0(empLObj,S_Y,St_X)
      = empLObj .
-  eq getXsOfYsInStates(S_X,empObj,St_X)
+  eq getXsOfYsInStates0(S_X,empObj,St_X)
      = empLObj .
-  ceq getXsOfYsInStates(S_X,(Y S_Y),St_X)
-     = getXsOfYsInStates(getXOfY(S_X,Y),S_X,S_Y,St_X) 
+  ceq getXsOfYsInStates0(S_X,(Y S_Y),St_X)
+     = getXsOfYsInStates0(getXOfY0(S_X,Y),S_X,S_Y,St_X) 
      if not S_X = empLObj .
 
-  eq getXsOfYsInStates(empLObj,S_X,S_Y,St_X)
-     = getXsOfYsInStates(S_X,S_Y,St_X) .
-  eq getXsOfYsInStates(X,S_X,S_Y,St_X)
+  eq getXsOfYsInStates0(empLObj,S_X,S_Y,St_X)
+     = getXsOfYsInStates0(S_X,S_Y,St_X) .
+  eq getXsOfYsInStates0(X,S_X,S_Y,St_X)
      = if (state(X) in St_X) then
-       	  (X getXsOfYsInStates(S_X,S_Y,St_X))
+       	  (X getXsOfYsInStates0(S_X,S_Y,St_X))
        else
-       	  getXsOfYsInStates(S_X,S_Y,St_X)
+       	  getXsOfYsInStates0(S_X,S_Y,St_X)
        fi .
 
-  op getYOfX : SetOfObject LObjID -> Object
-  op getYOfX : SetOfObject LObject -> Object
-  eq getYOfX(S_Y,X)
-     = getYOfX(S_Y,id(X)) .
-  eq getYOfX(empObj,IDX)
+  op getYOfX0 : SetOfObject LObjID -> Object
+  op getYOfX0 : SetOfObject LObject -> Object
+  eq getYOfX0(S_Y,X)
+     = getYOfX0(S_Y,id(X)) .
+  eq getYOfX0(empObj,IDX)
      = null .
-  eq getYOfX((Y S_Y),IDX)
-     = if (IDX = link(Y)) then Y else getYOfX(S_Y,IDX) fi .
+  eq getYOfX0((Y S_Y),IDX)
+     = if (IDX = link(Y)) then Y else getYOfX0(S_Y,IDX) fi .
 
-  op getYsOfXs : SetOfObject SetOfLObject -> SetOfObject
-  eq getYsOfXs(S_Y,empLObj)
+  op getYsOfXs0 : SetOfObject SetOfLObject -> SetOfObject
+  eq getYsOfXs0(S_Y,empLObj)
      = empObj .
-  eq getYsOfXs(S_Y,(X S_X))
-     = (getYOfX(S_Y,X) getYsOfXs(S_Y,S_X)) .
+  eq getYsOfXs0(S_Y,(X S_X))
+     = (getYOfX0(S_Y,X) getYsOfXs0(S_Y,S_X)) .
 
-  op getYsOfXsInStates : SetOfObject SetOfLObject SetOfObjState -> SetOfObject
-  op getYsOfXsInStates : Object SetOfObject SetOfLObject SetOfObjState -> SetOfObject
-  eq getYsOfXsInStates(empObj,S_X,St_Y)
+  op getYsOfXsInStates0 : SetOfObject SetOfLObject SetOfObjState -> SetOfObject
+  op getYsOfXsInStates0 : Object SetOfObject SetOfLObject SetOfObjState -> SetOfObject
+  eq getYsOfXsInStates0(empObj,S_X,St_Y)
      = empObj .
-  eq getYsOfXsInStates(S_Y,empLObj,St_Y)
+  eq getYsOfXsInStates0(S_Y,empLObj,St_Y)
      = empObj .
-  ceq getYsOfXsInStates(S_Y,(X S_X),St_Y)
-     = getYsOfXsInStates(getYOfX(S_Y,id(X)),S_Y,S_X,St_Y) 
+  ceq getYsOfXsInStates0(S_Y,(X S_X),St_Y)
+     = getYsOfXsInStates0(getYOfX0(S_Y,id(X)),S_Y,S_X,St_Y) 
      if not S_Y = empObj .
 
-  eq getYsOfXsInStates(Y,S_Y,S_X,St_Y)
+  eq getYsOfXsInStates0(Y,S_Y,S_X,St_Y)
      = if (state(Y) in St_Y) then
-          (Y getYsOfXsInStates(S_Y,S_X,St_Y))
+          (Y getYsOfXsInStates0(S_Y,S_X,St_Y))
        else
-          getYsOfXsInStates(S_Y,S_X,St_Y)
+          getYsOfXsInStates0(S_Y,S_X,St_Y)
        fi .
 
   pred uniqX : SetOfObject
   eq uniqX(empObj)
      = true .
   eq uniqX((Y S_Y))
-     = not existX(S_Y,link(Y)) and uniqX(S_Y) .
+     = not existX0(S_Y,link(Y)) and uniqX(S_Y) .
 
-  pred YOfXInStates : SetOfObject LObjID SetOfObjState
-  eq YOfXInStates(empObj,IDX,St_Y)
+  pred YOfXInStates0 : SetOfObject LObjID SetOfObjState
+  eq YOfXInStates0(empObj,IDX,St_Y)
      = false .
-  ceq YOfXInStates((Y S_Y),IDX,St_Y)
-     = (state(Y) in St_Y) and not existX(S_Y,IDX) 
+  ceq YOfXInStates0((Y S_Y),IDX,St_Y)
+     = (state(Y) in St_Y) and not existX0(S_Y,IDX) 
      if (link(Y) = IDX) .
-  ceq YOfXInStates((Y S_Y),IDX,St_Y)
-     = YOfXInStates(S_Y,IDX,St_Y)
+  ceq YOfXInStates0((Y S_Y),IDX,St_Y)
+     = YOfXInStates0(S_Y,IDX,St_Y)
      if not (link(Y) = IDX) .
 
-  pred ifXInStatesThenYInStates : SetOfLObject SetOfLObjState SetOfObject SetOfObjState
-  eq ifXInStatesThenYInStates(empLObj,St_X,S_Y,St_Y)
+  pred ifXInStatesThenYInStates0 : SetOfLObject SetOfLObjState SetOfObject SetOfObjState
+  eq ifXInStatesThenYInStates0(empLObj,St_X,S_Y,St_Y)
      = true .
-  eq ifXInStatesThenYInStates(S_X,St_X,empObj,St_Y)
+  eq ifXInStatesThenYInStates0(S_X,St_X,empObj,St_Y)
      = true .
-  ceq ifXInStatesThenYInStates((X S_X),St_X,S_Y,St_Y)
-     = ((state(X) in St_X) implies YOfXInStates(S_Y,id(X),St_Y))
-       and ifXInStatesThenYInStates(S_X,St_X,S_Y,St_Y)
+  ceq ifXInStatesThenYInStates0((X S_X),St_X,S_Y,St_Y)
+     = ((state(X) in St_X) implies YOfXInStates0(S_Y,id(X),St_Y))
+       and ifXInStatesThenYInStates0(S_X,St_X,S_Y,St_Y)
      if not (S_Y = empObj) .
 
-  pred ifYInStatesThenXInStates : SetOfObject SetOfObjState SetOfLObject SetOfLObjState
-  eq ifYInStatesThenXInStates(empObj,St_Y,S_X,St_X)
+  pred ifYInStatesThenXInStates0 : SetOfObject SetOfObjState SetOfLObject SetOfLObjState
+  eq ifYInStatesThenXInStates0(empObj,St_Y,S_X,St_X)
      = true .
-  eq ifYInStatesThenXInStates(S_Y,St_Y,empLObj,St_X)
+  eq ifYInStatesThenXInStates0(S_Y,St_Y,empLObj,St_X)
      = true .
-  ceq ifYInStatesThenXInStates((Y S_Y),St_Y,S_X,St_X)
+  ceq ifYInStatesThenXInStates0((Y S_Y),St_Y,S_X,St_X)
      = ((state(Y) in St_Y) implies existObjInStates(S_X,link(Y),St_X))
-       and ifYInStatesThenXInStates(S_Y,St_Y,S_X,St_X)
+       and ifYInStatesThenXInStates0(S_Y,St_Y,S_X,St_X)
      if not (S_X = empLObj) .
 
   pred allYHaveX : SetOfObject SetOfLObject
   eq allYHaveX(empObj,S_X)
      = true .
   eq allYHaveX((Y S_Y),S_X)
-     = existObj(S_X,link(Y)) and not existX(S_Y,link(Y)) and allYHaveX(S_Y,S_X) .
+     = existObj(S_X,link(Y)) and not existX0(S_Y,link(Y)) and allYHaveX(S_Y,S_X) .
 
   pred allXHaveY : SetOfLObject SetOfObject
   eq allXHaveY(empLObj,S_Y)
      = true .
   eq allXHaveY((X S_X),S_Y)
-     = onlyOneYOfX(S_Y,id(X)) and allXHaveY(S_X,S_Y) .
+     = onlyOneYOfX0(S_Y,id(X)) and allXHaveY(S_X,S_Y) .
 
 }
 
-module! OBJLINKONE2ONE {
+module! OBJLINKONE2ONE0 {
   protecting(OBJLINKONE2ONE-)
 
   vars X X' : LObject
@@ -1008,36 +1009,78 @@ module! OBJLINKONE2ONE {
 
   -- Proved Lemmas
   ceq [o2o-lemma01]:
-      (allObjInStates(S_Y,St_Y) and YOfXInStates(S_Y,IDX,St_Y))
+      (allObjInStates(S_Y,St_Y) and YOfXInStates0(S_Y,IDX,St_Y))
      = allObjInStates(S_Y,St_Y)
-     if uniqX(S_Y) and onlyOneYOfX(S_Y,IDX) .
+     if uniqX(S_Y) and onlyOneYOfX0(S_Y,IDX) .
 
   ceq [o2o-lemma02]:
-      (ifXInStatesThenYInStates(S_X,St_X,(Y S_Y),St_Y) and
-       ifXInStatesThenYInStates(S_X,St_X,(Y' S_Y),St_Y))
-     = ifXInStatesThenYInStates(S_X,St_X,(Y S_Y),St_Y)
+      (ifXInStatesThenYInStates0(S_X,St_X,(Y S_Y),St_Y) and
+       ifXInStatesThenYInStates0(S_X,St_X,(Y' S_Y),St_Y))
+     = ifXInStatesThenYInStates0(S_X,St_X,(Y S_Y),St_Y)
      if changeObjState0(Y,Y') and (state(Y') in St_Y) .
 
   ceq [o2o-lemma03]:
-      (allObjInStates(S_Y,St_Y) and ifXInStatesThenYInStates(S_X,St_X,S_Y,St_Y))
+      (allObjInStates(S_Y,St_Y) and ifXInStatesThenYInStates0(S_X,St_X,S_Y,St_Y))
      = allObjInStates(S_Y,St_Y)
      if uniqX(S_Y) and allXHaveY(S_X,S_Y) .
 
   ceq [o2o-lemma04]:
-      (ifXInStatesThenYInStates(S_X,St_X,(Y S_Y),St_Y) and
-       ifXInStatesThenYInStates(S_X,St_X,(Y' S_Y),St_Y))
-     = ifXInStatesThenYInStates(S_X,St_X,(Y S_Y),St_Y)
+      (ifXInStatesThenYInStates0(S_X,St_X,(Y S_Y),St_Y) and
+       ifXInStatesThenYInStates0(S_X,St_X,(Y' S_Y),St_Y))
+     = ifXInStatesThenYInStates0(S_X,St_X,(Y S_Y),St_Y)
      if not existObj(S_X,link(Y)) and changeObjState0(Y,Y') .
 
   ceq [o2o-lemma05]:
-      (ifXInStatesThenYInStates(S_X,St_X,(Y S_Y),St_Y) and
-       ifXInStatesThenYInStates(S_X,St_X,(Y' S_Y),St_Y))
-     = ifXInStatesThenYInStates(S_X,St_X,(Y S_Y),St_Y)
+      (ifXInStatesThenYInStates0(S_X,St_X,(Y S_Y),St_Y) and
+       ifXInStatesThenYInStates0(S_X,St_X,(Y' S_Y),St_Y))
+     = ifXInStatesThenYInStates0(S_X,St_X,(Y S_Y),St_Y)
      if changeObjState0(Y,Y') and not (state(Y) in St_Y) .
 
   ceq [o2o-lemma06]:
-    getYOfX(S_Y,IDX) = null
-    if not existX(S_Y,IDX) .
+    getYOfX0(S_Y,IDX) = null
+    if not existX0(S_Y,IDX) .
+}
+
+module! OBJLINKONE2ONE1(LINK :: PRMOBJLINK) {
+  protecting(OBJLINKONE2ONE0(LINK)
+	     * {op existX0 -> existX,
+		op onlyOneYOfX0 -> onlyOneYOfX,
+		op getXOfY0 -> getXOfY,
+		op getXsOfYs0 -> getXsOfYs,
+		op getXsOfYsInStates0 -> getXsOfYsInStates,
+		op getYOfX0 -> getYOfX,
+		op getYsOfXs0 -> getYsOfXs,
+		op getYsOfXsInStates0 -> getYsOfXsInStates})
+}
+
+module! OBJLINKONE2ONE2(LINK :: PRMOBJLINK) {
+  protecting(OBJLINKONE2ONE0(OBJLINKONE2ONE1(LINK)
+	             {op state -> state2,
+		      op allObjInStates -> allObjInStates2,
+		      op existObjInStates -> existObjInStates2})
+	     * {op existX0 -> existX2,
+		op onlyOneYOfX0 -> onlyOneYOfX2,
+		op getXOfY0 -> getXOfY2,
+		op getXsOfYs0 -> getXsOfYs2,
+		op getXsOfYsInStates0 -> getXsOfYsInStates2,
+		op getYOfX0 -> getYOfX2,
+		op getYsOfXs0 -> getYsOfXs2,
+		op getYsOfXsInStates0 -> getYsOfXsInStates2})
+}
+
+module! OBJLINKONE2ONE(LINK :: PRMOBJLINK) {
+  protecting(OBJLINKONE2ONE0(OBJLINKONE2ONE2(LINK)
+	             {op state -> state3,
+		      op allObjInStates -> allObjInStates3,
+		      op existObjInStates -> existObjInStates3})
+	     * {op existX0 -> existX3,
+		op onlyOneYOfX0 -> onlyOneYOfX3,
+		op getXOfY0 -> getXOfY3,
+		op getXsOfYs0 -> getXsOfYs3,
+		op getXsOfYsInStates0 -> getXsOfYsInStates3,
+		op getYOfX0 -> getYOfX3,
+		op getYsOfXs0 -> getYsOfXs3,
+		op getYsOfXsInStates0 -> getYsOfXsInStates3})
 }
 
 module* PRMCYCLE {
