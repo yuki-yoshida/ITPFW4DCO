@@ -335,7 +335,6 @@ module! OBJECTBASE0 {
      subset(S_O,S_O) = true .
 }
 
-**> remove '(OBJECT)'
 module! OBJECTBASE1 {
   protecting(OBJECTBASE0
                     * {op #ObjInStates0 -> #ObjInStates,
@@ -374,17 +373,39 @@ module! OBJECTBASE {
 }
 
 module* PRMOBJLINK {
-  protecting(SETOBJECT(OBJECT))
+  -- Source Object
+  [Object < SetOfObject]
+  op null : -> Object {constr}
+  op empObj : -> SetOfObject {constr}
+  [ObjID]
+  [ObjType]
+  pred existObj : SetOfObject ObjID
+  op getObject : SetOfObject ObjID -> Object
+  [ObjState < SetOfObjState]
   pred allObjInStates0 : SetOfObject SetOfObjState
-  -- Linked Object which exists only one
+
+  -- The followings are usually not renamed.
+  op _ _ : SetOfObject SetOfObject -> SetOfObject {constr assoc comm}
+  op _ _ : SetOfObjState SetOfObjState -> SetOfObjState {constr assoc comm}
+  op id : Object -> ObjID
+  op type : Object -> ObjType
+  op state : Object -> ObjState
+  op state2 : Object -> ObjState
+  op state3 : Object -> ObjState
+  pred _>_ : ObjState ObjState
+  pred _in_ : Object SetOfObject
+  pred _in_ : ObjState SetOfObjState
+  pred subset : SetOfObject SetOfObject
+
+  -- Target Object 
   [LObject < SetOfLObject]
-  op empLObj : -> SetOfLObject {constr}
+  op empObj : -> SetOfLObject {constr}
   [LObjID]
-  pred existLObj : SetOfLObject LObjID
-  op getLObject : SetOfLObject LObjID -> LObject
+  pred existObj : SetOfLObject LObjID
+  op getObject : SetOfLObject LObjID -> LObject
   [LObjState < SetOfLObjState]
-  pred allLObjInStates0 : SetOfLObject SetOfLObjState
-  pred existLObjInStates0 : SetOfLObject LObjID SetOfLObjState
+  pred allObjInStates0 : SetOfLObject SetOfLObjState
+  pred existObjInStates0 : SetOfLObject LObjID SetOfLObjState
 
   -- Linking Objects which exist zero or many
   op link : Object -> LObjID
@@ -393,6 +414,8 @@ module* PRMOBJLINK {
   op _ _ : SetOfLObject SetOfLObject -> SetOfLObject {constr assoc comm}
   op id : LObject -> LObjID
   op state : LObject -> LObjState
+  op state2 : LObject -> LObjState
+  op state3 : LObject -> LObjState
   pred _>_ : LObjState LObjState
   pred _in_ : LObject SetOfLObject
   pred _in_ : LObjState SetOfLObjState
@@ -402,7 +425,7 @@ module* PRMOBJLINK {
 module! PRMOBJLINKPRED(LINK :: PRMOBJLINK) {
   pred hasLObj : Object SetOfLObject
   eq hasLObj(O:Object,SetLO:SetOfLObject)
-     = existLObj(SetLO,link(O)) .
+     = existObj(SetLO,link(O)) .
 
   pred ifOfXThenInStates0 : Object LObjID SetOfObjState
   eq ifOfXThenInStates0(O:Object,LOID:LObjID,SetSO:SetOfObjState)
@@ -423,8 +446,8 @@ module! PRMOBJLINKPRED(LINK :: PRMOBJLINK) {
        (type(O1) = type(O2)) and
        (state(O1) >  state(O2)) .
 
-  pred changeLObjState0 : LObject LObject
-  eq changeLObjState0(LO1:LObject,LO2:LObject)
+  pred changeObjState0 : LObject LObject
+  eq changeObjState0(LO1:LObject,LO2:LObject)
      = (id(LO1) = id(LO2)) and 
        (state(LO1) > state(LO2)) .
 }
@@ -544,7 +567,7 @@ module! PRMOBJLINKPRED(LINK :: PRMOBJLINK) {
 --   eq ifYInStatesThenXInStates(S_Y,St_Y,empLObj,St_X)
 --      = true .
 --   ceq ifYInStatesThenXInStates((Y S_Y),St_Y,S_X,St_X)
---      = ((state(Y) in St_Y) implies existLObjInStates0(S_X,link(Y),St_X))
+--      = ((state(Y) in St_Y) implies existObjInStates0(S_X,link(Y),St_X))
 --        and ifYInStatesThenXInStates(S_Y,St_Y,S_X,St_X)
 --      if not (S_X = empLObj) .
 
@@ -552,7 +575,7 @@ module! PRMOBJLINKPRED(LINK :: PRMOBJLINK) {
 --   eq allYHaveX(empObj,S_X)
 --      = true .
 --   eq allYHaveX((Y S_Y),S_X)
---      = existLObj(S_X,link(Y)) and not existX(S_Y,link(Y)) and allYHaveX(S_Y,S_X) .
+--      = existObj(S_X,link(Y)) and not existX(S_Y,link(Y)) and allYHaveX(S_Y,S_X) .
 
 --   pred allXHaveY : SetOfLObject SetOfObject
 --   eq allXHaveY(empLObj,S_Y)
@@ -562,25 +585,27 @@ module! PRMOBJLINKPRED(LINK :: PRMOBJLINK) {
 
 -- }
 
-module! OBJLINKMANY2ONE- {
+module! OBJLINKMANY2ONE-(LINK :: PRMOBJLINK) {
   -- one X has zero or many coressponding Z
   -- Z has a link to X
 
-  protecting(ALLOBJPRED1(PRMOBJLINKPRED {sort Arg -> SetOfLObject,
-  			       	         op p -> hasLObj})
+  protecting(ALLOBJPRED1(PRMOBJLINKPRED(LINK) 
+			 {sort Arg -> SetOfLObject,
+			  op p -> hasLObj})
                     * {op allObjP -> allZHaveX})
 
-  protecting(ALLOBJPRED2(PRMOBJLINKPRED {sort Arg1 -> LObjID,
-  				         sort Arg2 -> SetOfObjState
-  			       	         op p -> ifOfXThenInStates0})
+  protecting(ALLOBJPRED2(PRMOBJLINKPRED(LINK)
+			 {sort Arg1 -> LObjID,
+			  sort Arg2 -> SetOfObjState
+			  op p -> ifOfXThenInStates0})
                     * {op allObjP -> allZOfXInStates0})
 
-  protecting(ALLOBJPRED3(PRMOBJLINKPRED {sort Arg1 -> ObjType,
-  				         sort Arg2 -> LObjID,
-  				         sort Arg3 -> SetOfObjState
-  			       	         op p -> ifOfTypeOfXThenInStates0})
+  protecting(ALLOBJPRED3(PRMOBJLINKPRED(LINK)
+			 {sort Arg1 -> ObjType,
+			  sort Arg2 -> LObjID,
+			  sort Arg3 -> SetOfObjState
+			  op p -> ifOfTypeOfXThenInStates0})
                     * {op allObjP -> allZOfTypeOfXInStates0})
-
   var X : LObject
   var Z : Object
   var IDX : LObjID
@@ -597,10 +622,10 @@ module! OBJLINKMANY2ONE- {
 
   op getLObject : SetOfLObject Object -> LObject
   eq getLObject(S_X,Z)
-     = getLObject(S_X,link(Z)) .
+     = getObject(S_X,link(Z)) .
 
   pred ifXInStatesThenZInStates0 : SetOfLObject SetOfLObjState SetOfObject SetOfObjState
-  eq ifXInStatesThenZInStates0(empLObj,St_X,S_Z,St_Z)
+  eq ifXInStatesThenZInStates0(empObj,St_X,S_Z,St_Z)
      = true .
   eq ifXInStatesThenZInStates0(S_X,St_X,empObj,St_Z)
      = true .
@@ -610,7 +635,7 @@ module! OBJLINKMANY2ONE- {
      if not (S_Z = empObj) .
 
   pred ifXInStatesThenZOfTypeInStates0 : SetOfLObject SetOfLObjState SetOfObject ObjType SetOfObjState
-  eq ifXInStatesThenZOfTypeInStates0(empLObj,St_X,S_Z,OT,St_Z)
+  eq ifXInStatesThenZOfTypeInStates0(empObj,St_X,S_Z,OT,St_Z)
      = true .
   eq ifXInStatesThenZOfTypeInStates0(S_X,St_X,empObj,OT,St_Z)
      = true .
@@ -620,28 +645,28 @@ module! OBJLINKMANY2ONE- {
      if not (S_Z = empObj) .
 
   op getXOfZ : SetOfLObject Object -> LObject
-  eq getXOfZ(empLObj,Z)
-     = empLObj .
+  eq getXOfZ(empObj,Z)
+     = empObj .
   eq getXOfZ(S_X,Z)
-     = getLObject(S_X,link(Z)) .
+     = getObject(S_X,link(Z)) .
 
   op getXsOfZs : SetOfLObject SetOfObject -> SetOfLObject
   eq getXsOfZs(S_X,empObj)
-     = empLObj .
+     = empObj .
   eq getXsOfZs(S_X,(Z S_Z))
      = (getXOfZ(S_X,Z) getXsOfZs(S_X,S_Z)) .
 
   op getXsOfZsInStates0 : SetOfLObject SetOfObject SetOfLObjState -> SetOfLObject
   op getXsOfZsInStates0 : SetOfLObject SetOfLObject SetOfObject SetOfLObjState -> SetOfLObject
-  eq getXsOfZsInStates0(empLObj,S_Z,St_X)
-     = empLObj .
+  eq getXsOfZsInStates0(empObj,S_Z,St_X)
+     = empObj .
   eq getXsOfZsInStates0(S_X,empObj,St_X)
-     = empLObj .
+     = empObj .
   ceq getXsOfZsInStates0(S_X,(Z S_Z),St_X)
      = getXsOfZsInStates0(getXOfZ(S_X,Z),S_X,S_Z,St_X)
-     if not S_X = empLObj .
+     if not S_X = empObj .
 
-  eq getXsOfZsInStates0(empLObj,S_X,S_Z,St_X)
+  eq getXsOfZsInStates0(empObj,S_X,S_Z,St_X)
      = getXsOfZsInStates0(S_X,S_Z,St_X) .
   eq getXsOfZsInStates0(X,S_X,S_Z,St_X)
      = if (state(X) in St_X) then
@@ -677,13 +702,13 @@ module! OBJLINKMANY2ONE- {
        fi .
 
   op getZsOfXs : SetOfObject SetOfLObject -> SetOfObject
-  eq getZsOfXs(S_Z,empLObj)
+  eq getZsOfXs(S_Z,empObj)
      = empObj .
   eq getZsOfXs(S_Z,(X S_X))
      = (getZsOfX(S_Z,X) getZsOfXs(S_Z,S_X)) .
 
   op getZsOfTypeOfXs : SetOfObject ObjType SetOfLObject -> SetOfObject
-  eq getZsOfTypeOfXs(S_Z,OT,empLObj)
+  eq getZsOfTypeOfXs(S_Z,OT,empObj)
      = empObj .
   eq getZsOfTypeOfXs(S_Z,OT,(X S_X))
      = (getZsOfTypeOfX(S_Z,OT,X) getZsOfTypeOfXs(S_Z,OT,S_X)) .
@@ -717,14 +742,14 @@ module! OBJLINKMANY2ONE- {
   op getZsOfXsInStates0 : SetOfObject SetOfLObject SetOfObjState -> SetOfObject
   eq getZsOfXsInStates0(empObj,S_X,St_Z)
      = empObj .
-  eq getZsOfXsInStates0(S_Z,empLObj,St_Z)
+  eq getZsOfXsInStates0(S_Z,empObj,St_Z)
      = empObj .
   ceq getZsOfXsInStates0(S_Z,(X S_X),St_Z)
      = (getZsOfXInStates0(S_Z,X,St_Z) getZsOfXsInStates0(S_Z,S_X,St_Z)) 
      if not S_Z = empObj .
 
   op getZsOfTypeOfXsInStates0 : SetOfObject ObjType SetOfLObject SetOfObjState -> SetOfObject
-  eq getZsOfTypeOfXsInStates0(S_Z,OT,empLObj,St_Z)
+  eq getZsOfTypeOfXsInStates0(S_Z,OT,empObj,St_Z)
      = empObj .
   eq getZsOfTypeOfXsInStates0(S_Z,OT,(X S_X),St_Z)
      = (getZsOfTypeOfXInStates0(S_Z,OT,X,St_Z) getZsOfTypeOfXsInStates0(S_Z,OT,S_X,St_Z)) .
@@ -765,7 +790,7 @@ module! OBJLINKMANY2ONE- {
 --       (ifXInStatesThenYInStates(S_X,St_X,(Y S_Y),St_Y) and
 --        ifXInStatesThenYInStates(S_X,St_X,(Y' S_Y),St_Y))
 --      = ifXInStatesThenYInStates(S_X,St_X,(Y S_Y),St_Y)
---      if not existLObj(S_X,link(Y)) and changeObjState0(Y,Y') .
+--      if not existObj(S_X,link(Y)) and changeObjState0(Y,Y') .
 
 --   ceq [o2o-lemma05]:
 --       (ifXInStatesThenYInStates(S_X,St_X,(Y S_Y),St_Y) and
@@ -821,7 +846,7 @@ module! OBJLINKMANY2ONE0 {
       (allZHaveX(S_Z,(X S_X)) and
        allZHaveX(S_Z,(X' S_X)))
      = allZHaveX(S_Z,(X S_X))
-     if changeLObjState0(X,X') .
+     if changeObjState0(X,X') .
 
   ceq [m2o-lemma06]:
       (allObjInStates0(S_Z,SZ) and 
@@ -830,16 +855,16 @@ module! OBJLINKMANY2ONE0 {
      if (SZ in St_Z) .
 
   ceq [m2o-lemma07]:
-      (allLObjInStates0(S_X,SX) and
+      (allObjInStates0(S_X,SX) and
        ifXInStatesThenZInStates0(S_X,St_X,S_Z,St_Z))
-     = allLObjInStates0(S_X,SX)
+     = allObjInStates0(S_X,SX)
      if not (SX in St_X) .
 
   ceq [m2o-lemma08]:
       (ifXInStatesThenZInStates0(S_X,St_X,(Z S_Z),St_Z) and
        ifXInStatesThenZInStates0(S_X,St_X,(Z' S_Z),St_Z))
      = ifXInStatesThenZInStates0(S_X,St_X,(Z S_Z),St_Z)
-     if not existLObj(S_X,link(Z)) and changeObjState0(Z,Z') .
+     if not existObj(S_X,link(Z)) and changeObjState0(Z,Z') .
 
   eq [m2o-lemma09]:
       (ifXInStatesThenZInStates0(S_X,St_X,(Z S_Z),St_Z) and
@@ -850,7 +875,7 @@ module! OBJLINKMANY2ONE0 {
       (ifXInStatesThenZInStates0((X S_X),St_X,S_Z,St_Z) and
        ifXInStatesThenZInStates0((X' S_X),St_X,S_Z,St_Z))
      = ifXInStatesThenZInStates0((X S_X),St_X,S_Z,St_Z)
-     if not (state(X') in St_X) and changeLObjState0(X,X') .
+     if not (state(X') in St_X) and changeObjState0(X,X') .
 
   ceq [m2o-lemma11]:
       (ifXInStatesThenZInStates0(S_X,St_X,(Z S_Z),St_Z) and
@@ -862,7 +887,7 @@ module! OBJLINKMANY2ONE0 {
       (ifXInStatesThenZInStates0((X S_X),St_X,S_Z,St_Z) and
        ifXInStatesThenZInStates0((X' S_X),St_X,S_Z,St_Z))
      = ifXInStatesThenZInStates0((X S_X),St_X,S_Z,St_Z)
-     if allZOfXInStates0(S_Z,id(X'),St_Z) and changeLObjState0(X,X') .
+     if allZOfXInStates0(S_Z,id(X'),St_Z) and changeObjState0(X,X') .
 
   ceq [m2o-lemma13]:
       (ifXInStatesThenZInStates0(S_X,St_X,(Z S_Z),St_Z) and
@@ -877,16 +902,16 @@ module! OBJLINKMANY2ONE0 {
      if (SZ in St_Z) .
 
   ceq [m2o-lemma15]:
-      (allLObjInStates0(S_X,SX) and
+      (allObjInStates0(S_X,SX) and
        ifXInStatesThenZOfTypeInStates0(S_X,St_X,S_Z,OT,St_Z))
-     = allLObjInStates0(S_X,SX)
+     = allObjInStates0(S_X,SX)
      if not (SX in St_X) .
 
   ceq [m2o-lemma16]:
       (ifXInStatesThenZOfTypeInStates0(S_X,St_X,(Z S_Z),OT,St_Z) and
        ifXInStatesThenZOfTypeInStates0(S_X,St_X,(Z' S_Z),OT,St_Z))
      = ifXInStatesThenZOfTypeInStates0(S_X,St_X,(Z S_Z),OT,St_Z)
-     if not existLObj(S_X,link(Z)) and changeObjState0(Z,Z') .
+     if not existObj(S_X,link(Z)) and changeObjState0(Z,Z') .
 
   eq [m2o-lemma17]:
       (ifXInStatesThenZOfTypeInStates0(S_X,St_X,(Z S_Z),OT,St_Z) and
@@ -897,7 +922,7 @@ module! OBJLINKMANY2ONE0 {
       (ifXInStatesThenZOfTypeInStates0((X S_X),St_X,S_Z,OT,St_Z) and
        ifXInStatesThenZOfTypeInStates0((X' S_X),St_X,S_Z,OT,St_Z))
      = ifXInStatesThenZOfTypeInStates0((X S_X),St_X,S_Z,OT,St_Z)
-     if not (state(X') in St_X) and changeLObjState0(X,X') .
+     if not (state(X') in St_X) and changeObjState0(X,X') .
 
   ceq [m2o-lemma19]:
       (ifXInStatesThenZOfTypeInStates0(S_X,St_X,(Z S_Z),OT,St_Z) and
@@ -909,7 +934,7 @@ module! OBJLINKMANY2ONE0 {
       (ifXInStatesThenZOfTypeInStates0((X S_X),St_X,S_Z,OT,St_Z) and
        ifXInStatesThenZOfTypeInStates0((X' S_X),St_X,S_Z,OT,St_Z))
      = ifXInStatesThenZOfTypeInStates0((X S_X),St_X,S_Z,OT,St_Z)
-     if allZOfTypeOfXInStates0(S_Z,OT,id(X'),St_Z) and changeLObjState0(X,X') .
+     if allZOfTypeOfXInStates0(S_Z,OT,id(X'),St_Z) and changeObjState0(X,X') .
 
   ceq [m2o-lemma21]:
       (ifXInStatesThenZOfTypeInStates0(S_X,St_X,(Z S_Z),OT,St_Z) and
@@ -918,8 +943,8 @@ module! OBJLINKMANY2ONE0 {
      if not (type(Z) = OT) and changeObjState0(Z,Z') .
 
   ceq [m2o-lemma22]:
-     (getLObject(S_X,link(Z)) in getXsOfZsInStates0(S_X,S_Z,St_X)) = true
-     if not S_X = empLObj and (state(getLObject(S_X,link(Z))) in St_X) and (Z in S_Z) .
+     (getObject(S_X,link(Z)) in getXsOfZsInStates0(S_X,S_Z,St_X)) = true
+     if not S_X = empObj and (state(getObject(S_X,link(Z))) in St_X) and (Z in S_Z) .
 
   eq [m2o-lemma23]:
       (subset(S_Z,S_Z') and
@@ -929,7 +954,7 @@ module! OBJLINKMANY2ONE0 {
   ceq [m2o-lemma24]:
        subset(getXsOfZsInStates0((X' S_X),S_Z,St_X),getXsOfZsInStates0((X S_X),S_Z,St_X))
      = true
-     if changeLObjState0(X,X') and not state(X') in St_X .
+     if changeObjState0(X,X') and not state(X') in St_X .
 
   ceq [m2o-lemma25]:
      subset(getZsOfXInStates0(S_Z,id(X),St_Z),getZsOfXsInStates0(S_Z,S_X,St_Z)) = true
@@ -949,16 +974,12 @@ module! OBJLINKMANY2ONE0 {
      if changeObjState0(Z,Z') and not state(Z') in St_Z .
 }
 
-**> remove '(LINK :: PRMOBJLINK)'
 module! OBJLINKMANY2ONE {
-**> remove '(LINK)'
   protecting(OBJLINKMANY2ONE0
-	     * {op existLObjInStates0 -> existLObjInStates,
-		op allLObjInStates0 -> allLObjInStates,
+	     * {op existObjInStates0 -> existObjInStates,
 		op allObjInStates0 -> allObjInStates,
 		op allZOfTypeOfXInStates0 -> allZOfTypeOfXInStates,
 		op allZOfXInStates0 -> allZOfXInStates,
-		op changeLObjState0 -> changeLObjState,
 		op changeObjState0 -> changeObjState,
 		op getXsOfZsInStates0 -> getXsOfZsInStates,
 		op getZsOfTypeOfXsInStates0 -> getZsOfTypeOfXsInStates,
@@ -970,17 +991,17 @@ module! OBJLINKMANY2ONE {
 		op ifXInStatesThenZInStates0 -> ifXInStatesThenZInStates,
 		op ifXInStatesThenZOfTypeInStates0 -> ifXInStatesThenZOfTypeInStates})
 }
-
-**> remove '(LINK :: PRMOBJLINK)'
+eof x
+		op allObjInStates0 -> allObjInStates,
+		
 module! OBJLINKMANY2ONE2 {
-**> remove '(LINK)'
   protecting(OBJLINKMANY2ONE0(OBJLINKMANY2ONE {op state -> state2})
-	     * {op existLObjInStates0 -> existLObjInStates2,
-		op allLObjInStates0 -> allLObjInStates2,
+	     * {op existObjInStates0 -> existObjInStates2,
+		op allObjInStates0 -> allObjInStates2,
 		op allObjInStates0 -> allObjInStates2,
 		op allZOfTypeOfXInStates0 -> allZOfTypeOfXInStates2,
 		op allZOfXInStates0 -> allZOfXInStates2,
-		op changeLObjState0 -> changeLObjState2,
+		op changeObjState0 -> changeObjState2,
 		op changeObjState0 -> changeObjState2,
 		op getXsOfZsInStates0 -> getXsOfZsInStates2,
 		op getZsOfTypeOfXsInStates0 -> getZsOfTypeOfXsInStates2,
@@ -997,12 +1018,12 @@ module! OBJLINKMANY2ONE2 {
 
 module! OBJLINKMANY2ONE3 {
   protecting(OBJLINKMANY2ONE0(OBJLINKMANY2ONE2 {op state -> state3})
-	     * {op existLObjInStates0 -> existLObjInStates3,
-		op allLObjInStates0 -> allLObjInStates3,
+	     * {op existObjInStates0 -> existObjInStates3,
+		op allObjInStates0 -> allObjInStates3,
 		op allObjInStates0 -> allObjInStates3,
 		op allZOfTypeOfXInStates0 -> allZOfTypeOfXInStates3,
 		op allZOfXInStates0 -> allZOfXInStates3,
-		op changeLObjState0 -> changeLObjState3,
+		op changeObjState0 -> changeObjState3,
 		op changeObjState0 -> changeObjState3,
 		op getXsOfZsInStates0 -> getXsOfZsInStates3,
 		op getZsOfTypeOfXsInStates0 -> getZsOfTypeOfXsInStates3,
