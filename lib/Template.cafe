@@ -1050,7 +1050,10 @@ module! OBJLINKONE2ONE1(LINK :: PRMOBJLINK) {
 		op getXsOfYsInStates0 -> getXsOfYsInStates,
 		op getYOfX0 -> getYOfX,
 		op getYsOfXs0 -> getYsOfXs,
-		op getYsOfXsInStates0 -> getYsOfXsInStates})
+		op getYsOfXsInStates0 -> getYsOfXsInStates,
+		op YOfXInStates0 -> YOfXInStates,
+		op ifXInStatesThenYInStates0 -> ifXInStatesThenYInStates,
+		op ifYInStatesThenXInStates0 -> ifYInStatesThenXInStates})
 }
 
 module! OBJLINKONE2ONE2(LINK :: PRMOBJLINK) {
@@ -1065,7 +1068,10 @@ module! OBJLINKONE2ONE2(LINK :: PRMOBJLINK) {
 		op getXsOfYsInStates0 -> getXsOfYsInStates2,
 		op getYOfX0 -> getYOfX2,
 		op getYsOfXs0 -> getYsOfXs2,
-		op getYsOfXsInStates0 -> getYsOfXsInStates2})
+		op getYsOfXsInStates0 -> getYsOfXsInStates2,
+		op YOfXInStates0 -> YOfXInStates2,
+		op ifXInStatesThenYInStates0 -> ifXInStatesThenYInStates2,
+		op ifYInStatesThenXInStates0 -> ifYInStatesThenXInStates2})
 }
 
 module! OBJLINKONE2ONE(LINK :: PRMOBJLINK) {
@@ -1080,7 +1086,10 @@ module! OBJLINKONE2ONE(LINK :: PRMOBJLINK) {
 		op getXsOfYsInStates0 -> getXsOfYsInStates3,
 		op getYOfX0 -> getYOfX3,
 		op getYsOfXs0 -> getYsOfXs3,
-		op getYsOfXsInStates0 -> getYsOfXsInStates3})
+		op getYsOfXsInStates0 -> getYsOfXsInStates3,
+		op YOfXInStates0 -> YOfXInStates3,
+		op ifXInStatesThenYInStates0 -> ifXInStatesThenYInStates3,
+		op ifYInStatesThenXInStates0 -> ifYInStatesThenXInStates3})
 }
 
 module* PRMCYCLE {

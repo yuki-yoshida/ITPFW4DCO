@@ -303,18 +303,15 @@ module! LINKS {
   		      sort SetOfObject -> SetOfRelationship,
   		      sort SetOfObjState -> SetOfRLState,
 		      op empObj -> empRL,
-		      op getObject(X:SetOfObject,Y:ObjID) 
-		         -> getRelationship(X:SetOfRelationship,Y:RLID),
 		      op existObj(X:SetOfObject,Y:ObjID)
 		         -> existRL(X:SetOfRelationship,Y:RLID),
-		      op allObjInStates(X:SetOfObject,Y:SetOfObjState)
-		         -> allRLInStates(X:SetOfRelationship,Y:SetOfRLState),
 		      sort LObject -> Capability,
 		      sort LObjID -> CPID,
   	              sort LObjState -> CPState,
   	              sort SetOfLObject -> SetOfCapability,
   	              sort SetOfLObjState -> SetOfCPState,
 		      op link -> cap,
+		      op empLObj -> empCP,
 		      op getObject(X:SetOfLObject,Y:LObjID) 
 		         -> getCapability(X:SetOfCapability,Y:CPID),
 		      op existObj(X:SetOfLObject,Y:LObjID)
@@ -337,8 +334,6 @@ module! LINKS {
 	   op uniqX -> uniqCP,
 	   op YOfXInStates -> RLOfCPInStates}
 	)
-}
-eof x
 
   extending(OBJLINKONE2ONE(
 	RELATIONSHIP {sort Object -> Relationship,
@@ -348,19 +343,15 @@ eof x
   		      sort SetOfObject -> SetOfRelationship,
   		      sort SetOfObjState -> SetOfRLState,
 		      op empObj -> empRL,
-		      op getObject(X:SetOfObject,Y:ObjID) 
-		         -> getRelationship(X:SetOfRelationship,Y:RLID),
 		      op existObj(X:SetOfObject,Y:ObjID)
 		         -> existRL(X:SetOfRelationship,Y:RLID),
-		      op allObjInStates(X:SetOfObject,Y:SetOfObjState)
-		         -> allRLInStates(X:SetOfRelationship,Y:SetOfRLState),
 		      sort LObject -> Requirement,
 		      sort LObjID -> RQID,
   	              sort LObjState -> RQState,
   	              sort SetOfLObject -> SetOfRequirement,
   	              sort SetOfLObjState -> SetOfRQState,
 		      op link -> req,
-		      op link -> cap,
+		      op empLObj -> empRQ,
 		      op getObject(X:SetOfLObject,Y:LObjID) 
 		         -> getRequirement(X:SetOfRequirement,Y:RQID),
 		      op existObj(X:SetOfLObject,Y:LObjID)
