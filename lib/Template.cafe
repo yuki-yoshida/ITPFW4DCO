@@ -826,7 +826,7 @@ module! OBJLINKMANY2ONE(LINK :: PRMOBJLINK) {
 }
 
 module! OBJLINKMANY2ONE2(LINK :: PRMOBJLINK2) {
-  protecting(OBJLINKMANY2ONE0(OBJLINKMANY2ONE2(LINK)
+  protecting(OBJLINKMANY2ONE0(OBJLINKMANY2ONE(LINK)
 	             {op state -> state2,
 		      op allObjInStates -> allObjInStates2,
 		      op existObjInStates -> existObjInStates2})

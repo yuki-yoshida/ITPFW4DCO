@@ -11,7 +11,7 @@ provide DomainModel
 
 module! COMPONENT {
   -- Instantiation of Template
-  extending(OBJECTBASE
+  extending(OBJECTBASE3
 	* {sort Object -> Component,
 	   sort ObjIDLt -> COIDLt,
 	   sort ObjID -> COID,
@@ -21,16 +21,28 @@ module! COMPONENT {
 	   sort ObjState -> COState,
 	   sort SetOfObject -> SetOfComponent,
 	   sort SetOfObjState -> SetOfCOState,
+	   op state2 -> next,
+	   op state3 -> target,
 	   op empObj -> empCO,
 	   op empState -> empSCO,
 	   op existObj -> existCO,
 	   op existObjInStates -> existCOInStates,
+	   op existObjInStates2 -> existCOInNextStates,
+	   op existObjInStates3 -> existCOInTargetStates,
 	   op uniqObj -> uniqCO,
 	   op #ObjInStates -> #ComponentInStates,
+	   op #ObjInStates2 -> #ComponentInNextStates,
+	   op #ObjInStates3 -> #ComponentInTargetStates,
 	   op getObject -> getComponent,
 	   op allObjInStates -> allCOInStates,
+	   op allObjInStates2 -> allCOInNextStates,
+	   op allObjInStates3 -> allCOInTargetStates,
 	   op allObjNotInStates -> allCONotInStates,
-	   op someObjInStates -> someCOInStates})
+	   op allObjNotInStates2 -> allCONotInNextStates,
+	   op allObjNotInStates3 -> allCONotInTargetStates,
+	   op someObjInStates -> someCOInStates,
+	   op someObjInStates2 -> someCOInNextStates,
+	   op someObjInStates3 -> someCOInTargetStates})
 
   -- Constructor
   -- cmp(ID, CState, NState, TState) is a Component where the identifier is ID,
@@ -43,7 +55,6 @@ module! COMPONENT {
   vars CSCO NSCO TSCO : COState
 
   -- Selectors
-  ops next target : Component -> COState
   eq id(cmp(IDCO,CSCO,NSCO,TSCO)) = IDCO .
   eq state(cmp(IDCO,CSCO,NSCO,TSCO)) = CSCO .
   eq next(cmp(IDCO,CSCO,NSCO,TSCO)) = NSCO .
@@ -60,7 +71,7 @@ module! IMPORT {
   protecting(COMPONENT)
 
   -- Instantiation of Template
-  extending(OBJECTBASE
+  extending(OBJECTBASE3
 	* {sort Object -> Import,
 	   sort ObjIDLt -> IMIDLt,
 	   sort ObjID -> IMID,
@@ -70,17 +81,31 @@ module! IMPORT {
 	   sort ObjState -> IMState,
 	   sort SetOfObject -> SetOfImport,
 	   sort SetOfObjState -> SetOfIMState,
+	   op state2 -> next,
+	   op state3 -> target,
 	   op empObj -> empIM,
 	   op empState -> empSIM,
 	   op existObj -> existIM,
 	   op existObjInStates -> existIMInStates,
+	   op existObjInStates2 -> existIMInNextStates,
+	   op existObjInStates3 -> existIMInTargetStates,
 	   op uniqObj -> uniqIM,
 	   op #ObjInStates -> #ImportInStates,
+	   op #ObjInStates2 -> #ImportInNextStates,
+	   op #ObjInStates3 -> #ImportInTargetStates,
 	   op getObject -> getImport,
 	   op allObjInStates -> allIMInStates,
+	   op allObjInStates2 -> allIMInNextStates,
+	   op allObjInStates3 -> allIMInTargetStates,
 	   op allObjOfTypeInStates -> allIMOfTypeInStates,
+	   op allObjOfTypeInStates2 -> allIMOfTypeInNextStates,
+	   op allObjOfTypeInStates3 -> allIMOfTypeInTargetStates,
 	   op allObjNotInStates -> allIMNotInStates,
-	   op someObjInStates -> someIMInStates})
+	   op allObjNotInStates2 -> allIMNotInNextStates,
+	   op allObjNotInStates3 -> allIMNotInTargetStates,
+	   op someObjInStates -> someIMInStates,
+	   op someObjInStates2 -> someIMInNextStates,
+	   op someObjInStates3 -> someIMInTargetStates})
 
   -- Constructor
   -- imp(Type, ID, IID, EID, CState, NState, TState) is an Imports where the identifier is ID,
@@ -99,7 +124,6 @@ module! IMPORT {
   ops mandatory optional : -> IMType
 
   -- Selectors
-  ops next target : Import -> IMState
   op importer : Import -> COID
   op exporter : Import -> COID
   eq type(imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,TSIM)) = TIM .
@@ -118,72 +142,140 @@ module! IMPORT {
 }
 
 module! LINKS {
-  extending(OBJLINKMANY2ONE(
+  extending(OBJLINKMANY2ONE3(
 	IMPORT {sort Object -> Import,
 		sort ObjID -> IMID,
 		sort ObjType -> IMType,
 		sort ObjState -> IMState,
 		sort SetOfObject -> SetOfImport,
 		sort SetOfObjState -> SetOfIMState,
+		op empObj -> empIM,
+		op state2 -> next,
+		op state3 -> target,
+		op getObject(X:SetOfObject,Y:ObjID) 
+		   -> getImport(X:SetOfImport,Y:IMID),
+		op existObj(X:SetOfObject,Y:ObjID)
+		   -> existIM(X:SetOfImport,Y:IMID),
+		op allObjInStates(X:SetOfObject,Y:SetOfObjState)
+		   -> allIMInStates(X:SetOfImport,Y:SetOfIMState),
+		op allObjInStates2(X:SetOfObject,Y:SetOfObjState)
+		   -> allIMInNextStates(X:SetOfImport,Y:SetOfIMState),
+		op allObjInStates3(X:SetOfObject,Y:SetOfObjState)
+		   -> allIMInTargetStates(X:SetOfImport,Y:SetOfIMState),
 		sort LObject -> Component,
 		sort LObjID -> COID,
 		sort LObjState -> COState,
 		sort SetOfLObject -> SetOfComponent,
 		sort SetOfLObjState -> SetOfCOState,
-		op allObjInStates -> allIMInStates,
 		op link -> importer,
 		op empLObj -> empCO,
-		op existLObj -> existCO,
-		op allLObjInStates -> allCOInStates,
-		op existLObjInStates -> existCOInStates,
-		op getLObject -> getComponent})
+		op getObject(X:SetOfLObject,Y:LObjID) 
+		   -> getComponent(X:SetOfComponent,Y:COID),
+		op existObj(X:SetOfLObject,Y:LObjID)
+		   -> existCO(X:SetOfComponent,Y:COID),
+		op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
+		   -> allCOInStates(X:SetOfComponent,Y:SetOfCOState),
+		op allObjInStates2(X:SetOfLObject,Y:SetOfLObjState)
+		   -> allCOInNextStates(X:SetOfComponent,Y:SetOfCOState),
+		op allObjInStates3(X:SetOfLObject,Y:SetOfLObjState)
+		   -> allCOInTargetStates(X:SetOfComponent,Y:SetOfCOState),
+		op existObjInStates -> existCOInStates,
+		op existObjInStates2 -> existCOInNextStates,
+		op existObjInStates3 -> existCOInTargetStates})
 	* {op hasLObj -> hasImporter,
 	   op getXOfZ -> getICOOfIM,
 	   op getZsOfX -> getIMsOfICO,
 	   op getZsOfTypeOfX -> getIMsOfTypeOfICO,
 	   op getZsOfXInStates -> getIMsOfICOInStates,
+	   op getZsOfXInStates2 -> getIMsOfICOInNextStates,
+	   op getZsOfXInStates3 -> getIMsOfICOInTargetStates,
 	   op getXsOfZs -> getICOsOfIMs,
 	   op getXsOfZsInStates -> getICOsOfIMsInStates,
+	   op getXsOfZsInStates2 -> getICOsOfIMsInNextStates,
+	   op getXsOfZsInStates3 -> getICOsOfIMsInTargetStates,
 	   op getZsOfXs -> getIMsOfICOs,
 	   op getZsOfXsInStates -> getIMsOfICOsInStates,
+	   op getZsOfXsInStates2 -> getIMsOfICOsInNextStates,
+	   op getZsOfXsInStates3 -> getIMsOfICOsInTargetStates,
 	   op allZHaveX -> allIMHaveICO,
 	   op allZOfXInStates -> allIMOfICOInStates,
+	   op allZOfXInStates2 -> allIMOfICOInNextStates,
+	   op allZOfXInStates3 -> allIMOfICOInTargetStates,
 	   op allZOfTypeOfXInStates -> allIMOfTypeOfICOInStates,
+	   op allZOfTypeOfXInStates2 -> allIMOfTypeOfICOInNextStates,
+	   op allZOfTypeOfXInStates3 -> allIMOfTypeOfICOInTargetStates,
 	   op ifOfXThenInStates -> ifOfICOThenInStates,
-	   op ifXInStatesThenZInStates -> ifICOInStatesThenIMInStates}
+	   op ifOfXThenInStates2 -> ifOfICOThenInNextStates,
+	   op ifOfXThenInStates3 -> ifOfICOThenInTargetStates,
+	   op ifXInStatesThenZInStates -> ifICOInStatesThenIMInStates,
+	   op ifXInStatesThenZInStates2 -> ifICOInNextStatesThenIMInStates,
+	   op ifXInStatesThenZInStates3 -> ifICOInTargetStatesThenIMInStates}
 	)
 
-  extending(OBJLINKMANY2ONE(
+  extending(OBJLINKMANY2ONE3(
 	IMPORT {sort Object -> Import,
 		sort ObjID -> IMID,
 		sort ObjType -> IMType,
 		sort ObjState -> IMState,
 		sort SetOfObject -> SetOfImport,
 		sort SetOfObjState -> SetOfIMState,
+		op empObj -> empIM,
+		op state2 -> next,
+		op state3 -> target,
+		op getObject(X:SetOfObject,Y:ObjID) 
+		   -> getImport(X:SetOfImport,Y:IMID),
+		op existObj(X:SetOfObject,Y:ObjID)
+		   -> existIM(X:SetOfImport,Y:IMID),
+		op allObjInStates(X:SetOfObject,Y:SetOfObjState)
+		   -> allIMInStates(X:SetOfImport,Y:SetOfIMState),
+		op allObjInStates2(X:SetOfObject,Y:SetOfObjState)
+		   -> allIMInNextStates(X:SetOfImport,Y:SetOfIMState),
+		op allObjInStates3(X:SetOfObject,Y:SetOfObjState)
+		   -> allIMInTargetStates(X:SetOfImport,Y:SetOfIMState),
 		sort LObject -> Component,
 		sort LObjID -> COID,
 		sort LObjState -> COState,
 		sort SetOfLObject -> SetOfComponent,
 		sort SetOfLObjState -> SetOfCOState,
-		op allObjInStates -> allIMInStates,
 		op link -> exporter,
 		op empLObj -> empCO,
-		op existLObj -> existCO,
-		op allLObjInStates -> allCOInStates,
-		op existLObjInStates -> existCOInStates,
-		op getLObject -> getComponent})
+		op getObject(X:SetOfLObject,Y:LObjID) 
+		   -> getComponent(X:SetOfComponent,Y:COID),
+		op existObj(X:SetOfLObject,Y:LObjID)
+		   -> existCO(X:SetOfComponent,Y:COID),
+		op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
+		   -> allCOInStates(X:SetOfComponent,Y:SetOfCOState),
+		op allObjInStates2(X:SetOfLObject,Y:SetOfLObjState)
+		   -> allCOInNextStates(X:SetOfComponent,Y:SetOfCOState),
+		op allObjInStates3(X:SetOfLObject,Y:SetOfLObjState)
+		   -> allCOInTargetStates(X:SetOfComponent,Y:SetOfCOState),
+		op existObjInStates -> existCOInStates,
+		op existObjInStates2 -> existCOInNextStates,
+		op existObjInStates3 -> existCOInTargetStates})
 	* {op hasLObj -> hasExporter,
 	   op getXOfZ -> getECOOfIM,
 	   op getZsOfX -> getIMsOfECO,
 	   op getZsOfXInStates -> getIMsOfECOInStates,
+	   op getZsOfXInStates2 -> getIMsOfECOInNextStates,
+	   op getZsOfXInStates3 -> getIMsOfECOInTargetStates,
 	   op getXsOfZs -> getECOsOfIMs,
 	   op getXsOfZsInStates -> getECOsOfIMsInStates,
+	   op getXsOfZsInStates2 -> getECOsOfIMsInNextStates,
+	   op getXsOfZsInStates3 -> getECOsOfIMsInTargetStates,
 	   op getZsOfXs -> getIMsOfECOs,
 	   op getZsOfXsInStates -> getIMsOfECOsInStates,
+	   op getZsOfXsInStates2 -> getIMsOfECOsInNextStates,
+	   op getZsOfXsInStates3 -> getIMsOfECOsInTargetStates,
 	   op allZHaveX -> allIMHaveECO,
 	   op allZOfXInStates -> allIMOfECOInStates,
+	   op allZOfXInStates2 -> allIMOfECOInNextStates,
+	   op allZOfXInStates3 -> allIMOfECOInTargetStates,
 	   op ifOfXThenInStates -> ifOfECOThenInStates,
-	   op ifXInStatesThenZInStates -> ifECOInStatesThenIMInStates}
+	   op ifOfXThenInStates2 -> ifOfECOThenInNextStates,
+	   op ifOfXThenInStates3 -> ifOfECOThenInTargetStates,
+	   op ifXInStatesThenZInStates -> ifECOInStatesThenIMInStates,
+	   op ifXInStatesThenZInStates2 -> ifECOInNextStatesThenIMInStates,
+	   op ifXInStatesThenZInStates3 -> ifECOInTargetStatesThenIMInStates}
 	)
 
 }
@@ -291,8 +383,8 @@ module! STATEfuns {
   eq equivIMSet(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM)
      = (CSIM = NSIM) and (CSIM = TSIM) and equivIMSet(SIM) .
 
-  pred allIMInTargetStates : SetOfImport SetOfIMState
-  pred allCOInTargetStates : SetOfComponent SetOfCOState
+--  pred allIMInTargetStates : SetOfImport SetOfIMState
+--  pred allCOInTargetStates : SetOfComponent SetOfCOState
 
   pred validTargetComponent : SetOfComponent SetOfImport
   eq validTargetComponent(empCO,SIM) = true .
@@ -324,20 +416,19 @@ module! STATEfuns {
   eq allCOInBothStates((cmp(IDCO,CSCO,NSCO,TSCO) SCO),StCO) 
      = (CSCO in StCO) and (NSCO in StCO) and allCOInBothStates(SCO,StCO) .
 
-  op getIMsOfECOInNextStates : SetOfImport COID SetOfIMState -> SetOfImport
-  eq getIMsOfECOInNextStates(empIM,IDCO,StIM) = empIM .
-  ceq getIMsOfECOInNextStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM),IDCO,StIM) 
-     = (imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) getIMsOfECOInNextStates(SIM,IDCO,StIM))
-     if NSIM in StIM .
-  ceq getIMsOfECOInNextStates((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,TSIM) SIM),IDCO,StIM) 
-     = getIMsOfECOInNextStates(SIM,IDCO,StIM)
-     if not EIDCO = IDCO or not NSIM in StIM .
+  -- op getIMsOfECOInNextStates : SetOfImport COID SetOfIMState -> SetOfImport
+  -- eq getIMsOfECOInNextStates(empIM,IDCO,StIM) = empIM .
+  -- ceq getIMsOfECOInNextStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM),IDCO,StIM) 
+  --    = (imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) getIMsOfECOInNextStates(SIM,IDCO,StIM))
+  --    if NSIM in StIM .
+  -- ceq getIMsOfECOInNextStates((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,TSIM) SIM),IDCO,StIM) 
+  --    = getIMsOfECOInNextStates(SIM,IDCO,StIM)
+  --    if not EIDCO = IDCO or not NSIM in StIM .
 
-
-  pred allIMInNextStates : SetOfImport SetOfIMState 
-  eq allIMInNextStates(empIM,StIM) = true .
-  eq allIMInNextStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM),StIM) 
-     = (NSIM in StIM) and allIMInNextStates(SIM,StIM) .
+  -- pred allIMInNextStates : SetOfImport SetOfIMState 
+  -- eq allIMInNextStates(empIM,StIM) = true .
+  -- eq allIMInNextStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM),StIM) 
+  --    = (NSIM in StIM) and allIMInNextStates(SIM,StIM) .
 
   pred allIMInBothStates : SetOfImport SetOfIMState 
   eq allIMInBothStates(empIM,StIM) = true .
