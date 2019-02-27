@@ -1,8 +1,7 @@
 require SET ../lib/SET.cafe
 provide Template
 
-module* OBJECT {
-  pr(NAT)
+module OBJECT {
   -- sort ObjID should be renamed.
   [ObjID]
 
@@ -43,24 +42,24 @@ module* OBJECT {
       = (id(O1) = id(O2)) .
 }
 
-module! SET+NAT {
-  protecting(SET + NAT)
+module -SET+NAT {
+  including(SET + NAT)
 
   op #_ : Set -> Nat
   eq # empty = 0 .
   eq # (E:Elt.X S:Set) = 1 + # S .
 }
 
-module! SETOBJECT(OBJ :: OBJECT) {
-  protecting(SET+NAT(OBJ {sort Elt -> Object})
+module -SETOBJECT(OBJ :: OBJECT) {
+  including(-SET+NAT(OBJ {sort Elt -> Object})
       * {sort Set -> SetOfObject,
       	 op empty -> empObj})
-  protecting(SET+NAT(OBJ {sort Elt -> ObjState})
+  including(-SET+NAT(OBJ {sort Elt -> ObjState})
       * {sort Set -> SetOfObjState,
       	 op empty -> empState})
 }
 
-module* PRMOBJPRED1 {
+module -PRMOBJPRED1 {
   [Object < SetOfObject]
   op empObj : -> SetOfObject {constr}
   op _ _ : SetOfObject SetOfObject -> SetOfObject {constr assoc comm id: empObj}
@@ -68,7 +67,7 @@ module* PRMOBJPRED1 {
   pred p : Object Arg
 }
 
-module! ALLOBJPRED1(P :: PRMOBJPRED1) {
+module -ALLOBJPRED1(P :: -PRMOBJPRED1) {
   pred allObjP : SetOfObject Arg
   pred allObjNotP : SetOfObject Arg
   pred someObjP : SetOfObject Arg
@@ -100,7 +99,7 @@ module! ALLOBJPRED1(P :: PRMOBJPRED1) {
 
 }
 
-module* PRMOBJPRED2 {
+module -PRMOBJPRED2 {
   [Object < SetOfObject]
   op empObj : -> SetOfObject  {constr}
   op _ _ : SetOfObject SetOfObject -> SetOfObject {constr assoc comm id: empObj}
@@ -108,7 +107,7 @@ module* PRMOBJPRED2 {
   pred p : Object Arg1 Arg2
 }
 
-module! ALLOBJPRED2(P :: PRMOBJPRED2) {
+module -ALLOBJPRED2(P :: -PRMOBJPRED2) {
   pred allObjP : SetOfObject Arg1 Arg2
   pred allObjNotP : SetOfObject Arg1 Arg2
   pred someObjP : SetOfObject Arg1 Arg2
@@ -141,7 +140,7 @@ module! ALLOBJPRED2(P :: PRMOBJPRED2) {
 
 }
 
-module* PRMOBJPRED3 {
+module -PRMOBJPRED3 {
   [Object < SetOfObject]
   op empObj : -> SetOfObject {constr}
   op _ _ : SetOfObject SetOfObject -> SetOfObject {constr assoc comm id: empObj}
@@ -149,7 +148,7 @@ module* PRMOBJPRED3 {
   pred p : Object Arg1 Arg2 Arg3
 }
 
-module! ALLOBJPRED3(P :: PRMOBJPRED3) {
+module -ALLOBJPRED3(P :: -PRMOBJPRED3) {
   pred allObjP : SetOfObject Arg1 Arg2 Arg3
   pred allObjNotP : SetOfObject Arg1 Arg2 Arg3
   pred someObjP : SetOfObject Arg1 Arg2 Arg3
@@ -183,8 +182,8 @@ module! ALLOBJPRED3(P :: PRMOBJPRED3) {
 
 }
 
-module! PRMOBJBASE {
-  protecting(SETOBJECT)
+module -PRMOBJBASE {
+  including(-SETOBJECT)
 
   -- sort ObjIDLt should be renamed.
   [ObjIDLt < ObjID]
@@ -223,24 +222,24 @@ module! PRMOBJBASE {
     
 }
 
-module! OBJECTBASE- {
+module -OBJECTBASE0 {
 
-  protecting(ALLOBJPRED1(PRMOBJBASE {sort Arg -> ObjID,
+  including(-ALLOBJPRED1(-PRMOBJBASE {sort Arg -> ObjID,
   	                             op p -> hasID})
                     * {op someObjP -> existObj})
 
-  protecting(ALLOBJPRED1(PRMOBJBASE {sort Arg -> SetOfObjState,
+  including(-ALLOBJPRED1(-PRMOBJBASE {sort Arg -> SetOfObjState,
   			             op p -> isInStates0})
                     * {op allObjP -> allObjInStates0,
 		       op allObjNotP -> allObjNotInStates0,
 		       op someObjP -> someObjInStates0})
 
-  protecting(ALLOBJPRED2(PRMOBJBASE {sort Arg1 -> ObjType,
+  including(-ALLOBJPRED2(-PRMOBJBASE {sort Arg1 -> ObjType,
                                      sort Arg2 -> SetOfObjState,
   			             op p -> ifOfTypeThenInStates0})
                     * {op allObjP -> allObjOfTypeInStates0})
 
-  protecting(ALLOBJPRED2(PRMOBJBASE {sort Arg1 -> ObjID,
+  including(-ALLOBJPRED2(-PRMOBJBASE {sort Arg1 -> ObjID,
                                      sort Arg2 -> SetOfObjState,
   			             op p -> hasIDInStates0})
                     * {op someObjP -> existObjInStates0})
@@ -250,8 +249,8 @@ module! OBJECTBASE- {
   op getObject : SetOfObject ObjID -> Object
   
   var ID : ObjID
-  var O : Object
-  var S_O : SetOfObject
+  vars O O' : Object
+  vars S_O S_O' S_O1 S_O2 : SetOfObject
   var St : ObjState 
   var S_St : SetOfObjState
   var OT : ObjType
@@ -272,19 +271,7 @@ module! OBJECTBASE- {
   eq getObject((O:Object S:SetOfObject),ID:ObjID)
      = if (id(O) = ID) then O else getObject(S,ID) fi .
 
-}
-
-module! OBJECTBASE0 {
-  protecting(OBJECTBASE-)
-
   -- Proved Lemmas
-  var ID : ObjID
-  vars O O' : Object
-  vars S_O S_O' S_O1 S_O2 : SetOfObject
-  var St : ObjState 
-  var S_St : SetOfObjState
-  var OT : ObjType
-
   eq [base-lemma01]:
       (existObj(S_O,ID) and existObj((O S_O),ID))
      = existObj(S_O,ID) .
@@ -335,8 +322,8 @@ module! OBJECTBASE0 {
      subset(S_O,S_O) = true .
 }
 
-module! OBJECTBASE {
-  protecting(OBJECTBASE0(OBJECT)
+module OBJECTBASE {
+  including(-OBJECTBASE0(OBJECT)
                     * {op #ObjInStates0 -> #ObjInStates,
                        op existObjInStates0 -> existObjInStates,
                        op allObjOfTypeInStates0 -> allObjOfTypeInStates,
@@ -348,8 +335,8 @@ module! OBJECTBASE {
                        op isInStates0 -> isInStates})
 }
 
-module! OBJECTBASE2 {
-  protecting(OBJECTBASE0(OBJECTBASE {op state -> state2})
+module OBJECTBASE2 {
+  including(-OBJECTBASE0(OBJECTBASE {op state -> state2})
                     * {op #ObjInStates0 -> #ObjInStates2,
                        op existObjInStates0 -> existObjInStates2,
                        op allObjOfTypeInStates0 -> allObjOfTypeInStates2,
@@ -361,8 +348,8 @@ module! OBJECTBASE2 {
                        op isInStates0 -> isInStates2})
 }
 
-module! OBJECTBASE3 {
-  protecting(OBJECTBASE0(OBJECTBASE2 {op state -> state3})
+module OBJECTBASE3 {
+  including(-OBJECTBASE0(OBJECTBASE2 {op state -> state3})
                     * {op #ObjInStates0 -> #ObjInStates3,
                        op existObjInStates0 -> existObjInStates3,
                        op allObjOfTypeInStates0 -> allObjOfTypeInStates3,
@@ -374,7 +361,7 @@ module! OBJECTBASE3 {
                        op isInStates0 -> isInStates3})
 }
 
-module* PRMOBJLINK {
+module PRMOBJLINK {
   -- Source Object
   [Object < SetOfObject]
   op null : -> Object {constr}
@@ -420,8 +407,8 @@ module* PRMOBJLINK {
   pred subset : SetOfLObject SetOfLObject
 }
 
-module* PRMOBJLINK2 {
-  protecting(PRMOBJLINK)
+module PRMOBJLINK2 {
+  including(PRMOBJLINK)
   pred allObjInStates2 : SetOfObject SetOfObjState
   op state2 : Object -> ObjState
   pred allObjInStates2 : SetOfLObject SetOfLObjState
@@ -429,8 +416,8 @@ module* PRMOBJLINK2 {
   op state2 : LObject -> LObjState
 }
 
-module* PRMOBJLINK3 {
-  protecting(PRMOBJLINK2)
+module PRMOBJLINK3 {
+  including(PRMOBJLINK2)
   pred allObjInStates3 : SetOfObject SetOfObjState
   op state3 : Object -> ObjState
   pred allObjInStates3 : SetOfLObject SetOfLObjState
@@ -438,7 +425,7 @@ module* PRMOBJLINK3 {
   op state3 : LObject -> LObjState
 }
 
-module! PRMOBJLINKPRED(LINK :: PRMOBJLINK) {
+module -PRMOBJLINKPRED(LINK :: PRMOBJLINK) {
   pred hasLObj : Object SetOfLObject
   eq hasLObj(O:Object,SetLO:SetOfLObject)
      = existObj(SetLO,link(O)) .
@@ -468,34 +455,35 @@ module! PRMOBJLINKPRED(LINK :: PRMOBJLINK) {
        (state(LO1) > state(LO2)) .
 }
 
-module! OBJLINKMANY2ONE-(LINK :: PRMOBJLINK) {
+module -OBJLINKMANY2ONE0(LINK :: PRMOBJLINK) {
   -- one X has zero or many coressponding Z
   -- Z has a link to X
 
-  protecting(ALLOBJPRED1(PRMOBJLINKPRED(LINK) 
+  including(-ALLOBJPRED1(-PRMOBJLINKPRED(LINK) 
 			 {sort Arg -> SetOfLObject,
 			  op p -> hasLObj})
                     * {op allObjP -> allZHaveX})
 
-  protecting(ALLOBJPRED2(PRMOBJLINKPRED(LINK)
+  including(-ALLOBJPRED2(-PRMOBJLINKPRED(LINK)
 			 {sort Arg1 -> LObjID,
 			  sort Arg2 -> SetOfObjState
 			  op p -> ifOfXThenInStates0})
                     * {op allObjP -> allZOfXInStates0})
 
-  protecting(ALLOBJPRED3(PRMOBJLINKPRED(LINK)
+  including(-ALLOBJPRED3(-PRMOBJLINKPRED(LINK)
 			 {sort Arg1 -> ObjType,
 			  sort Arg2 -> LObjID,
 			  sort Arg3 -> SetOfObjState
 			  op p -> ifOfTypeOfXThenInStates0})
                     * {op allObjP -> allZOfTypeOfXInStates0})
-  var X : LObject
-  var Z : Object
+  vars X X' : LObject
+  vars Z Z' : Object
   var IDX : LObjID
   var IDZ : ObjID
-  var S_X : SetOfLObject
-  var S_Z : SetOfObject
+  vars S_X S_X' : SetOfLObject
+  vars S_Z S_Z' : SetOfObject
   var SX : LObjState
+  var SZ : ObjState
   var St_X : SetOfLObjState
   var St_Z : SetOfObjState
   var OT : ObjType
@@ -636,21 +624,6 @@ module! OBJLINKMANY2ONE-(LINK :: PRMOBJLINK) {
      = empObj .
   eq getZsOfTypeOfXsInStates0(S_Z,OT,(X S_X),St_Z)
      = (getZsOfTypeOfXInStates0(S_Z,OT,X,St_Z) getZsOfTypeOfXsInStates0(S_Z,OT,S_X,St_Z)) .
-}
-
-module! OBJLINKMANY2ONE0 {
-  protecting(OBJLINKMANY2ONE-)
-
-  vars X X' : LObject
-  vars Z Z' : Object
-  vars S_X S_X' : SetOfLObject
-  vars S_Z S_Z' : SetOfObject
-  var SX : LObjState
-  var SZ : ObjState
-  var St_X : SetOfLObjState
-  var St_Z : SetOfObjState
-  var OT : ObjType
-  var IDX : LObjID
 
   -- Proved Lemmas
   ceq [m2o-lemma01]:
@@ -809,8 +782,8 @@ module! OBJLINKMANY2ONE0 {
      if changeObjState0(Z,Z') and not state(Z') in St_Z .
 }
 
-module! OBJLINKMANY2ONE(LINK :: PRMOBJLINK) {
-  protecting(OBJLINKMANY2ONE0(LINK)
+module OBJLINKMANY2ONE(LINK :: PRMOBJLINK) {
+  including(-OBJLINKMANY2ONE0(LINK)
 	     * {op allZOfTypeOfXInStates0 -> allZOfTypeOfXInStates,
 		op allZOfXInStates0 -> allZOfXInStates,
 		op changeObjState0 -> changeObjState,
@@ -825,8 +798,8 @@ module! OBJLINKMANY2ONE(LINK :: PRMOBJLINK) {
 		op ifXInStatesThenZOfTypeInStates0 -> ifXInStatesThenZOfTypeInStates})
 }
 
-module! OBJLINKMANY2ONE2(LINK :: PRMOBJLINK2) {
-  protecting(OBJLINKMANY2ONE0(OBJLINKMANY2ONE(LINK)
+module OBJLINKMANY2ONE2(LINK :: PRMOBJLINK2) {
+  including(-OBJLINKMANY2ONE0(OBJLINKMANY2ONE(LINK)
 	             {op state -> state2,
 		      op allObjInStates -> allObjInStates2,
 		      op existObjInStates -> existObjInStates2})
@@ -846,8 +819,8 @@ module! OBJLINKMANY2ONE2(LINK :: PRMOBJLINK2) {
 		op ifXInStatesThenZOfTypeInStates0 -> ifXInStatesThenZOfTypeInStates2})
 }
 
-module! OBJLINKMANY2ONE3(LINK :: PRMOBJLINK3) {
-  protecting(OBJLINKMANY2ONE0(OBJLINKMANY2ONE2(LINK)
+module OBJLINKMANY2ONE3(LINK :: PRMOBJLINK3) {
+  including(-OBJLINKMANY2ONE0(OBJLINKMANY2ONE2(LINK)
 	             {op state -> state3,
 		      op allObjInStates -> allObjInStates3,
 		      op existObjInStates -> existObjInStates3})
@@ -867,25 +840,27 @@ module! OBJLINKMANY2ONE3(LINK :: PRMOBJLINK3) {
 		op ifXInStatesThenZOfTypeInStates0 -> ifXInStatesThenZOfTypeInStates3})
 }
 
-module! OBJLINKONE2ONE-(LINK :: PRMOBJLINK) {
+module -OBJLINKONE2ONE0(LINK :: PRMOBJLINK) {
   -- one X has exactly one coressponding Y
   -- Y has a link to X
 
-  protecting(ALLOBJPRED1(PRMOBJLINKPRED(LINK)
+  including(-ALLOBJPRED1(-PRMOBJLINKPRED(LINK)
 			 {sort Arg -> LObjID,
 			  op p -> isOfX})
                     * {op someObjP -> existX0,
 		       op onlyOneObjP -> onlyOneYOfX0})
 
-  var X : LObject
-  var Y : Object
+  vars X X' : LObject
+  vars Y Y' : Object
   var IDX : LObjID
   var IDY : ObjID
+  var SX : LObjState
   var SY : ObjState
-  var S_X : SetOfLObject
-  var S_Y : SetOfObject
+  vars S_X S_X' : SetOfLObject
+  vars S_Y S_Y' : SetOfObject
   var St_X : SetOfLObjState
   var St_Y : SetOfObjState
+  var OT : ObjType
 
   ceq (IDX = link(null) ) = false
     if not (IDX == link(null)) .
@@ -999,22 +974,6 @@ module! OBJLINKONE2ONE-(LINK :: PRMOBJLINK) {
   eq allXHaveY((X S_X),S_Y)
      = onlyOneYOfX0(S_Y,id(X)) and allXHaveY(S_X,S_Y) .
 
-}
-
-module! OBJLINKONE2ONE0 {
-  protecting(OBJLINKONE2ONE-)
-
-  vars X X' : LObject
-  vars Y Y' : Object
-  vars S_X S_X' : SetOfLObject
-  vars S_Y S_Y' : SetOfObject
-  var SX : LObjState
-  var SY : ObjState
-  var St_X : SetOfLObjState
-  var St_Y : SetOfObjState
-  var OT : ObjType
-  var IDX : LObjID
-
   -- Proved Lemmas
   ceq [o2o-lemma01]:
       (allObjInStates(S_Y,St_Y) and YOfXInStates0(S_Y,IDX,St_Y))
@@ -1049,8 +1008,8 @@ module! OBJLINKONE2ONE0 {
     if not existX0(S_Y,IDX) .
 }
 
-module! OBJLINKONE2ONE(LINK :: PRMOBJLINK) {
-  protecting(OBJLINKONE2ONE0(LINK)
+module OBJLINKONE2ONE(LINK :: PRMOBJLINK) {
+  including(-OBJLINKONE2ONE0(LINK)
 	     * {op existX0 -> existX,
 		op onlyOneYOfX0 -> onlyOneYOfX,
 		op getXOfY0 -> getXOfY,
@@ -1064,8 +1023,8 @@ module! OBJLINKONE2ONE(LINK :: PRMOBJLINK) {
 		op ifYInStatesThenXInStates0 -> ifYInStatesThenXInStates})
 }
 
-module! OBJLINKONE2ONE2(LINK :: PRMOBJLINK2) {
-  protecting(OBJLINKONE2ONE0(OBJLINKONE2ONE(LINK)
+module OBJLINKONE2ONE2(LINK :: PRMOBJLINK2) {
+  including(-OBJLINKONE2ONE0(OBJLINKONE2ONE(LINK)
 	             {op state -> state2,
 		      op allObjInStates -> allObjInStates2,
 		      op existObjInStates -> existObjInStates2})
@@ -1082,8 +1041,8 @@ module! OBJLINKONE2ONE2(LINK :: PRMOBJLINK2) {
 		op ifYInStatesThenXInStates0 -> ifYInStatesThenXInStates2})
 }
 
-module! OBJLINKONE2ONE3(LINK :: PRMOBJLINK3) {
-  protecting(OBJLINKONE2ONE0(OBJLINKONE2ONE2(LINK)
+module OBJLINKONE2ONE3(LINK :: PRMOBJLINK3) {
+  including(-OBJLINKONE2ONE0(OBJLINKONE2ONE2(LINK)
 	             {op state -> state3,
 		      op allObjInStates -> allObjInStates3,
 		      op existObjInStates -> existObjInStates3})
@@ -1100,7 +1059,7 @@ module! OBJLINKONE2ONE3(LINK :: PRMOBJLINK3) {
 		op ifYInStatesThenXInStates0 -> ifYInStatesThenXInStates3})
 }
 
-module* PRMCYCLE {
+module PRMCYCLE {
   [Object < SetOfObject]
   op empObj : -> SetOfObject
   op _ _ : SetOfObject SetOfObject -> SetOfObject
@@ -1122,7 +1081,7 @@ module* PRMCYCLE {
   op DDSC : Object State -> SetOfObject
 }
 
-module! CYCLEPRED(P :: PRMCYCLE) {
+module CYCLEPRED(P :: PRMCYCLE) {
 
   var O  : Object
   vars V OS : SetOfObject
