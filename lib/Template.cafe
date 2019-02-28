@@ -2,44 +2,25 @@ require SET ../lib/SET.cafe
 provide Template
 
 module OBJECT {
-  -- sort ObjID should be renamed.
-  [ObjID]
+  -- Sorts
+  [Object] [ObjID] [ObjType] [ObjState]
 
-  -- sort ObjType should be renamed.
-  [ObjType]
-
-  -- sort ObjState should be renamed.
-  [ObjState]
-  pred _>_ : ObjState ObjState
-
-  -- sort Object should be renamed,
-  -- and a constructor should be defined.
-  [Object]
-  op null : -> Object {constr}
-  ceq (O:Object = null ) = false
-    if not (O == null) .
-
-  -- op id and state should be renamed
-  -- and defined with respect to the constructor
+  -- Selectors
   op id : Object -> ObjID
   op type : Object -> ObjType
   op state : Object -> ObjState
+}
+
+module OBJECT2 {
+  including(OBJECT)
+  -- Selectors
   op state2 : Object -> ObjState
+}
+
+module OBJECT3 {
+  including(OBJECT2)
+  -- Selectors
   op state3 : Object -> ObjState
-
-  ceq (ID:ObjID = id(null) ) = false
-    if not (ID == id(null)) .
-  ceq (T:ObjType = type(null) ) = false
-    if not (T == type(null)) .
-  ceq (ST:ObjState = state(null) ) = false
-    if not (ST == state(null)) .
-  ceq (ST:ObjState = state2(null) ) = false
-    if not (ST == state2(null)) .
-  ceq (ST:ObjState = state3(null) ) = false
-    if not (ST == state3(null)) .
-
-  eq (O1:Object = O2:Object)
-      = (id(O1) = id(O2)) .
 }
 
 module -SET+NAT {
@@ -185,6 +166,22 @@ module -ALLOBJPRED3(P :: -PRMOBJPRED3) {
 module -PRMOBJBASE {
   including(-SETOBJECT)
 
+  -- Basic operators
+  pred _>_ : ObjState ObjState
+
+  op null : -> Object {constr}
+  ceq (O:Object = null ) = false
+    if not (O == null) .
+  ceq (ID:ObjID = id(null) ) = false
+    if not (ID == id(null)) .
+  ceq (T:ObjType = type(null) ) = false
+    if not (T == type(null)) .
+  ceq (ST:ObjState = state(null) ) = false
+    if not (ST == state(null)) .
+
+  eq (O1:Object = O2:Object)
+      = (id(O1) = id(O2)) .
+
   -- sort ObjIDLt should be renamed.
   [ObjIDLt < ObjID]
   eq (I1:ObjIDLt = I2:ObjIDLt) = (I1 == I2) .
@@ -322,8 +319,8 @@ module -OBJECTBASE0 {
      subset(S_O,S_O) = true .
 }
 
-module OBJECTBASE {
-  including(-OBJECTBASE0(OBJECT)
+module OBJECTBASE(OBJ :: OBJECT) {
+  including(-OBJECTBASE0(OBJ)
                     * {op #ObjInStates0 -> #ObjInStates,
                        op existObjInStates0 -> existObjInStates,
                        op allObjOfTypeInStates0 -> allObjOfTypeInStates,
@@ -335,8 +332,8 @@ module OBJECTBASE {
                        op isInStates0 -> isInStates})
 }
 
-module OBJECTBASE2 {
-  including(-OBJECTBASE0(OBJECTBASE {op state -> state2})
+module OBJECTBASE2(OBJ :: OBJECT2) {
+  including(-OBJECTBASE0(OBJECTBASE(OBJ) {op state -> state2})
                     * {op #ObjInStates0 -> #ObjInStates2,
                        op existObjInStates0 -> existObjInStates2,
                        op allObjOfTypeInStates0 -> allObjOfTypeInStates2,
@@ -346,10 +343,12 @@ module OBJECTBASE2 {
                        op hasIDInStates0 -> hasIDInStates2,
                        op ifOfTypeThenInStates0 -> ifOfTypeThenInStates2,
                        op isInStates0 -> isInStates2})
+  ceq (ST:ObjState = state2(null) ) = false
+    if not (ST == state2(null)) .
 }
 
-module OBJECTBASE3 {
-  including(-OBJECTBASE0(OBJECTBASE2 {op state -> state3})
+module OBJECTBASE3(OBJ :: OBJECT3) {
+  including(-OBJECTBASE0(OBJECTBASE2(OBJ) {op state -> state3})
                     * {op #ObjInStates0 -> #ObjInStates3,
                        op existObjInStates0 -> existObjInStates3,
                        op allObjOfTypeInStates0 -> allObjOfTypeInStates3,
@@ -359,6 +358,8 @@ module OBJECTBASE3 {
                        op hasIDInStates0 -> hasIDInStates3,
                        op ifOfTypeThenInStates0 -> ifOfTypeThenInStates3,
                        op isInStates0 -> isInStates3})
+  ceq (ST:ObjState = state3(null) ) = false
+    if not (ST == state3(null)) .
 }
 
 module PRMOBJLINK {
