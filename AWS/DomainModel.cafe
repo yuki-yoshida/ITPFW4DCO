@@ -12,15 +12,34 @@ provide DomainModel
 -- There are typical types of properties.
 
 module! RESOURCE {
+  -- Sorts
+  [Resource RSID RSType RSState]
+  -- Constructor
+  -- res(RSType, RSID, RSState) is a Resource.
+  op res : RSType RSID RSState -> Resource {constr}
+
+  -- Selectors
+  op id : Resource -> RSID
+  op type : Resource -> RSType
+  op state : Resource -> RSState
+  var TRS : RSType
+  var IDRS : RSID
+  var SRS : RSState
+  eq id(res(TRS,IDRS,SRS)) = IDRS .
+  eq type(res(TRS,IDRS,SRS)) = TRS .
+  eq state(res(TRS,IDRS,SRS)) = SRS .
+}
+  
+module! RESOURCEfuns {
   -- Instantiation of Template
-  extending(OBJECTBASE
-	* {sort Object -> Resource,
-	   sort ObjIDLt -> RSIDLt,
-	   sort ObjID -> RSID,
+  extending(OBJECTBASE(RESOURCE
+			 {sort Object -> Resource,
+			  sort ObjID -> RSID,
+			  sort ObjType -> RSType,
+			  sort ObjState -> RSState})
+	* {sort ObjIDLt -> RSIDLt,
 	   sort ObjTypeLt -> RSTypeLt,
-	   sort ObjType -> RSType,
 	   sort ObjStateLt -> RSStateLt,
-	   sort ObjState -> RSState,
 	   sort SetOfObject -> SetOfResource,
 	   sort SetOfObjState -> SetOfRSState,
 	   op empObj -> empRS,
@@ -34,20 +53,6 @@ module! RESOURCE {
 	   op allObjNotInStates -> allRSNotInStates,
 	   op someObjInStates -> someRSInStates})
 
-  -- Constructor
-  -- res(RSType, RSID, RSState) is a Resource.
-  op res : RSType RSID RSState -> Resource {constr}
-
-  -- Variables
-  var TRS : RSType
-  var IDRS : RSID
-  var SRS : RSState
-
-  -- Selectors
-  eq type(res(TRS,IDRS,SRS)) = TRS .
-  eq id(res(TRS,IDRS,SRS)) = IDRS .
-  eq state(res(TRS,IDRS,SRS)) = SRS .
-
   -- Local States
   ops initial started : -> RSStateLt {constr}
   eq (initial > started) = true .
@@ -55,16 +60,41 @@ module! RESOURCE {
 
 module! PROPERTY {
   protecting(RESOURCE)
+  -- Sorts
+  [Property PRID PRType PRState]
+  -- Constructor
+  -- prop(PRType, PRID, PRState, RSID, RSID) is a Property of a Resource.
+  op prop : PRType PRID PRState RSID RSID -> Property {constr}
+
+  -- Selectors
+  op id : Property -> PRID
+  op type : Property -> PRType
+  op state : Property -> PRState
+  op parent : Property -> RSID
+  op refer : Property -> RSID
+  var TPR : PRType
+  var IDPR : PRID
+  var SPR : PRState
+  vars IDRS1 IDRS2 : RSID
+  eq type(prop(TPR,IDPR,SPR,IDRS1,IDRS2)) = TPR .
+  eq id(prop(TPR,IDPR,SPR,IDRS1,IDRS2)) = IDPR .
+  eq state(prop(TPR,IDPR,SPR,IDRS1,IDRS2)) = SPR .
+  eq parent(prop(TPR,IDPR,SPR,IDRS1,IDRS2)) = IDRS1 .
+  eq refer(prop(TPR,IDPR,SPR,IDRS1,IDRS2)) = IDRS2 .
+}
+
+module! PROPERTYfuns {
+  protecting(RESOURCEfuns)
 
   -- Instantiation of Template
-  extending(OBJECTBASE
-	* {sort Object -> Property,
-	   sort ObjIDLt -> PRIDLt,
-	   sort ObjID -> PRID,
+  extending(OBJECTBASE(PROPERTY
+			 {sort Object -> Property,
+			  sort ObjID -> PRID,
+			  sort ObjType -> PRType,
+			  sort ObjState -> PRState})
+	* {sort ObjIDLt -> PRIDLt,
 	   sort ObjTypeLt -> PRTypeLt,
-	   sort ObjType -> PRType,
 	   sort ObjStateLt -> PRStateLt,
-	   sort ObjState -> PRState,
 	   sort SetOfObject -> SetOfProperty,
 	   sort SetOfObjState -> SetOfPRState,
 	   op empObj -> empPR,
@@ -78,33 +108,14 @@ module! PROPERTY {
 	   op allObjNotInStates -> allPRNotInStates,
 	   op someObjInStates -> somePRInStates})
 
-  -- Constructor
-  -- prop(PRType, PRID, PRState, RSID, RSID) is a Property of a Resource.
-  op prop : PRType PRID PRState RSID RSID -> Property {constr}
-
-  -- Variables
-  var TPR : PRType
-  var IDPR : PRID
-  var SPR : PRState
-  vars IDRS1 IDRS2 : RSID
-
-  -- Selectors
-  op parent : Property -> RSID
-  op refer : Property -> RSID
-  eq type(prop(TPR,IDPR,SPR,IDRS1,IDRS2)) = TPR .
-  eq id(prop(TPR,IDPR,SPR,IDRS1,IDRS2)) = IDPR .
-  eq state(prop(TPR,IDPR,SPR,IDRS1,IDRS2)) = SPR .
-  eq parent(prop(TPR,IDPR,SPR,IDRS1,IDRS2)) = IDRS1 .
-  eq refer(prop(TPR,IDPR,SPR,IDRS1,IDRS2)) = IDRS2 .
-
   -- Local States
   ops notready ready : -> PRStateLt {constr}
   eq (notready > ready) = true .
 }
 
 module! LINKS {
-  extending(OBJLINKMANY2ONE(
-	PROPERTY {sort Object -> Property,
+  extending(OBJLINKMANY2ONE(PROPERTYfuns 
+	         {sort Object -> Property,
   		  sort ObjID -> PRID,
   		  sort ObjType -> PRType,
   		  sort ObjState -> PRState,
@@ -145,8 +156,8 @@ module! LINKS {
 	   op ifXInStatesThenZInStates -> ifRSInStatesThenPRInStates}
 	)
 
-  extending(OBJLINKMANY2ONE(
-	PROPERTY {sort Object -> Property,
+  extending(OBJLINKMANY2ONE(PROPERTYfuns
+                 {sort Object -> Property,
   		  sort ObjID -> PRID,
   		  sort ObjType -> PRType,
   		  sort ObjState -> PRState,
