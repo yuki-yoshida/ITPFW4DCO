@@ -19,15 +19,32 @@ provide DomainModel
 -- where "local" means both nodes are hosted in a same VM and "remote" means non-local.
 
 module! NODE {
+  -- Sorts
+  [Node NDID NDType NDState]
+  -- Constructor
+  -- node(NDType, NDID, NDState) is a Node.
+  op node : NDType NDID NDState -> Node {constr}
+  -- Selectors
+  op id : Node -> NDID
+  op type : Node -> NDType
+  op state : Node -> NDState
+  var TND : NDType
+  var IDND : NDID
+  var SND : NDState
+  eq type(node(TND,IDND,SND)) = TND .
+  eq id(node(TND,IDND,SND)) = IDND .
+  eq state(node(TND,IDND,SND)) = SND .
+}
 
-  extending(OBJECTBASE
+module! NODEfuns {
+  extending(OBJECTBASE(NODE
+			 {sort Object -> Node,
+			  sort ObjType -> NDType,
+			  sort ObjID -> NDID,
+			  sort ObjState -> NDState})
 	* {sort ObjIDLt -> NDIDLt,
-	   sort ObjID -> NDID,
 	   sort ObjTypeLt -> NDTypeLt,
-	   sort ObjType -> NDType,
 	   sort ObjStateLt -> NDStateLt,
-	   sort ObjState -> NDState,
-	   sort Object -> Node,
 	   sort SetOfObject -> SetOfNode,
 	   sort SetOfObjState -> SetOfNDState,
 	   op empObj -> empND,
@@ -42,19 +59,8 @@ module! NODE {
 	   op allObjNotInStates -> allNDNotInStates,
 	   op someObjInStates -> someNDInStates})
 
-  -- node(NDType, NDID, NDState) is a Node.
-  op node : NDType NDID NDState -> Node {constr}
-
   -- There are four typical node types.
   ops VM OS MW SC : -> NDTypeLt {constr}
-
-  var TND : NDType
-  var IDND : NDID
-  var SND : NDState
-
-  eq type(node(TND,IDND,SND)) = TND .
-  eq id(node(TND,IDND,SND)) = IDND .
-  eq state(node(TND,IDND,SND)) = SND .
 
   ops initial created started : -> NDStateLt {constr}
   eq (initial > created) = true .
@@ -68,15 +74,37 @@ module! NODE {
 
 module! CAPABILITY {
   protecting(NODE)
+  -- Sorts
+  [Capability CPID CPType CPState]
+  -- Constructor
+  -- cap(CPType, CPID, CPState, NDID) is a Capability of a Node identified by idND.
+  op cap : CPType CPID CPState NDID -> Capability {constr}
+  -- Selectors
+  op id : Capability -> CPID
+  op type : Capability -> CPType
+  op state : Capability -> CPState
+  op node : Capability -> NDID
+  var TCP : CPType
+  var IDCP : CPID
+  var SCP : CPState
+  var IDND : NDID
+  eq type(cap(TCP,IDCP,SCP,IDND)) = TCP .
+  eq id(cap(TCP,IDCP,SCP,IDND)) = IDCP .
+  eq state(cap(TCP,IDCP,SCP,IDND)) = SCP .
+  eq node(cap(TCP,IDCP,SCP,IDND)) = IDND .
+}  
 
-  extending(OBJECTBASE
+module! CAPABILITYfuns {
+  protecting(NODEfuns)
+
+  extending(OBJECTBASE(CAPABILITY
+			 {sort Object -> Capability
+			  sort ObjID -> CPID,
+			  sort ObjType -> CPType,
+			  sort ObjState -> CPState})
 	* {sort ObjIDLt -> CPIDLt,
-	   sort ObjID -> CPID,
 	   sort ObjTypeLt -> CPTypeLt,
-	   sort ObjType -> CPType,
 	   sort ObjStateLt -> CPStateLt,
-	   sort ObjState -> CPState,
-	   sort Object -> Capability
 	   sort SetOfObject -> SetOfCapability,
 	   sort SetOfObjState -> SetOfCPState,
 	   op empObj -> empCP,
@@ -91,20 +119,6 @@ module! CAPABILITY {
 	   op allObjNotInStates -> allCPNotInStates,
 	   op someObjInStates -> someCPInStates})
 
-  -- cap(CPType, CPID, CPState, NDID) is a Capability of a Node identified by idND.
-  op cap : CPType CPID CPState NDID -> Capability {constr}
-  op node : Capability -> NDID
-
-  var TCP : CPType
-  var IDCP : CPID
-  var SCP : CPState
-  var IDND : NDID
-
-  eq type(cap(TCP,IDCP,SCP,IDND)) = TCP .
-  eq id(cap(TCP,IDCP,SCP,IDND)) = IDCP .
-  eq state(cap(TCP,IDCP,SCP,IDND)) = SCP .
-  eq node(cap(TCP,IDCP,SCP,IDND)) = IDND .
-
   ops closed open available : -> CPStateLt {constr}
   eq (closed > open) = true .
   eq (closed > available) = true .
@@ -117,15 +131,37 @@ module! CAPABILITY {
 
 module! REQUIREMENT {
   protecting(NODE)
+  -- Sorts
+  [Requirement RQID RQType RQState]
+  -- Constructor
+  -- req(RQType, RQID, RQState, NDID) is a Requirement of a Node idetified by idND.
+  op req : RQType RQID RQState NDID -> Requirement {constr}
+  -- Selectors
+  op id : Requirement -> RQID
+  op type : Requirement -> RQType
+  op state : Requirement -> RQState
+  op node : Requirement -> NDID
+  var TRQ : RQType
+  var IDRQ : RQID
+  var IDND : NDID
+  var SRQ : RQState
+  eq type(req(TRQ,IDRQ,SRQ,IDND)) = TRQ .
+  eq id(req(TRQ,IDRQ,SRQ,IDND)) = IDRQ .
+  eq state(req(TRQ,IDRQ,SRQ,IDND)) = SRQ .
+  eq node(req(TRQ,IDRQ,SRQ,IDND)) = IDND .
+}  
 
-  extending(OBJECTBASE
+module! REQUIREMENTfuns {
+  protecting(NODEfuns)
+
+  extending(OBJECTBASE(REQUIREMENT
+			 {sort Object -> Requirement,
+			  sort ObjID -> RQID,
+			  sort ObjType -> RQType,
+			  sort ObjState -> RQState})
 	* {sort ObjIDLt -> RQIDLt,
-	   sort ObjID -> RQID,
 	   sort ObjTypeLt -> RQTypeLt,
-	   sort ObjType -> RQType,
 	   sort ObjStateLt -> RQStateLt,
-	   sort ObjState -> RQState,
-	   sort Object -> Requirement,
 	   sort SetOfObject -> SetOfRequirement,
 	   sort SetOfObjState -> SetOfRQState,
 	   op empObj -> empRQ,
@@ -140,20 +176,6 @@ module! REQUIREMENT {
 	   op allObjNotInStates -> allRQNotInStates,
 	   op someObjInStates -> someRQInStates})
 
-  -- req(RQType, RQID, RQState, NDID) is a Requirement of a Node idetified by idND.
-  op req : RQType RQID RQState NDID -> Requirement {constr}
-  op node : Requirement -> NDID
-
-  var TRQ : RQType
-  var IDRQ : RQID
-  var IDND : NDID
-  var SRQ : RQState
-
-  eq type(req(TRQ,IDRQ,SRQ,IDND)) = TRQ .
-  eq id(req(TRQ,IDRQ,SRQ,IDND)) = IDRQ .
-  eq state(req(TRQ,IDRQ,SRQ,IDND)) = SRQ .
-  eq node(req(TRQ,IDRQ,SRQ,IDND)) = IDND .
-
   ops unbound waiting ready : -> RQStateLt {constr}
   eq (unbound > waiting) = true .
   eq (unbound > ready) = true .
@@ -162,41 +184,50 @@ module! REQUIREMENT {
 
 module! RELATIONSHIP {
   protecting(CAPABILITY + REQUIREMENT)
+  -- Sorts
+  [Relationship RLID RLState]
+  [RLType < CPType RQType]
+  -- Constructor
+  -- rel(RLType, RLID, CPID, RQID) is a Relationship
+  op rel : RLType RLID CPID RQID -> Relationship {constr}
+  -- Selectors
+  op id : Relationship -> RLID
+  op type : Relationship -> RLType
+  op state : Relationship -> RLState
+  op cap : Relationship -> CPID
+  op req : Relationship -> RQID
+  var TRL : RLType
+  var IDRL : RLID
+  var IDCP : CPID
+  var IDRQ : RQID
+  eq type(rel(TRL,IDRL,IDCP,IDRQ)) = TRL .
+  eq id(rel(TRL,IDRL,IDCP,IDRQ)) = IDRL .
+  eq cap(rel(TRL,IDRL,IDCP,IDRQ)) = IDCP .
+  eq req(rel(TRL,IDRL,IDCP,IDRQ)) = IDRQ .
+}  
 
-  extending(OBJECTBASE
+module! RELATIONSHIPfuns {
+  protecting(CAPABILITYfuns + REQUIREMENTfuns)
+
+  extending(OBJECTBASE(RELATIONSHIP
+			 {sort Object -> Relationship,
+			  sort ObjID -> RLID,
+			  sort ObjType -> RLType,
+			  sort ObjState -> RLState})
 	* {sort ObjIDLt -> RLIDLt,
-	   sort ObjID -> RLID,
 	   sort ObjTypeLt -> RLTypeLt,
-	   sort ObjType -> RLType,
 	   sort ObjStateLt -> RLStateLt,
-	   sort ObjState -> RLState,
-	   sort Object -> Relationship,
 	   sort SetOfObject -> SetOfRelationship,
 	   sort SetOfObjState -> SetOfRLState,
 	   op empObj -> empRL,
 	   op existObj -> existRL,
 	   op uniqObj -> uniqRL})
 
-  
-  -- rel(RLType, RLID, CPID, RQID) is a Relationship
-  op rel : RLType RLID CPID RQID -> Relationship {constr}
-  op cap : Relationship -> CPID
-  op req : Relationship -> RQID
-
-  [RLType < CPType RQType]
   ops hostedOn dependsOn connectsTo : -> RLTypeLt {constr}
-
-  var TRL : RLType
+  pred isLocalRL : Relationship
   var IDRL : RLID
   var IDCP : CPID
   var IDRQ : RQID
-
-  eq type(rel(TRL,IDRL,IDCP,IDRQ)) = TRL .
-  eq id(rel(TRL,IDRL,IDCP,IDRQ)) = IDRL .
-  eq cap(rel(TRL,IDRL,IDCP,IDRQ)) = IDCP .
-  eq req(rel(TRL,IDRL,IDCP,IDRQ)) = IDRQ .
-
-  pred isLocalRL : Relationship
   eq isLocalRL(rel(hostedOn,IDRL,IDCP,IDRQ)) = true .
   eq isLocalRL(rel(dependsOn,IDRL,IDCP,IDRQ)) = true .
   eq isLocalRL(rel(connectsTo,IDRL,IDCP,IDRQ)) = false .
@@ -205,8 +236,8 @@ module! RELATIONSHIP {
 module! LINKS {
   protecting(NODE + CAPABILITY + REQUIREMENT + RELATIONSHIP)
 
-  extending(OBJLINKMANY2ONE(
-	CAPABILITY {sort Object -> Capability,
+  extending(OBJLINKMANY2ONE(CAPABILITYfuns 
+                   {sort Object -> Capability,
   		    sort ObjID -> CPID,
   		    sort ObjType -> CPType,
   		    sort ObjState -> CPState,
@@ -250,8 +281,8 @@ module! LINKS {
 	   op ifXInStatesThenZOfTypeInStates -> ifNDInStatesThenCPOfTypeInStates}
 	)
 
-  extending(OBJLINKMANY2ONE(
-	REQUIREMENT {sort Object -> Requirement,
+  extending(OBJLINKMANY2ONE(REQUIREMENTfuns
+	            {sort Object -> Requirement,
   		     sort ObjID -> RQID,
   		     sort ObjType -> RQType,
   		     sort ObjState -> RQState,
@@ -295,8 +326,8 @@ module! LINKS {
 	   op ifXInStatesThenZOfTypeInStates -> ifNDInStatesThenRQOfTypeInStates}
 	)
 
-  extending(OBJLINKONE2ONE(
-	RELATIONSHIP {sort Object -> Relationship,
+  extending(OBJLINKONE2ONE(RELATIONSHIPfuns
+	             {sort Object -> Relationship,
   		      sort ObjID -> RLID,
   		      sort ObjType -> RLType,
   		      sort ObjState -> RLState,
@@ -335,8 +366,8 @@ module! LINKS {
 	   op YOfXInStates -> RLOfCPInStates}
 	)
 
-  extending(OBJLINKONE2ONE(
-	RELATIONSHIP {sort Object -> Relationship,
+  extending(OBJLINKONE2ONE(RELATIONSHIPfuns
+		     {sort Object -> Relationship,
   		      sort ObjID -> RLID,
   		      sort ObjType -> RLType,
   		      sort ObjState -> RLState,
