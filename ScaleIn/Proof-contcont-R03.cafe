@@ -1,0 +1,32 @@
+require ProofContCont Proof-contcont.cafe
+
+--> **********************************************************
+--> (2) inv(S) and not final(S) implies cont(SS) or final(SS).
+--> **********************************************************
+
+--> ***********************************************
+-->  trans [R03]:
+-->     < (sv(IDSV,serving) SetSV), MQ >
+-->  => < (sv(IDSV,started) SetSV), MQ > .
+--> ***********************************************
+select ProofContCont .
+-- When R03 can be applied to the state S:
+--> *************************************************************************
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq contcont(< (sv(idSV,serving) sSV), mq >) = true .
+}
+--> *********************************************************
+--> Step 2-3: Split the current case into cases where
+-->  predicate final does or does not hold in the next state.
+--> *********************************************************
+:def csp2-3 = :csp {
+  eq #MsgInQueue(mq,stpMsg) = 0 .
+  eq mq = (reqMsg & mq') .
+  eq mq = (stpMsg & mq') .
+}
+:apply (csp2-3 rd-)
+show proof
+
+select

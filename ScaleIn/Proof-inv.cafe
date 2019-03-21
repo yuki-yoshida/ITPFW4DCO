@@ -1,0 +1,191 @@
+require Proof Proof.cafe
+
+--> ***************************
+--> (4) init(S) implies inv(S).
+--> (5) inv(S) implies inv(SS).
+--> ***************************
+
+--> **********************************************
+--> Step 4-0,5-0: Define a predicate to be proved.
+--> **********************************************
+module ProofInv {
+  protecting(ProofBase)
+  protecting(STATERules)
+
+  vars S SS : State
+  var CC : Bool
+
+  pred invK : State Nat
+
+  pred initinv : State
+  eq initinv(S)
+     = init(S,n) implies invK(S,n) .
+
+  pred iinv : State State .
+  eq iinv(S,SS)
+     = inv(S,n) and invK(S,n) implies invK(SS,n) .
+  pred invinv : State
+  eq invinv(S)
+     = not (S =(*,1)=>+ SS if CC suchThat
+            not ((CC implies iinv(S,SS)) == true)
+     	   { S => SS !! CC ! inv(S,n) ! invK(S,n) ! invK(SS,n) }) .
+}
+
+--> *************************************************************
+--> Proof of inv-StpMsgStpSv.
+-->  eq inv-StpMsgStpSv(< SetSV,MQ >, N, M)
+-->    = (#ServerInStates(stopped,SetSV) + #MsgInQueue(MQ,stpMsg))
+-->      = (N + M) .
+--> *************************************************************
+--> Proof of inv(S) implies inv(SS)
+module Proofinv-StpMsgStpSv {
+  protecting(ProofInv)
+  var S : State
+  vars N N' M M' : Nat
+  eq invK(S,N) = inv-StpMsgStpSv(S,N) .
+
+  -- Axiom
+  eq ((N = N') and (M = M') and (N + M = N' + M'))
+   = ((N = N') and (M = M')) .
+}
+
+select Proofinv-StpMsgStpSv
+--> ***************************
+--> (4) init(S) implies inv(S).
+--> ***************************
+--> *******************************************
+--> Step 4-1: Begin with the most general case. 
+--> *******************************************
+:goal {
+  eq initinv(< sSV,mq >) = true .
+}
+:apply (rd-) 
+show proof
+
+--> ***************************
+--> (5) inv(S) implies inv(SS).
+--> ***************************
+--> ***********************************************
+-->  trans [R01]:
+-->     < (sv(IDSV,started) SetSV), (reqMsg & MQ) >
+-->  => < (sv(IDSV,serving) SetSV), MQ > .
+--> ***********************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (sv(idSV,started) sSV), (reqMsg & mq) >) = true .
+}
+:apply (rd-)
+show proof
+
+--> ***********************************************
+-->  trans [R02]:
+-->     < (sv(IDSV,started) SetSV), (stpMsg & MQ) >
+-->  => < (sv(IDSV,stopped) SetSV), MQ > .
+--> ***********************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (sv(idSV,started) sSV), (stpMsg & mq) >) = true .
+}
+:apply (rd-)
+show proof
+
+--> **************************************
+-->  trans [R03]:
+-->     < (sv(IDSV,serving) SetSV), MQ >
+-->  => < (sv(IDSV,started) SetSV), MQ > .
+--> **************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (sv(idSV,serving) sSV), mq >) = true .
+}
+:apply (rd-)
+show proof
+
+--> *************************************************************************
+--> Proof of inv-StpMsgStrSevSv.
+-->  eq inv-StpMsgStrSevSv(< SetSV,MQ >, N, M)
+-->    = #ServerInStates((started serving),SetSV) >= #MsgInQueue(MQ,stpMsg) .
+--> *************************************************************************
+--> Proof of inv(S) implies inv(SS)
+module Proofinv-StpMsgStrSevSv {
+  protecting(ProofInv)
+  var S : State
+  vars N M M' : Nat
+  eq invK(S,N) = inv-StpMsgStrSevSv(S,N) .
+
+  -- Axiom
+--  eq ((N >= m) and (M = m) and (N >= M))
+--   = ((N >= m) and (M = m)) .
+--  eq ((N >= M) and (M = M') and (N >= M'))
+--   = ((N >= M) and (M = M')) .
+
+  eq (((1 + N) >= (1 + M)) and (N >= M))
+    = ((1 + N) >= (1 + M)) .
+}
+
+select Proofinv-StpMsgStrSevSv
+--> ***************************
+--> (4) init(S) implies inv(S).
+--> ***************************
+--> *******************************************
+--> Step 4-1: Begin with the most general case. 
+--> *******************************************
+:goal {
+  eq initinv(< sSV,mq >) = true .
+}
+:apply (rd-) 
+show proof
+
+--> ***************************
+--> (5) inv(S) implies inv(SS).
+--> ***************************
+--> ***********************************************
+-->  trans [R01]:
+-->     < (sv(IDSV,started) SetSV), (reqMsg & MQ) >
+-->  => < (sv(IDSV,serving) SetSV), MQ > .
+--> ***********************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (sv(idSV,started) sSV), (reqMsg & mq) >) = true .
+}
+:apply (rd-)
+show proof
+
+--> ***********************************************
+-->  trans [R02]:
+-->     < (sv(IDSV,started) SetSV), (stpMsg & MQ) >
+-->  => < (sv(IDSV,stopped) SetSV), MQ > .
+--> ***********************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (sv(idSV,started) sSV), (stpMsg & mq) >) = true .
+}
+:apply (rd-)
+show proof
+
+--> **************************************
+-->  trans [R03]:
+-->     < (sv(IDSV,serving) SetSV), MQ >
+-->  => < (sv(IDSV,started) SetSV), MQ > .
+--> **************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (sv(idSV,serving) sSV), mq >) = true .
+}
+:apply (rd-)
+show proof
+--> Totally 8 goals should be proved.
+
+select

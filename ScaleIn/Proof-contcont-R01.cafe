@@ -1,0 +1,23 @@
+require ProofContCont Proof-contcont.cafe
+
+--> **********************************************************
+--> (2) inv(S) and not final(S) implies cont(SS) or final(SS).
+--> **********************************************************
+
+--> ***********************************************
+-->  trans [R01]:
+-->     < (sv(IDSV,started) SetSV), (reqMsg & MQ) >
+-->  => < (sv(IDSV,serving) SetSV), MQ > .
+--> ***********************************************
+select ProofContCont .
+-- When R01 can be applied to the state S:
+--> *************************************************************************
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq contcont(< (sv(idSV,started) sSV), (reqMsg & mq) >) = true .
+}
+:apply (rd-)
+show proof
+
+select

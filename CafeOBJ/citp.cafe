@@ -1,0 +1,24 @@
+mod! PNAT {
+  [ PZero PNzNat < PNat ]
+  op 0 : -> PZero {ctor} .
+  op s_ : PNat -> PNzNat {ctor} .
+  op _+_ : PNat PNat -> PNat .
+  eq 0 + N:PNat = N .
+  eq s M:PNat + N:PNat = s(M + N) .
+}
+
+select PNAT .
+:goal { 
+  eq [lemma-1]: M:PNat + 0 = M:PNat .
+  eq [lemma-2]: M:PNat + s N:PNat = s(M:PNat + N:PNat). 
+}
+
+:ind on (M:PNat)
+:apply (si)
+:apply (tc)
+:apply (rd)
+:apply (rd)
+:apply (tc)
+:apply (rd)
+:apply (rd)
+

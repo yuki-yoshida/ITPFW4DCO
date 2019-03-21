@@ -1,0 +1,13 @@
+provide QUEUE
+
+mod! QUEUE(X :: TRIV) {
+  [Elt.X < Queue]
+  op empty : -> Queue {constr}
+  op (_&_) : Queue Queue -> Queue {constr assoc id: empty} .
+  -- equality _=_ over the sort Queue
+  -- _=_ is defined for each sort in the built-in module EQL
+  eq (empty = (E:Elt & Q:Queue)) = false .
+  ceq ((E1:Elt & Q1:Queue) = (E2:Elt & Q2:Queue)) 
+      = ((E1 = E2) and (Q1 = Q2))
+      if not((Q1 = empty) and (Q2 = empty)) .
+}

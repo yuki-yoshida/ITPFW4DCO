@@ -21,51 +21,54 @@ module ProofMeasure {
 
   pred mmes : State State .
   eq mmes(S,SS)
-     = inv(S) and not final(S) implies m(S) > m(SS) .
+     = inv(S,n) and not final(S,n) implies mes(S) > mes(SS) .
 
   pred mesmes : State .
   eq mesmes(S)
      = not (S =(*,1)=>+ SS if CC suchThat
             not ((CC implies mmes(S,SS)) == true)
-     	   { S => SS !! CC ! inv(S) ! final(S) ! (m(S) > m(SS)) }) .
+     	   { S => SS !! CC ! inv(S,n) ! final(S,n) ! (mes(S) > mes(SS)) }) .
 }
 
 --> ********************************************
--->  ctrans [R01]:
--->     < (res(TRS,IDRS,initial) SetRS), SetPR >
--->  => < (res(TRS,IDRS,started) SetRS), SetPR > 
--->     if allPROfRSInStates(SetPR,IDRS,ready) .
+-->  trans [R01]:
+-->     < (sv(IDSV,started) SetSV), (reqMsg & MQ) >
+-->  => < (sv(IDSV,serving) SetSV), MQ > .
 --> ********************************************
 select ProofMeasure .
 --> *************************************************************************
 --> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
-  eq mesmes(< (res(trs,idRS,initial) sRS), sPR >) = true .
+  eq mesmes(< (sv(idSV,started) sSV), (reqMsg & mq) >) = true .
 }
---> ********************************************************
---> Step 3-3: Split the current case for a rule into cases
--->  where the condition of the rule does or does not hold. 
---> ********************************************************
--- The condition of R01 does or does not hold for S.
-:def ctf3-3R01 = :ctf {
-  eq allPROfRSInStates(sPR,idRS,ready) = true .
-}
-:apply (ctf3-3R01 rd-)
+:apply (rd-)
 show proof
 
 --> ****************************************************
 -->  trans [R02]:
--->     < (res(TRS,IDRRS,started) SetRS), 
--->       (prop(TPR,IDPR,notready,IDRS,IDRRS) SetPR) >
--->  => < (res(TRS,IDRRS,started) SetRS), 
--->       (prop(TPR,IDPR,ready   ,IDRS,IDRRS) SetPR) > .
+-->     < (sv(IDSV,started) SetSV), (stpMsg & MQ) >
+-->  => < (sv(IDSV,stopped) SetSV), MQ > .
 --> ****************************************************
 --> *************************************************************************
 --> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
-  eq mesmes(< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >) = true .
+  eq mesmes(< (sv(idSV,started) sSV), (stpMsg & mq) >) = true .
+}
+:apply (rd-)
+show proof
+
+--> ****************************************************
+-->  trans [R03]:
+-->     < (sv(IDSV,serving) SetSV), MQ >
+-->  => < (sv(IDSV,started) SetSV), MQ > .
+--> ****************************************************
+--> *************************************************************************
+--> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq mesmes(< (sv(idSV,serving) sSV), mq >) = true .
 }
 :apply (rd-)
 show proof

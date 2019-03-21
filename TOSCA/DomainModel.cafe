@@ -1,5 +1,5 @@
-require Template Template.cafe
-require BAG BAG.cafe
+require Template ../lib/Template.cafe
+require BAG ../lib/BAG.cafe
 provide DomainModel
 
 -- An abstract model for OASIS TOSCA
@@ -37,11 +37,11 @@ module! NODE {
 }
 
 module! NODEfuns {
-  extending(OBJECTBASE(NODE
-			 {sort Object -> Node,
-			  sort ObjType -> NDType,
-			  sort ObjID -> NDID,
-			  sort ObjState -> NDState})
+  extending(OBJECTBASE(
+	NODE {sort Object -> Node,
+	      sort ObjType -> NDType,
+	      sort ObjID -> NDID,
+	      sort ObjState -> NDState})
 	* {sort ObjIDLt -> NDIDLt,
 	   sort ObjTypeLt -> NDTypeLt,
 	   sort ObjStateLt -> NDStateLt,
@@ -97,11 +97,11 @@ module! CAPABILITY {
 module! CAPABILITYfuns {
   protecting(NODEfuns)
 
-  extending(OBJECTBASE(CAPABILITY
-			 {sort Object -> Capability
-			  sort ObjID -> CPID,
-			  sort ObjType -> CPType,
-			  sort ObjState -> CPState})
+  extending(OBJECTBASE(
+	CAPABILITY {sort Object -> Capability
+		    sort ObjID -> CPID,
+		    sort ObjType -> CPType,
+		    sort ObjState -> CPState})
 	* {sort ObjIDLt -> CPIDLt,
 	   sort ObjTypeLt -> CPTypeLt,
 	   sort ObjStateLt -> CPStateLt,
@@ -154,11 +154,11 @@ module! REQUIREMENT {
 module! REQUIREMENTfuns {
   protecting(NODEfuns)
 
-  extending(OBJECTBASE(REQUIREMENT
-			 {sort Object -> Requirement,
-			  sort ObjID -> RQID,
-			  sort ObjType -> RQType,
-			  sort ObjState -> RQState})
+  extending(OBJECTBASE(
+	REQUIREMENT {sort Object -> Requirement,
+		     sort ObjID -> RQID,
+		     sort ObjType -> RQType,
+		     sort ObjState -> RQState})
 	* {sort ObjIDLt -> RQIDLt,
 	   sort ObjTypeLt -> RQTypeLt,
 	   sort ObjStateLt -> RQStateLt,
@@ -209,11 +209,11 @@ module! RELATIONSHIP {
 module! RELATIONSHIPfuns {
   protecting(CAPABILITYfuns + REQUIREMENTfuns)
 
-  extending(OBJECTBASE(RELATIONSHIP
-			 {sort Object -> Relationship,
-			  sort ObjID -> RLID,
-			  sort ObjType -> RLType,
-			  sort ObjState -> RLState})
+  extending(OBJECTBASE(
+	RELATIONSHIP {sort Object -> Relationship,
+		      sort ObjID -> RLID,
+		      sort ObjType -> RLType,
+		      sort ObjState -> RLState})
 	* {sort ObjIDLt -> RLIDLt,
 	   sort ObjTypeLt -> RLTypeLt,
 	   sort ObjStateLt -> RLStateLt,
@@ -236,34 +236,34 @@ module! RELATIONSHIPfuns {
 module! LINKS {
   protecting(NODE + CAPABILITY + REQUIREMENT + RELATIONSHIP)
 
-  extending(OBJLINKMANY2ONE(CAPABILITYfuns 
-                   {sort Object -> Capability,
-  		    sort ObjID -> CPID,
-  		    sort ObjType -> CPType,
-  		    sort ObjState -> CPState,
-  		    sort SetOfObject -> SetOfCapability,
-  		    sort SetOfObjState -> SetOfCPState,
-		    op empObj -> empCP,
-		    op getObject(X:SetOfObject,Y:ObjID) 
-		       -> getCapability(X:SetOfCapability,Y:CPID),
-		    op existObj(X:SetOfObject,Y:ObjID)
-		       -> existCP(X:SetOfCapability,Y:CPID),
-		    op allObjInStates(X:SetOfObject,Y:SetOfObjState)
-		       -> allCPInStates(X:SetOfCapability,Y:SetOfCPState),
-		    sort LObject -> Node,
-		    sort LObjID -> NDID,
-  	            sort LObjState -> NDState,
-  	            sort SetOfLObject -> SetOfNode,
-  	            sort SetOfLObjState -> SetOfNDState,
-		    op link -> node,
-		    op empLObj -> empND,
-		    op getObject(X:SetOfLObject,Y:LObjID) 
-		       -> getNode(X:SetOfNode,Y:NDID),
-		    op existObj(X:SetOfLObject,Y:LObjID)
-		       -> existND(X:SetOfNode,Y:NDID),
-		    op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
-		       -> allNDInStates(X:SetOfNode,Y:SetOfNDState),
-		    op existObjInStates -> existNDInStates})
+  extending(OBJLINKMANY2ONE(
+	CAPABILITYfuns {sort Object -> Capability,
+			sort ObjID -> CPID,
+			sort ObjType -> CPType,
+			sort ObjState -> CPState,
+			sort SetOfObject -> SetOfCapability,
+			sort SetOfObjState -> SetOfCPState,
+			op empObj -> empCP,
+			op getObject(X:SetOfObject,Y:ObjID) 
+			  -> getCapability(X:SetOfCapability,Y:CPID),
+			op existObj(X:SetOfObject,Y:ObjID)
+			  -> existCP(X:SetOfCapability,Y:CPID),
+			op allObjInStates(X:SetOfObject,Y:SetOfObjState)
+			  -> allCPInStates(X:SetOfCapability,Y:SetOfCPState),
+			sort LObject -> Node,
+			sort LObjID -> NDID,
+			sort LObjState -> NDState,
+			sort SetOfLObject -> SetOfNode,
+			sort SetOfLObjState -> SetOfNDState,
+			op link -> node,
+			op empLObj -> empND,
+			op getObject(X:SetOfLObject,Y:LObjID) 
+			  -> getNode(X:SetOfNode,Y:NDID),
+			op existObj(X:SetOfLObject,Y:LObjID)
+			  -> existND(X:SetOfNode,Y:NDID),
+			op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
+			  -> allNDInStates(X:SetOfNode,Y:SetOfNDState),
+			op existObjInStates -> existNDInStates})
 	* {op allZHaveX -> allCPHaveND,
 	   op allZOfTypeOfXInStates -> allCPOfTypeOfNDInStates,
 	   op allZOfXInStates -> allCPOfNDInStates,
@@ -281,34 +281,34 @@ module! LINKS {
 	   op ifXInStatesThenZOfTypeInStates -> ifNDInStatesThenCPOfTypeInStates}
 	)
 
-  extending(OBJLINKMANY2ONE(REQUIREMENTfuns
-	            {sort Object -> Requirement,
-  		     sort ObjID -> RQID,
-  		     sort ObjType -> RQType,
-  		     sort ObjState -> RQState,
-  		     sort SetOfObject -> SetOfRequirement,
-  		     sort SetOfObjState -> SetOfRQState,
-		     op empObj -> empRQ,
-		     op getObject(X:SetOfObject,Y:ObjID) 
-		        -> getRequirement(X:SetOfRequirement,Y:RQID),
-		     op existObj(X:SetOfObject,Y:ObjID)
-		         -> existRQ(X:SetOfRequirement,Y:RQID),
-		     op allObjInStates(X:SetOfObject,Y:SetOfObjState)
-		         -> allRQInStates(X:SetOfRequirement,Y:SetOfRQState),
-		     sort LObject -> Node,
-		     sort LObjID -> NDID,
-  	             sort LObjState -> NDState,
-  	             sort SetOfLObject -> SetOfNode,
-  	       	     sort SetOfLObjState -> SetOfNDState,
-		     op link -> node,
-		     op empLObj -> empND,
-		     op getObject(X:SetOfLObject,Y:LObjID) 
-		         -> getNode(X:SetOfNode,Y:NDID),
-		     op existObj(X:SetOfLObject,Y:LObjID)
-		         -> existND(X:SetOfNode,Y:NDID),
-		     op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
-		         -> allNDInStates(X:SetOfNode,Y:SetOfNDState),
-		     op existObjInStates -> existNDInStates})
+  extending(OBJLINKMANY2ONE(
+	REQUIREMENTfuns {sort Object -> Requirement,
+			 sort ObjID -> RQID,
+			 sort ObjType -> RQType,
+			 sort ObjState -> RQState,
+			 sort SetOfObject -> SetOfRequirement,
+			 sort SetOfObjState -> SetOfRQState,
+			 op empObj -> empRQ,
+			 op getObject(X:SetOfObject,Y:ObjID) 
+			   -> getRequirement(X:SetOfRequirement,Y:RQID),
+			 op existObj(X:SetOfObject,Y:ObjID)
+		           -> existRQ(X:SetOfRequirement,Y:RQID),
+			 op allObjInStates(X:SetOfObject,Y:SetOfObjState)
+		           -> allRQInStates(X:SetOfRequirement,Y:SetOfRQState),
+			 sort LObject -> Node,
+			 sort LObjID -> NDID,
+			 sort LObjState -> NDState,
+			 sort SetOfLObject -> SetOfNode,
+			 sort SetOfLObjState -> SetOfNDState,
+			 op link -> node,
+			 op empLObj -> empND,
+			 op getObject(X:SetOfLObject,Y:LObjID) 
+		           -> getNode(X:SetOfNode,Y:NDID),
+			 op existObj(X:SetOfLObject,Y:LObjID)
+		           -> existND(X:SetOfNode,Y:NDID),
+			 op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
+		           -> allNDInStates(X:SetOfNode,Y:SetOfNDState),
+			 op existObjInStates -> existNDInStates})
 	* {op allZHaveX -> allRQHaveND,
 	   op allZOfTypeOfXInStates -> allRQOfTypeOfNDInStates,
 	   op allZOfXInStates -> allRQOfNDInStates,
@@ -326,30 +326,30 @@ module! LINKS {
 	   op ifXInStatesThenZOfTypeInStates -> ifNDInStatesThenRQOfTypeInStates}
 	)
 
-  extending(OBJLINKONE2ONE(RELATIONSHIPfuns
-	             {sort Object -> Relationship,
-  		      sort ObjID -> RLID,
-  		      sort ObjType -> RLType,
-  		      sort ObjState -> RLState,
-  		      sort SetOfObject -> SetOfRelationship,
-  		      sort SetOfObjState -> SetOfRLState,
-		      op empObj -> empRL,
-		      op existObj(X:SetOfObject,Y:ObjID)
-		         -> existRL(X:SetOfRelationship,Y:RLID),
-		      sort LObject -> Capability,
-		      sort LObjID -> CPID,
-  	              sort LObjState -> CPState,
-  	              sort SetOfLObject -> SetOfCapability,
-  	              sort SetOfLObjState -> SetOfCPState,
-		      op link -> cap,
-		      op empLObj -> empCP,
-		      op getObject(X:SetOfLObject,Y:LObjID) 
-		         -> getCapability(X:SetOfCapability,Y:CPID),
-		      op existObj(X:SetOfLObject,Y:LObjID)
-		         -> existCP(X:SetOfCapability,Y:CPID),
-		      op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
-		         -> allCPInStates(X:SetOfCapability,Y:SetOfCPState),
-		      op existObjInStates -> existCPInStates})
+  extending(OBJLINKONE2ONE(
+	RELATIONSHIPfuns {sort Object -> Relationship,
+			  sort ObjID -> RLID,
+			  sort ObjType -> RLType,
+			  sort ObjState -> RLState,
+			  sort SetOfObject -> SetOfRelationship,
+			  sort SetOfObjState -> SetOfRLState,
+			  op empObj -> empRL,
+			  op existObj(X:SetOfObject,Y:ObjID)
+			    -> existRL(X:SetOfRelationship,Y:RLID),
+			  sort LObject -> Capability,
+			  sort LObjID -> CPID,
+			  sort LObjState -> CPState,
+			  sort SetOfLObject -> SetOfCapability,
+			  sort SetOfLObjState -> SetOfCPState,
+			  op link -> cap,
+			  op empLObj -> empCP,
+			  op getObject(X:SetOfLObject,Y:LObjID) 
+			    -> getCapability(X:SetOfCapability,Y:CPID),
+			  op existObj(X:SetOfLObject,Y:LObjID)
+			    -> existCP(X:SetOfCapability,Y:CPID),
+			  op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
+			    -> allCPInStates(X:SetOfCapability,Y:SetOfCPState),
+			  op existObjInStates -> existCPInStates})
 	* {op allXHaveY -> allCPHaveRL,
 	   op allYHaveX -> allRLHaveCP,
 	   op existX -> existCP,
@@ -366,30 +366,30 @@ module! LINKS {
 	   op YOfXInStates -> RLOfCPInStates}
 	)
 
-  extending(OBJLINKONE2ONE(RELATIONSHIPfuns
-		     {sort Object -> Relationship,
-  		      sort ObjID -> RLID,
-  		      sort ObjType -> RLType,
-  		      sort ObjState -> RLState,
-  		      sort SetOfObject -> SetOfRelationship,
-  		      sort SetOfObjState -> SetOfRLState,
-		      op empObj -> empRL,
-		      op existObj(X:SetOfObject,Y:ObjID)
-		         -> existRL(X:SetOfRelationship,Y:RLID),
-		      sort LObject -> Requirement,
-		      sort LObjID -> RQID,
-  	              sort LObjState -> RQState,
-  	              sort SetOfLObject -> SetOfRequirement,
-  	              sort SetOfLObjState -> SetOfRQState,
-		      op link -> req,
-		      op empLObj -> empRQ,
-		      op getObject(X:SetOfLObject,Y:LObjID) 
-		         -> getRequirement(X:SetOfRequirement,Y:RQID),
-		      op existObj(X:SetOfLObject,Y:LObjID)
-		         -> existRQ(X:SetOfRequirement,Y:RQID),
-		      op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
-		         -> allRQInStates(X:SetOfRequirement,Y:SetOfRQState),
-		      op existObjInStates -> existRQInStates})
+  extending(OBJLINKONE2ONE(
+	RELATIONSHIPfuns {sort Object -> Relationship,
+			  sort ObjID -> RLID,
+			  sort ObjType -> RLType,
+			  sort ObjState -> RLState,
+			  sort SetOfObject -> SetOfRelationship,
+			  sort SetOfObjState -> SetOfRLState,
+			  op empObj -> empRL,
+			  op existObj(X:SetOfObject,Y:ObjID)
+			    -> existRL(X:SetOfRelationship,Y:RLID),
+			  sort LObject -> Requirement,
+			  sort LObjID -> RQID,
+			  sort LObjState -> RQState,
+			  sort SetOfLObject -> SetOfRequirement,
+			  sort SetOfLObjState -> SetOfRQState,
+			  op link -> req,
+			  op empLObj -> empRQ,
+			  op getObject(X:SetOfLObject,Y:LObjID) 
+			    -> getRequirement(X:SetOfRequirement,Y:RQID),
+			  op existObj(X:SetOfLObject,Y:LObjID)
+			    -> existRQ(X:SetOfRequirement,Y:RQID),
+			  op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
+			    -> allRQInStates(X:SetOfRequirement,Y:SetOfRQState),
+			  op existObjInStates -> existRQInStates})
 	* {op existX -> existRQ,
 	   op getXOfY -> getRQOfRL,
 	   op getXsOfYs -> getRQsOfRLs,

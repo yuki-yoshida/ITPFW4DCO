@@ -1,17 +1,20 @@
 provide SET
 
 mod! SET(X :: TRIV) {
+  protecting(NAT)
+
   [Elt.X < Set]
 
   op empty : -> Set {constr}
-  op _ _ : Set Set -> Set {constr assoc comm id: empty}
+  op _ _ : Set Set -> Set {constr assoc comm}
 
   --
+  op #_ : Set -> Nat
   op _U_ : Set Set -> Set
-  op _in_ : Elt.X Set -> Bool
+  pred _in_ : Elt.X Set
   op _A_ : Set Set -> Set
   op _\\_ : Set Set -> Set
-  op subset : Set Set -> Bool
+  pred subset : Set Set
   --
   vars S S1 S2 : Set
   vars E E1 : Elt.X
@@ -20,6 +23,9 @@ mod! SET(X :: TRIV) {
   eq ((E S1) = (E S2)) = (S1 = S2) .
   -- for empty
   eq ((E S) = empty) = false .
+  -- for #_
+  eq # empty = 0 .   
+  eq # (E S) = 1 + (# S) . 
   -- for _U_
   eq S1 U S2 = S1 S2 .
   -- for _in_

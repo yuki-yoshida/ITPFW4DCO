@@ -1,0 +1,75 @@
+require ProofContCont Proof-contcont.cafe
+
+--> **********************************************************
+--> (2) inv(S) and not final(S) implies cont(SS) or final(SS).
+--> **********************************************************
+
+--> ***********************************************
+-->  trans [R02]:
+-->     < (sv(IDSV,started) SetSV), (stMsg & MQ) >
+-->  => < (sv(IDSV,stopped) SetSV), MQ > .
+--> ***********************************************
+select ProofContCont .
+-- When R02 can be applied to the state S:
+--> *************************************************************************
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq contcont(< (sv(idSV,started) sSV), (stpMsg & mq) >) = true .
+}
+--> *********************************************************
+--> Step 2-3: Split the current case into cases where
+-->  predicate final does or does not hold in the next state.
+--> *********************************************************
+-- All of the other resources are or are not started.
+:def csp2-3 = :csp {
+  eq #MsgInQueue(mq,stpMsg) = 0 .
+  eq mq = (reqMsg & mq') .
+  eq mq = (stpMsg & mq') .
+}
+-- When a request message is on the top of the queue.
+--> ***************************************************************
+--> Step 2-4: Consider which rule can be applied to the next state.
+--> ***************************************************************
+-- The next rule should be R01.
+--> *************************************************************************************
+--> Step 2-5: Split the current case into cases which collectively cover the current case
+-->  and the next state of one of the split cases matches to LHS of the current rule.
+--> *************************************************************************************
+-- LHS of R01 requires at least one started server.
+:def csp2-5R01 = :csp  { 
+  eq #ServerInStates((serving started),sSV) = 0 .
+  eq sSV = (sv(idSV',serving) sSV') .
+  eq sSV = (sv(idSV',started) sSV') .
+}
+--> *********************************************************
+--> Step 2-3: Split the current case into cases where
+-->  predicate final does or does not hold in the next state.
+--> *********************************************************
+:def ctf2-3 = :ctf  { 
+  eq #MsgInQueue(mq',stpMsg) = 0 .
+}
+:apply (csp2-3 csp2-5R01 ctf2-3 rd-)
+show proof
+
+select
+eof
+:def ctf2-5R01 = :ctf  { 
+  eq #ServerInStates((serving started),sSV) = 0 .
+}
+--> *********************************************************
+--> Step 2-3: Split the current case into cases where
+-->  predicate final does or does not hold in the next state.
+--> *********************************************************
+:def ctf2-3 = :ctf  { 
+  eq #MsgInQueue(mq',stpMsg) = 0 .
+}
+:def csp2-5R01 = :csp  { 
+  eq sSV = (sv(idSV',serving) sSV') .
+  eq sSV = (sv(idSV',started) sSV') .
+}
+:apply (csp2-3 ctf2-5R01 ctf2-3 csp2-5R01 rd-)
+show proof
+
+select
+

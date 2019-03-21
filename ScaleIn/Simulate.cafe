@@ -1,0 +1,61 @@
+require DomainModel DomainModel.cafe
+
+--> Sample Simulation
+open STATERules .
+
+eq wfs(S:State)
+   = true and wfs-atLeastOneRS(S) and
+     wfs-uniqRS(S) and wfs-uniqPR(S) and 
+     wfs-allPRHaveRS(S) and wfs-allPRHaveRRS(S) .
+
+ops myInstance myEIP rs0 : -> RSIDLt .
+ops myEIP::InsID prop2 : -> PRIDLt .
+ops ec2Instance ec2Eip : -> RSTypeLt .
+ops instanceId ptype : -> PRTypeLt .
+
+op s0 : -> State .
+eq s0 =
+   < (res(ec2Instance, myInstance,initial) res(ec2Eip,myEIP,initial)),
+     (prop(instanceId,myEIP::InsID,notready,myEIP,myInstance)) > .
+      
+red s0 .
+red wfs(s0) .
+red init(s0) .
+red final(s0) = false .
+exec s0 .
+exec wfs(s0) .
+exec init(s0) = false .
+exec final(s0) .
+
+op s1 : -> State .
+eq s1 =
+   < (res(ec2Instance, myInstance,initial) res(ec2Eip,myEIP,initial)),
+     (prop(instanceId,myEIP::InsID,notready,myEIP,myInstance)
+      prop(ptype,prop2,notready,myInstance,myEIP)) > .
+      
+red s1 .
+red wfs(s1) . 
+red init(s1) = false . -- It is cyclic!
+red final(s1) = false .
+exec s1 .
+exec wfs(s1) . 
+exec init(s1) = false . -- It is cyclic!
+exec final(s1) = false .
+
+op s2 : -> State .
+eq s2 =
+   < (res(ec2Instance,myInstance,initial) res(ec2Eip,myEIP,initial)
+      res(ec2Instance,rs0,initial)),
+     (prop(instanceId,myEIP::InsID,notready,myEIP,myInstance)
+      prop(ptype,prop2,notready,myInstance,rs0)) > .
+      
+red s2 .
+red wfs(s2) .
+red init(s2) .
+red final(s2) = false .
+exec s2 .
+exec wfs(s2) .
+exec init(s2) = false .
+exec final(s2)  .
+
+close

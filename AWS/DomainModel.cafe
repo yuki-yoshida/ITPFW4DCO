@@ -1,4 +1,4 @@
-require Template Template.cafe
+require Template ../lib/Template.cafe
 provide DomainModel
 
 -- An abstract model for AWS CloudFormation
@@ -32,11 +32,11 @@ module! RESOURCE {
   
 module! RESOURCEfuns {
   -- Instantiation of Template
-  extending(OBJECTBASE(RESOURCE
-			 {sort Object -> Resource,
-			  sort ObjID -> RSID,
-			  sort ObjType -> RSType,
-			  sort ObjState -> RSState})
+  extending(OBJECTBASE(
+	RESOURCE {sort Object -> Resource,
+		  sort ObjID -> RSID,
+		  sort ObjType -> RSType,
+		  sort ObjState -> RSState})
 	* {sort ObjIDLt -> RSIDLt,
 	   sort ObjTypeLt -> RSTypeLt,
 	   sort ObjStateLt -> RSStateLt,
@@ -87,11 +87,11 @@ module! PROPERTYfuns {
   protecting(RESOURCEfuns)
 
   -- Instantiation of Template
-  extending(OBJECTBASE(PROPERTY
-			 {sort Object -> Property,
-			  sort ObjID -> PRID,
-			  sort ObjType -> PRType,
-			  sort ObjState -> PRState})
+  extending(OBJECTBASE(
+	PROPERTY {sort Object -> Property,
+		  sort ObjID -> PRID,
+		  sort ObjType -> PRType,
+		  sort ObjState -> PRState})
 	* {sort ObjIDLt -> PRIDLt,
 	   sort ObjTypeLt -> PRTypeLt,
 	   sort ObjStateLt -> PRStateLt,
@@ -114,34 +114,34 @@ module! PROPERTYfuns {
 }
 
 module! LINKS {
-  extending(OBJLINKMANY2ONE(PROPERTYfuns 
-	         {sort Object -> Property,
-  		  sort ObjID -> PRID,
-  		  sort ObjType -> PRType,
-  		  sort ObjState -> PRState,
-  		  sort SetOfObject -> SetOfProperty,
-  		  sort SetOfObjState -> SetOfPRState,
-		  op empObj -> empPR,
-		  op getObject(X:SetOfObject,Y:ObjID) 
-		     -> getProperty(X:SetOfProperty,Y:PRID),
-		  op existObj(X:SetOfObject,Y:ObjID)
-		     -> existPR(X:SetOfProperty,Y:PRID),
-		  op allObjInStates(X:SetOfObject,Y:SetOfObjState)
-		     -> allPRInStates(X:SetOfProperty,Y:SetOfPRState),
-		  sort LObject -> Resource,
-		  sort LObjID -> RSID,
-  	          sort LObjState -> RSState,
-  	          sort SetOfLObject -> SetOfResource,
-  	          sort SetOfLObjState -> SetOfRSState,
-		  op link -> parent,
-		  op empLObj -> empRS,
-		  op getObject(X:SetOfLObject,Y:LObjID) 
-		     -> getResource(X:SetOfResource,Y:RSID),
-		  op existObj(X:SetOfLObject,Y:LObjID)
-		     -> existRS(X:SetOfResource,Y:RSID),
-		  op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
-		     -> allRSInStates(X:SetOfResource,Y:SetOfRSState),
-		  op existObjInStates -> existRSInStates})
+  extending(OBJLINKMANY2ONE(
+	PROPERTYfuns {sort Object -> Property,
+		      sort ObjID -> PRID,
+		      sort ObjType -> PRType,
+		      sort ObjState -> PRState,
+		      sort SetOfObject -> SetOfProperty,
+		      sort SetOfObjState -> SetOfPRState,
+		      op empObj -> empPR,
+		      op getObject(X:SetOfObject,Y:ObjID) 
+		        -> getProperty(X:SetOfProperty,Y:PRID),
+		      op existObj(X:SetOfObject,Y:ObjID)
+		        -> existPR(X:SetOfProperty,Y:PRID),
+		      op allObjInStates(X:SetOfObject,Y:SetOfObjState)
+		        -> allPRInStates(X:SetOfProperty,Y:SetOfPRState),
+		      sort LObject -> Resource,
+		      sort LObjID -> RSID,
+		      sort LObjState -> RSState,
+		      sort SetOfLObject -> SetOfResource,
+		      sort SetOfLObjState -> SetOfRSState,
+		      op link -> parent,
+		      op empLObj -> empRS,
+		      op getObject(X:SetOfLObject,Y:LObjID) 
+		        -> getResource(X:SetOfResource,Y:RSID),
+		      op existObj(X:SetOfLObject,Y:LObjID)
+		        -> existRS(X:SetOfResource,Y:RSID),
+		      op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
+		        -> allRSInStates(X:SetOfResource,Y:SetOfRSState),
+		      op existObjInStates -> existRSInStates})
 	* {op hasLObj -> hasParent,
 	   op allZHaveX -> allPRHaveRS,
 	   op allZOfXInStates -> allPROfRSInStates,
@@ -156,34 +156,34 @@ module! LINKS {
 	   op ifXInStatesThenZInStates -> ifRSInStatesThenPRInStates}
 	)
 
-  extending(OBJLINKMANY2ONE(PROPERTYfuns
-                 {sort Object -> Property,
-  		  sort ObjID -> PRID,
-  		  sort ObjType -> PRType,
-  		  sort ObjState -> PRState,
-  		  sort SetOfObject -> SetOfProperty,
-  		  sort SetOfObjState -> SetOfPRState,
-		  op empObj -> empPR,
-		  op getObject(X:SetOfObject,Y:ObjID) 
-		     -> getProperty(X:SetOfProperty,Y:PRID),
-		  op existObj(X:SetOfObject,Y:ObjID)
-		     -> existPR(X:SetOfProperty,Y:PRID),
-		  op allObjInStates(X:SetOfObject,Y:SetOfObjState)
-		     -> allPRInStates(X:SetOfProperty,Y:SetOfPRState),
-		  sort LObject -> Resource,
-		  sort LObjID -> RSID,
-  	          sort LObjState -> RSState,
-  	          sort SetOfLObject -> SetOfResource,
-  	          sort SetOfLObjState -> SetOfRSState,
-  		  op link -> refer,
-		  op empLObj -> empRS,
-		  op getObject(X:SetOfLObject,Y:LObjID) 
-		     -> getResource(X:SetOfResource,Y:RSID),
-		  op existObj(X:SetOfLObject,Y:LObjID)
-		     -> existRS(X:SetOfResource,Y:RSID),
-		  op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
-		     -> allRSInStates(X:SetOfResource,Y:SetOfRSState),
-		  op existObjInStates -> existRSInStates})
+  extending(OBJLINKMANY2ONE(
+	PROPERTYfuns {sort Object -> Property,
+		      sort ObjID -> PRID,
+		      sort ObjType -> PRType,
+		      sort ObjState -> PRState,
+		      sort SetOfObject -> SetOfProperty,
+		      sort SetOfObjState -> SetOfPRState,
+		      op empObj -> empPR,
+		      op getObject(X:SetOfObject,Y:ObjID) 
+		        -> getProperty(X:SetOfProperty,Y:PRID),
+		      op existObj(X:SetOfObject,Y:ObjID)
+		        -> existPR(X:SetOfProperty,Y:PRID),
+		      op allObjInStates(X:SetOfObject,Y:SetOfObjState)
+		        -> allPRInStates(X:SetOfProperty,Y:SetOfPRState),
+		      sort LObject -> Resource,
+		      sort LObjID -> RSID,
+		      sort LObjState -> RSState,
+		      sort SetOfLObject -> SetOfResource,
+		      sort SetOfLObjState -> SetOfRSState,
+		      op link -> refer,
+		      op empLObj -> empRS,
+		      op getObject(X:SetOfLObject,Y:LObjID) 
+		        -> getResource(X:SetOfResource,Y:RSID),
+		      op existObj(X:SetOfLObject,Y:LObjID)
+		        -> existRS(X:SetOfResource,Y:RSID),
+		      op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
+		        -> allRSInStates(X:SetOfResource,Y:SetOfRSState),
+		      op existObjInStates -> existRSInStates})
 	* {op hasLObj -> hasRefRS,
   	   op allZHaveX -> allPRHaveRRS,
   	   op allZOfXInStates -> allPROfRRSInStates,

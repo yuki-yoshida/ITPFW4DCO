@@ -1,0 +1,19 @@
+provide NatAxiom
+
+module! NATAXIOM {
+  protecting(NAT)
+
+  vars N N1 N2 : Nat
+  var Nz : NzNat
+
+  eq 2 * (1 + N) = 2 + (2 * N) .
+
+  eq (1 + N) > N = true .
+  eq (2 + N) > (1 + N) = true .
+  eq (2 + N) > N = true .
+
+  eq (N1 + N2 = 0)
+     = (N1 = 0) and (N2 = 0) .
+  eq (2 * N = 0) = (N = 0) .
+  eq (Nz = 0) = false .
+}

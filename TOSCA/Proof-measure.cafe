@@ -1,4 +1,4 @@
-require NatAxiom
+require NatAxiom ../lib/NatAxiom.cafe
 require Proof Proof.cafe
 
 --> *************************************************

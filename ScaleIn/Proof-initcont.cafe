@@ -1,0 +1,64 @@
+require Proof Proof.cafe
+
+-- ****************************************
+-- (1) init(S) implies final(S) or cont(S).
+-- ****************************************
+
+--> ******************************************
+--> Step 1-0: Define a predicate to be proved.
+--> ******************************************
+module ProofInitCont {
+  protecting(ProofBase)
+
+  var S : State
+  pred initcont : State .
+  eq initcont(S) = init(S,n) implies final(S,n) or cont(S) .
+
+  -- Nat Axiom
+  var N : Nat
+  eq (0 >= N) = (N = 0) .
+}
+
+-- Proof of (1) init(S) implies final(S) or cont(S).
+select ProofInitCont .
+
+--> *******************************************
+--> Step 1-1: Begin with the most general case. 
+--> *******************************************
+:goal {eq initcont(< sSV, mq >) = true .}
+
+--> *************************************************************************************
+--> Step 1-2: Consider which rule can be applied to the global state in the current case. 
+--> *************************************************************************************
+-- The first rule may be R01, R02, R03. Assuming that it is R01.
+--> **********************************************************************
+--> Step 1-3: Split the current case into cases which collectively cover
+-->  the current case and one of which matches to LHS of the current rule.
+--> **********************************************************************
+-- LHS of R01 requires at least one started server.
+:def csp1-3R01a = :csp  { 
+  eq #ServerInStates((serving started),sSV) = 0 .
+  eq sSV = (sv(idSV,serving) sSV') .
+  eq sSV = (sv(idSV,started) sSV') .
+}
+:apply (csp1-3R01a rd-)
+-- When there is no serving or started servers
+:def ctf1-3aR01 = :ctf  { 
+  eq #MsgInQueue(mq,stpMsg) = 0 .
+}
+:apply (ctf1-3aR01 rd-)
+-- When the server is started:
+--> **********************************************************************
+--> Step 1-3: Split the current case into cases which collectively cover
+-->  the current case and one of which matches to LHS of the current rule.
+--> **********************************************************************
+-- LHS of R01 requires at least one request message.
+:def csp1-3R01b = :csp  { 
+  eq mq = empMsg .
+  eq mq = (stpMsg & mq') .
+  eq mq = (reqMsg & mq') .
+}
+:apply (csp1-3R01b rd-)
+show proof
+
+select

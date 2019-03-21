@@ -1,0 +1,23 @@
+mod! CONF {
+  pr(OBJECTBASE)
+  pred g : SetOfObject
+  pred p : SetOfObject
+  eq p(O:Object S:SetOfObject) = p(S) . -- (1)
+  ops s s' : -> SetOfObject
+  op o : -> Object
+  eq p(s) = true .                      -- (2)
+  eq s = (o s') .                       -- (3)
+}
+
+select CONF
+:goal {
+  eq g(s) = true .
+}
+:red p(s) . -- may reduce to p(s').
+:set(normalize-init,on)
+:init ( ceq B1:Bool = true if not B2:Bool . ) by {
+    B1:Bool <- p(s) ;
+    B2:Bool <- p(s) == true ;
+  }
+:set(normalize-init,off)
+:red p(s) . -- reduces to true.

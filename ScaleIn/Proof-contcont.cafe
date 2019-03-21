@@ -1,0 +1,36 @@
+require Proof Proof.cafe
+provide ProofContCont
+
+--> **********************************************************
+--> (2) inv(S) and not final(S) implies cont(SS) or final(SS).
+--> **********************************************************
+
+--> ******************************************
+--> Step 2-0: Define a predicate to be proved.
+--> ******************************************
+module ProofContCont {
+  protecting(ProofBase)
+
+  vars S SS : State
+  var CC : Bool
+
+  pred ccont : State State
+  eq ccont(S,SS)
+     = inv(S,n) and not final(S,n) implies cont(SS) or final(SS,n) .
+
+  pred contcont : State
+  eq contcont(S)
+     = not (S =(*,1)=>+ SS if CC suchThat
+            not ((CC implies ccont(S,SS)) == true)
+     	   { S => SS !! CC ! inv(S,n) ! final(S,n) ! cont(SS) ! final(SS,n) }) .
+
+  -- Axiom
+  var N : Nat
+  eq (((N = 0) = false) and (1 >= 1 + N))
+    = ((N = 0) = false) .
+--  ceq (1 >= 1 + N) = false if ((N = 0) = false) .
+  eq (1 >= 2 + N) = false .
+  eq (1 >= 1 + N) = (N = 0) .
+-- eq ((1 >= 1 + N) and (N = 0)) = (1 >= 1 + N) .
+}
+

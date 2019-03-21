@@ -1,0 +1,139 @@
+require Template ../lib/Template.cafe
+require QUEUE ../lib/QUEUE.cafe
+provide DomainModel
+
+-- A simple abstract model of automatic scale-in
+
+-- There is only one kind of object:
+-- Server(SV): a server which runs on a cloud system composes.
+
+module! SERVER {
+  -- Sorts
+  [Server SVID SVType SVState]
+
+  -- Constructor
+  -- sv(SVID, SVState) is a Server.
+  op sv : SVID SVState -> Server {constr}
+
+  -- Selectors
+  op id : Server -> SVID
+  op type : Server -> SVType
+  op state : Server -> SVState
+  var IDSV : SVID
+  var SSV : SVState
+  eq id(sv(IDSV,SSV)) = IDSV .
+  eq state(sv(IDSV,SSV)) = SSV .
+}
+
+module! SERVERfuns {
+  -- Instantiation of Template
+  extending(OBJECTBASE(
+      SERVER {sort Object -> Server,
+	      sort ObjID -> SVID,
+	      sort ObjType -> SVType,
+	      sort ObjState -> SVState})
+	* {sort ObjIDLt -> SVIDLt,
+	   sort ObjStateLt -> SVStateLt,
+	   sort SetOfObject -> SetOfServer,
+	   sort SetOfObjState -> SetOfSVState,
+	   op empObj -> empSV,
+	   op empState -> empSSV,
+	   op existObj -> existSV,
+	   op existObjInStates -> existSVInStates,
+	   op uniqObj -> uniqSV,
+	   op #ObjInStates -> #ServerInStates,
+	   op getObject -> getServer,
+	   op allObjInStates -> allSVInStates,
+	   op allObjNotInStates -> allSVNotInStates,
+	   op someObjInStates -> someSVInStates})
+
+  -- Local States
+  ops started serving stopped : -> SVStateLt {constr}
+}
+
+module! MSG {
+  protecting(SERVERfuns)
+
+  [Msg]
+  -- A stop message
+  op stpMsg : -> Msg {constr}
+  -- A request message
+  op reqMsg : -> Msg {constr}
+
+  eq (stpMsg = reqMsg)
+     = false .
+}    
+
+module! STATE {
+  protecting(QUEUE(MSG {sort Elt -> Msg})
+      * {sort Queue -> QueueOfMsg,
+      	 op empty -> empMsg})
+
+  [State]
+  op <_,_> : SetOfServer QueueOfMsg -> State {constr}
+
+  pred wfs : State
+  pred init : State Nat
+  pred final : State Nat
+  pred inv : State Nat
+}
+
+module! STATEfuns {
+  protecting(STATE)
+
+  var SetSV : SetOfServer
+  var MQ : QueueOfMsg
+  var S : State
+  vars M1 M2 : Msg
+
+  op #MsgInQueue : QueueOfMsg Msg -> Nat
+  eq #MsgInQueue(empMsg,M1) = 0 .
+  eq #MsgInQueue((M1 & MQ),M1) = #MsgInQueue(MQ,M1) + 1 .
+  ceq #MsgInQueue((M1 & MQ),M2) = #MsgInQueue(MQ,M2) if not M1 = M2 .
+    
+--> **************************************
+--> Step 0-1: Define init(S) and final(S).
+--> **************************************
+  -- wfs is a conjunction of invariants which are intentionally imposed by the init condition.
+  -- Since too long wfs causes a large evalutaion cost, define wfs minimally for each use case.
+  eq [:nonexec]: wfs(S)
+     = true . 
+
+  var N : Nat -- Sum of the number of stopped servers and stop messages in the initial state.
+
+  eq init(< SetSV,MQ >,N)
+     = wfs(< SetSV,MQ >) and
+       #ServerInStates(stopped,SetSV)
+       + #MsgInQueue(MQ,stpMsg) = N
+     and
+       #ServerInStates((started serving),SetSV)
+       >= #MsgInQueue(MQ,stpMsg) .
+
+  eq final(< SetSV,MQ >,N)
+     =  #MsgInQueue(MQ,stpMsg) = 0 .
+     -- and #SVInStates(SetSV,stopped) = N + M .
+}
+
+module! STATERules {
+  protecting(STATEfuns)
+
+  -- Variables
+  vars IDSV IDRSV : SVID 
+  var SetSV : SetOfServer
+  var MQ : QueueOfMsg
+
+  -- A started server serves a reqMsg.
+  trans [R01]:
+     < (sv(IDSV,started) SetSV), (reqMsg & MQ) >
+  => < (sv(IDSV,serving) SetSV), MQ > .
+
+  -- A started server stops if a stpMsg.
+  trans [R02]:
+     < (sv(IDSV,started) SetSV), (stpMsg & MQ) >
+  => < (sv(IDSV,stopped) SetSV), MQ > .
+
+  -- A serving server will finish serving.
+  trans [R03]:
+     < (sv(IDSV,serving) SetSV), MQ >
+  => < (sv(IDSV,started) SetSV), MQ > .
+}

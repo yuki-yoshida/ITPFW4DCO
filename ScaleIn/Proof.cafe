@@ -1,0 +1,99 @@
+require DomainModel DomainModel.cafe
+provide Proof
+
+module ProofBase {
+  protecting(STATERules)
+
+  op _!_ : Bool Bool -> Bool {constr assoc}
+  op _=>_!!_ : State State Bool -> Bool {constr}
+
+  var SV : Server
+  var SetSV : SetOfServer
+  var MQ : QueueOfMsg
+  vars S SS : State
+
+  -- The invariant should be defined as the conjunction of all inv-* and all wfs-*.
+  -- But this definition causes costly computations.
+
+  -- The sum of the number of stop messages and stopped servers is unchanged.
+  pred inv-StpMsgStpSv : State Nat
+  eq inv-StpMsgStpSv(< SetSV,MQ >, N)
+    = (#ServerInStates(stopped,SetSV) + #MsgInQueue(MQ,stpMsg))
+      = N .
+
+  -- The sum of the number of started and serving messages is not less than the number of stop message.
+  pred inv-StpMsgStrSevSv : State Nat
+  eq inv-StpMsgStrSevSv(< SetSV,MQ >, N)
+    = #ServerInStates((started serving),SetSV) >= #MsgInQueue(MQ,stpMsg) .
+
+--> *************************
+--> Step 0-2: Define cont(S).
+--> *************************
+  pred cont : State
+  eq cont(S)
+     = (S =(*,1)=>+ SS) .
+
+--> **********************
+--> Step 0-3: Define m(S).
+--> **********************
+  op mes : State -> Nat
+  eq mes(< SetSV,MQ >)
+     = #ServerInStates(serving,SetSV)
+     + #MsgInQueue(MQ,stpMsg)
+     + #MsgInQueue(MQ,reqMsg) * 2 .
+
+--> ************************
+--> Step 0-4: Define inv(S).
+--> ************************
+  var N : Nat -- Sum of the number of stopped servers and stop messages in the initial state.
+
+  -- wfs-*:
+  eq wfs(S) = true .
+  ceq inv(S,N) = false if not wfs(S) .
+
+  -- inv-*:
+  ceq inv(S,N) = false if not inv-StpMsgStpSv(S,N) .
+  ceq inv(S,N) = false if not inv-StpMsgStrSevSv(S,N) .
+
+--> **************************************
+--> Step 0-5: Prepare arbitrary constants.
+--> **************************************
+  ops idSV idSV' : -> SVID
+  ops sSV sSV' sSV'' sSV''' : -> SetOfServer
+  ops ssv ssv' ssv'' ssv''' : -> SVState
+  op stSV : -> SetOfSVState
+  ops mq mq' mq'' mq''' : -> QueueOfMsg
+
+  op n : -> Nat  -- The number of stopped servers in the initial state.
+
+}
+
+
+-- *************************************************************************
+-- (1) init(S) implies cont(S).
+-- (2) inv(S) and not final(S) implies cont(SS) or final(SS).
+-- (3) inv(S) and not final(S) implies measure(S) > measure(SS).
+-- (4) init(S) implies inv(S).
+-- (5) inv(S) implies inv(SS).
+-- *************************************************************************
+
+-- ****************************************
+-- (1) init(S) implies final(S) or cont(S).
+-- ****************************************
+-- in Proof-initcont.cafe
+
+-- **********************************************************
+-- (2) inv(S) and not final(S) implies cont(SS) or final(SS).
+-- **********************************************************
+-- in Proof-contcont.cafe
+
+-- *************************************************************************
+-- (3) inv(S) and not final(S) implies measure(S) > measure(SS).
+-- *************************************************************************
+-- in Proof-measure.cafe
+
+-- ***************************
+-- (4) init(S) implies inv(S).
+-- (5) inv(S) implies inv(SS).
+-- ***************************
+-- in Proof-inv.cafe

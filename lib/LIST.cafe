@@ -1,0 +1,23 @@
+provide LIST
+
+mod! LIST(X :: TRIV) {
+  [Elt.X < List]
+
+  op empty : -> List {constr}
+  op _ _ : List List -> List {constr assoc id: empty}
+
+  --
+  op _in_ : Elt.X List -> Bool
+  --
+  vars L L1 L2 : List
+  vars E E1 : Elt.X
+
+  -- for =
+  eq ((E L1) = (E L2)) = (L1 = L2) .
+  -- for empty
+  eq ((E L) = empty) = false .
+  -- for _in_
+  eq E in empty = false .
+  eq E in (E L) = true .
+  ceq E in (E1 L) = E in L if not(E = E1) .
+}
