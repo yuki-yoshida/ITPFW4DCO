@@ -1,7 +1,9 @@
 require DomainModel DomainModel.cafe
+require Proof Proof.cafe
 
 --> Sample Simulation
-open STATERules .
+-- open STATERules .
+open ProofBase .
 
 ops COC COC1 COC2 COD : -> COIDLt .
 ops IMW IMV IMW1 IMW2 : -> IMIDLt .
@@ -32,4 +34,7 @@ red final(s0) == false .
 exec not (wfs(s0) == false) .
 exec init(s0) == false .
 exec final(s0) .
+
+red m(s0) .
+
 -- close
