@@ -44,23 +44,97 @@ module ProofBase {
   -- Next Distance
   op ndis : Component State -> Nat
   op ndis : Import State -> Nat
-  eq ndis(cmp(IDCO,CSCO,CSCO,TSCO),S) = 0 .
-  eq ndis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,CSIM,TSIM),S) = 0 .
+  -- Total Next Distance
+  op tndis : SetOfComponent SetOfCOState State -> Nat
+  op tndis : SetOfImport SetOfIMState State -> Nat
+
+  -- When CSCO is already NSCO
+  eq ndis(cmp(IDCO,NSCO,NSCO,TSCO),S) = 0 .
+
+  -- When a rule changing (CSCO,NSCO,TSCO) to (NSCO,NSCO,TSCO) is applied
+  -- RD-start: (stopped,started) to (started,started)
+  eq ndis(cmp(IDCO,stopped,started,TSCO),< SCO, SIM, L >) 
+     = 1
+     + tndis(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(wired unused),< SCO, SIM, L >)
+     + tndis(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,wired)),started,< SCO, SIM, L >) .
+
+  -- RD-stop: (started,stopped) to (stopped,stopped)
+  eq ndis(cmp(IDCO, started, stopped, TSCO),< SCO, SIM, L >) 
+     = 1
+     + tndis(getICOsOfIMs(SCO,getIMsOfECOInStates(SIM,IDCO,wired)),stopped,< SCO, SIM, L >) .
+
+  -- RD-wire1: (unwired,wired) to (wired,wired)
+  eq ndis(imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired),
+	  < (cmp(IIDCO, CSCO, NSCO, TSCO) SCO), SIM, L >)
+     = 1 
+     + tdis(cmp(IIDCO,CSCO,NSCO,stopped),< SCO, SIM, L >) .
+
+  -- RD-wire2: (unwired,wired) to (wired,wired)
+  eq ndis(imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired),
+	  < (cmp(EIDCO, CSCO, NSCO, TSCO) SCO), SIM, L >)
+     = 1 
+     + tdis(cmp(EIDCO,CSCO,NSCO,started),< SCO, SIM, L >) .
+
+  -- RD-unwire1: (wired,unwired) to (unwired,unwired)
+  ceq ndis(imp(optional, IDIM, IDCO, EIDCO, wired, unwired, TSIM),
+	  < (cmp(IDCO, CSCO, CSCO, TSCO) SCO), SIM, L >)
+     = 1 
+     if not (CSCO = failed) .
+
+  -- RD-unwire2: (wired,unwired) to (unwired,unwired)
+  eq ndis(imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM),
+	  < (cmp(IDCO, CSCO, NSCO, TSCO) SCO), SIM, L >)
+     = 1 
+     + tdis(cmp(IDCO,CSCO,NSCO,stopped),< SCO, SIM, L >) .
+
+  -- RD-unwire3: (unused,unwired) to (unwired,unwired)
+  eq ndis(imp(TIM, IDIM, IIDCO, EIDCO,  unused, unwired, TSIM),< SCO, SIM, L >)
+     = 1 .
+
+  -- RD-remove: (unwired,unused) to (unused,unsued)
+  eq ndis(imp(TIM, IDIM, IIDCO, EIDCO, unwired, unused, unused),< SCO, SIM, L >)
+     = 1 .
+
+  -- There is no rule which changes
+  -- (unused,wired) to (wired,wired)
+  -- (wired,unused) to (unused,unsued)
+
+  -- When CSIM is already NSIM
+  eq ndis(imp(TIM,IDIM,IIDCO,IDCO,NSIM,NSIM,TSIM),S) = 0 .
+
   -- Target Distance
   op tdis : Component State -> Nat
   op tdis : Import State -> Nat
+
+  -- When TSCO is already set as NSCO
   eq tdis(cmp(IDCO,CSCO,TSCO,TSCO),S)
     = ndis(cmp(IDCO,CSCO,TSCO,TSCO),S) .
+
+  -- When a rule changing (NSCO,NSCO,TSCO) to (NSCO,TSCO,TSCO) is applied
+  -- RS-start1: (stopped,stopped,started) to (stopped, started, started)
+  -- RS-stop1:  (started,started,stopped) to (started,stopped,stopped)
   ceq tdis(cmp(IDCO,CSCO,NSCO,TSCO),S)
     = ndis(cmp(IDCO,CSCO,NSCO,TSCO),S) 
       + ndis(cmp(IDCO,NSCO,TSCO,TSCO),S) + 1
     if not (NSCO = TSCO) .
+
+  -- When TSIM is already set as NSIM
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM,TSIM),S)
     = ndis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM,TSIM),S) .
+
+  -- When a rule changing (NSIM,NSIM,TSIM) to (NSIM,TSIM,TSIM) is applied
+  -- RS-wire1: (unwired, unwired, wired) to (unwired, wired, wired)
+  -- RS-unwire1: (wired, wired, unwired) to (wired, unwired, unwired)
+  -- RS-unused: (unwired, unwired, unused) to (unwired, unused, unused)
   ceq tdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM),S)
     = ndis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM),S) 
       + ndis(imp(TIM,IDIM,IIDCO,IDCO,NSIM,TSIM,TSIM),S) + 1
     if not (NSIM = TSIM) .
+  -- There is no rule which changes
+  --    (wired,wired,unused) to (wired,unused,unused)
+  --    (unused,unused,wired) to (unused,wired,wired)
+  --    (unused,unused,unwired) to (unused,unwired,unwired)
+
   -- Total Target Distance
   op ttdis : SetOfComponent State -> Nat
   op ttdis : SetOfImport State -> Nat
