@@ -580,7 +580,7 @@ module! STATERules {
   => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unwired) SIM),
        (ilog("RS-unwire1:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unwired)) ListLG) > .
 
-  -- An optional Import of a started Component should be unwired when its export Component should stop.
+  -- An Import of a started Component should be unwired when its export Component should stop.
   trans [RS-unwire2]:
      < (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, TSCO') SCO), 
        (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, wired) SIM),
