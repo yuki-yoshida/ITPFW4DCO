@@ -105,35 +105,55 @@ module ProofBase {
   -- Target Distance
   op tdis : Component State -> Nat
   op tdis : Import State -> Nat
+-- tdis(TS,TS,TS) = 0 .
+-- tdis(CS,CS,TS)
+--   = ndis(CS,CS,TS) + tdis(CS,NS,TS) . for some NS.
+-- tdis(CS,TS,TS)
+--   = ndis(CS,TS,TS) .
+-- tdis(CS,NS,CS)
+--   = ndis(CS,NS',TS) + tdis(NS',NS,TS) . for some NS'
+-- tdis(CS,NS,TS)
+--   = ndis(CS,NS,TS) + tdis(NS,NS',TS) . for some NS'.
 
-  -- When TSCO is already set as NSCO
-  eq tdis(cmp(IDCO,CSCO,TSCO,TSCO),S)
-    = ndis(cmp(IDCO,CSCO,TSCO,TSCO),S) .
+  -- tdis(TS,TS,TS) = 0 .
+  eq tdis(cmp(IDCO,TSCO,TSCO,TSCO),S)
+    = 0 .
 
-  -- When a rule changing (NSCO,NSCO,TSCO) to (NSCO,TSCO,TSCO) is applied
-  -- RS-start1: (stopped,stopped,started) to (stopped, started, started)
-  -- RS-stop1:  (started,started,stopped) to (started,stopped,stopped)
-  ceq tdis(cmp(IDCO,CSCO,NSCO,TSCO),S)
-    = ndis(cmp(IDCO,CSCO,NSCO,TSCO),S) 
-      + ndis(cmp(IDCO,NSCO,TSCO,TSCO),S) + 1
-    if not (NSCO = TSCO) .
+  -- tdis(CS,CS,TS)
+  --   = ndis(CS,CS,TS) + tdis(CS,NS,TS) . for some NS.
+  -- RS-stop1: started,started,stopped -> started,stopped,stopped
+  -- RS-start1: stopped,stopped,started -> stopped,started,started
+  ceq tdis(cmp(IDCO,CSCO,CSCO,TSCO),S)
+    = ndis(cmp(IDCO,CSCO,TSCO,TSCO),S) 
+    + tdis(cmp(IDCO,CSCO,TSCO,TSCO),S)
+    if not (CSCO = TSCO) .
 
-  -- When TSIM is already set as NSIM
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM,TSIM),S)
-    = ndis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM,TSIM),S) .
+  -- When the component should transit to the target.
+  ceq tdis(cmp(IDCO,CSCO,TSCO,TSCO),S)
+    = ndis(cmp(IDCO,CSCO,TSCO,TSCO),S) 
+    if not (CSCO = TSCO) .
 
-  -- When a rule changing (NSIM,NSIM,TSIM) to (NSIM,TSIM,TSIM) is applied
-  -- RS-wire1: (unwired, unwired, wired) to (unwired, wired, wired)
-  -- RS-unwire1: (wired, wired, unwired) to (wired, unwired, unwired)
-  -- RS-unused: (unwired, unwired, unused) to (unwired, unused, unused)
-  ceq tdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM),S)
-    = ndis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM),S) 
-      + ndis(imp(TIM,IDIM,IIDCO,IDCO,NSIM,TSIM,TSIM),S) + 1
-    if not (NSIM = TSIM) .
-  -- There is no rule which changes
-  --    (wired,wired,unused) to (wired,unused,unused)
-  --    (unused,unused,wired) to (unused,wired,wired)
-  --    (unused,unused,unwired) to (unused,unwired,unwired)
+  -- When the component should temporally transit.
+  eq tdis(cmp(IDCO,started,stopped,started),S)
+    = ndis(cmp(IDCO,started,stopped,started),S) 
+    + tdis(cmp(IDCO,stopped,stopped,started),S) .
+
+
+  -- When already reached to the target state.
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,TSIM,TSIM,TSIM),S)
+    = 0 .
+
+  -- When NSIM should be set as TSIM.
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,wired,  wired,unwired),S)
+    = ndis(imp(TIM,IDIM,IIDCO,IDCO,wired,unwired,unwired),S) 
+    + tdis(imp(TIM,IDIM,IIDCO,IDCO,wired,unwired,unwired),S) .
+
+  -- When the import should transit to the target.
+  ceq tdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM,TSIM),S)
+    = ndis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM,TSIM),S) 
+    if not (CSIM = TSIM) .
+
+  -- When the component should temporally transit.
 
   -- Total Target Distance
   op ttdis : SetOfComponent State -> Nat
