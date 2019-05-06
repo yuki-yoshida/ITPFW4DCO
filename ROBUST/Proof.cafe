@@ -170,9 +170,12 @@ module ProofBase {
 --> Step 0-4: Define inv(S).
 --> ************************
   -- wfs-*:
+  ceq wfs(S) = false if not wfs-uniqCO(S) .
+  ceq wfs(S) = false if not wfs-uniqIM(S) .
   ceq wfs(S) = false if not wfs-allIMHaveICO(S) .
   ceq wfs(S) = false if not wfs-allIMHaveECO(S) .
   ceq wfs(S) = false if not wfs-validTarget(S) .
+  ceq wfs(S) = false if not wfs-validCurrent(S) .
   ceq inv(S) = false if not wfs(S) .
 
   -- inv-*:
