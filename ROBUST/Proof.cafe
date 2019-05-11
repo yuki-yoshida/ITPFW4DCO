@@ -41,130 +41,75 @@ module ProofBase {
 --> Step 0-3: Define m(S).
 --> **********************
   -- Measuring functions
-  -- Next Distance
-  op ndis : Component State -> Nat
-  op ndis : Import State -> Nat
-  -- Total Next Distance
-  op tndis : SetOfComponent SetOfCOState State -> Nat
-  op tndis : SetOfImport SetOfIMState State -> Nat
-
-  -- When CSCO is already NSCO
-  eq ndis(cmp(IDCO,NSCO,NSCO,TSCO),S) = 0 .
-
-  -- When a rule changing (CSCO,NSCO,TSCO) to (NSCO,NSCO,TSCO) is applied
-  -- RD-start: (stopped,started) to (started,started)
-  eq ndis(cmp(IDCO,stopped,started,TSCO),< SCO, SIM, L >) 
-     = 1
-     + tndis(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(wired unused),< SCO, SIM, L >)
-     + tndis(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,wired)),started,< SCO, SIM, L >) .
-
-  -- RD-stop: (started,stopped) to (stopped,stopped)
-  eq ndis(cmp(IDCO, started, stopped, TSCO),< SCO, SIM, L >) 
-     = 1
-     + tndis(getICOsOfIMs(SCO,getIMsOfECOInStates(SIM,IDCO,wired)),stopped,< SCO, SIM, L >) .
-
-  -- RD-wire1: (unwired,wired) to (wired,wired)
-  eq ndis(imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired),
-	  < (cmp(IIDCO, CSCO, NSCO, TSCO) SCO), SIM, L >)
-     = 1 
-     + tdis(cmp(IIDCO,CSCO,NSCO,stopped),< SCO, SIM, L >) .
-
-  -- RD-wire2: (unwired,wired) to (wired,wired)
-  eq ndis(imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired),
-	  < (cmp(EIDCO, CSCO, NSCO, TSCO) SCO), SIM, L >)
-     = 1 
-     + tdis(cmp(EIDCO,CSCO,NSCO,started),< SCO, SIM, L >) .
-
-  -- RD-unwire1: (wired,unwired) to (unwired,unwired)
-  ceq ndis(imp(optional, IDIM, IDCO, EIDCO, wired, unwired, TSIM),
-	  < (cmp(IDCO, CSCO, CSCO, TSCO) SCO), SIM, L >)
-     = 1 
-     if not (CSCO = failed) .
-
-  -- RD-unwire2: (wired,unwired) to (unwired,unwired)
-  eq ndis(imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM),
-	  < (cmp(IDCO, CSCO, NSCO, TSCO) SCO), SIM, L >)
-     = 1 
-     + tdis(cmp(IDCO,CSCO,NSCO,stopped),< SCO, SIM, L >) .
-
-  -- RD-unwire3: (unused,unwired) to (unwired,unwired)
-  eq ndis(imp(TIM, IDIM, IIDCO, EIDCO,  unused, unwired, TSIM),< SCO, SIM, L >)
-     = 1 .
-
-  -- RD-remove: (unwired,unused) to (unused,unsued)
-  eq ndis(imp(TIM, IDIM, IIDCO, EIDCO, unwired, unused, unused),< SCO, SIM, L >)
-     = 1 .
-
-  -- There is no rule which changes
-  -- (unused,wired) to (wired,wired)
-  -- (wired,unused) to (unused,unsued)
-
-  -- When CSIM is already NSIM
-  eq ndis(imp(TIM,IDIM,IIDCO,IDCO,NSIM,NSIM,TSIM),S) = 0 .
-
   -- Target Distance
-  op tdis : Component State -> Nat
-  op tdis : Import State -> Nat
--- tdis(TS,TS,TS) = 0 .
--- tdis(CS,CS,TS)
---   = ndis(CS,CS,TS) + tdis(CS,NS,TS) . for some NS.
--- tdis(CS,TS,TS)
---   = ndis(CS,TS,TS) .
--- tdis(CS,NS,CS)
---   = ndis(CS,NS',TS) + tdis(NS',NS,TS) . for some NS'
--- tdis(CS,NS,TS)
---   = ndis(CS,NS,TS) + tdis(NS,NS',TS) . for some NS'.
+  op tdis : SetOfComponent State -> Nat
+  op tdis : SetOfImport State -> Nat
 
-  -- tdis(TS,TS,TS) = 0 .
-  eq tdis(cmp(IDCO,TSCO,TSCO,TSCO),S)
-    = 0 .
+  -- Forced Distance
+  -- Forced to become stopped temporally
+  op fdis : SetOfComponent State -> Nat
+  -- Forced to become unwired temporally
+  op fdis : SetOfImport State -> Nat
 
-  -- tdis(CS,CS,TS)
-  --   = ndis(CS,CS,TS) + tdis(CS,NS,TS) . for some NS.
-  -- RS-stop1: started,started,stopped -> started,stopped,stopped
-  -- RS-start1: stopped,stopped,started -> stopped,started,started
-  ceq tdis(cmp(IDCO,CSCO,CSCO,TSCO),S)
-    = ndis(cmp(IDCO,CSCO,TSCO,TSCO),S) 
-    + tdis(cmp(IDCO,CSCO,TSCO,TSCO),S)
-    if not (CSCO = TSCO) .
+  eq tdis(empCO,S) = 0 .
+  eq tdis((CO SCO),S) = tdis(CO,S) + tdis(SCO,S) .
+  eq tdis(empIM,S) = 0 .
+  eq tdis((IM SIM),S) = tdis(IM,S) + tdis(SIM,S) .
+  eq fdis(empCO,S) = 0 .
+  eq fdis((CO SCO),S) = fdis(CO,S) + fdis(SCO,S) .
+  eq fdis(empIM,S) = 0 .
+  eq fdis((IM SIM),S) = fdis(IM,S) + fdis(SIM,S) .
 
-  -- When the component should transit to the target.
-  ceq tdis(cmp(IDCO,CSCO,TSCO,TSCO),S)
-    = ndis(cmp(IDCO,CSCO,TSCO,TSCO),S) 
-    if not (CSCO = TSCO) .
+  eq tdis(cmp(IDCO,TSCO,TSCO,TSCO),S) = 0 .
+  eq tdis(cmp(IDCO,started,started,stopped),S) = 2 .
+  eq tdis(cmp(IDCO,started,stopped,stopped),S) = 1 .
+  eq tdis(cmp(IDCO,stopped,stopped,started),S) = 2 .
+  eq tdis(cmp(IDCO,stopped,started,started),S) = 1 .
 
-  -- When the component should temporally transit.
-  eq tdis(cmp(IDCO,started,stopped,started),S)
-    = ndis(cmp(IDCO,started,stopped,started),S) 
-    + tdis(cmp(IDCO,stopped,stopped,started),S) .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,TSIM,TSIM,TSIM),S) = 0 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,wired,  wired,unwired),S) = 2 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,wired,unwired,unwired),S) = 1 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused, unused,wired),S) = 4 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,unwired,wired),S) = 3 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,unwired,wired),S) = 2 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,  wired,wired),S) = 1 .
 
+  eq tdis(imp(optional,IDIM,IIDCO,IDCO,  wired,  wired,unused),S) = 4 .
+  eq tdis(imp(optional,IDIM,IIDCO,IDCO,  wired,unwired,unused),S) = 3 .
+  eq tdis(imp(optional,IDIM,IIDCO,IDCO,unwired,unwired,unused),S) = 2 .
+  eq tdis(imp(optional,IDIM,IIDCO,IDCO,unwired, unused,unused),S) = 1 .
 
-  -- When already reached to the target state.
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,TSIM,TSIM,TSIM),S)
-    = 0 .
+  -- When a mandatory Import is unwired, the Component which wires it should be stopped.
+  eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused),< SCO,SIM,L >) 
+     = 4 + fdis(getComponent(SCO,IIDCO),< SCO,SIM,L >) .
+  eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused),< SCO,SIM,L >) 
+     = 3 + fdis(getComponent(SCO,IIDCO),< SCO,SIM,L >) .
+  eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,unwired,unwired,unused),S) = 2 .
+  eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,unwired, unused,unused),S) = 1 .
 
-  -- When NSIM should be set as TSIM.
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,wired,  wired,unwired),S)
-    = ndis(imp(TIM,IDIM,IIDCO,IDCO,wired,unwired,unwired),S) 
-    + tdis(imp(TIM,IDIM,IIDCO,IDCO,wired,unwired,unwired),S) .
+  -- When a Component is stopped, any Import wiring to it should be unwired.
+  eq fdis(cmp(IDCO,started,started,started),< SCO,SIM,L >) 
+     = 4 + fdis(getIMsOfECOInStates(SIM,IDCO,wired),< SCO,SIM,L >) .
+  eq fdis(cmp(IDCO,started,stopped,started),< SCO,SIM,L >) 
+     = 3 + fdis(getIMsOfECOInStates(SIM,IDCO,wired),< SCO,SIM,L >) .
+  ceq fdis(cmp(IDCO,CSCO,NSCO,TSCO),S) = 0
+    if not (NSCO = started) or not (TSCO = started) .
 
-  -- When the import should transit to the target.
-  ceq tdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM,TSIM),S)
-    = ndis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,TSIM,TSIM),S) 
-    if not (CSIM = TSIM) .
+  -- When a mandatory Import is unwired, the Component which wires it should be stopped.
+  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,wired,  wired,wired),< SCO,SIM,L >) 
+     = 4 + fdis(getComponent(SCO,IIDCO),< SCO,SIM,L >) .
+  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,wired,unwired,wired),< SCO,SIM,L >) 
+     = 3 + fdis(getComponent(SCO,IIDCO),< SCO,SIM,L >) .
+  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused),< SCO,SIM,L >) 
+     = 4 + fdis(getComponent(SCO,IIDCO),< SCO,SIM,L >) .
+  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused),< SCO,SIM,L >) 
+     = 3 + fdis(getComponent(SCO,IIDCO),< SCO,SIM,L >) .
+  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,wired,NSIM,unwired),S) = 0 .
+  eq fdis(imp(optional,IDIM,IIDCO,IDCO,wired,NSIM,TSIM),S) = 0 .
 
-  -- When the component should temporally transit.
-
-  -- Total Target Distance
-  op ttdis : SetOfComponent State -> Nat
-  op ttdis : SetOfImport State -> Nat
-  eq ttdis(empCO,S) = 0 .
-  eq ttdis((CO SCO),S) = tdis(CO,S) + ttdis(SCO,S) .
-  eq ttdis(empIM,S) = 0 .
-  eq ttdis((IM SIM),S) = tdis(IM,S) + ttdis(SIM,S) .
   op m : State -> Nat
   eq m(< SCO,SIM,L >)
-    = ttdis(SCO, < SCO,SIM,L >) + ttdis(SIM, < SCO,SIM,L >) .
+    = tdis(SCO, < SCO,SIM,L >) + tdis(SIM, < SCO,SIM,L >) .
 
 --> ************************
 --> Step 0-4: Define inv(S).
