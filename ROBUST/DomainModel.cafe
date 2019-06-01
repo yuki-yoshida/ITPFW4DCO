@@ -299,7 +299,9 @@ module! LOG {
   protecting(IMPORT)
   protecting(STRING)
   [Log]
+  op clog : String Component Nat -> Log {constr}
   op clog : String Component -> Log {constr}
+  op ilog : String Import Nat -> Log {constr}
   op ilog : String Import -> Log {constr}
 }
 
@@ -402,7 +404,7 @@ module! STATEfuns {
   eq validTargetComponent(empCO,SCO0,SIM0) = true .
   eq validTargetComponent((cmp(IDCO,CSCO,NSCO,started) SCO),SCO0,SIM0)
      = allIMInTargetStates(getIMsOfTypeOfICO(SIM0,mandatory,IDCO),(wired unused)) and
-       allCOInTargetStates(getECOsOfIMs(SCO0,getIMsOfICOInStates(SIM0,IDCO,wired)),started) and
+       allCOInTargetStates(getECOsOfIMs(SCO0,getIMsOfICOInTargetStates(SIM0,IDCO,wired)),started) and
        validTargetComponent(SCO,SCO0,SIM0) .
   ceq validTargetComponent((cmp(IDCO,CSCO,NSCO,TSCO) SCO),SCO0,SIM0)
      = validTargetComponent(SCO,SCO0,SIM0)
@@ -536,6 +538,9 @@ module! STATEfuns {
 module! STATERules {
   protecting(STATEfuns)
 
+  op m : State -> Nat
+  op mlog : SetOfComponent SetOfImport -> Nat
+
   -- Variables
   vars IDCO IIDCO EIDCO : COID 
   vars CSCO NSCO TSCO TSCO' : COState
@@ -553,14 +558,20 @@ module! STATERules {
      < (cmp(IDCO, stopped, stopped, started) SCO), SIM,
        ListLG >
   => < (cmp(IDCO, stopped, started, started) SCO), SIM,
-       (clog("RS-start1:Should Start", cmp(IDCO, stopped, started, started)) ListLG) > .
+       (clog("RS-start1:Should Start", cmp(IDCO, stopped, started, started),
+	  mlog(
+       (cmp(IDCO, stopped, stopped, started) SCO), SIM
+	 )) ListLG) > .
 
   -- A Component should be stopped if it is targeted.
   trans [RS-stop1]:
      < (cmp(IDCO, started, started, stopped) SCO), SIM,
        ListLG >
   => < (cmp(IDCO, started, stopped, stopped) SCO), SIM,
-       (clog("RS-stop1:Should Stop", cmp(IDCO, started, stopped, stopped)) ListLG) > .
+       (clog("RS-stop1:Should Stop", cmp(IDCO, started, stopped, stopped),
+	  mlog(
+       (cmp(IDCO, started, started, stopped) SCO), SIM
+	 )) ListLG) > .
 
   -- A Component should stop when its mandatory Import should be unwired.
   trans [RS-stop2]:
@@ -569,13 +580,20 @@ module! STATERules {
         ListLG >
   => < (cmp(IDCO, started, stopped, started) SCO),
        (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
-       (clog("RS-stop2:Should Stop", cmp(IDCO, started, stopped, started)) ListLG) > .
+       (clog("RS-stop2:Should Stop", cmp(IDCO, started, stopped, started),
+	  mlog(
+       (cmp(IDCO, started, started, started) SCO),
+       (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM)
+	 )) ListLG) > .
 
   ctrans [RD-start]:
      < (cmp(IDCO, stopped, started, TSCO) SCO), SIM,
        ListLG >
   => < (cmp(IDCO, started, started, TSCO) SCO), SIM,
-       (clog("RD-start:Do Start", cmp(IDCO, started, started, TSCO)) ListLG) > 
+       (clog("RD-start:Do Start", cmp(IDCO, started, started, TSCO),
+	  mlog(
+       (cmp(IDCO, stopped, started, TSCO) SCO), SIM
+	 )) ListLG) >
      if allIMInBothStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(wired unused)) and
         allCOInBothStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,wired)),started) .
 
@@ -584,7 +602,10 @@ module! STATERules {
      < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, wired) SIM),
        ListLG >
   => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired,   wired, wired) SIM),
-       (ilog("RS-wire:Should Wire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired)) ListLG) > .
+       (ilog("RS-wire:Should Wire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired),
+	  mlog(
+       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, wired) SIM)
+	 )) ListLG) > .
 
   -- An Import should be unwired if it will be unwired.
   trans [RS-unwire1]:
@@ -680,4 +701,5 @@ module! STATERules {
   => < (cmp(IDCO, stopped, stopped, TSCO) SCO), SIM,
        (clog("RD-stop:Do Stop", cmp(IDCO, stopped, stopped,TSCO)) ListLG) > 
      if allCOInStates(getICOsOfIMs(SCO,getIMsOfECOInStates(SIM,IDCO,wired)),stopped) .
+
 }

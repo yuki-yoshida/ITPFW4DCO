@@ -42,74 +42,81 @@ module ProofBase {
 --> **********************
   -- Measuring functions
   -- Target Distance
-  op tdis : SetOfComponent State -> Nat
-  op tdis : SetOfImport State -> Nat
+  op tdis : SetOfComponent SetOfComponent SetOfImport -> Nat
+  op tdis : SetOfImport SetOfComponent SetOfImport -> Nat
 
   -- Forced Distance
   -- Forced to become stopped temporally
-  op fdis : SetOfComponent State -> Nat
+  op fdis : SetOfComponent SetOfComponent SetOfImport -> Nat
   -- Forced to become unwired temporally
-  op fdis : SetOfImport State -> Nat
+  op fdis : SetOfImport SetOfComponent SetOfImport -> Nat
 
-  eq tdis(empCO,S) = 0 .
-  eq tdis((CO SCO),S) = tdis(CO,S) + tdis(SCO,S) .
-  eq tdis(empIM,S) = 0 .
-  eq tdis((IM SIM),S) = tdis(IM,S) + tdis(SIM,S) .
-  eq fdis(empCO,S) = 0 .
-  eq fdis((CO SCO),S) = fdis(CO,S) + fdis(SCO,S) .
-  eq fdis(empIM,S) = 0 .
-  eq fdis((IM SIM),S) = fdis(IM,S) + fdis(SIM,S) .
+  var SCO0 : SetOfComponent
+  var SIM0 : SetOfImport
 
-  eq tdis(cmp(IDCO,TSCO,TSCO,TSCO),S) = 0 .
-  eq tdis(cmp(IDCO,started,started,stopped),S) = 2 .
-  eq tdis(cmp(IDCO,started,stopped,stopped),S) = 1 .
-  eq tdis(cmp(IDCO,stopped,stopped,started),S) = 2 .
-  eq tdis(cmp(IDCO,stopped,started,started),S) = 1 .
+  eq tdis(empCO,SCO0,SIM0) = 0 .
+  eq tdis((CO SCO),SCO0,SIM0) = tdis(CO,SCO0,SIM0) + tdis(SCO,SCO0,SIM0) .
+  eq tdis(empIM,SCO0,SIM0) = 0 .
+  eq tdis((IM SIM),SCO0,SIM0) = tdis(IM,SCO0,SIM0) + tdis(SIM,SCO0,SIM0) .
+  eq fdis(empCO,SCO0,SIM0) = 0 .
+  eq fdis((CO SCO),SCO0,SIM0) = fdis(CO,SCO0,SIM0) + fdis(SCO,SCO0,SIM0) .
+  eq fdis(empIM,SCO0,SIM0) = 0 .
+  eq fdis((IM SIM),SCO0,SIM0) = fdis(IM,SCO0,SIM0) + fdis(SIM,SCO0,SIM0) .
 
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,TSIM,TSIM,TSIM),S) = 0 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,wired,  wired,unwired),S) = 2 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,wired,unwired,unwired),S) = 1 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused, unused,wired),S) = 4 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,unwired,wired),S) = 3 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,unwired,wired),S) = 2 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,  wired,wired),S) = 1 .
+  eq tdis(cmp(IDCO,TSCO,TSCO,TSCO),SCO0,SIM0) = 0 .
+  eq tdis(cmp(IDCO,started,started,stopped),SCO0,SIM0) = 2 .
+  eq tdis(cmp(IDCO,started,stopped,stopped),SCO0,SIM0) = 1 .
+  eq tdis(cmp(IDCO,stopped,stopped,started),SCO0,SIM0) = 2 .
+  eq tdis(cmp(IDCO,stopped,started,started),SCO0,SIM0) = 1 .
 
-  eq tdis(imp(optional,IDIM,IIDCO,IDCO,  wired,  wired,unused),S) = 4 .
-  eq tdis(imp(optional,IDIM,IIDCO,IDCO,  wired,unwired,unused),S) = 3 .
-  eq tdis(imp(optional,IDIM,IIDCO,IDCO,unwired,unwired,unused),S) = 2 .
-  eq tdis(imp(optional,IDIM,IIDCO,IDCO,unwired, unused,unused),S) = 1 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,TSIM,TSIM,TSIM),SCO0,SIM0) = 0 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,wired,  wired,unwired),SCO0,SIM0) = 2 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,wired,unwired,unwired),SCO0,SIM0) = 1 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused, unused,wired),SCO0,SIM0) = 4 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,unwired,wired),SCO0,SIM0) = 3 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,unwired,wired),SCO0,SIM0) = 2 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,  wired,wired),SCO0,SIM0) = 1 .
+
+  eq tdis(imp(optional,IDIM,IIDCO,IDCO,  wired,  wired,unused),SCO0,SIM0) = 4 .
+  eq tdis(imp(optional,IDIM,IIDCO,IDCO,  wired,unwired,unused),SCO0,SIM0) = 3 .
+  eq tdis(imp(optional,IDIM,IIDCO,IDCO,unwired,unwired,unused),SCO0,SIM0) = 2 .
+  eq tdis(imp(optional,IDIM,IIDCO,IDCO,unwired, unused,unused),SCO0,SIM0) = 1 .
 
   -- When a mandatory Import is unwired, the Component which wires it should be stopped.
-  eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused),< SCO,SIM,L >) 
-     = 4 + fdis(getComponent(SCO,IIDCO),< SCO,SIM,L >) .
-  eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused),< SCO,SIM,L >) 
-     = 3 + fdis(getComponent(SCO,IIDCO),< SCO,SIM,L >) .
-  eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,unwired,unwired,unused),S) = 2 .
-  eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,unwired, unused,unused),S) = 1 .
+  eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused),SCO0,SIM0) 
+     = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
+  eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused),SCO0,SIM0) 
+     = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
+  eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,unwired,unwired,unused),SCO0,SIM0) = 2 .
+  eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,unwired, unused,unused),SCO0,SIM0) = 1 .
 
   -- When a Component is stopped, any Import wiring to it should be unwired.
-  eq fdis(cmp(IDCO,started,started,started),< SCO,SIM,L >) 
-     = 4 + fdis(getIMsOfECOInStates(SIM,IDCO,wired),< SCO,SIM,L >) .
-  eq fdis(cmp(IDCO,started,stopped,started),< SCO,SIM,L >) 
-     = 3 + fdis(getIMsOfECOInStates(SIM,IDCO,wired),< SCO,SIM,L >) .
-  ceq fdis(cmp(IDCO,CSCO,NSCO,TSCO),S) = 0
+  eq fdis(cmp(IDCO,started,started,started),SCO0,SIM0) 
+     = 4 + fdis(getIMsOfECOInStates(SIM0,IDCO,wired),SCO0,SIM0) .
+  eq fdis(cmp(IDCO,started,stopped,started),SCO0,SIM0) 
+     = 3 + fdis(getIMsOfECOInStates(SIM0,IDCO,wired),SCO0,SIM0) .
+  ceq fdis(cmp(IDCO,CSCO,NSCO,TSCO),SCO0,SIM0) = 0
     if not (NSCO = started) or not (TSCO = started) .
 
   -- When a mandatory Import is unwired, the Component which wires it should be stopped.
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,wired,  wired,wired),< SCO,SIM,L >) 
-     = 4 + fdis(getComponent(SCO,IIDCO),< SCO,SIM,L >) .
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,wired,unwired,wired),< SCO,SIM,L >) 
-     = 3 + fdis(getComponent(SCO,IIDCO),< SCO,SIM,L >) .
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused),< SCO,SIM,L >) 
-     = 4 + fdis(getComponent(SCO,IIDCO),< SCO,SIM,L >) .
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused),< SCO,SIM,L >) 
-     = 3 + fdis(getComponent(SCO,IIDCO),< SCO,SIM,L >) .
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,wired,NSIM,unwired),S) = 0 .
-  eq fdis(imp(optional,IDIM,IIDCO,IDCO,wired,NSIM,TSIM),S) = 0 .
+  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,wired,  wired,wired),SCO0,SIM0) 
+     = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
+  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,wired,unwired,wired),SCO0,SIM0) 
+     = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
+  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused),SCO0,SIM0) 
+     = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
+  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused),SCO0,SIM0) 
+     = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
+  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,wired,unused,TSIM),SCO0,SIM0) = 0 .
+  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,wired,NSIM,unwired),SCO0,SIM0) = 0 .
+  eq fdis(imp(optional,IDIM,IIDCO,IDCO,wired,NSIM,TSIM),SCO0,SIM0) = 0 .
 
-  op m : State -> Nat
+--  op m : State -> Nat
+--  eq m(< SCO,SIM,L >) = 0 .
   eq m(< SCO,SIM,L >)
-    = tdis(SCO, < SCO,SIM,L >) + tdis(SIM, < SCO,SIM,L >) .
+    = tdis(SCO, SCO, SIM) + tdis(SIM, SCO, SIM) .
+  eq mlog(SCO, SIM)
+    = tdis(SCO, SCO, SIM) + tdis(SIM, SCO, SIM) .
 
 --> ************************
 --> Step 0-4: Define inv(S).
