@@ -612,7 +612,10 @@ module! STATERules {
      < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unwired) SIM),
        ListLG >
   => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unwired) SIM),
-       (ilog("RS-unwire1:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unwired)) ListLG) > .
+       (ilog("RS-unwire1:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unwired),
+	  mlog(
+       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unwired) SIM)
+	 )) ListLG) > .
 
   -- An Import of a started Component should be unwired when its export Component should stop.
   trans [RS-unwire2]:
@@ -621,28 +624,41 @@ module! STATERules {
        ListLG >
   => < (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, TSCO') SCO), 
        (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, wired) SIM),
-       (ilog("RS-unwire2:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, wired)) ListLG) > .
+       (ilog("RS-unwire2:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, wired),
+	  mlog(
+       (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, TSCO') SCO), 
+       (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, wired) SIM)
+	 )) ListLG) > .
 
   -- An Import should be unwired if it will be not used.
   trans [RS-unwire3]:
      < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unused) SIM),
        ListLG >
   => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unused) SIM),
-       (ilog("RS-unwire3:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unused)) ListLG) > .
+       (ilog("RS-unwire3:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unused),
+	  mlog(
+       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unused) SIM)
+	 )) ListLG) > .
 
   -- An Unused Import should be firstly unwired if it will be wired.
   trans [RS-unwire4]:
      < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused,  unused, wired) SIM),
        ListLG >
   => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused, unwired, wired) SIM),
-       (ilog("RS-unwire4:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, unused, unwired, wired)) ListLG) > .
+       (ilog("RS-unwire4:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, unused, unwired, wired),
+	  mlog(
+       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused,  unused, wired) SIM)
+	 )) ListLG) > .
 
   -- An unwired Import should be unused if it will be not used.
   trans [RS-unused]:
      < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, unused) SIM),
        ListLG >
   => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired,  unused, unused) SIM),
-       (ilog("RS-unused:Should be Unused", imp(TIM, IDIM, IIDCO, EIDCO, unwired, unused, unused)) ListLG) > .
+       (ilog("RS-unused:Should be Unused", imp(TIM, IDIM, IIDCO, EIDCO, unwired, unused, unused),
+	  mlog(
+       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, unused) SIM)
+	 )) ListLG) > .
 
   -- An Import can be wired when its Component is stopped or its export Component is started.
   trans [RD-wire1]:
@@ -651,7 +667,11 @@ module! STATERules {
        ListLG >
   => < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
        (imp(TIM, IDIM, IIDCO, EIDCO,   wired, wired, wired) SIM),
-       (ilog("RD-wire1:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, wired, wired)) ListLG) > .
+       (ilog("RD-wire1:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, wired, wired),
+	  mlog(
+       (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
+       (imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired) SIM)
+	 )) ListLG) > .
 
   trans [RD-wire2]:
      < (cmp(EIDCO, started, started, TSCO) SCO), 
@@ -659,7 +679,11 @@ module! STATERules {
        ListLG >
   => < (cmp(EIDCO, started, started, TSCO) SCO), 
        (imp(TIM, IDIM, IIDCO, EIDCO,   wired, wired, wired) SIM),
-       (ilog("RD-wire2:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, wired, wired)) ListLG) > .
+       (ilog("RD-wire2:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, wired, wired),
+	  mlog(
+       (cmp(EIDCO, started, started, TSCO) SCO), 
+       (imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired) SIM)
+	 )) ListLG) > .
 
   -- An Optional Imports can be unwired anytime.
   -- N.B. "Anytime" means the component is not failed.
@@ -669,7 +693,11 @@ module! STATERules {
        ListLG >
   => < (cmp(IDCO, CSCO, CSCO, TSCO) SCO),
        (imp(optional, IDIM, IDCO, EIDCO, unwired, unwired, TSIM) SIM),
-       (ilog("RD-unwire1:Do Unwire", imp(optional, IDIM, IDCO, EIDCO, unwired, unwired, TSIM)) ListLG) > 
+       (ilog("RD-unwire1:Do Unwire", imp(optional, IDIM, IDCO, EIDCO, unwired, unwired, TSIM),
+	  mlog(
+       (cmp(IDCO, CSCO, CSCO, TSCO) SCO),
+       (imp(optional, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM)
+	 )) ListLG) >
      if not (CSCO = failed) .
 
   -- A Mandatory Imports can be unwired only if the component is stopped.
@@ -679,19 +707,29 @@ module! STATERules {
        ListLG >
   => < (cmp(IDCO, stopped, NSCO, TSCO) SCO),
        (imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM) SIM),
-       (ilog("RD-unwire2:Do Unwire", imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM)) ListLG) > .
+       (ilog("RD-unwire2:Do Unwire", imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM),
+	  mlog(
+       (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
+       (imp(mandatory, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM)
+	 )) ListLG) > .
 
   trans [RD-unwire3]:
      < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused, unwired, TSIM) SIM),
        ListLG >
   => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, TSIM) SIM),
-       (ilog("RD-unwire3:Should UnWire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, TSIM)) ListLG) > .
+       (ilog("RD-unwire3:Should UnWire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, TSIM),
+	  mlog(
+       SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused, unwired, TSIM) SIM)
+	 )) ListLG) > .
 
   trans [RD-remove]:
      < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unused, unused) SIM),
        ListLG >
   => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused, unused, unused) SIM),
-       (ilog("RD-remove:Do Remove", imp(TIM, IDIM, IIDCO, EIDCO, unused, unused, unused)) ListLG) > .
+       (ilog("RD-remove:Do Remove", imp(TIM, IDIM, IIDCO, EIDCO, unused, unused, unused),
+	  mlog(
+       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unused, unused) SIM)
+	 )) ListLG) > .
 
   -- A Component can be stopped when there is no started component importing it.
   -- N.B. This rule requires to check not cause loops.
@@ -699,7 +737,10 @@ module! STATERules {
      < (cmp(IDCO, started, stopped, TSCO) SCO), SIM,
        ListLG >
   => < (cmp(IDCO, stopped, stopped, TSCO) SCO), SIM,
-       (clog("RD-stop:Do Stop", cmp(IDCO, stopped, stopped,TSCO)) ListLG) > 
+       (clog("RD-stop:Do Stop", cmp(IDCO, stopped, stopped,TSCO),
+	  mlog(
+       (cmp(IDCO, started, stopped, TSCO) SCO), SIM
+	 )) ListLG) >
      if allCOInStates(getICOsOfIMs(SCO,getIMsOfECOInStates(SIM,IDCO,wired)),stopped) .
 
 }
