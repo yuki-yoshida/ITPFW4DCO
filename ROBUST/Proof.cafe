@@ -68,16 +68,16 @@ module ProofBase {
   eq tdis(cmp(IDCO,stopped,started,started),SCO0,SIM0) = 1 .
   eq tdis(cmp(IDCO,started,started,started),SCO0,SIM0) = 0 .
   eq tdis(cmp(IDCO,started,stopped,started),SCO0,SIM0) 
-    = 3 + fdis(getIMsOfTypeOfICOInTargetStates(SIM0,mandatory,IDCO,wired),SCO0,SIM0) .
+    = 3 + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0) .
 
   eq fdis(cmp(IDCO,stopped,stopped,started),SCO0,SIM0) 
-    = 4 + fdis(getIMsOfTypeOfICOInTargetStates(SIM0,mandatory,IDCO,wired),SCO0,SIM0) .
+    = 4 + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0) .
   eq fdis(cmp(IDCO,stopped,started,started),SCO0,SIM0) 
-    = 4 + fdis(getIMsOfTypeOfICOInTargetStates(SIM0,mandatory,IDCO,wired),SCO0,SIM0) .
+    = 4 + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0) .
   eq fdis(cmp(IDCO,started,started,started),SCO0,SIM0) 
-    = 4 + fdis(getIMsOfTypeOfICOInTargetStates(SIM0,mandatory,IDCO,wired),SCO0,SIM0) .
+    = 4 + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0) .
   eq fdis(cmp(IDCO,started,stopped,started),SCO0,SIM0) 
-    = 3 + fdis(getIMsOfTypeOfICOInTargetStates(SIM0,mandatory,IDCO,wired),SCO0,SIM0) .
+    = 3 + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0) .
 
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unwired),SCO0,SIM0) = 2 .
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unwired),SCO0,SIM0) = 1 .
@@ -106,29 +106,29 @@ module ProofBase {
   eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,unwired, unused,unused),SCO0,SIM0) = 1 .
   eq tdis(imp(mandatory,IDIM,IIDCO,IDCO, unused, unused,unused),SCO0,SIM0) = 0 .
 
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unwired),SCO0,SIM0) = 2 .
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unwired),SCO0,SIM0) = 1 .
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,unwired,unwired,unwired),SCO0,SIM0) = 0 .
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO, unused, unused,  wired),SCO0,SIM0)
+  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unwired),SCO0,SIM0) = 2 .
+  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unwired),SCO0,SIM0) = 1 .
+  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,unwired,unwired),SCO0,SIM0) = 0 .
+  eq fdis(imp(TIM,IDIM,IIDCO,IDCO, unused, unused,  wired),SCO0,SIM0)
     = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO, unused,unwired,  wired),SCO0,SIM0)
+  eq fdis(imp(TIM,IDIM,IIDCO,IDCO, unused,unwired,  wired),SCO0,SIM0)
     = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,unwired,unwired,  wired),SCO0,SIM0)
+  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,unwired,  wired),SCO0,SIM0)
     = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,unwired,  wired,  wired),SCO0,SIM0)
+  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,  wired,  wired),SCO0,SIM0)
     = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,  wired),SCO0,SIM0)
+  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,  wired),SCO0,SIM0)
     = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,wired),SCO0,SIM0)
+  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,wired),SCO0,SIM0)
     = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
 
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused),SCO0,SIM0) 
+  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unused),SCO0,SIM0) 
     = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused),SCO0,SIM0)
+  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unused),SCO0,SIM0)
     = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,unwired,unwired,unused),SCO0,SIM0) = 2 .
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,unwired, unused,unused),SCO0,SIM0) = 1 .
-  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO, unused, unused,unused),SCO0,SIM0) = 0 .
+  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,unwired,unused),SCO0,SIM0) = 2 .
+  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,unwired, unused,unused),SCO0,SIM0) = 1 .
+  eq fdis(imp(TIM,IDIM,IIDCO,IDCO, unused, unused,unused),SCO0,SIM0) = 0 .
 
 --  op m : State -> Nat
 --  eq m(< SCO,SIM,L >) = 0 .
