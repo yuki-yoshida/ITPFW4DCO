@@ -8,58 +8,58 @@ open ProofBase .
 ops COC COC1 COC2 COD : -> COIDLt .
 ops IMW IMV IMW1 IMW2 : -> IMIDLt .
 
-op components1 : -> SetOfComponent .
-eq components1 =
-  (cmp(COC,  started, started, started) 
-   cmp(COC1, started, started, started)) .
+-- op components1 : -> SetOfComponent .
+-- eq components1 =
+--   (cmp(COC,  started, started, started) 
+--    cmp(COC1, started, started, started)) .
 
-op imports1 : -> SetOfImport .
-eq imports1 =
-  (imp(optional, IMW1, COC,  COC1,  wired,  wired, unused)) .
+-- op imports1 : -> SetOfImport .
+-- eq imports1 =
+--   (imp(optional, IMW1, COC,  COC1,  wired,  wired, unused)) .
 
-op s1 : -> State .
-eq s1 =
-  < components1, imports1, empLog > .
+-- op s1 : -> State .
+-- eq s1 =
+--   < components1, imports1, empLog > .
       
-red s1 .
-red m(s1) .
-red not (wfs(s1) == false) .
-red init(s1) = wfs(s1) .
-red final(s1) == false .
+-- red s1 .
+-- red m(s1) .
+-- red not (wfs(s1) == false) .
+-- red init(s1) = wfs(s1) .
+-- red final(s1) == false .
 
-exec s1 .
-exec m(s1) .
-exec not (wfs(s1) == false) .
-exec init(s1) == false .
-exec final(s1) .
+-- exec s1 .
+-- exec m(s1) .
+-- exec not (wfs(s1) == false) .
+-- exec init(s1) == false .
+-- exec final(s1) .
 
--- close
--- eof
+-- -- close
+-- -- eof
 
-op components2 : -> SetOfComponent .
-eq components2 =
-  (cmp(COC,  started, started, started) 
-   cmp(COC2, started, started, started)) .
+-- op components2 : -> SetOfComponent .
+-- eq components2 =
+--   (cmp(COC,  started, started, started) 
+--    cmp(COC2, started, started, started)) .
 
-op imports2 : -> SetOfImport .
-eq imports2 =
-  (imp(mandatory, IMW2, COC,  COC2, unused, unused,  wired)) .
+-- op imports2 : -> SetOfImport .
+-- eq imports2 =
+--   (imp(mandatory, IMW2, COC,  COC2, unused, unused,  wired)) .
 
-op s2 : -> State .
-eq s2 =
-  < components2, imports2, empLog > .
+-- op s2 : -> State .
+-- eq s2 =
+--   < components2, imports2, empLog > .
       
-red s2 .
-red m(s2) .
-red not (wfs(s2) == false) .
-red init(s2) = wfs(s2) .
-red final(s2) == false .
+-- red s2 .
+-- red m(s2) .
+-- red not (wfs(s2) == false) .
+-- red init(s2) = wfs(s2) .
+-- red final(s2) == false .
 
-exec s2 .
-exec m(s2) .
-exec not (wfs(s2) == false) .
-exec init(s2) == false .
-exec final(s2) .
+-- exec s2 .
+-- exec m(s2) .
+-- exec not (wfs(s2) == false) .
+-- exec init(s2) == false .
+-- exec final(s2) .
 
 op components : -> SetOfComponent .
 eq components =
