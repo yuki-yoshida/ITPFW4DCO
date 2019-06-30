@@ -68,7 +68,8 @@ module ProofBase {
   eq tdis(cmp(IDCO,stopped,started,started),SCO0,SIM0) = 1 .
   eq tdis(cmp(IDCO,started,started,started),SCO0,SIM0) = 0 .
   eq tdis(cmp(IDCO,started,stopped,started),SCO0,SIM0) 
-    = 3 + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0) .
+    = 0 .
+--    = 3 + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0) .
 
   eq fdis(cmp(IDCO,stopped,stopped,started),SCO0,SIM0) 
     = 4 + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0) .
@@ -88,9 +89,11 @@ module ProofBase {
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,  wired,  wired),SCO0,SIM0) = 1 .
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,  wired),SCO0,SIM0) = 0 .
 
-  eq tdis(imp( optional,IDIM,IIDCO,IDCO,  wired,unwired,wired),SCO0,SIM0) = 3 .
+  eq tdis(imp( optional,IDIM,IIDCO,IDCO,  wired,unwired,wired),SCO0,SIM0) = 0 .
+--  = 3 .
   eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,wired),SCO0,SIM0)
-    = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
+    = 0 .
+--    = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
 
   eq tdis(imp(optional,IDIM,IIDCO,IDCO,  wired,  wired,unused),SCO0,SIM0) = 4 .
   eq tdis(imp(optional,IDIM,IIDCO,IDCO,  wired,unwired,unused),SCO0,SIM0) = 3 .
