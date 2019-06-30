@@ -64,74 +64,75 @@ module ProofBase {
   eq tdis(cmp(IDCO,started,started,stopped),SCO0,SIM0) = 2 .
   eq tdis(cmp(IDCO,started,stopped,stopped),SCO0,SIM0) = 1 .
   eq tdis(cmp(IDCO,stopped,stopped,stopped),SCO0,SIM0) = 0 .
+  eq tdis(cmp(IDCO,stopped,started,stopped),SCO0,SIM0) = 100 . -- do not happen
+
   eq tdis(cmp(IDCO,stopped,stopped,started),SCO0,SIM0) = 2 .
   eq tdis(cmp(IDCO,stopped,started,started),SCO0,SIM0) = 1 .
   eq tdis(cmp(IDCO,started,started,started),SCO0,SIM0) = 0 .
-  eq tdis(cmp(IDCO,started,stopped,started),SCO0,SIM0) 
-    = 0 .
---    = 3 + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0) .
-
-  eq fdis(cmp(IDCO,stopped,stopped,started),SCO0,SIM0) 
-    = 4 + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0) .
-  eq fdis(cmp(IDCO,stopped,started,started),SCO0,SIM0) 
-    = 4 + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0) .
-  eq fdis(cmp(IDCO,started,started,started),SCO0,SIM0) 
-    = 4 + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0) .
-  eq fdis(cmp(IDCO,started,stopped,started),SCO0,SIM0) 
-    = 3 + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0) .
+  eq tdis(cmp(IDCO,started,stopped,started),SCO0,SIM0) = 0 .
+--     = 3 + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0) . -- case (C)
 
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unwired),SCO0,SIM0) = 2 .
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unwired),SCO0,SIM0) = 1 .
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,unwired,unwired),SCO0,SIM0) = 0 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,  wired,unwired),SCO0,SIM0) = 100 .
+
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired, unused,unwired),SCO0,SIM0) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired, unused,unwired),SCO0,SIM0) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused, unused,unwired),SCO0,SIM0) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,unwired,unwired),SCO0,SIM0) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,  wired,unwired),SCO0,SIM0) = 100 .
+
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused, unused,  wired),SCO0,SIM0) = 4 .
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,unwired,  wired),SCO0,SIM0) = 3 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,  wired,  wired),SCO0,SIM0) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired, unused,  wired),SCO0,SIM0) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired, unused,  wired),SCO0,SIM0) = 100 .
+
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,unwired,  wired),SCO0,SIM0) = 2 .
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,  wired,  wired),SCO0,SIM0) = 1 .
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,  wired),SCO0,SIM0) = 0 .
-
   eq tdis(imp( optional,IDIM,IIDCO,IDCO,  wired,unwired,wired),SCO0,SIM0) = 0 .
---  = 3 .
-  eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,wired),SCO0,SIM0)
-    = 0 .
---    = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
+  eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,wired),SCO0,SIM0) = 0 .
+--    = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) . -- case (B)
 
   eq tdis(imp(optional,IDIM,IIDCO,IDCO,  wired,  wired,unused),SCO0,SIM0) = 4 .
   eq tdis(imp(optional,IDIM,IIDCO,IDCO,  wired,unwired,unused),SCO0,SIM0) = 3 .
-  eq tdis(imp(optional,IDIM,IIDCO,IDCO,unwired,unwired,unused),SCO0,SIM0) = 2 .
-  eq tdis(imp(optional,IDIM,IIDCO,IDCO,unwired, unused,unused),SCO0,SIM0) = 1 .
-  eq tdis(imp(optional,IDIM,IIDCO,IDCO, unused, unused,unused),SCO0,SIM0) = 0 .
-
   eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused),SCO0,SIM0) 
-    = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
+    = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .  -- case (A)
   eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused),SCO0,SIM0)
-    = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
-  eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,unwired,unwired,unused),SCO0,SIM0) = 2 .
-  eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,unwired, unused,unused),SCO0,SIM0) = 1 .
-  eq tdis(imp(mandatory,IDIM,IIDCO,IDCO, unused, unused,unused),SCO0,SIM0) = 0 .
+    = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .  -- case (A)
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired, unused,unused),SCO0,SIM0) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,  wired,unused),SCO0,SIM0) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,  wired,unused),SCO0,SIM0) = 100 .
 
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unwired),SCO0,SIM0) = 2 .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unwired),SCO0,SIM0) = 1 .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,unwired,unwired),SCO0,SIM0) = 0 .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO, unused, unused,  wired),SCO0,SIM0)
-    = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO, unused,unwired,  wired),SCO0,SIM0)
-    = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,unwired,  wired),SCO0,SIM0)
-    = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,  wired,  wired),SCO0,SIM0)
-    = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,  wired),SCO0,SIM0)
-    = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,wired),SCO0,SIM0)
-    = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,unwired,unused),SCO0,SIM0) = 2 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired, unused,unused),SCO0,SIM0) = 1 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused, unused,unused),SCO0,SIM0) = 0 .
+  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,unwired,unused),SCO0,SIM0) = 100 .
 
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unused),SCO0,SIM0) 
-    = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unused),SCO0,SIM0)
-    = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,unwired,unused),SCO0,SIM0) = 2 .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,unwired, unused,unused),SCO0,SIM0) = 1 .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO, unused, unused,unused),SCO0,SIM0) = 0 .
+  ceq fdis(cmp(IDCO,CSCO,NSCO,TSCO),SCO0,SIM0) 
+     = 0 if not (CSCO == started) or not (TSCO == started) .
+  eq fdis(cmp(IDCO,started,started,started),SCO0,SIM0) 
+     = 4 + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0) . -- case (C)
+  eq fdis(cmp(IDCO,started,stopped,started),SCO0,SIM0) 
+     = 3 + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0) . -- case (C)
+
+  ceq fdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM),SCO0,SIM0)
+     = 0 if not (CSIM == wired) or not (TSIM in (wired unused)) .
+  eq fdis(imp( optional,IDIM,IIDCO,IDCO,  wired,  wired,wired),SCO0,SIM0) = 4 .
+  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,wired),SCO0,SIM0)
+    = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .  -- case (B)
+  eq fdis(imp( optional,IDIM,IIDCO,IDCO,  wired,unwired,wired),SCO0,SIM0) = 3 .
+  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,wired),SCO0,SIM0)
+    = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .  -- case (B)
+
+  eq fdis(imp( optional,IDIM,IIDCO,IDCO,  wired,  wired,unused),SCO0,SIM0) = 4 .
+  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused),SCO0,SIM0) 
+    = 4 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .  -- case (A)
+  eq fdis(imp( optional,IDIM,IIDCO,IDCO,  wired,unwired,unused),SCO0,SIM0) = 3 .
+  eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused),SCO0,SIM0)
+    = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .  -- case (A)
 
 --  op m : State -> Nat
 --  eq m(< SCO,SIM,L >) = 0 .
