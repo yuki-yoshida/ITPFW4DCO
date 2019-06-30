@@ -8,104 +8,101 @@ open ProofBase .
 ops COC COC1 COC2 COD : -> COIDLt .
 ops IMW IMV IMW1 IMW2 : -> IMIDLt .
 
--- op components1 : -> SetOfComponent .
--- eq components1 =
---   (cmp(COC,  started, started, started) 
---    cmp(COC1, started, started, started)) .
-
--- op imports1 : -> SetOfImport .
--- eq imports1 =
---   (imp(optional, IMW1, COC,  COC1,  wired,  wired, unused)) .
-
--- op s1 : -> State .
--- eq s1 =
---   < components1, imports1, empLog > .
-      
--- red s1 .
--- red m(s1) .
--- red not (wfs(s1) == false) .
--- red init(s1) = wfs(s1) .
--- red final(s1) == false .
-
--- exec s1 .
--- exec m(s1) .
--- exec not (wfs(s1) == false) .
--- exec init(s1) == false .
--- exec final(s1) .
-
--- -- close
--- -- eof
-
--- op components2 : -> SetOfComponent .
--- eq components2 =
---   (cmp(COC,  started, started, started) 
---    cmp(COC2, started, started, started)) .
-
--- op imports2 : -> SetOfImport .
--- eq imports2 =
---   (imp(mandatory, IMW2, COC,  COC2, unused, unused,  wired)) .
-
--- op s2 : -> State .
--- eq s2 =
---   < components2, imports2, empLog > .
-      
--- red s2 .
--- red m(s2) .
--- red not (wfs(s2) == false) .
--- red init(s2) = wfs(s2) .
--- red final(s2) == false .
-
--- exec s2 .
--- exec m(s2) .
--- exec not (wfs(s2) == false) .
--- exec init(s2) == false .
--- exec final(s2) .
-
-op components : -> SetOfComponent .
-eq components =
-  (cmp(COD,  started, stopped, started) cmp(COC,  started, stopped, started) 
-   cmp(COC1, started, started, started) cmp(COC2, started, started, started)) .
-
-op imports : -> SetOfImport .
-eq imports =
-  (imp(mandatory, IMW,  COD,  COC,   wired, unwired,  wired)
-   imp(optional,  IMV,  COC1, COC,   wired, unwired,  wired)
-   imp(mandatory, IMW1, COC,  COC1,  wired, unwired, unused)
-   imp(mandatory, IMW2, COC,  COC2, unused, unwired,  wired)) .
+op components1 : -> SetOfComponent .
+eq components1 =
+  (cmp(COC,  started, started, started) 
+   cmp(COC1, started, started, started)) .
 
 op imports1 : -> SetOfImport .
 eq imports1 =
-  (imp(mandatory, IMW,  COD,  COC,   wired, unwired,  wired)
-   imp(optional,  IMV,  COC1, COC, unwired, unwired,  wired)
-   imp(mandatory, IMW1, COC,  COC1,  wired, unwired, unused)
-   imp(mandatory, IMW2, COC,  COC2, unused, unwired,  wired)) .
+  (imp(optional, IMW1, COC,  COC1,  wired,  wired, unused)) .
 
-op s0 : -> State .
-eq s0 =
-  < components, imports, empLog > .
+op s1 : -> State .
+eq s1 =
+  < components1, imports1, empLog > .
       
-red m(s0) .
--- red tdis(components, components, imports) .
-red tdis(imports, components, imports) .                                                   -- 22
-red tdis(imp(optional,  IMV,  COC1, COC,   wired, unwired,  wired), components, imports) . --  0
-red tdis(imp(mandatory, IMW,  COD,  COC,   wired, unwired,  wired), components, imports) . --  0
-red tdis(imp(mandatory, IMW1, COC,  COC1,  wired, unwired, unused), components, imports) . -- 19
-red fdis(cmp(COC,  started, stopped, started), components, imports) .                      -- 16
-red fdis(imp(optional,  IMV,  COC1, COC,   wired, unwired,  wired), components, imports) . --  7
-red tdis(imp(mandatory, IMW2, COC,  COC2, unused, unwired,  wired), components, imports) . --  3
-  
-red m(< components, imports1, empLog >) .
--- red tdis(components, components, imports1) .
-red tdis(imports1, components, imports1) .                                                  -- 25
-red tdis(imp(optional,  IMV,  COC1, COC, unwired, unwired,  wired), components, imports1) . --  2
-red tdis(imp(mandatory, IMW,  COD,  COC,   wired, unwired,  wired), components, imports1) . --  0
-red tdis(imp(mandatory, IMW1, COC,  COC1,  wired, unwired, unused), components, imports1) . -- 20
-red fdis(cmp(COC,  started, stopped, started), components, imports1) .                      -- 17
-red fdis(imp(optional,  IMV,  COC1, COC, unwired, unwired,  wired), components, imports1) . --  8
-red tdis(imp(mandatory, IMW2, COC,  COC2, unused, unwired,  wired), components, imports1) . --  3
+red s1 .
+red m(s1) .
+red not (wfs(s1) == false) .
+red init(s1) = wfs(s1) .
+red final(s1) == false .
 
-close
-eof
+exec s1 .
+exec m(s1) .
+exec not (wfs(s1) == false) .
+exec init(s1) == false .
+exec final(s1) .
+
+op components2 : -> SetOfComponent .
+eq components2 =
+  (cmp(COC,  started, started, started) 
+   cmp(COC2, started, started, started)) .
+
+op imports2 : -> SetOfImport .
+eq imports2 =
+  (imp(mandatory, IMW2, COC,  COC2, unused, unused,  wired)) .
+
+op s2 : -> State .
+eq s2 =
+  < components2, imports2, empLog > .
+      
+red s2 .
+red m(s2) .
+red not (wfs(s2) == false) .
+red init(s2) = wfs(s2) .
+red final(s2) == false .
+
+exec s2 .
+exec m(s2) .
+exec not (wfs(s2) == false) .
+exec init(s2) == false .
+exec final(s2) .
+
+-- op components : -> SetOfComponent .
+-- eq components =
+--   (cmp(COD,  started, stopped, started) cmp(COC,  started, stopped, started) 
+--    cmp(COC1, started, started, started) cmp(COC2, started, started, started)) .
+
+-- op imports : -> SetOfImport .
+-- eq imports =
+--   (imp(mandatory, IMW,  COD,  COC,   wired, unwired,  wired)
+--    imp(optional,  IMV,  COC1, COC,   wired, unwired,  wired)
+--    imp(mandatory, IMW1, COC,  COC1,  wired, unwired, unused)
+--    imp(mandatory, IMW2, COC,  COC2, unused, unwired,  wired)) .
+
+-- op imports1 : -> SetOfImport .
+-- eq imports1 =
+--   (imp(mandatory, IMW,  COD,  COC,   wired, unwired,  wired)
+--    imp(optional,  IMV,  COC1, COC, unwired, unwired,  wired)
+--    imp(mandatory, IMW1, COC,  COC1,  wired, unwired, unused)
+--    imp(mandatory, IMW2, COC,  COC2, unused, unwired,  wired)) .
+
+-- op s0 : -> State .
+-- eq s0 =
+--   < components, imports, empLog > .
+      
+-- red m(s0) .
+-- red tdis(components, components, imports) .
+-- red tdis(imports, components, imports) .                                                   -- 22
+-- red tdis(imp(optional,  IMV,  COC1, COC,   wired, unwired,  wired), components, imports) . --  0
+-- red tdis(imp(mandatory, IMW,  COD,  COC,   wired, unwired,  wired), components, imports) . --  0
+-- red tdis(imp(mandatory, IMW1, COC,  COC1,  wired, unwired, unused), components, imports) . -- 19
+-- red fdis(cmp(COC,  started, stopped, started), components, imports) .                      -- 16
+-- red fdis(imp(optional,  IMV,  COC1, COC,   wired, unwired,  wired), components, imports) . --  7
+-- red tdis(imp(mandatory, IMW2, COC,  COC2, unused, unwired,  wired), components, imports) . --  3
+  
+-- red m(< components, imports1, empLog >) .
+-- -- red tdis(components, components, imports1) .
+-- red tdis(imports1, components, imports1) .                                                  -- 25
+-- red tdis(imp(optional,  IMV,  COC1, COC, unwired, unwired,  wired), components, imports1) . --  2
+-- red tdis(imp(mandatory, IMW,  COD,  COC,   wired, unwired,  wired), components, imports1) . --  0
+-- red tdis(imp(mandatory, IMW1, COC,  COC1,  wired, unwired, unused), components, imports1) . -- 20
+-- red fdis(cmp(COC,  started, stopped, started), components, imports1) .                      -- 17
+-- red fdis(imp(optional,  IMV,  COC1, COC, unwired, unwired,  wired), components, imports1) . --  8
+-- red tdis(imp(mandatory, IMW2, COC,  COC2, unused, unwired,  wired), components, imports1) . --  3
+
+-- close
+
 op components : -> SetOfComponent .
 eq components =
   (cmp(COD,  started, started, started) cmp(COC,  started, started, started) 

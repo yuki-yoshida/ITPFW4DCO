@@ -481,6 +481,37 @@ module! STATEfuns {
   eq allIMInBothStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM),StIM) 
      = (CSIM in StIM) and (NSIM in StIM) and allIMInBothStates(SIM,StIM) .
 
+  var CO0 : Component
+  var IM0 : Import
+
+  pred canStart : COID SetOfComponent SetOfImport
+  pred allIMStablyWired : SetOfImport SetOfComponent SetOfImport
+  pred isIMStablyWired : Import SetOfComponent SetOfImport
+  pred allCOStabllyStarted : SetOfComponent SetOfComponent SetOfImport
+  pred isCOStabllyStarted : Component SetOfComponent SetOfImport
+
+  eq isIMStablyWired(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM),SCO,SIM)
+     = (CSIM in (wired unused)) and
+       (CSIM == TSIM) and
+       allCOStabllyStarted(getComponent(SCO,IDCO),SCO,SIM) .
+
+  eq allIMStablyWired(empIM,SCO0,SIM0) = true .
+  eq allIMStablyWired((IM0 SIM),SCO0,SIM0)
+     = isIMStablyWired(IM0,SCO0,SIM0) and allIMStablyWired(SIM,SCO0,SIM0) .
+
+  eq isCOStabllyStarted(cmp(IDCO,CSCO,NSCO,TSCO),SCO,SIM)
+     = (CSCO == started) and
+       (TSCO == started) and
+       allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,IDCO),SCO,SIM) .
+
+  eq allCOStabllyStarted(empCO,SCO0,SIM0) = true .
+  eq allCOStabllyStarted((CO0 SCO),SCO0,SIM0)
+      = isCOStabllyStarted(CO0,SCO0,SIM0) and allCOStabllyStarted(SCO,SCO0,SIM0) .
+
+  eq canStart(IDCO,SCO,SIM)
+     = allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,IDCO),SCO,SIM) and
+       allCOStabllyStarted(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,wired)),SCO,SIM) .
+
   pred wfs-uniqCO : State
   eq wfs-uniqCO(< SCO,SIM,L >) = uniqCO(SCO) .
 
@@ -601,8 +632,9 @@ module! STATERules {
 	  mlog(
        (cmp(IDCO, stopped, started, TSCO) SCO), SIM
 	 )) ListLG) >
-     if allIMInBothStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(wired unused)) and
-        allCOInBothStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,wired)),started) .
+     if canStart(IDCO,SCO,SIM) .
+--     if allIMInBothStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(wired unused)) and
+--        allCOInBothStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,wired)),started) .
 
   -- An Import should be wired if it is targeted.
   trans [RS-wire]:
