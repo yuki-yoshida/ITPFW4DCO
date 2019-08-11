@@ -61,16 +61,22 @@ module ProofBase {
   eq fdis(empIM,SCO0,SIM0) = 0 .
   eq fdis((IM SIM),SCO0,SIM0) = fdis(IM,SCO0,SIM0) + fdis(SIM,SCO0,SIM0) .
 
-  eq tdis(cmp(IDCO,started,started,stopped),SCO0,SIM0) = 2 .
-  eq tdis(cmp(IDCO,started,stopped,stopped),SCO0,SIM0) = 1 .
-  eq tdis(cmp(IDCO,stopped,stopped,stopped),SCO0,SIM0) = 0 .
+  eq tdis(cmp(IDCO,started,started,stopped),SCO0,SIM0)
+    = 2 + tdis(getIMsOfECO(SIM0,IDCO),SCO0,SIM0) .
+  eq tdis(cmp(IDCO,started,stopped,stopped),SCO0,SIM0)
+    = 1  + tdis(getIMsOfECO(SIM0,IDCO),SCO0,SIM0) .
+  eq tdis(cmp(IDCO,stopped,stopped,stopped),SCO0,SIM0)
+    = 0  + tdis(getIMsOfECO(SIM0,IDCO),SCO0,SIM0) .
   eq tdis(cmp(IDCO,stopped,started,stopped),SCO0,SIM0) = 100 . -- do not happen
 
-  eq tdis(cmp(IDCO,stopped,stopped,started),SCO0,SIM0) = 2 .
-  eq tdis(cmp(IDCO,stopped,started,started),SCO0,SIM0) = 1 .
-  eq tdis(cmp(IDCO,started,started,started),SCO0,SIM0) = 0 .
-  eq tdis(cmp(IDCO,started,stopped,started),SCO0,SIM0) = 0 .
---     = 3 + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0) . -- case (C)
+  eq tdis(cmp(IDCO,stopped,stopped,started),SCO0,SIM0)
+    = 2  + tdis(getIMsOfECO(SIM0,IDCO),SCO0,SIM0) .
+  eq tdis(cmp(IDCO,stopped,started,started),SCO0,SIM0)
+    = 1  + tdis(getIMsOfECO(SIM0,IDCO),SCO0,SIM0) .
+  eq tdis(cmp(IDCO,started,started,started),SCO0,SIM0)
+    = 0  + tdis(getIMsOfECO(SIM0,IDCO),SCO0,SIM0) .
+  eq tdis(cmp(IDCO,started,stopped,started),SCO0,SIM0)
+    = 0  + tdis(getIMsOfECO(SIM0,IDCO),SCO0,SIM0) .
 
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unwired),SCO0,SIM0) = 2 .
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unwired),SCO0,SIM0) = 1 .
@@ -94,7 +100,6 @@ module ProofBase {
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,  wired),SCO0,SIM0) = 0 .
   eq tdis(imp( optional,IDIM,IIDCO,IDCO,  wired,unwired,wired),SCO0,SIM0) = 0 .
   eq tdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,wired),SCO0,SIM0) = 0 .
---    = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) . -- case (B)
 
   eq tdis(imp(optional,IDIM,IIDCO,IDCO,  wired,  wired,unused),SCO0,SIM0) = 4 .
   eq tdis(imp(optional,IDIM,IIDCO,IDCO,  wired,unwired,unused),SCO0,SIM0) = 3 .
@@ -135,9 +140,9 @@ module ProofBase {
     = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .  -- case (A)
 
   eq m(< SCO,SIM,L >)
-    = tdis(SCO, SCO, SIM) + tdis(SIM, SCO, SIM) .
+    = tdis(SCO, SCO, SIM) .
   eq mlog(SCO, SIM)
-    = tdis(SCO, SCO, SIM) + tdis(SIM, SCO, SIM) .
+    = tdis(SCO, SCO, SIM) .
 
 --> ************************
 --> Step 0-4: Define inv(S).

@@ -22,13 +22,13 @@ eq s1 =
   < components1, imports1, empLog > .
       
 red s1 .
-red m(s1) .
+red m(s1) == 4 .
 red not (wfs(s1) == false) .
 red init(s1) = wfs(s1) .
 red final(s1) == false .
 
 exec s1 .
-exec m(s1) .
+exec m(s1) == 0 .
 exec not (wfs(s1) == false) .
 exec init(s1) == false .
 exec final(s1) .
@@ -47,13 +47,13 @@ eq s2 =
   < components2, imports2, empLog > .
       
 red s2 .
-red m(s2) .
+red m(s2) == 4 .
 red not (wfs(s2) == false) .
 red init(s2) = wfs(s2) .
 red final(s2) == false .
 
 exec s2 .
-exec m(s2) .
+exec m(s2) == 0 .
 exec not (wfs(s2) == false) .
 exec init(s2) == false .
 exec final(s2) .
@@ -75,13 +75,13 @@ eq s0 =
   < components, imports, empLog > .
       
 red s0 .
-red m(s0) .
+red m(s0) == 24 .
 red not (wfs(s0) == false) .
 red init(s0) = wfs(s0) .
 red final(s0) == false .
 
 exec s0 .
-exec m(s0) .
+exec m(s0) == 0 .
 exec not (wfs(s0) == false) .
 exec init(s0) == false .
 exec final(s0) .
