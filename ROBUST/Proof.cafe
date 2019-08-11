@@ -134,8 +134,6 @@ module ProofBase {
   eq fdis(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused),SCO0,SIM0)
     = 3 + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0) .  -- case (A)
 
---  op m : State -> Nat
---  eq m(< SCO,SIM,L >) = 0 .
   eq m(< SCO,SIM,L >)
     = tdis(SCO, SCO, SIM) + tdis(SIM, SCO, SIM) .
   eq mlog(SCO, SIM)
