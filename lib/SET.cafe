@@ -12,6 +12,7 @@ mod! SET(X :: TRIV) {
   op _A_ : Set Set -> Set
   op _\\_ : Set Set -> Set
   op subset : Set Set -> Bool
+  pred _<wf_ : Set Set
   --
   vars S S1 S2 : Set
   vars E E1 : Elt.X
@@ -37,4 +38,7 @@ mod! SET(X :: TRIV) {
   -- for subset
   eq subset(empty,S) = true .
   eq subset((E S1),S2) = E in S2 and subset(S1,S2) .
+  -- for well-founded binary relation
+  eq (S <wf (E S)) = true .
+
 }
