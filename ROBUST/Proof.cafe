@@ -54,13 +54,13 @@ module ProofBase {
   op tdis : SetOfComponent SetOfComponent SetOfImport -> Nat
   op tdis : SetOfImport SetOfComponent SetOfImport -> Nat
 
-  -- Forced Distance
+  -- Forced Distance (the last parameter is a triggered component)
   -- Forced to become stopped temporally
   op fdis : Component -> Nat
-  op fdis : Component SetOfComponent SetOfImport -> Nat
+  op fdis : Component SetOfComponent SetOfImport COID -> Nat
   -- Forced to become unwired temporally
   op fdis : Import -> Nat
-  op fdis : SetOfImport SetOfComponent SetOfImport -> Nat
+  op fdis : SetOfImport SetOfComponent SetOfImport COID -> Nat
 
   pred isFForced : Component
   pred isFForced : Import
@@ -130,17 +130,17 @@ module ProofBase {
   eq tdis(IM,SCO0,SIM0) 
     = tdis(IM) +
       if (isForced(IM) == true) then
-	fdis(getComponent(SCO0,importer(IM)),SCO0,SIM0)
+	fdis(getComponent(SCO0,importer(IM)),SCO0,SIM0,exporter(IM))
       else 0 fi .
 
   ceq fdis(CO) = 0 if not (isFForced(CO) == true) .
   eq fdis(cmp(IDCO,started,started,started)) = 4 .
   eq fdis(cmp(IDCO,started,stopped,started)) = 3 .
 
-  eq fdis(CO,SCO0,SIM0) 
+  eq fdis(CO,SCO0,SIM0,IDCO) 
      = fdis(CO) +
        if (isFForced(CO) == true) then
-         fdis(getIMsOfECOInTargetStates(SIM0,id(CO),wired),SCO0,SIM0)
+         fdis(getIMsOfECOInTargetStates(SIM0,id(CO),wired),SCO0,SIM0,IDCO)
        else 0 fi .
 
   ceq fdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM))
@@ -150,13 +150,13 @@ module ProofBase {
   eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = 4 .
   eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = 3 .
 
-  eq fdis(empIM,SCO0,SIM0) = 0 .
-  eq fdis((IM SIM),SCO0,SIM0) = fdis(IM,SCO0,SIM0) + fdis(SIM,SCO0,SIM0) .
+  eq fdis(empIM,SCO0,SIM0,IDCO) = 0 .
+  eq fdis((IM SIM),SCO0,SIM0,IDCO) = fdis(IM,SCO0,SIM0,IDCO) + fdis(SIM,SCO0,SIM0,IDCO) .
 
-  eq fdis(IM,SCO0,SIM0) 
+  eq fdis(IM,SCO0,SIM0,IDCO) 
     = fdis(IM) +
       if (isForced(IM) == true) or (isFForced(IM) == true) then
-        fdis(getComponent(SCO0,importer(IM)),SCO0,SIM0)
+        fdis(getComponent(SCO0,importer(IM)),SCO0,SIM0,IDCO)
       else 0 fi .
 
   eq m(< SCO,SIM,L >)
@@ -178,7 +178,7 @@ module ProofBase {
 
   -- inv-*:
   ceq inv(S) = false if not inv-iidCOeidCODiffer(S) .
---  ceq inv(S) = false if not noCOCycle(S) .
+  ceq inv(S) = false if not noCOCycle(S) .
 
 --> **************************************
 --> Step 0-5: Prepare arbitrary constants.
