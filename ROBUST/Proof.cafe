@@ -28,8 +28,10 @@ module ProofBase {
 
   pred iidCOeidCODiffer : SetOfImport
   eq iidCOeidCODiffer(empIM) = true .
-  eq iidCOeidCODiffer(imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,TSIM) SIM)
-    = not (IIDCO = EIDCO) and iidCOeidCODiffer(SIM) .
+  eq iidCOeidCODiffer(IM SIM)
+    = not (importer(IM) = exporter(IM)) and iidCOeidCODiffer(SIM) .
+--  eq iidCOeidCODiffer(imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,TSIM) SIM)
+--    = not (IIDCO = EIDCO) and iidCOeidCODiffer(SIM) .
 
   pred inv-iidCOeidCODiffer : State
   eq inv-iidCOeidCODiffer(< SCO,SIM,L >)
@@ -125,32 +127,24 @@ module ProofBase {
   eq tdis(empIM,SCO0,SIM0) = 0 .
   eq tdis((IM SIM),SCO0,SIM0) = tdis(IM,SCO0,SIM0) + tdis(SIM,SCO0,SIM0) .
 
-  ceq tdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM),SCO0,SIM0) 
-    = tdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM)) 
-    + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0)
-  if isForced(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM)) .
+  eq tdis(IM,SCO0,SIM0) 
+    = tdis(IM) +
+      if (isForced(IM) == true) then
+	fdis(getComponent(SCO0,importer(IM)),SCO0,SIM0)
+      else 0 fi .
 
-  ceq tdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM),SCO0,SIM0) 
-    = tdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM)) 
-  if not (isForced(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM)) == true) .
-
-  ceq fdis(cmp(IDCO,CSCO,NSCO,TSCO)) = 0
-    if not (CSCO = started) or not (TSCO = started) .
+  ceq fdis(CO) = 0 if not (isFForced(CO) == true) .
   eq fdis(cmp(IDCO,started,started,started)) = 4 .
   eq fdis(cmp(IDCO,started,stopped,started)) = 3 .
 
-  ceq fdis(cmp(IDCO,CSCO,NSCO,TSCO),SCO0,SIM0) 
-     = fdis(cmp(IDCO,CSCO,NSCO,TSCO)) 
-     + fdis(getIMsOfECOInTargetStates(SIM0,IDCO,wired),SCO0,SIM0)
-  if isFForced(cmp(IDCO,CSCO,NSCO,TSCO)) .
-
-  ceq fdis(cmp(IDCO,CSCO,NSCO,TSCO),SCO0,SIM0) 
-     = fdis(cmp(IDCO,CSCO,NSCO,TSCO)) 
-  if not (isFForced(cmp(IDCO,CSCO,NSCO,TSCO)) == true) .
+  eq fdis(CO,SCO0,SIM0) 
+     = fdis(CO) +
+       if (isFForced(CO) == true) then
+         fdis(getIMsOfECOInTargetStates(SIM0,id(CO),wired),SCO0,SIM0)
+       else 0 fi .
 
   ceq fdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM))
      = 0 if not (CSIM == wired) or not (TSIM in (wired unused)) .
-
   eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,wired)) = 4 .
   eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,wired)) = 3 .
   eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = 4 .
@@ -159,16 +153,11 @@ module ProofBase {
   eq fdis(empIM,SCO0,SIM0) = 0 .
   eq fdis((IM SIM),SCO0,SIM0) = fdis(IM,SCO0,SIM0) + fdis(SIM,SCO0,SIM0) .
 
-  ceq fdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM),SCO0,SIM0) 
-    = fdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM)) 
-    + fdis(getComponent(SCO0,IIDCO),SCO0,SIM0)
-  if isForced(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM)) 
-  or isFForced(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM)) .
-
-  ceq fdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM),SCO0,SIM0) 
-    = fdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM)) 
-  if not (isForced(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM)) == true)
-  and not (isFForced(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM)) == true) .
+  eq fdis(IM,SCO0,SIM0) 
+    = fdis(IM) +
+      if (isForced(IM) == true) or (isFForced(IM) == true) then
+        fdis(getComponent(SCO0,importer(IM)),SCO0,SIM0)
+      else 0 fi .
 
   eq m(< SCO,SIM,L >)
     = tdis(SCO, SCO, SIM) .

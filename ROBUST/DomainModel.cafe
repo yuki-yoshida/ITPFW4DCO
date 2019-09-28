@@ -342,22 +342,21 @@ module! STATE {
   pred inv : State
 }
 
--- module! STATECyclefuns {
---   protecting(STATE)
+module! STATECyclefuns {
+  protecting(STATE)
 
---   var CO : Component
---   var SetCO : SetOfComponent
---   var SetIM : SetOfImport
+  var CO : Component
+  var SetCO : SetOfComponent
+  var SetIM : SetOfImport
+  var L : ListOfLog
 
---   op getAllCOInState : State -> SetOfComponent
---   eq getAllCOInState(< SetCO,SetIM >) = SetCO .
+  op getAllCOInState : State -> SetOfComponent
+  eq getAllCOInState(< SetCO,SetIM,L >) = SetCO .
 
---   op DDSCO : Component State -> SetOfComponent
---   eq DDSCO(CO,< SetCO,SetIM >)
---     = if state(CO) = initial then
---          getRCOsOfIMsInStates(SetCO,getIMsOfCOInStates(SetIM,CO,notready),initial)
---       else empCO fi .
--- }
+  op DDSCO : Component State -> SetOfComponent
+  eq DDSCO(CO,< SetCO,SetIM,L >)
+    = getECOsOfIMs(SetCO,getIMsOfTypeOfICO(SetIM,mandatory,id(CO))) .
+}
 
 module! STATEfuns {
   protecting(STATE)
@@ -375,17 +374,17 @@ module! STATEfuns {
   var StIM : SetOfIMState
   var S : State
 
---   extending(CYCLEIMED(
---   	STATECyclefuns {sort Object -> Component,
---   	       		sort SetOfObject -> SetOfComponent,
--- 			sort ObjState -> COState,
--- 			sort SetOfObjState -> SetOfCOState,
--- 			op DDSC -> DDSCO,
---   	       		op empObj -> empCO,
--- 			op someObjInStates -> someCOInStates,
---   	       		op getAllObjInState -> getAllCOInState})
---   	* {op noCycleC -> noCOCycle}
---   	)
+  extending(CYCLEPRED(
+  	STATECyclefuns {sort Object -> Component,
+  	       		sort SetOfObject -> SetOfComponent,
+			sort ObjState -> COState,
+			sort SetOfObjState -> SetOfCOState,
+			op DDSC -> DDSCO,
+  	       		op empObj -> empCO,
+			op someObjInStates -> someCOInStates,
+  	       		op getAllObjInState -> getAllCOInState})
+  	* {op noCycleC -> noCOCycle}
+  	)
 
   pred stableCOSet : SetOfComponent
   eq stableCOSet(empCO) = true .
@@ -543,8 +542,8 @@ module! STATEfuns {
   eq init(< SCO,SIM,L >)
      = wfs(< SCO,SIM,L >) and
        stableCOSet(SCO) and stableIMSet(SIM) and
-       not final(< SCO,SIM,L >) .
---        noCOCycle(< SCO,SIM >) .
+       not final(< SCO,SIM,L >) and
+       noCOCycle(< SCO,SIM,L >) .
 
   eq final(< SCO,SIM,L >)
      = equivCOSet(SCO) and equivIMSet(SIM) .
