@@ -54,45 +54,43 @@ module ProofBase {
   op tdis : SetOfComponent SetOfComponent SetOfImport -> Nat
   op tdis : SetOfImport SetOfComponent SetOfImport -> Nat
 
-  -- Forced Distance (the last parameter is a triggered component)
+  -- Forced Distance (the last parameter is a set of visited mandatory imports)
   -- Forced to become stopped temporally
   op fdis : Component -> Nat
-  op fdis : Component SetOfComponent SetOfImport COID -> Nat
+  op fdis : Component SetOfComponent SetOfImport SetOfImport -> Nat
   -- Forced to become unwired temporally
   op fdis : Import -> Nat
-  op fdis : SetOfImport SetOfComponent SetOfImport COID -> Nat
-
-  pred isFForcedS : Component
-  pred isFForcedS : Import
-  pred isForcedS : Import
-
-  eq isFForcedS(cmp(IDCO,started,started,started)) = true . -- case (C)
-  eq isFForcedS(cmp(IDCO,started,stopped,started)) = true . -- case (C)
-  eq isForcedS(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = true . -- Case (A)
-  eq isForcedS(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = true . -- Case (A)
-  eq isFForcedS(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired, wired)) = true . -- case (B)
-  eq isFForcedS(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired, wired)) = true . -- case (B)
-
-  pred isValidState : Component
-  pred isValidState : Import
-
-  eq isValidState(CO) = state(CO) in (started stopped) .
-  eq isValidState(IM) 
-    = (type(IM) = mandatory or type(IM) = optional) and
-      state(IM)  in (wired unwired unused) and
-      next(IM)   in (wired unwired unused) and
-      target(IM) in (wired unwired unused) .
+  op fdis : SetOfImport SetOfComponent SetOfImport SetOfImport -> Nat
 
   pred isFForced : Component
   pred isFForced : Import
   pred isForced : Import
 
-  eq isFForced(CO) = isValidState(CO) and (isFForcedS(CO) == true) .
-  eq isFForced(IM) = isValidState(IM) and (isForcedS(IM) == true or isFForcedS(IM) == true ) .
-  eq isForced(IM) = isValidState(IM) and (isForcedS(IM) == true) .
+  eq isForced(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = true . -- Case (A)
+  eq isForced(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = true . -- Case (A)
+  ceq isForced(IM) = false
+    if (type(IM) = optional) or 
+       (state(IM) in (unwired unused)) or
+       (next(IM) = unused) or
+       (target(IM) in (wired unwired)) .
+
+  eq isFForced(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired, wired)) = true . -- case (B)
+  eq isFForced(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired, wired)) = true . -- case (B)
+  ceq isFForced(IM) = true if isForced(IM) .
+  ceq isFForced(IM) = false
+    if (type(IM) = optional) or 
+       (state(IM) in (unwired unused)) or
+       (next(IM) = unused) or
+       (target(IM) = unwired) .
+
+  eq isFForced(cmp(IDCO,started,started,started)) = true . -- case (C)
+  eq isFForced(cmp(IDCO,started,stopped,started)) = true . -- case (C)
+  ceq isFForced(CO) = false
+    if (state(CO) = stopped) or (target(CO) = stopped) .
 
   var SCO0 : SetOfComponent
   var SIM0 : SetOfImport
+  var SIM' : SetOfImport
 
   eq tdis(cmp(IDCO,started,started,stopped)) = 2 .
   eq tdis(cmp(IDCO,started,stopped,stopped)) = 1 .
@@ -147,18 +145,18 @@ module ProofBase {
 
   eq tdis(IM,SCO0,SIM0) 
     = tdis(IM) +
-      if (isForced(IM) = true) then
-	fdis(getComponent(SCO0,importer(IM)),SCO0,SIM0,exporter(IM))
+      if isForced(IM) then
+	fdis(getComponent(SCO0,importer(IM)),SCO0,SIM0,IM)
       else 0 fi .
 
-  ceq fdis(CO) = 0 if not (isFForced(CO) = true) .
+  ceq fdis(CO) = 0 if not isFForced(CO) .
   eq fdis(cmp(IDCO,started,started,started)) = 4 .
   eq fdis(cmp(IDCO,started,stopped,started)) = 3 .
 
-  eq fdis(CO,SCO0,SIM0,IDCO) 
+  eq fdis(CO,SCO0,SIM0,SIM') 
      = fdis(CO) +
-       if (isFForced(CO) = true) then
-         fdis(getIMsOfECOInTargetStates(SIM0,id(CO),wired),SCO0,SIM0,IDCO)
+       if isFForced(CO) then
+         fdis(getIMsOfECOInTargetStates(SIM0,id(CO),wired),SCO0,SIM0,SIM')
        else 0 fi .
 
   ceq fdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM))
@@ -168,13 +166,13 @@ module ProofBase {
   eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = 4 .
   eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = 3 .
 
-  eq fdis(empIM,SCO0,SIM0,IDCO) = 0 .
-  eq fdis((IM SIM),SCO0,SIM0,IDCO) = fdis(IM,SCO0,SIM0,IDCO) + fdis(SIM,SCO0,SIM0,IDCO) .
+  eq fdis(empIM,SCO0,SIM0,SIM') = 0 .
+  eq fdis((IM SIM),SCO0,SIM0,SIM') = fdis(IM,SCO0,SIM0,SIM') + fdis(SIM,SCO0,SIM0,SIM') .
 
-  eq fdis(IM,SCO0,SIM0,IDCO) 
+  eq fdis(IM,SCO0,SIM0,SIM') 
     = fdis(IM) +
-      if (isForced(IM) = true) or (isFForced(IM) = true) then
-        fdis(getComponent(SCO0,importer(IM)),SCO0,SIM0,IDCO)
+      if isFForced(IM) then
+        fdis(getComponent(SCO0,importer(IM)),SCO0,SIM0,(IM SIM'))
       else 0 fi .
 
   eq m(< SCO,SIM,L >)
