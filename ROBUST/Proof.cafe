@@ -57,10 +57,10 @@ module ProofBase {
   -- Forced Distance (the last parameter is a set of visited mandatory imports)
   -- Forced to become stopped temporally
   op fdis : Component -> Nat
-  op fdis : Component SetOfComponent SetOfImport SetOfImport -> Nat
+  op fdis : Component SetOfComponent SetOfImport -> Nat
   -- Forced to become unwired temporally
   op fdis : Import -> Nat
-  op fdis : SetOfImport SetOfComponent SetOfImport SetOfImport -> Nat
+  op fdis : SetOfImport SetOfComponent SetOfImport -> Nat
 
   pred isFForced : Component
   pred isFForced : Import
@@ -146,17 +146,17 @@ module ProofBase {
   eq tdis(IM,SCO0,SIM0) 
     = tdis(IM) +
       if isForced(IM) then
-	fdis(getComponent(SCO0,importer(IM)),SCO0,SIM0,IM)
+	fdis(getComponent(SCO0,importer(IM)),SCO0,SIM0)
       else 0 fi .
 
   ceq fdis(CO) = 0 if not isFForced(CO) .
   eq fdis(cmp(IDCO,started,started,started)) = 4 .
   eq fdis(cmp(IDCO,started,stopped,started)) = 3 .
 
-  eq fdis(CO,SCO0,SIM0,SIM') 
+  eq fdis(CO,SCO0,SIM0) 
      = fdis(CO) +
        if isFForced(CO) then
-         fdis(getIMsOfECOInTargetStates(SIM0,id(CO),wired),SCO0,SIM0,SIM')
+         fdis(getIMsOfECOInTargetStates(SIM0,id(CO),wired),SCO0,SIM0)
        else 0 fi .
 
   ceq fdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM))
@@ -166,13 +166,13 @@ module ProofBase {
   eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = 4 .
   eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = 3 .
 
-  eq fdis(empIM,SCO0,SIM0,SIM') = 0 .
-  eq fdis((IM SIM),SCO0,SIM0,SIM') = fdis(IM,SCO0,SIM0,SIM') + fdis(SIM,SCO0,SIM0,SIM') .
+  eq fdis(empIM,SCO0,SIM0) = 0 .
+  eq fdis((IM SIM),SCO0,SIM0) = fdis(IM,SCO0,SIM0) + fdis(SIM,SCO0,SIM0) .
 
-  eq fdis(IM,SCO0,SIM0,SIM') 
+  eq fdis(IM,SCO0,SIM0) 
     = fdis(IM) +
       if isFForced(IM) then
-        fdis(getComponent(SCO0,importer(IM)),SCO0,SIM0,(IM SIM'))
+        fdis(getComponent(SCO0,importer(IM)),SCO0,SIM0)
       else 0 fi .
 
   eq m(< SCO,SIM,L >)

@@ -47,10 +47,10 @@ module ProofMeasure {
   -- eq robust-lemma04(SCO, CO, CO', SCO', SIM')
   --    = (tdis(CO) > tdis(CO')) implies
   --      (tdis(SCO, (CO SCO'), SIM') >= tdis(SCO, (CO' SCO'), SIM')) .
-  ceq [robust-lemma04]:
-     ((N + tdis(SCO, (CO SCO'), SIM')) > (N' + tdis(SCO, (CO' SCO'), SIM')))
-     = (N > N')
-     if (tdis(CO) > tdis(CO')) .
+  -- ceq [robust-lemma04]:
+  --    ((N + tdis(SCO, (CO SCO'), SIM')) > (N' + tdis(SCO, (CO' SCO'), SIM')))
+  --    = (N > N')
+  --    if (tdis(CO) > tdis(CO')) .
 }
 
 --> **************************************************************************
