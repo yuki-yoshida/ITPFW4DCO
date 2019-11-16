@@ -30,27 +30,44 @@ module ProofMeasure {
      	   { S => SS !! CC ! inv(S) ! final(S) ! (m(S) > m(SS)) }) .
 
 
-  vars N N' : Nat
+  vars X Y Z Z1 Z2 : Nat
+
+  eq ((X + Z) >= (Y + Z))
+    =  (X >= Y) .
+
+  eq ((X + Z) = (Y + Z))
+    =  (X = Y) .
+
+  ceq ((X + Z1) >= (Y + Z2))
+    =  (X >= Y) 
+    if (Z1 >= Z2) .
+
+  ceq ((X + Z1) > (Y + Z2))
+    =  (X >= Y) 
+    if (Z1 > Z2) .
+
+  ceq ((X + Z1) = (Y + Z2))
+    =  (X = Y) 
+    if (Z1 = Z2) .
+
   vars CO CO' : Component
+  var IDCO : COID
   vars SCO SCO' : SetOfComponent
   vars IM IM' : Import
   vars SIM SIM' : SetOfImport
 
-  -- eq robust-lemma01(SIM, CO, CO', SCO', SIM')
-  --    = (tdis(CO) > tdis(CO')) implies
-  --      (tdis(SIM, (CO SCO'), SIM') >= tdis(SIM, (CO' SCO'), SIM')) .
-  ceq [robust-lemma01]:
-     ((N + tdis(SIM, (CO SCO'), SIM')) > (N' + tdis(SIM, (CO' SCO'), SIM')))
-     = (N > N')
-     if (tdis(CO) > tdis(CO')) .
+  -- eq robust-lemma02(SIM, IDCO, SCO', SIM')
+  --    = tdis(SIM, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') >=
+  --      tdis(SIM, (cmp(IDCO,stopped,started,started) SCO'), SIM') .
+  eq (tdis(SIM, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') >=
+      tdis(SIM, (cmp(IDCO,stopped,started,started) SCO'), SIM')) = true .
 
-  -- eq robust-lemma04(SCO, CO, CO', SCO', SIM')
-  --    = (tdis(CO) > tdis(CO')) implies
-  --      (tdis(SCO, (CO SCO'), SIM') >= tdis(SCO, (CO' SCO'), SIM')) .
-  -- ceq [robust-lemma04]:
-  --    ((N + tdis(SCO, (CO SCO'), SIM')) > (N' + tdis(SCO, (CO' SCO'), SIM')))
-  --    = (N > N')
-  --    if (tdis(CO) > tdis(CO')) .
+  -- eq robust-lemma03(SCO, IDCO, SCO', SIM')
+  --    = tdis(SCO, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') >= 
+  --      tdis(SCO, (cmp(IDCO,stopped,started,started) SCO'), SIM') .
+  eq (tdis(SCO, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') >=
+      tdis(SCO, (cmp(IDCO,stopped,started,started) SCO'), SIM')) = true .
+
 }
 
 --> **************************************************************************
@@ -73,7 +90,7 @@ select ProofMeasure .
 :apply (rd-)
 show proof
 select
-
+eof
 --> ************************************************************************
 --> trans [RS-stop1]:
 -->    < (cmp(IDCO, started, started, stopped) SCO), SIM,
