@@ -12,23 +12,23 @@ module ROBUSTLEMMA {
   -- Nat Axiom
   vars X Y Z Z1 Z2 : Nat
 
-  eq ((X + Z) >= (Y + Z))
-    =  (X >= Y) .
+  -- eq ((X + Z) >= (Y + Z))
+  --   =  (X >= Y) .
 
-  eq ((X + Z) = (Y + Z))
-    =  (X = Y) .
-
-  ceq ((X + Z1) >= (Y + Z2))
-    =  (X >= Y) 
-    if (Z1 >= Z2) .
-
-  ceq ((X + Z1) >= (Y + Z2))
-    =  (X >= Y) 
-    if (Z1 > Z2) .
+  -- eq ((X + Z) = (Y + Z))
+  --   =  (X = Y) .
 
   ceq ((X + Z1) = (Y + Z2))
-    =  (X = Y) 
-    if (Z1 = Z2) .
+    =  (Z1 = Z2)
+   if  (X = Y) .
+
+  -- ceq ((X + Z1) >= (Y + Z2))
+  --   =  (X >= Y) 
+  --   if (Z1 >= Z2) .
+
+  -- ceq ((X + Z1) >= (Y + Z2))
+  --   =  (X >= Y) 
+  --   if (Z1 > Z2) .
 
   vars CO CO' : Component
   vars SCO SCO' SCO0 : SetOfComponent
@@ -48,18 +48,18 @@ module ROBUSTLEMMA {
 
   pred robust-lemma01 : SetOfImport COID SetOfComponent SetOfImport
   eq robust-lemma01(SIM, IDCO, SCO', SIM')
-     = fdis(SIM, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') >=
-       fdis(SIM, (cmp(IDCO,stopped,started,started) SCO'), SIM') .
+     = (fdis(SIM, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') =
+        fdis(SIM, (cmp(IDCO,stopped,started,started) SCO'), SIM')) .
 
   pred robust-lemma02 : SetOfImport COID SetOfComponent SetOfImport
   eq robust-lemma02(SIM, IDCO, SCO', SIM')
-     = tdis(SIM, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') >=
-       tdis(SIM, (cmp(IDCO,stopped,started,started) SCO'), SIM') .
+     = (tdis(SIM, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') =
+        tdis(SIM, (cmp(IDCO,stopped,started,started) SCO'), SIM')) .
 
   pred robust-lemma03 : SetOfComponent COID SetOfComponent SetOfImport
   eq robust-lemma03(SCO, IDCO, SCO', SIM')
-     = tdis(SCO, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') >= 
-       tdis(SCO, (cmp(IDCO,stopped,started,started) SCO'), SIM') .
+     = (tdis(SCO, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') = 
+        tdis(SCO, (cmp(IDCO,stopped,started,started) SCO'), SIM')) .
 }
 
 --> ******************************************************************
@@ -103,6 +103,8 @@ select ROBUSTLEMMA01
   eq isFForced(getComponent(sCO',importer(im))) = true .
 }
 :apply(importerisFForcedctf rd-)
+--> Proof of robust-lemma01 done.
+-->
 show proof
 select
 
@@ -125,8 +127,8 @@ module ROBUSTLEMMA02 {
   -- eq robust-lemma01(SIM, IDCO, SCO', SIM')
   --    = fdis(SIM, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') >=
   --      fdis(SIM, (cmp(IDCO,stopped,started,started) SCO'), SIM') .
-  eq (fdis(SIM, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') >=
-      fdis(SIM, (cmp(IDCO,stopped,started,started) SCO'), SIM')) = true .
+  eq fdis(SIM, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') 
+   = fdis(SIM, (cmp(IDCO,stopped,started,started) SCO'), SIM') .
 
 }
 
@@ -151,6 +153,8 @@ select ROBUSTLEMMA02
   eq isFForced(getComponent(sCO',importer(im))) = true .
 }
 :apply(importerisFForcedctf rd-)
+--> Proof of robust-lemma02 done.
+-->
 show proof
 select
 
@@ -173,8 +177,8 @@ module ROBUSTLEMMA03 {
   -- eq robust-lemma02(SIM, IDCO, SCO', SIM')
   --    = tdis(SIM, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') >=
   --      tdis(SIM, (cmp(IDCO,stopped,started,started) SCO'), SIM') .
-  eq (tdis(SIM, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') >=
-      tdis(SIM, (cmp(IDCO,stopped,started,started) SCO'), SIM')) = true .
+  eq tdis(SIM, (cmp(IDCO,stopped,stopped,started) SCO'), SIM')
+   = tdis(SIM, (cmp(IDCO,stopped,started,started) SCO'), SIM') .
 }
 
 select ROBUSTLEMMA03
@@ -186,6 +190,8 @@ select ROBUSTLEMMA03
   eq sCO0 = (co sCO) .
 }
 :apply (sCO0 rd-)
+--> Proof of robust-lemma03 done.
+-->
 show proof
 select
 eof
