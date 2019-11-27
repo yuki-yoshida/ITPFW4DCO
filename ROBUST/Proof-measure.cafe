@@ -32,8 +32,9 @@ module ProofMeasure {
 
   vars X Y Z Z1 Z2 : Nat
 
-  eq ((X + Z) > (Y + Z))
-    =  (X > Y) .
+  ceq ((X + Z1) > (Y + Z2))
+    =  (X > Y) 
+   if (Z1 = Z2) .
 
   -- eq ((X + Z) = (Y + Z))
   --   =  (X = Y) .
@@ -61,13 +62,37 @@ module ProofMeasure {
   --      tdis(SIM, (cmp(IDCO,stopped,started,started) SCO'), SIM') .
   eq tdis(SIM, (cmp(IDCO,stopped,stopped,started) SCO'), SIM')
    = tdis(SIM, (cmp(IDCO,stopped,started,started) SCO'), SIM') .
+  -- Another Version
+  eq tdis(SIM, (cmp(IDCO,started,started,stopped) SCO'), SIM')
+   = tdis(SIM, (cmp(IDCO,started,stopped,stopped) SCO'), SIM') .
+  -- General Version
+  -- ceq (tdis(SIM, (CO SCO'), SIM') = tdis(SIM, (CO' SCO'), SIM')) = true
+  --   if id(CO) = id(CO') and isFForced(CO) = false and isFForced(CO') = false .
 
   -- eq robust-lemma03(SCO, IDCO, SCO', SIM')
   --    = tdis(SCO, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') >= 
   --      tdis(SCO, (cmp(IDCO,stopped,started,started) SCO'), SIM') .
   eq tdis(SCO, (cmp(IDCO,stopped,stopped,started) SCO'), SIM')
    = tdis(SCO, (cmp(IDCO,stopped,started,started) SCO'), SIM') .
+  -- Another Version
+  eq tdis(SCO, (cmp(IDCO,started,started,stopped) SCO'), SIM')
+   = tdis(SCO, (cmp(IDCO,started,stopped,stopped) SCO'), SIM') .
+  -- General Version
+  -- ceq (tdis(SCO, (CO SCO'), SIM') = tdis(SCO, (CO' SCO'), SIM') ) = true
+  --   if id(CO) = id(CO') and isFForced(CO) = false and isFForced(CO') = false .
 
+  -- eq robust-lemma05(SIM, IDCO, SIM)
+  --    = (tdis(SIM, (cmp(IDCO,started,started,started) SCO'), SIM') >=
+  --       tdis(SIM, (cmp(IDCO,started,stopped,started) SCO'), SIM')) .
+  eq (tdis(SIM, (cmp(IDCO,started,started,started) SCO'), SIM') >=
+      tdis(SIM, (cmp(IDCO,started,stopped,started) SCO'), SIM')) = true .
+
+  -- pred robust-lemma06 : SetOfComponent COID SetOfComponent SetOfImport
+  -- eq robust-lemma06(SCO, IDCO, SCO', SIM')
+  --    = (tdis(SCO, (cmp(IDCO,started,started,started) SCO'), SIM') >=
+  --       tdis(SCO, (cmp(IDCO,started,stopped,started) SCO'), SIM')) .
+  eq (tdis(SCO, (cmp(IDCO,started,started,started) SCO'), SIM') >=
+      tdis(SCO, (cmp(IDCO,started,stopped,started) SCO'), SIM')) = true .
 }
 
 --> **************************************************************************
@@ -88,9 +113,11 @@ select ProofMeasure .
   eq mesmes(< (cmp(idCO, stopped, stopped, started) sCO), sIM, lg >) = true .
 }
 :apply (rd-)
+--> Proof of RS-start1 done.
+-->
 show proof
 select
-eof
+
 --> ************************************************************************
 --> trans [RS-stop1]:
 -->    < (cmp(IDCO, started, started, stopped) SCO), SIM,
@@ -109,9 +136,11 @@ select ProofMeasure .
   eq mesmes(< (cmp(idCO, started, started, stopped) sCO), sIM, lg >) = true .
 }
 :apply (rd-)
+--> Proof of RS-stop1 done.
+-->
 show proof
 select
-eof
+
 --> ************************************************************************
 --> trans [RS-stop2]:
 -->    < (cmp(IDCO, started, started, started) SCO),
