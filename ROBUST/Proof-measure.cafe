@@ -36,6 +36,10 @@ module ProofMeasure {
     =  (X > Y) 
    if (Z1 = Z2) .
 
+  ceq ((X + Z1) > (Y + Z2))
+    =  (X > Y) 
+   if (Z1 >= Z2) .
+
   -- eq ((X + Z) = (Y + Z))
   --   =  (X = Y) .
 
@@ -167,6 +171,11 @@ select ProofMeasure .
   eq idCO = eidCO .
 }
 :apply (ctfidCO rd-)
+:def eidCOcsp = :csp {
+  eq existCO(sCO,eidCO) = false .
+  eq sCO = (cmp(eidCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (eidCOcsp rd-)
 :def csptIMs = :csp {
   eq tIMs = wired .
   eq tIMs = unwired .

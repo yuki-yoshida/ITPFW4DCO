@@ -92,8 +92,8 @@ module ROBUSTLEMMA01 {
      if SIM <wf (im sIM) .
 
   var IM : Import
-  vars SIM SIM' : SetOfImport
-  eq (getIMsOfECOInTargetStates(SIM',id(getComponent(sCO',importer(IM))),wired)
+  var SIM : SetOfImport
+  eq (getIMsOfECOInTargetStates(sIM',id(getComponent(sCO',importer(IM))),wired)
       <wf (IM SIM) ) = true .
 }
 
