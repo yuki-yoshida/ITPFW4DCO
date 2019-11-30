@@ -235,10 +235,10 @@ module ROBUSTLEMMA04 {
   ceq t(SIM,SCO) <wf t(SIM',SCO) = true 
     if SIM <wf SIM' .
 
-  eq t(getIMsOfECOInTargetStates(SIM',idCO,wired),(cmp(idCO,started,started,started) sCO')) <wf
+  eq t(getIMsOfECOInTargetStates(sIM',idCO,wired),(cmp(idCO,started,started,started) sCO')) <wf
      t((IM SIM),                                  (cmp(idCO,started,started,started) sCO')) = true .
 
-  eq (getIMsOfECOInTargetStates(SIM',id(getComponent(sCO',importer(IM))),wired)
+  eq (getIMsOfECOInTargetStates(sIM',id(getComponent(sCO',importer(IM))),wired)
      <wf (IM SIM) ) = true .
 }
 
