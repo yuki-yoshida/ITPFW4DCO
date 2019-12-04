@@ -68,18 +68,6 @@ module ProofMeasure {
   ceq (tdis(SIM, (CO SCO'), SIM') = tdis(SIM, (CO' SCO'), SIM')) = true
     if (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
 
-  -- -- eq robust-lemma02(SIM, IDCO, SCO', SIM')
-  -- --    = tdis(SIM, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') >=
-  -- --      tdis(SIM, (cmp(IDCO,stopped,started,started) SCO'), SIM') .
-  -- eq tdis(SIM, (cmp(IDCO,stopped,stopped,started) SCO'), SIM')
-  --  = tdis(SIM, (cmp(IDCO,stopped,started,started) SCO'), SIM') .
-  -- -- Another Version
-  -- eq tdis(SIM, (cmp(IDCO,started,started,stopped) SCO'), SIM')
-  --  = tdis(SIM, (cmp(IDCO,started,stopped,stopped) SCO'), SIM') .
-  -- -- General Version
-  -- -- ceq (tdis(SIM, (CO SCO'), SIM') = tdis(SIM, (CO' SCO'), SIM')) = true
-  -- --   if id(CO) = id(CO') and isFForced(CO) = false and isFForced(CO') = false .
-
   -- pred robust-lemma03 : SetOfComponent Component Component SetOfComponent SetOfImport
   -- eq robust-lemma03(SCO, CO, CO', SCO', SIM')
   --   = (tdis(SCO, (CO SCO'), SIM') = tdis(SCO, (CO' SCO'), SIM'))
@@ -87,30 +75,34 @@ module ProofMeasure {
   ceq (tdis(SCO, (CO SCO'), SIM') = tdis(SCO, (CO' SCO'), SIM')) = true
     if (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
 
-  -- -- eq robust-lemma03(SCO, IDCO, SCO', SIM')
-  -- --    = tdis(SCO, (cmp(IDCO,stopped,stopped,started) SCO'), SIM') >= 
-  -- --      tdis(SCO, (cmp(IDCO,stopped,started,started) SCO'), SIM') .
-  -- eq tdis(SCO, (cmp(IDCO,stopped,stopped,started) SCO'), SIM')
-  --  = tdis(SCO, (cmp(IDCO,stopped,started,started) SCO'), SIM') .
-  -- -- Another Version
-  -- eq tdis(SCO, (cmp(IDCO,started,started,stopped) SCO'), SIM')
-  --  = tdis(SCO, (cmp(IDCO,started,stopped,stopped) SCO'), SIM') .
-  -- -- General Version
-  -- -- ceq (tdis(SCO, (CO SCO'), SIM') = tdis(SCO, (CO' SCO'), SIM') ) = true
-  -- --   if id(CO) = id(CO') and isFForced(CO) = false and isFForced(CO') = false .
+  -- pred robust-lemma05 : SetOfImport Component Component SetOfComponent SetOfImport
+  -- eq robust-lemma05(SIM, CO, CO', SCO', SIM')
+  --    = (tdis(SIM, (CO SCO'), SIM') >= tdis(SIM, (CO' SCO'), SIM'))
+  --  when (id(CO) = id(CO')) and fdis(co) > fdis(co')
+  --       and isFForced(CO) and isFForced(CO') .
+  ceq (tdis(SIM, (CO SCO'), SIM') >= tdis(SIM, (CO' SCO'), SIM')) = true
+   if (id(CO) = id(CO')) and fdis(co) > fdis(co')
+        and isFForced(CO) and isFForced(CO') .
+  -- -- eq robust-lemma05(SIM, IDCO, SIM)
+  -- --    = (tdis(SIM, (cmp(IDCO,started,started,started) SCO'), SIM') >=
+  -- --       tdis(SIM, (cmp(IDCO,started,stopped,started) SCO'), SIM')) .
+  -- eq (tdis(SIM, (cmp(IDCO,started,started,started) SCO'), SIM') >=
+  --     tdis(SIM, (cmp(IDCO,started,stopped,started) SCO'), SIM')) = true .
 
-  -- eq robust-lemma05(SIM, IDCO, SIM)
-  --    = (tdis(SIM, (cmp(IDCO,started,started,started) SCO'), SIM') >=
-  --       tdis(SIM, (cmp(IDCO,started,stopped,started) SCO'), SIM')) .
-  eq (tdis(SIM, (cmp(IDCO,started,started,started) SCO'), SIM') >=
-      tdis(SIM, (cmp(IDCO,started,stopped,started) SCO'), SIM')) = true .
-
-  -- pred robust-lemma06 : SetOfComponent COID SetOfComponent SetOfImport
-  -- eq robust-lemma06(SCO, IDCO, SCO', SIM')
-  --    = (tdis(SCO, (cmp(IDCO,started,started,started) SCO'), SIM') >=
-  --       tdis(SCO, (cmp(IDCO,started,stopped,started) SCO'), SIM')) .
-  eq (tdis(SCO, (cmp(IDCO,started,started,started) SCO'), SIM') >=
-      tdis(SCO, (cmp(IDCO,started,stopped,started) SCO'), SIM')) = true .
+  -- pred robust-lemma06 : SetOfComponent Component Component SetOfComponent SetOfImport
+  -- eq robust-lemma06(SCO, CO, CO', SCO', SIM')
+  --    = (tdis(SCO, (CO SCO'), SIM') >= tdis(SCO, (CO' SCO'), SIM'))
+  --  when (id(CO) = id(CO')) and fdis(co) > fdis(co')
+  --       and isFForced(CO) and isFForced(CO') .
+  ceq (tdis(SCO, (CO SCO'), SIM') >= tdis(SCO, (CO' SCO'), SIM')) = true
+   if (id(CO) = id(CO')) and fdis(co) > fdis(co')
+        and isFForced(CO) and isFForced(CO') .
+  -- -- pred robust-lemma06 : SetOfComponent COID SetOfComponent SetOfImport
+  -- -- eq robust-lemma06(SCO, IDCO, SCO', SIM')
+  -- --    = (tdis(SCO, (cmp(IDCO,started,started,started) SCO'), SIM') >=
+  -- --       tdis(SCO, (cmp(IDCO,started,stopped,started) SCO'), SIM')) .
+  -- eq (tdis(SCO, (cmp(IDCO,started,started,started) SCO'), SIM') >=
+  --     tdis(SCO, (cmp(IDCO,started,stopped,started) SCO'), SIM')) = true .
 }
 
 --> **************************************************************************
