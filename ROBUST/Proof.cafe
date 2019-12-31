@@ -8,13 +8,13 @@ module ProofBase {
   op _=>_!!_ : State State Bool -> Bool {constr}
 
   var CO : Component
-  var SCO : SetOfComponent
+  vars SCO SCO0 : SetOfComponent
   vars IDCO IIDCO EIDCO : COID 
   vars CSCO NSCO TSCO : COState
   var StCO : SetOfCOState
 
   var IM : Import
-  var SIM : SetOfImport
+  vars SIM SIM0 SIM' : SetOfImport
   var IDIM : IMID
   var TIM : IMType
   vars CSIM NSIM TSIM : IMState
@@ -22,6 +22,44 @@ module ProofBase {
 
   var L : ListOfLog
   vars S SS : State
+
+  pred isForced : Import
+  pred isForced0 : Import
+  pred isForced1 : Import
+  pred isFForced : Import
+  pred isFForced0 : Import
+  pred isFForced1 : Import
+  pred isFForced : Component
+  pred isFForced0 : Component
+  pred isFForced1 : Component
+
+  eq isForced0(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = true . -- Case (A)
+  eq isForced1(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = true . -- Case (A)
+  ceq isForced(IM) = true if isForced0(IM) .
+  ceq isForced(IM) = true if isForced1(IM) .
+  ceq isForced(IM) = false
+    if (type(IM) = optional) or 
+       (state(IM) in (unwired unused)) or
+       (next(IM) = unused) or
+       (target(IM) in (wired unwired)) .
+
+  eq isFForced0(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired, wired)) = true . -- case (B)
+  eq isFForced1(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired, wired)) = true . -- case (B)
+  ceq isFForced(IM) = true if isForced(IM) .
+  ceq isFForced(IM) = true if isFForced0(IM) .
+  ceq isFForced(IM) = true if isFForced1(IM) .
+  ceq isFForced(IM) = false
+    if (type(IM) = optional) or 
+       (state(IM) in (unwired unused)) or
+       (next(IM) = unused) or
+       (target(IM) = unwired) .
+
+  eq isFForced0(cmp(IDCO,started,started,started)) = true . -- case (C)
+  eq isFForced1(cmp(IDCO,started,stopped,started)) = true . -- case (C)
+  ceq isFForced(CO) = true if isFForced0(CO) .
+  ceq isFForced(CO) = true if isFForced1(CO) .
+  ceq isFForced(CO) = false
+    if (state(CO) = stopped) or (target(CO) = stopped) .
 
   -- The invariant should be defined as the conjunction of all inv-* and all wfs-*.
   -- But this definition causes costly computations.
@@ -33,9 +71,39 @@ module ProofBase {
 --  eq iidCOeidCODiffer(imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,TSIM) SIM)
 --    = not (IIDCO = EIDCO) and iidCOeidCODiffer(SIM) .
 
-  pred inv-iidCOeidCODiffer : State
-  eq inv-iidCOeidCODiffer(< SCO,SIM,L >)
+  pred wfs-iidCOeidCODiffer : State
+  eq wfs-iidCOeidCODiffer(< SCO,SIM,L >)
     = iidCOeidCODiffer(SIM) .
+
+  pred allFFIMHasFFECO : SetOfImport SetOfComponent
+  eq allFFIMHasFFECO(empIM, SCO) = true .
+  ceq allFFIMHasFFECO(IM SIM,SCO)
+    = isFForced1(getComponent(SCO,exporter(IM))) and allFFIMHasFFECO(SIM,SCO)
+    if isFForced1(IM) .
+  ceq allFFIMHasFFECO(IM SIM,SCO) 
+    = allFFIMHasFFECO(SIM,SCO)
+    if not (isFForced1(IM) == true) .
+
+  pred inv-allFFIMHasFFECO : State
+  eq inv-allFFIMHasFFECO(< SCO,SIM,L >)
+    = allFFIMHasFFECO(SIM,SCO) .
+
+  pred existFFIM : SetOfImport
+  eq existFFIM(IM SIM)
+    = isFForced1(IM) or isForced(IM) or existFFIM(SIM) .
+
+  pred allFFCOHasFFIIM : SetOfComponent SetOfImport
+  eq allFFCOHasFFIIM(empCO,SIM) = true .
+  ceq allFFCOHasFFIIM(CO SCO,SIM)
+    = existFFIM(getIMsOfICO(SIM,CO)) and allFFCOHasFFIIM(SCO,SIM)
+    if isFForced1(CO) .
+  ceq allFFCOHasFFIIM(CO SCO,SIM) 
+    = allFFCOHasFFIIM(SCO,SIM)
+    if not (isFForced1(CO) == true) .
+
+  pred inv-allFFCOHasFFIIM : State
+  eq inv-allFFCOHasFFIIM(< SCO,SIM,L >)
+    = allFFCOHasFFIIM(SCO,SIM) .
 
 --> *************************
 --> Step 0-2: Define cont(S).
@@ -61,36 +129,6 @@ module ProofBase {
   -- Forced to become unwired temporally
   op fdis : Import -> Nat
   op fdis : SetOfImport SetOfComponent SetOfImport -> Nat
-
-  pred isFForced : Component
-  pred isFForced : Import
-  pred isForced : Import
-
-  eq isForced(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = true . -- Case (A)
-  eq isForced(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = true . -- Case (A)
-  ceq isForced(IM) = false
-    if (type(IM) = optional) or 
-       (state(IM) in (unwired unused)) or
-       (next(IM) = unused) or
-       (target(IM) in (wired unwired)) .
-
-  eq isFForced(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired, wired)) = true . -- case (B)
-  eq isFForced(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired, wired)) = true . -- case (B)
-  ceq isFForced(IM) = true if isForced(IM) .
-  ceq isFForced(IM) = false
-    if (type(IM) = optional) or 
-       (state(IM) in (unwired unused)) or
-       (next(IM) = unused) or
-       (target(IM) = unwired) .
-
-  eq isFForced(cmp(IDCO,started,started,started)) = true . -- case (C)
-  eq isFForced(cmp(IDCO,started,stopped,started)) = true . -- case (C)
-  ceq isFForced(CO) = false
-    if (state(CO) = stopped) or (target(CO) = stopped) .
-
-  var SCO0 : SetOfComponent
-  var SIM0 : SetOfImport
-  var SIM' : SetOfImport
 
   eq tdis(cmp(IDCO,started,started,stopped)) = 2 .
   eq tdis(cmp(IDCO,started,stopped,stopped)) = 1 .
@@ -190,11 +228,13 @@ module ProofBase {
   ceq wfs(S) = false if not wfs-allIMHaveECO(S) .
   ceq wfs(S) = false if not wfs-validTarget(S) .
   ceq wfs(S) = false if not wfs-validCurrent(S) .
-  ceq inv(S) = false if not wfs(S) .
+  ceq wfs(S) = false if not wfs-iidCOeidCODiffer(S) .
 
   -- inv-*:
-  ceq inv(S) = false if not inv-iidCOeidCODiffer(S) .
+  ceq inv(S) = false if not wfs(S) .
   ceq inv(S) = false if not noCOCycle(S) .
+  ceq inv(S) = false if not inv-allFFCOHasFFIIM(S) .
+  ceq inv(S) = false if not inv-allFFIMHasFFECO(S) .
 
 --> **************************************
 --> Step 0-5: Prepare arbitrary constants.

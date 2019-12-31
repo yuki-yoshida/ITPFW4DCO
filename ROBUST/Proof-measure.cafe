@@ -37,23 +37,12 @@ module ProofMeasure {
    if (Z1 = Z2) .
 
   ceq ((X + Z1) > (Y + Z2))
-    =  (X > Y) 
-   if (Z1 >= Z2) .
-
-  -- eq ((X + Z) = (Y + Z))
-  --   =  (X = Y) .
+    =  (X >= Y) 
+   if (Z1 > Z2) .
 
   -- ceq ((X + Z1) >= (Y + Z2))
   --   =  (X >= Y) 
-  --   if (Z1 >= Z2) .
-
-  -- ceq ((X + Z1) > (Y + Z2))
-  --   =  (X >= Y) 
-  --   if (Z1 > Z2) .
-
-  -- ceq ((X + Z1) = (Y + Z2))
-  --   =  (X = Y) 
-  --   if (Z1 = Z2) .
+  --  if (Z1 >= Z2) .
 
   vars CO CO' : Component
   var IDCO : COID
@@ -62,6 +51,8 @@ module ProofMeasure {
   vars SIM SIM' : SetOfImport
 
   -- pred robust-lemma02 : SetOfImport Component Component SetOfComponent SetOfImport
+  -- tdis(SIM) is the same when a non-isFForced Component is changed
+  -- because fdis of non-isFForced Components are zero.
   -- eq robust-lemma02(SIM, CO, CO', SCO', SIM')
   --   = (tdis(SIM, (CO SCO'), SIM') = tdis(SIM, (CO' SCO'), SIM'))
   --  when (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
@@ -69,41 +60,116 @@ module ProofMeasure {
     if (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
 
   -- pred robust-lemma03 : SetOfComponent Component Component SetOfComponent SetOfImport
+  -- tdis(SCO) is the same when a non-isFForced Component is changed
+  -- because tdis and fdis of non-isFForced Components are zero.
   -- eq robust-lemma03(SCO, CO, CO', SCO', SIM')
   --   = (tdis(SCO, (CO SCO'), SIM') = tdis(SCO, (CO' SCO'), SIM'))
   --  when (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
   ceq (tdis(SCO, (CO SCO'), SIM') = tdis(SCO, (CO' SCO'), SIM')) = true
     if (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
 
+  -- pred robust-lemma04 : SetOfImport Component Component SetOfComponent SetOfImport
+  -- fdis(SIM) may decrease when an isFForced Component is changed
+  -- and fdis of the component decreases.
+  -- eq robust-lemma04(SIM, CO, CO', SCO', SIM')
+  --    = (fdis(SIM, (CO SCO'), SIM') >= fdis(SIM, (CO' SCO'), SIM'))
+  --  when (id(CO) = id(CO')) and (fdis(Co) > fdis(CO'))
+  --       and isFForced(CO) and isFForced(CO') .
+  ceq (fdis(SIM, (CO SCO'), SIM') >= fdis(SIM, (CO' SCO'), SIM')) = true
+   if (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
+        and isFForced(CO) and isFForced(CO') .
+
   -- pred robust-lemma05 : SetOfImport Component Component SetOfComponent SetOfImport
+  -- tdis(SIM) may decrease when an isFForced Component is changed
+  -- and fdis of the component decreases.
   -- eq robust-lemma05(SIM, CO, CO', SCO', SIM')
   --    = (tdis(SIM, (CO SCO'), SIM') >= tdis(SIM, (CO' SCO'), SIM'))
-  --  when (id(CO) = id(CO')) and fdis(co) > fdis(co')
+  --  when (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
   --       and isFForced(CO) and isFForced(CO') .
   ceq (tdis(SIM, (CO SCO'), SIM') >= tdis(SIM, (CO' SCO'), SIM')) = true
-   if (id(CO) = id(CO')) and fdis(co) > fdis(co')
+   if (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
         and isFForced(CO) and isFForced(CO') .
-  -- -- eq robust-lemma05(SIM, IDCO, SIM)
-  -- --    = (tdis(SIM, (cmp(IDCO,started,started,started) SCO'), SIM') >=
-  -- --       tdis(SIM, (cmp(IDCO,started,stopped,started) SCO'), SIM')) .
-  -- eq (tdis(SIM, (cmp(IDCO,started,started,started) SCO'), SIM') >=
-  --     tdis(SIM, (cmp(IDCO,started,stopped,started) SCO'), SIM')) = true .
 
   -- pred robust-lemma06 : SetOfComponent Component Component SetOfComponent SetOfImport
+  -- tdis(SCO) may decrease when an isFForced Component is changed
+  -- and fdis of the component decreases.
   -- eq robust-lemma06(SCO, CO, CO', SCO', SIM')
   --    = (tdis(SCO, (CO SCO'), SIM') >= tdis(SCO, (CO' SCO'), SIM'))
-  --  when (id(CO) = id(CO')) and fdis(co) > fdis(co')
+  --  when (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
   --       and isFForced(CO) and isFForced(CO') .
   ceq (tdis(SCO, (CO SCO'), SIM') >= tdis(SCO, (CO' SCO'), SIM')) = true
-   if (id(CO) = id(CO')) and fdis(co) > fdis(co')
+   if (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
         and isFForced(CO) and isFForced(CO') .
-  -- -- pred robust-lemma06 : SetOfComponent COID SetOfComponent SetOfImport
-  -- -- eq robust-lemma06(SCO, IDCO, SCO', SIM')
-  -- --    = (tdis(SCO, (cmp(IDCO,started,started,started) SCO'), SIM') >=
-  -- --       tdis(SCO, (cmp(IDCO,started,stopped,started) SCO'), SIM')) .
-  -- eq (tdis(SCO, (cmp(IDCO,started,started,started) SCO'), SIM') >=
-  --     tdis(SCO, (cmp(IDCO,started,stopped,started) SCO'), SIM')) = true .
 }
+
+--> ************************************************************************
+--> trans [RS-stop2]:
+-->    < (cmp(IDCO, started, started, started) SCO),
+-->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
+-->       ListLG >
+--> => < (cmp(IDCO, started, stopped, started) SCO),
+-->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
+-->      (clog("RS-stop2:Should Stop", cmp(IDCO, started, stopped, started),
+--> 	  mlog(
+-->      (cmp(IDCO, started, started, started) SCO),
+-->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM)
+--> 	 )) ListLG) > .
+--> ************************************************************************
+select ProofMeasure .
+--> *************************************************************************
+--> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq mesmes(< (cmp(idCO, started, started, started) sCO), 
+              (imp(mandatory, idIM, idCO, eidCO, wired, unwired, tIMs) sIM),
+              lg >) = true .
+}
+:def ctfidCO = :ctf {
+  eq idCO = eidCO .
+}
+:apply (ctfidCO rd-)
+:def eidCOcsp = :csp {
+  eq existCO(sCO,eidCO) = false .
+  eq sCO = (cmp(eidCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (eidCOcsp rd-)
+:def csptIMs = :csp {
+  eq tIMs = wired .
+  eq tIMs = unwired .
+  eq tIMs = unused .
+}
+:apply (csptIMs rd-)
+show proof
+eof
+:goal { ** 2-2-1 -----------------------------------------
+  -- context module: ProofMeasure
+  -- introduced axioms
+    eq [ctfidCO]: (idCO = eidCO) = false .
+    eq [eidCOcsp]: sCO = cmp(eidCO, 
+       cCOs, nCOs, tCOs) sCO' .
+    eq [csptIMs]: tIMs = wired .
+  -- sentence to be proved
+    eq mesmes(< (cmp(idCO, started, started, started) sCO) ,
+        (imp(mandatory, 
+       idIM, 
+       idCO, eidCO, wired, unwired, tIMs) sIM) , lg >)
+        = true .
+}
+
+1: tdis(sCO',(cmp(idCO,started,started,started) (cmp(eidCO,cCOs,nCOs,tCOs) sCO')),(imp(mandatory,idIM,idCO,eidCO,wired,unwired,wired) sIM))
+2: tdis(getIMsOfECO(sIM,eidCO),(cmp(eidCO,cCOs,nCOs,tCOs) (cmp(idCO,started,started,started) sCO')),(imp(mandatory,idIM,idCO,eidCO,wired,unwired,wired) sIM))
+3: tdis(getIMsOfECO(sIM,idCO),(cmp(eidCO,cCOs,nCOs,tCOs) (cmp(idCO,started,started,started) sCO')),(imp(mandatory,idIM,idCO,eidCO,wired,unwired,wired) sIM))
+
+1>=1' by lemma06.
+2>=2' by lemma05.
+3>=3' by lemma05.
+
+The problem:
+There is no Forced import and then fdis is not evaluated for mesmes.
+If evaluated, fdis(idCO) decreases.
+idIM is FForced which means that there is at least one Forced import in SIM.
+
+select
 
 --> **************************************************************************
 --> trans [RS-start1]:
@@ -150,45 +216,5 @@ select ProofMeasure .
 -->
 show proof
 select
-
---> ************************************************************************
---> trans [RS-stop2]:
--->    < (cmp(IDCO, started, started, started) SCO),
--->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
--->       ListLG >
---> => < (cmp(IDCO, started, stopped, started) SCO),
--->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
--->      (clog("RS-stop2:Should Stop", cmp(IDCO, started, stopped, started),
---> 	  mlog(
--->      (cmp(IDCO, started, started, started) SCO),
--->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM)
---> 	 )) ListLG) > .
---> ************************************************************************
-select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
-:goal {
-  eq mesmes(< (cmp(idCO, started, started, started) sCO), 
-              (imp(mandatory, idIM, idCO, eidCO, wired, unwired, tIMs) sIM),
-              lg >) = true .
-}
-:def ctfidCO = :ctf {
-  eq idCO = eidCO .
-}
-:apply (ctfidCO rd-)
-:def eidCOcsp = :csp {
-  eq existCO(sCO,eidCO) = false .
-  eq sCO = (cmp(eidCO,cCOs,nCOs,tCOs) sCO') .
-}
-:apply (eidCOcsp rd-)
-:def csptIMs = :csp {
-  eq tIMs = wired .
-  eq tIMs = unwired .
-  eq tIMs = unused .
-}
-:apply (csptIMs rd-)
-show proof
 eof
-select
 --> Totally 3 goals should be proved.
