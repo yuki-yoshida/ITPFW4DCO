@@ -33,33 +33,45 @@ module ProofBase {
   pred isFForced0 : Component
   pred isFForced1 : Component
 
-  eq isForced0(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = true . -- Case (A)
-  eq isForced1(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = true . -- Case (A)
-  ceq isForced(IM) = true if isForced0(IM) .
-  ceq isForced(IM) = true if isForced1(IM) .
-  ceq isForced(IM) = false
-    if (type(IM) = optional) or 
-       (state(IM) in (unwired unused)) or
-       (next(IM) = unused) or
-       (target(IM) in (wired unwired)) .
+  -- eq isForced0(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = true . -- Case (A)
+  eq isForced0(IM) =
+    (type(IM)   = mandatory) and
+    (state(IM)  = wired) and
+    (next(IM)   = wired) and
+    (target(IM) = unused) .
+  -- eq isForced1(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = true . -- Case (A)
+  eq isForced1(IM) =
+    (type(IM)   = mandatory) and
+    (state(IM)  = wired) and
+    (next(IM)   = unwired) and
+    (target(IM) = unused) .
+  eq isForced(IM) = isForced0(IM) or isForced1(IM) .
 
-  eq isFForced0(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired, wired)) = true . -- case (B)
-  eq isFForced1(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired, wired)) = true . -- case (B)
-  ceq isFForced(IM) = true if isForced(IM) .
-  ceq isFForced(IM) = true if isFForced0(IM) .
-  ceq isFForced(IM) = true if isFForced1(IM) .
-  ceq isFForced(IM) = false
-    if (type(IM) = optional) or 
-       (state(IM) in (unwired unused)) or
-       (next(IM) = unused) or
-       (target(IM) = unwired) .
+  -- eq isFForced0(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired, wired)) = true . -- case (B)
+  eq isFForced0(IM) =
+    (type(IM)   = mandatory) and
+    (state(IM)  = wired) and
+    (next(IM)   = wired) and
+    (target(IM) = wired) .
+  -- eq isFForced1(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired, wired)) = true . -- case (B)
+  eq isFForced1(IM) =
+    (type(IM)   = mandatory) and
+    (state(IM)  = wired) and
+    (next(IM)   = unwired) and
+    (target(IM) = wired) .
+  eq isFForced(IM) = isForced(IM) or isFForced0(IM) or isFForced1(IM) .
 
-  eq isFForced0(cmp(IDCO,started,started,started)) = true . -- case (C)
-  eq isFForced1(cmp(IDCO,started,stopped,started)) = true . -- case (C)
-  ceq isFForced(CO) = true if isFForced0(CO) .
-  ceq isFForced(CO) = true if isFForced1(CO) .
-  ceq isFForced(CO) = false
-    if (state(CO) = stopped) or (target(CO) = stopped) .
+  -- eq isFForced0(cmp(IDCO,started,started,started)) = true . -- case (C)
+  eq isFForced0(CO) =
+    (state(CO)  = started) and
+    (next(CO)   = started) and
+    (target(CO) = started) .
+  -- eq isFForced1(cmp(IDCO,started,stopped,started)) = true . -- case (C)
+  eq isFForced1(CO) =
+    (state(CO)  = started) and
+    (next(CO)   = stopped) and
+    (target(CO) = started) .
+  eq isFForced(CO) = isFForced0(CO) or isFForced1(CO) .
 
   -- The invariant should be defined as the conjunction of all inv-* and all wfs-*.
   -- But this definition causes costly computations.

@@ -97,11 +97,51 @@ module ROBUSTLEMMA {
      = (allFFIMHasFFECO(SIM,SCO) = true)
    when stableIMSet(SIM) .
 
-  pred robust-lemma13 : SetOfImport SetOfComponent
-  eq robust-lemma13(SIM,SCO)
+  pred robust-lemma13 : SetOfComponent Import Import SetOfImport
+  eq robust-lemma13(SCO,IM,IM',SIM)
      = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
-   when (id(IM) = id(IM') and not isFForced(IM) and not isFForced(IM') .
+   when (id(IM) = id(IM')) and not isFForced(IM) and not isFForced(IM') .
 }
+
+--> **************************************************************************
+--> Proof of robust-lemma13.
+-->  ceq robust-lemma13(SCO,IM,IM',SIM)
+-->     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
+-->   if (id(IM) = id(IM') and not isFForced(IM) and not isFForced(IM') .
+--> **************************************************************************
+module ROBUSTLEMMA13 {
+  protecting(ROBUSTLEMMA)
+  -- Induction Hypothesis
+  ceq [robust-lemma13-IH :nonexec]:
+     robust-lemma13(SCO:SetOfComponent, im, im', sIM) = true
+     if SCO <wf (co sCO) .
+}
+
+select ROBUSTLEMMA13
+:goal { eq robust-lemma13(sCO0, im, im', sIM) = true .}
+:def idimctf = :ctf {
+  eq id(im') = id(im) .
+}
+:def isFFimctf = :ctf {
+  eq isFForced(im) = true .
+}
+:def isFFim'ctf = :ctf {
+  eq isFForced(im') = true .
+}
+:apply(idimctf isFFimctf isFFim'ctf rd-)
+:init as robust-lemma13-IH-in [robust-lemma13-IH]
+      by {SCO:SetOfComponent <- SCO:SetOfComponent;}
+:def sCO0 = :csp {
+  eq sCO0 = empCO .
+  eq sCO0 = (co sCO) .
+}
+:apply (sCO0 rd-)
+
+--> Proof of robust-lemma13 done.
+-->
+show proof
+eof
+select
 
 --> **************************************************************************
 --> Proof of robust-lemma01.
@@ -542,6 +582,6 @@ select ROBUSTLEMMA12
 show proof
 select
 
---> Totally 8 goals should be proved.
+--> Totally 9 goals should be proved.
 
 eof
