@@ -89,12 +89,9 @@ module ProofBase {
 
   pred allFFIMHasFFECO : SetOfImport SetOfComponent
   eq allFFIMHasFFECO(empIM, SCO) = true .
-  ceq allFFIMHasFFECO(IM SIM,SCO)
-    = isFForced1(getComponent(SCO,exporter(IM))) and allFFIMHasFFECO(SIM,SCO)
-    if isFForced1(IM) .
-  ceq allFFIMHasFFECO(IM SIM,SCO) 
-    = allFFIMHasFFECO(SIM,SCO)
-    if not (isFForced1(IM) == true) .
+  eq allFFIMHasFFECO(IM SIM,SCO)
+    = (isFForced1(IM) implies isFForced1(getComponent(SCO,exporter(IM)))) and
+      allFFIMHasFFECO(SIM,SCO) .
 
   pred inv-allFFIMHasFFECO : State
   eq inv-allFFIMHasFFECO(< SCO,SIM,L >)
@@ -106,12 +103,9 @@ module ProofBase {
 
   pred allFFCOHasFFIIM : SetOfComponent SetOfImport
   eq allFFCOHasFFIIM(empCO,SIM) = true .
-  ceq allFFCOHasFFIIM(CO SCO,SIM)
-    = existFFIM(getIMsOfICO(SIM,CO)) and allFFCOHasFFIIM(SCO,SIM)
-    if isFForced1(CO) .
-  ceq allFFCOHasFFIIM(CO SCO,SIM) 
-    = allFFCOHasFFIIM(SCO,SIM)
-    if not (isFForced1(CO) == true) .
+  eq allFFCOHasFFIIM(CO SCO,SIM)
+    = (isFForced1(CO) implies existFFIM(getIMsOfICO(SIM,CO))) and
+      allFFCOHasFFIIM(SCO,SIM) .
 
   pred inv-allFFCOHasFFIIM : State
   eq inv-allFFCOHasFFIIM(< SCO,SIM,L >)
