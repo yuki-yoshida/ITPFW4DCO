@@ -58,9 +58,22 @@ module Proofinv-allFFCOHasFFIIM {
     if (importer(IM) = importer(IM')) and 
        not isForced(IM) and not isFForced1(IM) and
        ((tdis(IM) > tdis(IM')) or (fdis(IM) > fdis(IM'))) .
+
+  -- pred robust-lemma14 : SetOfComponent Import Import SetOfImport
+  -- ceq robust-lemma14(SCO,IM,IM',SIM)
+  --    = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
+  --   if (importer(IM) = importer(IM')) and 
+  --      (isForced(IM') or isFForced1(IM')) and
+  --      (tdis(IM) > tdis(IM')) .
+  ceq (allFFCOHasFFIIM(SCO, IM SIM) and allFFCOHasFFIIM(SCO, IM' SIM))
+    =  allFFCOHasFFIIM(SCO, IM SIM) 
+    if (importer(IM) = importer(IM')) and 
+       (isForced(IM') or isFForced1(IM')) and
+       (tdis(IM) > tdis(IM')) .
 }
 
 select Proofinv-allFFCOHasFFIIM
+
 --> ***************************
 --> (4) init(S) implies inv(S).
 --> ***************************
@@ -229,8 +242,8 @@ show proof
 }
 :apply (eidCOctf nCOs tCOs tCOs' tIM rd-)
 show proof
-eof
---> *******************************************************************
+
+--> *********************************************************************************************
 -->  trans [RS-unwire3]:
 -->     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unused) SIM),
 -->       ListLG >
@@ -239,20 +252,23 @@ eof
 -->	  mlog(
 -->       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unused) SIM)
 -->	 )) ListLG) > .
---> *******************************************************************
+--> *********************************************************************************************
 --> *************************************************************************
 --> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
-  eq invinv(< (cmp(idCO, stopped, started, tCOs) sCO), sIM, lg >) = true .
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired,   wired, unused) sIM),
+              lg >) = true .
 }
-:def tCOs = :csp {
-  eq tCOs = started .
-  eq tCOs = started .
+:def tIM = :csp {
+  eq tIM = mandatory .
+  eq tIM = optional .
 }
-:apply (tCOs rd-)
+:apply (tIM rd-)
 show proof
 
+--> Totally 8 goals should be proved.
+eof
 --> *******************************************************************
 -->  trans [RS-unwire4]:
 -->     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused,  unused, wired) SIM),

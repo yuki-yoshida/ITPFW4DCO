@@ -103,6 +103,13 @@ module ROBUSTLEMMA {
   when (importer(IM) = importer(IM')) and 
        not isForced(IM) and not isFForced1(IM) and
        (tdis(IM) > tdis(IM')) .
+
+  pred robust-lemma14 : SetOfComponent Import Import SetOfImport
+  eq robust-lemma14(SCO,IM,IM',SIM)
+     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
+  when (importer(IM) = importer(IM')) and 
+       (isForced(IM') or isFForced1(IM')) and
+       (tdis(IM) > tdis(IM')) .
 }
 
 --> **************************************************************************
@@ -548,7 +555,7 @@ select
 --> Proof of robust-lemma13.
 -->  ceq robust-lemma13(SCO,IM,IM',SIM)
 -->     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
--->   if (importer(IM) = importer(IM') and 
+-->    if (importer(IM) = importer(IM') and 
 -->       not isForced(IM) and not isFForced1(IM) .
 -->       (tdis(IM) > tdis(IM')) .
 --> **************************************************************************
@@ -610,4 +617,124 @@ select ROBUSTLEMMA13
 show proof
 select
 
---> Totally 9 goals should be proved.
+--> **************************************************************************
+--> robust-lemma14.
+-->  ceq robust-lemma14(SCO,IM,IM',SIM)
+-->     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
+-->    if (importer(IM) = importer(IM') and 
+-->       (isForced(IM') or isFForced1(IM')) and
+-->       (tdis(IM) > tdis(IM')) .
+--> **************************************************************************
+module ROBUSTLEMMA14 {
+  protecting(ROBUSTLEMMA)
+  -- Induction Hypothesis
+  ceq [robust-lemma14-IH :nonexec]:
+     robust-lemma14(SCO:SetOfComponent, im, im', sIM) = true
+     if SCO <wf (cmp(idCO,cCOs,nCOs,tCOs) sCO) .
+}
+
+select ROBUSTLEMMA14
+:goal { eq robust-lemma14(sCO0, im, im', sIM) = true .}
+:def importerimctf = :ctf {
+  eq importer(im') = importer(im) .
+}
+:def isFim'ctf = :ctf {
+  eq isForced(im') = true .
+}
+:def isFF1im'ctf = :ctf {
+  eq isFForced1(im') = true .
+}
+:apply(importerimctf isFim'ctf isFF1im'ctf rd-)
+:init as robust-lemma14-IH-in [robust-lemma14-IH]
+      by {SCO:SetOfComponent <- SCO:SetOfComponent;}
+:def sCO0 = :csp {
+  eq sCO0 = empCO .
+  eq sCO0 = (cmp(idCO,cCOs,nCOs,tCOs) sCO) .
+}
+-- Proof for case 1-1-1
+:apply (sCO0 rd-)
+:def cCOs = :csp {
+  eq cCOs = started .
+  eq cCOs = stopped .
+}
+:def nCOs = :csp {
+  eq nCOs = started .
+  eq nCOs = stopped .
+}
+:def tCOs = :csp {
+  eq tCOs = started .
+  eq tCOs = stopped .
+}
+:def isFimctf = :ctf {
+  eq isForced(im) = true .
+}
+:def isFF1imctf = :ctf {
+  eq isFForced1(im) = true .
+}
+:apply (cCOs nCOs tCOs isFimctf isFF1imctf rd-)
+:def idCOctf = :ctf {
+  eq idCO = importer(im) .
+}
+-- Note that existFFctf differs for each case of idCOctf.
+:def existFF1ctf = :ctf { 
+  eq existFFIM(getIMsOfICO(sIM,importer(im))) = true .
+}
+:def existFF2ctf = :ctf { 
+  eq existFFIM(getIMsOfICO(sIM,idCO)) = true .
+}
+:apply (idCOctf)
+:apply (existFF1ctf rd-)
+:apply (existFF2ctf rd-)
+:apply (idCOctf)
+:apply (existFF1ctf rd-)
+:apply (existFF2ctf rd-)
+:apply (idCOctf)
+:apply (existFF1ctf rd-)
+:apply (existFF2ctf rd-)
+:apply (idCOctf)
+:apply (existFF1ctf rd-)
+:apply (existFF2ctf rd-)
+:def tdisorder = :ctf {
+  eq (tdis(im) > tdis(im')) = true .
+}
+:apply (tdisorder rd-)
+-- Proof for case 1-1-2
+:init as robust-lemma14-IH-in [robust-lemma14-IH]
+      by {SCO:SetOfComponent <- SCO:SetOfComponent;}
+:apply (sCO0 rd-)
+:apply (cCOs nCOs tCOs isFimctf isFF1imctf rd-)
+:apply (idCOctf)
+:apply (existFF1ctf rd-)
+:apply (existFF2ctf rd-)
+:apply (idCOctf)
+:apply (existFF1ctf rd-)
+:apply (existFF2ctf rd-)
+:apply (idCOctf)
+:apply (existFF1ctf rd-)
+:apply (existFF2ctf rd-)
+:apply (idCOctf)
+:apply (existFF1ctf rd-)
+:apply (existFF2ctf rd-)
+-- Proof for case 1-2-1
+:init as robust-lemma14-IH-in [robust-lemma14-IH]
+      by {SCO:SetOfComponent <- SCO:SetOfComponent;}
+:apply (sCO0 rd-)
+:apply (cCOs nCOs tCOs isFimctf isFF1imctf rd-)
+:apply (idCOctf)
+:apply (existFF1ctf rd-)
+:apply (existFF2ctf rd-)
+:apply (idCOctf)
+:apply (existFF1ctf rd-)
+:apply (existFF2ctf rd-)
+:apply (idCOctf)
+:apply (existFF1ctf rd-)
+:apply (existFF2ctf rd-)
+:apply (idCOctf)
+:apply (existFF1ctf rd-)
+:apply (existFF2ctf rd-)
+--> Proof of robust-lemma14 done.
+-->
+show proof
+select
+
+--> Totally 10 goals should be proved.
