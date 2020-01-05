@@ -36,14 +36,30 @@ module Proofinv-allFFCOHasFFIIM {
   var S : State
   eq invK(S) = inv-allFFCOHasFFIIM(S) .
 
+  vars IM IM' : Import
   var SCO : SetOfComponent
   var SIM : SetOfImport
+
   -- pred robust-lemma11 : SetOfComponent SetOfImport
   -- ceq robust-lemma11(SCO,SIM)
   --    = (allFFCOHasFFIIM(SCO,SIM) = true)
   --  if stableCOSet(SCO) .
   eq (allFFCOHasFFIIM(SCO,SIM) and stableCOSet(SCO))
     = stableCOSet(SCO) .
+
+  -- pred robust-lemma13 : SetOfComponent Import Import SetOfImport
+  -- ceq robust-lemma13(SCO,IM,IM',SIM)
+  --   = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
+  --  if (importer(IM) = importer(IM')) and 
+  --     not isForced(IM) and not isFForced1(IM) and
+  --     not isForced(IM') and not isFForced1(IM') and
+  --     (tdis(IM) > tdis(IM')) .
+  ceq (allFFCOHasFFIIM(SCO, IM SIM) and allFFCOHasFFIIM(SCO, IM' SIM))
+    =  allFFCOHasFFIIM(SCO, IM SIM) 
+    if (importer(IM) = importer(IM')) and 
+       not isForced(IM) and not isFForced1(IM) and
+       not isForced(IM') and not isFForced1(IM') and
+       (tdis(IM) > tdis(IM')) .
 }
 
 select Proofinv-allFFCOHasFFIIM

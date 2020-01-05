@@ -102,7 +102,8 @@ module ROBUSTLEMMA {
      = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
   when (importer(IM) = importer(IM')) and 
        not isForced(IM) and not isFForced1(IM) and
-       not isForced(IM') and not isFForced1(IM') .
+       not isForced(IM') and not isFForced1(IM') and
+       (tdis(IM) > tdis(IM')) .
 }
 
 --> **************************************************************************
