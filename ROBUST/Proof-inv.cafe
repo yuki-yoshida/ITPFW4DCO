@@ -145,7 +145,7 @@ show proof
 }
 :def tCOs = :csp {
   eq tCOs = started .
-  eq tCOs = started .
+  eq tCOs = stopped .
 }
 :apply (tCOs rd-)
 show proof
@@ -169,8 +169,8 @@ show proof
 }
 :apply (rd-)
 show proof
-eof
---> *******************************************************************
+
+--> **********************************************************************************************
 -->  trans [RS-unwire1]:
 -->     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unwired) SIM),
 -->       ListLG >
@@ -179,21 +179,17 @@ eof
 -->	  mlog(
 -->       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unwired) SIM)
 -->	 )) ListLG) > .
---> *******************************************************************
+--> **********************************************************************************************
 --> *************************************************************************
 --> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
-  eq invinv(< (cmp(idCO, stopped, started, tCOs) sCO), sIM, lg >) = true .
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired,   wired, unwired) sIM), lg >) = true .
 }
-:def tCOs = :csp {
-  eq tCOs = started .
-  eq tCOs = started .
-}
-:apply (tCOs rd-)
+:apply (rd-)
 show proof
 
---> *******************************************************************
+--> ********************************************************************************************
 -->  trans [RS-unwire2]:
 -->     < (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, TSCO') SCO), 
 -->       (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, wired) SIM),
@@ -205,20 +201,18 @@ show proof
 -->       (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, TSCO') SCO), 
 -->       (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, wired) SIM)
 -->	 )) ListLG) > .
---> *******************************************************************
+--> ********************************************************************************************
 --> *************************************************************************
 --> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
-  eq invinv(< (cmp(idCO, stopped, started, tCOs) sCO), sIM, lg >) = true .
+  eq invinv(< (cmp(iidCO, started, nCOs, tCOs) cmp(eidCO, started, stopped, tCOs') sCO), 
+              (imp(tIM, idIM, iidCO, eidCO, wired,   wired, wired) SIM),
+              lg >) = true .
 }
-:def tCOs = :csp {
-  eq tCOs = started .
-  eq tCOs = started .
-}
-:apply (tCOs rd-)
+:apply (rd-)
 show proof
-
+eof
 --> *******************************************************************
 -->  trans [RS-unwire3]:
 -->     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unused) SIM),
@@ -481,7 +475,9 @@ show proof
 }
 :def tCOs = :csp {
   eq tCOs = started .
-  eq tCOs = started .
+  eq tCOs = stopped .
 }
 :apply (tCOs rd-)
 show proof
+
+
