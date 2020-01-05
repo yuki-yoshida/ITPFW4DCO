@@ -57,10 +57,22 @@ module Proofinv-allFFCOHasFFIIM {
     =  allFFCOHasFFIIM(SCO, IM SIM) 
     if (importer(IM) = importer(IM')) and 
        not isForced(IM) and not isFForced1(IM) and
-       ((tdis(IM) > tdis(IM')) or (fdis(IM) > fdis(IM'))) .
+       (tdis(IM) > tdis(IM')) .
 
   -- pred robust-lemma14 : SetOfComponent Import Import SetOfImport
-  -- ceq robust-lemma14(SCO,IM,IM',SIM)
+  -- eq robust-lemma14(SCO,IM,IM',SIM)
+  --    = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
+  -- when (importer(IM) = importer(IM')) and 
+  --      not isForced(IM) and not isFForced1(IM) and
+  --      (fdis(IM) > fdis(IM')) and (fdis(IM') > 0) .
+  ceq (allFFCOHasFFIIM(SCO, IM SIM) and allFFCOHasFFIIM(SCO, IM' SIM))
+    =  allFFCOHasFFIIM(SCO, IM SIM) 
+    if (importer(IM) = importer(IM')) and 
+       not isForced(IM) and not isFForced1(IM) and
+       (fdis(IM) > fdis(IM')) and (fdis(IM') > 0) .
+
+  -- pred robust-lemma15 : SetOfComponent Import Import SetOfImport
+  -- ceq robust-lemma15(SCO,IM,IM',SIM)
   --    = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
   --   if (importer(IM) = importer(IM')) and 
   --      (isForced(IM') or isFForced1(IM')) and
@@ -307,9 +319,7 @@ show proof
 :apply (rd-)
 show proof
 
---> Totally 10 goals should be proved.
-eof
---> *******************************************************************
+--> **********************************************************************************
 -->  trans [RD-wire1]:
 -->     < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
 -->       (imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired) SIM),
@@ -321,20 +331,24 @@ eof
 -->       (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
 -->       (imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired) SIM)
 -->	 )) ListLG) > .
---> *******************************************************************
+--> **********************************************************************************
 --> *************************************************************************
 --> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
-  eq invinv(< (cmp(idCO, stopped, started, tCOs) sCO), sIM, lg >) = true .
+  eq invinv(< (cmp(iidCO, stopped, stopped, tCOs) sCO), 
+	      (imp(tIM, idIM, iidCO, eidCO, unwired, wired, wired) sIM),
+              lg >) = true .
 }
-:def tCOs = :csp {
-  eq tCOs = started .
-  eq tCOs = started .
+:def tIM = :csp {
+  eq tIM = mandatory .
+  eq tIM = optional .
 }
-:apply (tCOs rd-)
+:apply (tIM rd-)
 show proof
 
+--> Totally 11 goals should be proved.
+eof
 --> *******************************************************************
 -->  trans [RD-wire2]:
 -->     < (cmp(EIDCO, started, started, TSCO) SCO), 
