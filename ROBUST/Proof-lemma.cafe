@@ -102,7 +102,6 @@ module ROBUSTLEMMA {
      = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
   when (importer(IM) = importer(IM')) and 
        not isForced(IM) and not isFForced1(IM) and
-       not isForced(IM') and not isFForced1(IM') and
        (tdis(IM) > tdis(IM')) .
 }
 
@@ -550,8 +549,8 @@ select
 -->  ceq robust-lemma13(SCO,IM,IM',SIM)
 -->     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
 -->   if (importer(IM) = importer(IM') and 
--->       not isForced(IM) and not isFForced1(IM) and
--->       not isForced(IM') and not isFForced1(IM') .
+-->       not isForced(IM) and not isFForced1(IM) .
+-->       (tdis(IM) > tdis(IM')) .
 --> **************************************************************************
 module ROBUSTLEMMA13 {
   protecting(ROBUSTLEMMA)
@@ -572,13 +571,7 @@ select ROBUSTLEMMA13
 :def isFF1imctf = :ctf {
   eq isFForced1(im) = true .
 }
-:def isFim'ctf = :ctf {
-  eq isForced(im') = true .
-}
-:def isFF1im'ctf = :ctf {
-  eq isFForced1(im') = true .
-}
-:apply(importerimctf isFimctf isFF1imctf isFim'ctf isFF1im'ctf rd-)
+:apply(importerimctf isFimctf isFF1imctf rd-)
 :init as robust-lemma13-IH-in [robust-lemma13-IH]
       by {SCO:SetOfComponent <- SCO:SetOfComponent;}
 :def sCO0 = :csp {
