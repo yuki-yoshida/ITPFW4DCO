@@ -75,12 +75,23 @@ module Proofinv-allFFCOHasFFIIM {
   -- ceq robust-lemma15(SCO,IM,IM',SIM)
   --    = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
   --   if (importer(IM) = importer(IM')) and 
-  --      (isForced(IM') or isFForced1(IM')) and
+  --      isForced(IM') and
   --      (tdis(IM) > tdis(IM')) .
   ceq (allFFCOHasFFIIM(SCO, IM SIM) and allFFCOHasFFIIM(SCO, IM' SIM))
     =  allFFCOHasFFIIM(SCO, IM SIM) 
     if (importer(IM) = importer(IM')) and 
-       (isForced(IM') or isFForced1(IM')) and
+       isForced(IM') and
+       (tdis(IM) > tdis(IM')) .
+
+  -- ceq robust-lemma16(SCO,IM,IM',SIM)
+  --    = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
+  --   if (importer(IM) = importer(IM')) and 
+  --      isFForced1(IM') and
+  --      (tdis(IM) > tdis(IM')) .
+  ceq (allFFCOHasFFIIM(SCO, IM SIM) and allFFCOHasFFIIM(SCO, IM' SIM))
+    =  allFFCOHasFFIIM(SCO, IM SIM) 
+    if (importer(IM) = importer(IM')) and 
+       isFForced1(IM') and
        (tdis(IM) > tdis(IM')) .
 }
 
