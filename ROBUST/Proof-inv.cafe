@@ -387,8 +387,6 @@ show proof
 :apply (tCOs rd-)
 show proof
 
---> Totally 12 goals should be proved.
-eof
 --> *******************************************************************
 -->  ctrans [RD-unwire1]:
 -->     < (cmp(IDCO, CSCO, CSCO, TSCO) SCO),
@@ -407,15 +405,29 @@ eof
 --> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
-  eq invinv(< (cmp(idCO, stopped, started, tCOs) sCO), sIM, lg >) = true .
+  eq invinv(< (cmp(idCO, cCOs, cCOs, tCOs) sCO),
+	      (imp(optional, idIM, idCO, eidCO, wired, unwired, tIMs) sIM),
+	      lg >) = true .
+}
+:def cCOs = :csp {
+  eq cCOs = started .
+  eq cCOs = started .
 }
 :def tCOs = :csp {
   eq tCOs = started .
   eq tCOs = started .
 }
-:apply (tCOs rd-)
+:def tIMs = :csp {
+  eq tIMs = wired .
+  eq tIMs = unwired .
+  eq tIMs = unused .
+}
+:apply (tIMs rd-)
+:apply (cCOs tCOs rd-)
 show proof
-
+eof
+--> Totally 13 goals should be proved.
+eof
 --> *******************************************************************
 -->  trans [RD-unwire2]:
 -->     < (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
