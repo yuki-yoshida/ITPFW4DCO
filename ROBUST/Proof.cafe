@@ -23,12 +23,24 @@ module ProofBase {
   var L : ListOfLog
   vars S SS : State
 
+  -- isForced(IM) means that IM is forced to be unwired temporally.
+  -- isForced0(IM) means that IM is Forced but keeps stable.
+  -- isForced1(IM) means that IM is Forced and is not already stable.
   pred isForced : Import
   pred isForced0 : Import
   pred isForced1 : Import
+
+  -- isFForced(IM) means that IM may be Forced because its exporter is FForced.
+  -- isFForced0(IM) means that IM is FForced but keeps stable.
+  -- isFForced1(IM) means that IM is FForced and is not yet stable.
   pred isFForced : Import
   pred isFForced0 : Import
   pred isFForced1 : Import
+
+  -- isFForced(CO) means that CO may be forced to be stopped temporally
+  --               because an IM importing the CO is Forced or FForced.
+  -- isFForced0(CO) means that CO is FForced but keeps stable.
+  -- isFForced1(CO) means that CO is FForced and is not yet stable.
   pred isFForced : Component
   pred isFForced0 : Component
   pred isFForced1 : Component
