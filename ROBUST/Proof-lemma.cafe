@@ -127,7 +127,7 @@ module ROBUSTLEMMA {
        (id(CO) = importer(IM)) and
        uniqCO(CO SCO) and
        not isFForced1(CO) and
-       (tdis(IM) > tdis(IM')) .
+       (fdis(IM) > fdis(IM')) .
 
   pred robust-lemma17 : SetOfComponent Import Import SetOfImport
   eq robust-lemma17(SCO,IM,IM',SIM)
@@ -138,6 +138,18 @@ module ROBUSTLEMMA {
        (target(IM)  = wired) and
        (state(IM')  = wired) and
        (next(IM')   = wired) and
+       (target(IM') = wired) .
+
+  pred robust-lemma18 : SetOfComponent Import Import SetOfImport
+  eq robust-lemma18(SCO,IM,IM',SIM)
+     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
+  when (importer(IM) = importer(IM')) and 
+       (type(IM)    = optional) and
+       (state(IM)   = wired) and
+       (next(IM)    = unwired) and
+       (target(IM)  = wired) and
+       (state(IM')  = unwired) and
+       (next(IM')   = unwired) and
        (target(IM') = wired) .
 }
 
@@ -937,4 +949,100 @@ select ROBUSTLEMMA17
 show proof
 select
 
---> Totally 13 goals should be proved.
+--> **************************************************************************
+--> Proof of robust-lemma18.
+-->  eq robust-lemma18(SCO,IM,IM',SIM)
+-->     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
+-->  when (importer(IM) = importer(IM')) and 
+-->       (type(IM)    = optional) and
+-->       (state(IM)   = wired) and
+-->       (next(IM)    = unwired) and
+-->       (target(IM)  = wired) and
+-->       (state(IM')  = unwired) and
+-->       (next(IM')   = unwired) and
+-->       (target(IM') = wired) .
+--> **************************************************************************
+module ROBUSTLEMMA18 {
+  protecting(ROBUSTLEMMA)
+  -- Induction Hypothesis
+  ceq [robust-lemma18-IH :nonexec]:
+     robust-lemma18(SCO:SetOfComponent, im, im', sIM) = true
+     if SCO <wf (cmp(idCO,cCOs,nCOs,tCOs) sCO) .
+}
+
+select ROBUSTLEMMA18
+:goal { eq robust-lemma18(sCO0, im, im', sIM) = true .}
+:def importerimctf = :ctf {
+  eq importer(im') = importer(im) .
+}
+:apply(importerimctf rd-)
+:def typeim = :csp {
+  eq type(im) = mandatory .
+  eq type(im) = optional .
+}
+:apply(typeim rd-)
+:def stateim = :csp {
+  eq state(im) = wired .
+  eq state(im) = unwired .
+  eq state(im) = unused .
+}
+:apply(stateim rd-)
+:def nextim = :csp {
+  eq next(im) = wired .
+  eq next(im) = unwired .
+  eq next(im) = unused .
+}
+:apply(nextim rd-)
+:def targetim = :csp {
+  eq target(im) = wired .
+  eq target(im) = unwired .
+  eq target(im) = unused .
+}
+:apply(targetim rd-)
+:def stateim' = :csp {
+  eq state(im') = wired .
+  eq state(im') = unwired .
+  eq state(im') = unused .
+}
+:apply(stateim' rd-)
+:def nextim' = :csp {
+  eq next(im') = wired .
+  eq next(im') = unwired .
+  eq next(im') = unused .
+}
+:apply(nextim' rd-)
+:def targetim' = :csp {
+  eq target(im') = wired .
+  eq target(im') = unwired .
+  eq target(im') = unused .
+}
+:apply(targetim' rd-)
+:init as robust-lemma18-IH-in [robust-lemma18-IH]
+      by {SCO:SetOfComponent <- SCO:SetOfComponent;}
+:def sCO0 = :csp {
+  eq sCO0 = empCO .
+  eq sCO0 = (co sCO) .
+}
+:apply(sCO0 rd-)
+:def isFF1coctf = :ctf {
+  eq isFForced1(co) = true .
+}
+:apply(isFF1coctf rd-)
+:def idcoctf = :ctf {
+  eq id(co) = importer(im) .
+}
+:apply(idcOctf)
+:def existFF1ctf = :ctf { 
+  eq existFFIM(getIMsOfICO(sIM,importer(im))) = true .
+}
+:apply (existFF1ctf rd-)
+:def existFF2ctf = :ctf { 
+  eq existFFIM(getIMsOfICO(sIM,id(co))) = true .
+}
+:apply (existFF2ctf rd-)
+--> Proof of robust-lemma18 done.
+-->
+show proof
+select
+
+--> Totally 14 goals should be proved.
