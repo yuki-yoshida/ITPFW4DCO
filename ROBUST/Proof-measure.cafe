@@ -140,7 +140,39 @@ select ProofMeasure .
 }
 :apply (csptIMs rd-)
 show proof
+:def isFFeidCOctf = :ctf {
+  eq isFForced1(cmp(eidCO,cCOs,nCOs,tCOs)) = true .
+}
+:apply(isFFeidCOctf rd-)
+:def existFFIMctf = :csp {
+  eq existFFIM(getIMsOfICO(sIM,eidCO)) = false .
+  eq sIM = (imp(tIM, idIM', eidCO, idCO', cIMs, nIMs, tIMs') sIM') .
+}
+:apply(existFFIMctf)
+:apply(rd-)
+:def eidCOidCO'ctf = :ctf {
+  eq eidCO = idCO' .
+}
+:apply(eidCOidCO'ctf)
+:apply(rd-)
 eof
+:def idCOidCO'ctf = :ctf {
+  eq idCO = idCO' .
+}
+:apply(idCOidCO'ctf)
+:apply(rd-)
+:def FForFidIM'csp = :csp {
+  eq isForced(imp(tIM,idIM',eidCO,idCO',cIMs,nIMs,tIMs')) = true .
+  eq isFForced1(imp(tIM,idIM',eidCO,idCO',cIMs,nIMs,tIMs')) = true .
+}
+:apply(FForFidIM'csp)
+eof
+:def isForcedidIM'csp = :csp {
+  eq isFForced1(imp(tIM, idIM', eidCO, idCO', cIMs, nIMs, tIMs')) = true .
+  eq isForced(imp(tIM, idIM', eidCO, idCO', cIMs, nIMs, tIMs')) = true .
+}
+:apply(isForcedidIM'csp rd-)
+
 :goal { ** 2-2-1 -----------------------------------------
   -- context module: ProofMeasure
   -- introduced axioms
