@@ -169,9 +169,11 @@ module ROBUSTLEMMA01 {
   var IM : Import
   var SCO' : SetOfComponent
   vars SIM SIM' : SetOfImport
---  eq (getIMsOfECOInTargetStates(SIM',importer(IM),wired)
+  --  eq (getIMsOfECOInTargetStates(SIM',importer(IM),wired)
   eq (getIMsOfECOInTargetStates(SIM',id(getComponent(SCO',importer(IM))),wired)
       <wf (IM SIM) ) = true .
+  -- Note:
+  -- Naturally id(getComponent(SCO',idCO))==idCO, but it should be proved and defined.
 }
 
 select ROBUSTLEMMA01
@@ -347,7 +349,6 @@ module ROBUSTLEMMA04 {
       t((IM SIM),                                  (co sCO')) = true 
    if id(co) = importer(IM) .
 
---  eq (getIMsOfECOInTargetStates(sIM',importer(IM),wired)
   eq (getIMsOfECOInTargetStates(sIM',id(getComponent(sCO',importer(IM))),wired)
      <wf (IM SIM) ) = true .
 }
