@@ -87,6 +87,11 @@ module ROBUSTLEMMA {
    when (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
         and isFForced(CO) and isFForced(CO') .
 
+  pred robust-lemma10 : SetOfComponent Import SetOfImport
+  eq robust-lemma10(SCO,IM,SIM)
+     = (allFFCOHasFFIIM(SCO, IM SIM) = allFFCOHasFFIIM(SCO, SIM)) 
+   when (not existCO(SCO,importer(IM))) .
+
   pred robust-lemma11 : SetOfComponent SetOfImport
   eq robust-lemma11(SCO,SIM)
      = (allFFCOHasFFIIM(SCO,SIM) = true)
@@ -120,14 +125,23 @@ module ROBUSTLEMMA {
        isForced(IM) and isForced(IM') and
        (tdis(IM) > tdis(IM')) .
 
-  pred robust-lemma16 : Component SetOfComponent Import Import SetOfImport
-  eq robust-lemma16(CO,SCO,IM,IM',SIM)
-     = (allFFCOHasFFIIM(CO SCO, IM SIM) implies allFFCOHasFFIIM(CO SCO, IM' SIM))
+  pred robust-lemma16 : SetOfComponent Import Import SetOfImport
+  eq robust-lemma16(SCO,IM,IM',SIM)
+     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
   when (importer(IM) = importer(IM')) and 
-       (id(CO) = importer(IM)) and
-       uniqCO(CO SCO) and
-       not isFForced1(CO) and
+       uniqCO(SCO) and
+       (not existCO(SCO,importer(IM)) or
+        not isFForced1(getComponent(SCO,importer(IM)))) and
        (fdis(IM) > fdis(IM')) .
+
+  -- pred robust-lemma16 : Component SetOfComponent Import Import SetOfImport
+  -- eq robust-lemma16(CO,SCO,IM,IM',SIM)
+  --    = (allFFCOHasFFIIM(CO SCO, IM SIM) implies allFFCOHasFFIIM(CO SCO, IM' SIM))
+  -- when (importer(IM) = importer(IM')) and 
+  --      (id(CO) = importer(IM)) and
+  --      uniqCO(CO SCO) and
+  --      not isFForced1(CO) and
+  --      (fdis(IM) > fdis(IM')) .
 
   pred robust-lemma17 : SetOfComponent Import Import SetOfImport
   eq robust-lemma17(SCO,IM,IM',SIM)
@@ -153,6 +167,129 @@ module ROBUSTLEMMA {
        (target(IM') = wired) .
 }
 
+--> **************************************************************************
+--> Proof of robust-lemma10.
+-->  eq robust-lemma10(SCO,IM,SIM)
+-->     = (allFFCOHasFFIIM(SCO,IM SIM) = allFFCOHasFFIIM(SCO,SIM))
+-->   when (not existCO(SCO,importer(IM))) .
+--> **************************************************************************
+module ROBUSTLEMMA10 {
+  protecting(ROBUSTLEMMA)
+  vars A B C : Bool
+  eq ((A and B) = (A and C)) = (B = C) .
+  -- Induction Hypothesis
+  ceq [robust-lemma10-IH :nonexec]:
+     robust-lemma10(SCO:SetOfComponent, im, sIM) = true
+     if SCO <wf (co sCO) .
+}
+
+select ROBUSTLEMMA10
+:goal { eq robust-lemma10(sCO0, im, sIM) = true .}
+:init as robust-lemma10-IH-in [robust-lemma10-IH]
+      by {SCO:SetOfComponent <- SCO:SetOfComponent;}
+:def sCO0 = :csp {
+  eq sCO0 = empCO .
+  eq sCO0 = (co sCO) .
+}
+:apply(sCO0)
+:apply(rd-)
+:def idcoctf = :ctf {
+  eq id(co) = importer(im) .
+}
+:apply(idcoctf)
+:apply(rd-)
+:def isFFcoctf = :ctf {
+  eq isFForced1(co) = true .
+}
+:apply(isFFcoctf rd-)
+eof
+:def uniqCOctf = :ctf {
+  eq uniqCO(co sCO) = true .
+}
+:apply(uniqCOctf)
+:apply(rd-)
+:def existCOctf = :ctf {
+  eq existCO(co sCO,importer(im)) = true .
+}
+:apply(existCOctf)
+:apply(rd-)
+eof
+:apply(rd-)
+--> Proof of robust-lemma10 done.
+-->
+show proof
+select
+eof
+--> **************************************************************************
+--> Proof of robust-lemma16.
+-->  pred robust-lemma16 : SetOfComponent Import Import SetOfImport
+-->  eq robust-lemma16(SCO,IM,IM',SIM)
+-->     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
+-->  when (importer(IM) = importer(IM')) and 
+-->       uniqCO(SCO) and
+-->       (not existCO(SCO,importer(IM)) or
+-->        not isFForced1(getComponent(SCO,importer(IM)))) and
+-->       (fdis(IM) > fdis(IM')) .
+--> **************************************************************************
+module ROBUSTLEMMA16 {
+  protecting(ROBUSTLEMMA)
+  -- Induction Hypothesis
+  ceq [robust-lemma16-IH :nonexec]:
+     robust-lemma16(SCO:SetOfComponent, im, im', sIM) = true
+     if SCO <wf (cmp(idCO,cCOs,nCOs,tCOs) sCO) .
+}
+
+select ROBUSTLEMMA16
+:goal { eq robust-lemma16(sCO0, im, im', sIM) = true .}
+:def importerimctf = :ctf {
+  eq importer(im') = importer(im) .
+}
+:apply(importerimctf rd-)
+:def uniqCOctf = :ctf {
+  eq uniqCO(sCO0) = true .
+}
+:apply(uniqCOctf rd-)
+:def sCO0 = :csp {
+  eq sCO0 = empCO .
+  eq sCO0 = (co sCO) .
+}
+:apply (sCO0)
+:apply (rd-)
+:def idCOctf = :ctf {
+  eq id(co) = importer(im) . 
+}
+:apply (idCOctf)
+:def isFF1coctf = :ctf {
+  eq isFForced1(co) = true .
+}
+:apply(isFF1coctf)
+:def existFFimctf = :ctf { 
+  eq existFFIM(getIMsOfICO(sIM,importer(im))) = true .
+}
+:apply(existFFimctf rd-)
+**> It takes about 5 minites! <**
+:def uniqCOcsp = :csp {
+  eq uniqCO(cosCO) = false .
+  eq existCO(sCO,id(co)) = false .
+}
+:apply(uniqCOcsp)
+:apply(rd-)
+eof
+:init as robust-lemma16-IH-in [robust-lemma16-IH]
+      by {SCO:SetOfComponent <- SCO:SetOfComponent;}
+:apply (rd-)
+:def existFFctf = :ctf { 
+  eq existFFIM(getIMsOfICO(sIM,id(co))) = true .
+}
+:apply (existFFctf)
+:apply (rd-)
+:apply (rd-)
+:apply (rd-)
+--> Proof of robust-lemma16 done.
+-->
+show proof
+select
+eof
 --> **************************************************************************
 --> Proof of robust-lemma01.
 -->  ceq robust-lemma01(SIM, CO, CO', SCO', SIM')
@@ -516,7 +653,7 @@ select
 --> Proof of robust-lemma11.
 -->  ceq robust-lemma11(SCO,SIM)
 -->     = (allFFCOHasFFIIM(SCO,SIM) = true)
--->   if stableCOSet(SCO) .
+-->   when stableCOSet(SCO) .
 --> **************************************************************************
 module ROBUSTLEMMA11 {
   protecting(ROBUSTLEMMA)
@@ -556,7 +693,7 @@ select
 --> Proof of robust-lemma12.
 -->  ceq robust-lemma12(SIM,SCO)
 -->     = (allFFIMHasFFECO(SIM,SCO) = true)
--->   if stableIMSet(SIM) .
+-->   when stableIMSet(SIM) .
 --> **************************************************************************
 module ROBUSTLEMMA12 {
   protecting(ROBUSTLEMMA)
