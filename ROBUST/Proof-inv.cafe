@@ -88,20 +88,26 @@ module Proofinv-allFFCOHasFFIIM {
        isForced(IM) and isForced(IM') and
        (tdis(IM) > tdis(IM')) .
 
-  -- pred robust-lemma16 : Component SetOfComponent Import Import SetOfImport
-  -- eq robust-lemma16(CO,SCO,IM,IM',SIM)
-  --    = (allFFCOHasFFIIM(CO SCO, IM SIM) implies allFFCOHasFFIIM(CO SCO, IM' SIM))
+  -- pred robust-lemma10 : SetOfComponent Import SetOfImport
+  -- eq robust-lemma10(SCO,IM,SIM)
+  --    = (allFFCOHasFFIIM(SCO, IM SIM) = allFFCOHasFFIIM(SCO, SIM)) 
+  --  when (not existCO(SCO,importer(IM))) .
+  ceq allFFCOHasFFIIM(SCO, IM SIM) 
+    = allFFCOHasFFIIM(SCO, SIM)
+    if (not existCO(SCO,importer(IM))) .
+
+  -- pred robust-lemma16 : SetOfComponent Import Import SetOfImport
+  -- eq robust-lemma16(SCO,IM,IM',SIM)
+  --    = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
   -- when (importer(IM) = importer(IM')) and 
-  --      (id(CO) = importer(IM)) and
-  --      uniqCO(CO SCO) and
-  --      not isFForced1(CO) and
+  --      uniqCO(SCO) and allIMHaveICO(IM,SCO) and
+  --      not isFForced1(getComponent(SCO,importer(IM))) and
   --      (fdis(IM) > fdis(IM')) .
-  ceq (allFFCOHasFFIIM(CO SCO, IM SIM) and allFFCOHasFFIIM(CO SCO, IM' SIM))
-    = allFFCOHasFFIIM(CO SCO, IM SIM)
+  ceq (allFFCOHasFFIIM(SCO, IM SIM) and allFFCOHasFFIIM(SCO, IM' SIM))
+    = allFFCOHasFFIIM(SCO, IM SIM)
     if (importer(IM) = importer(IM')) and 
-       (id(CO) = importer(IM)) and
-       uniqCO(CO SCO) and
-       not isFForced1(CO) and
+       uniqCO(SCO) and allIMHaveICO(IM,SCO) and
+       not isFForced1(getComponent(SCO,importer(IM))) and
        (fdis(IM) > fdis(IM')) .
 
   -- pred robust-lemma17 : SetOfComponent Import Import SetOfImport
@@ -149,34 +155,6 @@ module Proofinv-allFFCOHasFFIIM {
 
 select Proofinv-allFFCOHasFFIIM
 
---> *********************************************************************************************
---> trans [RD-unwire2]:
--->    < (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
--->      (imp(mandatory, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM),
--->      ListLG >
---> => < (cmp(IDCO, stopped, NSCO, TSCO) SCO),
--->      (imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM) SIM),
--->      (ilog("RD-unwire2:Do Unwire", imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM),
--->  mlog(
--->      (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
--->      (imp(mandatory, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM)
---> )) ListLG) > .
---> *********************************************************************************************
---> *************************************************************************
---> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
-:goal {
-  eq invinv(< (cmp(idCO, stopped, nCOs, tCOs) sCO), 
-              (imp(mandatory, idIM, idCO, eidCO, wired, unwired, tIMs) sIM),
-	      lg >) = true .
-}
-:def tIMs = :csp {
-  eq tIMs = wired .
-  eq tIMs = unwired .
-  eq tIMs = unused .
-}
-:apply (tIMs rd-)
-eof
 --> ***************************
 --> (4) init(S) implies inv(S).
 --> ***************************
@@ -229,6 +207,7 @@ show proof
               lg >) = true .
 }
 :apply(rd-)
+show proof
 
 --> *************************************************************************
 -->  trans [RS-stop2]:
@@ -515,8 +494,36 @@ show proof
 }
 :apply (tIMs rd-)
 show proof
+
+--> *********************************************************************************************
+--> trans [RD-unwire2]:
+-->    < (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
+-->      (imp(mandatory, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM),
+-->      ListLG >
+--> => < (cmp(IDCO, stopped, NSCO, TSCO) SCO),
+-->      (imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM) SIM),
+-->      (ilog("RD-unwire2:Do Unwire", imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM),
+-->  mlog(
+-->      (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
+-->      (imp(mandatory, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM)
+--> )) ListLG) > .
+--> *********************************************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(idCO, stopped, nCOs, tCOs) sCO), 
+              (imp(mandatory, idIM, idCO, eidCO, wired, unwired, tIMs) sIM),
+	      lg >) = true .}
+
+:def existCOctf = :ctf {
+  eq existCO(sCO,idCO) = true .
+}
+:apply (existCOctf rd-)
+show proof
+
 --> Proof of inv-allFFCOHasFFIIM done.
---> 14 goals should be proved.
+--> 15 goals should be proved.
 eof
 --> *******************************************************************
 -->  trans [RD-unwire3]:
