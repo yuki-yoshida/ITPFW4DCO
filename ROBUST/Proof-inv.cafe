@@ -141,6 +141,7 @@ module Proofinv-allFFCOHasFFIIM {
 
 select Proofinv-allFFCOHasFFIIM
 
+eof
 --> ***************************
 --> (4) init(S) implies inv(S).
 --> ***************************
@@ -532,10 +533,7 @@ show proof
 :apply (tIMs rd-)
 show proof
 
---> Proof of inv-allFFCOHasFFIIM done.
---> 16 goals should be proved.
-eof
---> *******************************************************************
+--> ****************************************************************************************
 -->  trans [RD-remove]:
 -->     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unused, unused) SIM),
 -->       ListLG >
@@ -544,20 +542,19 @@ eof
 -->	  mlog(
 -->       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unused, unused) SIM)
 -->	 )) ListLG) > .
---> *******************************************************************
+--> ****************************************************************************************
 --> *************************************************************************
 --> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
-  eq invinv(< (cmp(idCO, stopped, started, tCOs) sCO), sIM, lg >) = true .
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, unwired, unused, unused) sIM),lg >) = true .
 }
-:def tCOs = :csp {
-  eq tCOs = started .
-  eq tCOs = stopped .
-}
-:apply (tCOs rd-)
+:apply (rd-)
 show proof
 
+--> Proof of inv-allFFCOHasFFIIM done.
+--> 17 goals should be proved.
+eof
 --> *******************************************************************
 -->  ctrans [RD-stop]:
 -->     < (cmp(IDCO, started, stopped, TSCO) SCO), SIM,
