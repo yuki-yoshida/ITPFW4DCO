@@ -26,6 +26,505 @@ module ProofInv {
 }
 
 --> **************************************
+--> Proof of inv-allFFIMHasFFECO.
+-->  eq inv-allFFIMHasFFECO(< SCO,SIM,L >)
+-->    = allFFIMHasFFECO(SCO,SIM) .
+--> **************************************
+--> Proof of inv(S) implies inv(SS)
+module Proofinv-allFFIMHasFFECO {
+  protecting(ProofInv)
+  var S : State
+  eq invK(S) = inv-allFFIMHasFFECO(S) .
+
+  vars CO CO' : Component
+  vars IM IM' : Import
+  var SCO : SetOfComponent
+  var SIM : SetOfImport
+
+  -- pred robust-lemma12 : SetOfImport SetOfComponent
+  -- eq robust-lemma12(SIM,SCO)
+  --    = (allFFIMHasFFECO(SIM,SCO) = true)
+  --  when stableIMSet(SIM) .
+  eq (allFFIMHasFFECO(SIM,SCO) and stableIMSet(SIM))
+    = stableIMSet(SIM) .
+
+  -- eq robust-lemma19(SIM,CO,CO',SCO)
+  --    = (allFFIMHasFFECO(SIM, CO SCO) implies allFFIMHasFFECO(SIM, CO' SCO))
+  --  when (id(CO) = id(CO')) and 
+  --       not isFForced1(CO) and not isFForced1(CO') and
+  --       (tdis(CO) > tdis(CO')) .
+  ceq (allFFIMHasFFECO(SIM, CO SCO) and allFFIMHasFFECO(SIM, CO' SCO))
+    = allFFIMHasFFECO(SIM, CO SCO) 
+    if (id(CO) = id(CO')) and 
+       not isFForced1(CO) and not isFForced1(CO') and
+       (tdis(CO) > tdis(CO')) .
+}
+
+select Proofinv-allFFIMHasFFECO
+
+--> ***************************
+--> (4) init(S) implies inv(S).
+--> ***************************
+--> *******************************************
+--> Step 4-1: Begin with the most general case. 
+--> *******************************************
+:goal {
+  eq initinv(< sCO, sIM, lg >) = true .
+}
+:apply (rd-) 
+show proof
+
+--> ***************************
+--> (5) inv(S) implies inv(SS).
+--> ***************************
+--> ***************************************************************************
+-->  trans [RS-start1]:
+-->     < (cmp(IDCO, stopped, stopped, started) SCO), SIM,
+-->       ListLG >
+-->  => < (cmp(IDCO, stopped, started, started) SCO), SIM,
+-->       (clog("RS-start1:Should Start", cmp(IDCO, stopped, started, started),
+-->	  mlog(
+-->       (cmp(IDCO, stopped, stopped, started) SCO), SIM
+-->	 )) ListLG) > .
+--> ***************************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(idCO, stopped, stopped, started) sCO), sIM, lg >) = true .
+}
+:apply (rd-)
+show proof
+
+--> ************************************************************************
+--> trans [RS-stop1]:
+-->    < (cmp(IDCO, started, started, stopped) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, started, stopped, stopped) SCO), SIM,
+-->      (clog("RS-stop1:Should Stop", cmp(IDCO, started, stopped, stopped),
+--> 	  mlog(
+-->      (cmp(IDCO, started, started, stopped) SCO), SIM
+--> 	 )) ListLG) > .
+--> ************************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(idCO, started, started, stopped) sCO), sIM,
+              lg >) = true .
+}
+:apply(rd-)
+show proof
+
+--> *************************************************************************
+-->  trans [RS-stop2]:
+-->     < (cmp(IDCO, started, started, started) SCO),
+-->       (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
+-->        ListLG >
+-->  => < (cmp(IDCO, started, stopped, started) SCO),
+-->       (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
+-->       (clog("RS-stop2:Should Stop", cmp(IDCO, started, stopped, started),
+-->	  mlog(
+-->       (cmp(IDCO, started, started, started) SCO),
+-->       (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM)
+-->	 )) ListLG) > .
+--> *************************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(idCO, started, started, started) sCO),
+              (imp(mandatory, idIM, idCO, iidCO, wired, unwired, tIMs) sIM),
+              lg >) = true .
+}
+:def tIMs = :csp {
+  eq tIMs = wired .
+  eq tIMs = unwired .
+  eq tIMs = unused .
+}
+:apply (tIMs rd-)
+:def iidCOctf = :ctf {
+  eq idCO = iidCO .
+}
+:apply (iidCOctf rd-)
+show proof
+eof
+--> *******************************************************************
+-->  ctrans [RD-start]:
+-->     < (cmp(IDCO, stopped, started, TSCO) SCO), SIM,
+-->       ListLG >
+-->  => < (cmp(IDCO, started, started, TSCO) SCO), SIM,
+-->       (clog("RD-start:Do Start", cmp(IDCO, started, started, TSCO),
+-->	  mlog(
+-->       (cmp(IDCO, stopped, started, TSCO) SCO), SIM
+-->	 )) ListLG) >
+-->     if canStart(IDCO,SCO,SIM) .
+--> *******************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(idCO, stopped, started, tCOs) sCO), sIM, lg >) = true .
+}
+:def tCOs = :csp {
+  eq tCOs = started .
+  eq tCOs = stopped .
+}
+:apply (tCOs rd-)
+show proof
+
+--> ***************************************************************************************
+-->  trans [RS-wire]:
+-->     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, wired) SIM),
+-->       ListLG >
+-->  => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired,   wired, wired) SIM),
+-->       (ilog("RS-wire:Should Wire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired),
+-->	  mlog(
+-->       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, wired) SIM)
+-->	 )) ListLG) > .
+--> ***************************************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, unwired, unwired, wired) sIM),
+	      lg >) = true .
+}
+:apply (rd-)
+show proof
+
+--> **********************************************************************************************
+-->  trans [RS-unwire1]:
+-->     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unwired) SIM),
+-->       ListLG >
+-->  => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unwired) SIM),
+-->       (ilog("RS-unwire1:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unwired),
+-->	  mlog(
+-->       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unwired) SIM)
+-->	 )) ListLG) > .
+--> **********************************************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired,   wired, unwired) sIM), lg >) = true .
+}
+:apply (rd-)
+show proof
+
+--> ********************************************************************************************
+-->  trans [RS-unwire2]:
+-->     < (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, TSCO') SCO), 
+-->       (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, wired) SIM),
+-->       ListLG >
+-->  => < (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, TSCO') SCO), 
+-->       (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, wired) SIM),
+-->       (ilog("RS-unwire2:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, wired),
+-->	  mlog(
+-->       (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, TSCO') SCO), 
+-->       (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, wired) SIM)
+-->	 )) ListLG) > .
+--> ********************************************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(iidCO, started, nCOs, tCOs) cmp(eidCO, started, stopped, tCOs') sCO), 
+              (imp(tIM, idIM, iidCO, eidCO, wired,   wired, wired) sIM),
+              lg >) = true .
+}
+:def eidCOctf = :ctf {
+  eq eidCO = iidCO .
+}
+:def nCOs = :csp {
+  eq nCOs = started .
+  eq nCOs = stopped .
+}
+:def tCOs = :csp {
+  eq tCOs = started .
+  eq tCOs = stopped .
+}
+:def tCOs' = :csp {
+  eq tCOs' = started .
+  eq tCOs' = stopped .
+}
+:def tIM = :csp {
+  eq tIM = mandatory .
+  eq tIM = optional .
+}
+:apply (eidCOctf nCOs tCOs tCOs' tIM rd-)
+show proof
+eof
+--> *********************************************************************************************
+-->  trans [RS-unwire3]:
+-->     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unused) SIM),
+-->       ListLG >
+-->  => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unused) SIM),
+-->       (ilog("RS-unwire3:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unused),
+-->	  mlog(
+-->       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unused) SIM)
+-->	 )) ListLG) > .
+--> *********************************************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired,   wired, unused) sIM),
+              lg >) = true .
+}
+:def tIM = :csp {
+  eq tIM = mandatory .
+  eq tIM = optional .
+}
+:apply (tIM rd-)
+show proof
+
+--> *********************************************************************************************
+-->  trans [RS-unwire4]:
+-->     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused,  unused, wired) SIM),
+-->       ListLG >
+-->  => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused, unwired, wired) SIM),
+-->       (ilog("RS-unwire4:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, unused, unwired, wired),
+-->	  mlog(
+-->       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused,  unused, wired) SIM)
+-->	 )) ListLG) > .
+--> *********************************************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, unused,  unused, wired) sIM),
+	      lg >) = true .
+}
+:apply (rd-)
+show proof
+
+--> ************************************************************************************************
+-->  trans [RS-unused]:
+-->     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, unused) SIM),
+-->       ListLG >
+-->  => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired,  unused, unused) SIM),
+-->       (ilog("RS-unused:Should be Unused", imp(TIM, IDIM, IIDCO, EIDCO, unwired, unused, unused),
+-->	  mlog(
+-->       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, unused) SIM)
+-->	 )) ListLG) > .
+--> ************************************************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, unwired, unwired, unused) sIM),
+	      lg >) = true .
+}
+:apply (rd-)
+show proof
+
+--> **********************************************************************************
+-->  trans [RD-wire1]:
+-->     < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
+-->       (imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired) SIM),
+-->       ListLG >
+-->  => < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
+-->       (imp(TIM, IDIM, IIDCO, EIDCO,   wired, wired, wired) SIM),
+-->       (ilog("RD-wire1:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, wired, wired),
+-->	  mlog(
+-->       (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
+-->       (imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired) SIM)
+-->	 )) ListLG) > .
+--> **********************************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(iidCO, stopped, stopped, tCOs) sCO), 
+	      (imp(tIM, idIM, iidCO, eidCO, unwired, wired, wired) sIM),
+              lg >) = true .
+}
+:def tIM = :csp {
+  eq tIM = mandatory .
+  eq tIM = optional .
+}
+:apply (tIM rd-)
+show proof
+
+
+--> *******************************************************************
+-->  trans [RD-wire2]:
+-->     < (cmp(EIDCO, started, started, TSCO) SCO), 
+-->       (imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired) SIM),
+-->       ListLG >
+-->  => < (cmp(EIDCO, started, started, TSCO) SCO), 
+-->       (imp(TIM, IDIM, IIDCO, EIDCO,   wired, wired, wired) SIM),
+-->       (ilog("RD-wire2:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, wired, wired),
+-->	  mlog(
+-->       (cmp(EIDCO, started, started, TSCO) SCO), 
+-->       (imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired) SIM)
+-->	 )) ListLG) > .
+--> *******************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(eidCO, started, started, tCOs) sCO), 
+	      (imp(tIM, idIM, iidCO, eidCO, unwired, wired, wired) sIM),
+	      lg >) = true .
+}
+:def tCOs = :csp {
+  eq tCOs = started .
+  eq tCOs = stopped .
+}
+:apply (tCOs rd-)
+show proof
+
+--> *******************************************************************
+-->  ctrans [RD-unwire1]:
+-->     < (cmp(IDCO, CSCO, CSCO, TSCO) SCO),
+-->       (imp(optional, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM),
+-->       ListLG >
+-->  => < (cmp(IDCO, CSCO, CSCO, TSCO) SCO),
+-->       (imp(optional, IDIM, IDCO, EIDCO, unwired, unwired, TSIM) SIM),
+-->       (ilog("RD-unwire1:Do Unwire", imp(optional, IDIM, IDCO, EIDCO, unwired, unwired, TSIM),
+-->	  mlog(
+-->       (cmp(IDCO, CSCO, CSCO, TSCO) SCO),
+-->       (imp(optional, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM)
+-->	 )) ListLG) >
+-->     if not (CSCO = failed) .
+--> *******************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(idCO, cCOs, cCOs, tCOs) sCO),
+	      (imp(optional, idIM, idCO, eidCO, wired, unwired, tIMs) sIM),
+	      lg >) = true .
+}
+:def tIMs = :csp {
+  eq tIMs = wired .
+  eq tIMs = unwired .
+  eq tIMs = unused .
+}
+:apply (tIMs rd-)
+show proof
+
+--> *********************************************************************************************
+--> trans [RD-unwire2]:
+-->    < (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
+-->      (imp(mandatory, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM),
+-->      ListLG >
+--> => < (cmp(IDCO, stopped, NSCO, TSCO) SCO),
+-->      (imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM) SIM),
+-->      (ilog("RD-unwire2:Do Unwire", imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM),
+-->  mlog(
+-->      (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
+-->      (imp(mandatory, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM)
+--> )) ListLG) > .
+--> *********************************************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(idCO, stopped, nCOs, tCOs) sCO), 
+              (imp(mandatory, idIM, idCO, eidCO, wired, unwired, tIMs) sIM),
+	      lg >) = true .}
+
+:def existCOctf = :ctf {
+  eq existCO(sCO,idCO) = true .
+}
+:apply (existCOctf rd-)
+show proof
+
+--> *********************************************************************************************
+-->  trans [RD-unwire3]:
+-->     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused, unwired, TSIM) SIM),
+-->       ListLG >
+-->  => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, TSIM) SIM),
+-->       (ilog("RD-unwire3:Should UnWire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, TSIM),
+-->	  mlog(
+-->       SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused, unwired, TSIM) SIM)
+-->	 )) ListLG) > .
+--> *********************************************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO,  unused, unwired, tIMs) sIM), lg >) = true .
+}
+:def tIMs = :csp {
+  eq tIMs = wired .
+  eq tIMs = unwired .
+  eq tIMs = unused .
+}
+:apply (tIMs rd-)
+show proof
+
+--> ****************************************************************************************
+-->  trans [RD-remove]:
+-->     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unused, unused) SIM),
+-->       ListLG >
+-->  => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused, unused, unused) SIM),
+-->       (ilog("RD-remove:Do Remove", imp(TIM, IDIM, IIDCO, EIDCO, unused, unused, unused),
+-->	  mlog(
+-->       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unused, unused) SIM)
+-->	 )) ListLG) > .
+--> ****************************************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, unwired, unused, unused) sIM),lg >) = true .
+}
+:apply (rd-)
+show proof
+
+--> *************************************************************************************
+-->  ctrans [RD-stop]:
+-->     < (cmp(IDCO, started, stopped, TSCO) SCO), SIM,
+-->       ListLG >
+-->  => < (cmp(IDCO, stopped, stopped, TSCO) SCO), SIM,
+-->       (clog("RD-stop:Do Stop", cmp(IDCO, stopped, stopped,TSCO),
+-->	  mlog(
+-->       (cmp(IDCO, started, stopped, TSCO) SCO), SIM
+-->	 )) ListLG) >
+-->     if allCOInStates(getICOsOfIMs(SCO,getIMsOfECOInStates(SIM,IDCO,wired)),stopped) .
+--> *************************************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(idCO, started, stopped, tCOs) sCO), sIM, lg >) = true .
+}
+:def tCOs = :csp {
+  eq tCOs = started .
+  eq tCOs = stopped .
+}
+:apply (tCOs rd-)
+show proof
+eof
+--> ***************************************************************************************
+-->  trans [RS-wire]:
+-->     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, wired) SIM),
+-->       ListLG >
+-->  => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired,   wired, wired) SIM),
+-->       (ilog("RS-wire:Should Wire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired),
+-->	  mlog(
+-->       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, wired) SIM)
+-->	 )) ListLG) > .
+--> ***************************************************************************************
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, unwired, unwired, wired) sIM), lg >) = true .
+}
+:apply (rd-)
+show proof
+
+--> Proof of inv-allFFIMHasFFECO done.
+--> 19 goals should be proved.
+select
+eof
+
+--> **************************************
 --> Proof of inv-allFFCOHasFFIIM.
 -->  eq inv-allFFCOHasFFIIM(< SCO,SIM,L >)
 -->    = allFFCOHasFFIIM(SCO,SIM) .
@@ -573,25 +1072,6 @@ show proof
   eq tCOs = stopped .
 }
 :apply (tCOs rd-)
-show proof
-
---> ***************************************************************************************
--->  trans [RS-wire]:
--->     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, wired) SIM),
--->       ListLG >
--->  => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired,   wired, wired) SIM),
--->       (ilog("RS-wire:Should Wire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired),
--->	  mlog(
--->       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, wired) SIM)
--->	 )) ListLG) > .
---> ***************************************************************************************
---> *************************************************************************
---> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
-:goal {
-  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, unwired, unwired, wired) sIM), lg >) = true .
-}
-:apply (rd-)
 show proof
 
 --> Proof of inv-allFFCOHasFFIIM done.
