@@ -163,6 +163,13 @@ module ROBUSTLEMMA {
    when (id(CO) = id(CO')) and 
         not isFForced1(CO) and not isFForced1(CO') and
         (tdis(CO) > tdis(CO')) .
+
+  pred robust-lemma20 : SetOfImport Component Component SetOfComponent
+  eq robust-lemma20(SIM,CO,CO',SCO)
+     = (allFFIMHasFFECO(SIM, CO SCO) implies allFFIMHasFFECO(SIM, CO' SCO))
+   when (id(CO) = id(CO')) and 
+        not isFForced1(CO) and isFForced1(CO') and
+        (fdis(CO) > fdis(CO')) .
 }
 
 --> **************************************************************************
@@ -1146,4 +1153,55 @@ select ROBUSTLEMMA19
 show proof
 select
 
---> Totally 16 goals should be proved.
+--> **************************************************************************
+--> Proof of robust-lemma20.
+-->  eq robust-lemma20(SIM,CO,Co',SCO)
+-->     = (allFFIMHasFFECO(SIM, CO SCO) implies allFFIMHasFFECO(SIM, CO' SCO))
+-->   when (id(CO) = id(CO')) and 
+-->        not isFForced1(CO) and isFForced1(CO') and
+-->        (fdis(CO) > fdis(CO')) .
+--> **************************************************************************
+module ROBUSTLEMMA20 {
+  protecting(ROBUSTLEMMA)
+  -- Induction Hypothesis
+  ceq [robust-lemma20-IH :nonexec]:
+     robust-lemma20(SIM:SetOfImport, co, co', sCO) = true
+     if SIM <wf (imp(tIM,idIM,iidCO,eidCO,cIMs,nIMs,tIMs) sIM) .
+}
+
+select ROBUSTLEMMA20
+:goal { eq robust-lemma20(sIM0, co, co', sCO) = true .}
+:def idcoctf = :ctf {
+  eq id(co') = id(co) .
+}
+:def isFF1coctf = :ctf {
+  eq isFForced1(co) = true .
+}
+:def isFF1co'ctf = :ctf {
+  eq isFForced1(co') = true .
+}
+:apply (idcoctf isFF1coctf isFF1co'ctf rd-)
+:init as robust-lemma20-IH-in [robust-lemma20-IH]
+      by {SIM:SetOfImport <- SIM:SetOfImport;}
+:def sIM0 = :csp {
+  eq sIM0 = empIM .
+  eq sIM0 = (im sIM) .
+}
+:apply (sIM0 rd-)
+:def idcoisExporterctf = :ctf {
+  eq id(co) = exporter(im) .
+}
+:def isFFimctf = :ctf {
+  eq isFForced1(im) = true .
+}
+:apply (idcoisExporterctf isFFimctf rd-)
+:def isFF1imcoctf = :ctf {
+  eq isFForced1(getComponent(sCO,exporter(im))) = true .
+}
+:apply (isFF1imcoctf rd-)
+--> Proof of robust-lemma20 done.
+-->
+show proof
+select
+
+--> Totally 17 goals should be proved.

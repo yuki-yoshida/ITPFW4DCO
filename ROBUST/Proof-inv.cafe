@@ -147,6 +147,10 @@ show proof
   eq idCO = iidCO .
 }
 :apply (iidCOctf rd-)
+:def importerisFForcedctf = :ctf {
+  eq isFForced1(getComponent(sCO,iidCO)) = true .
+}
+:apply (importerisFForcedctf rd-)
 show proof
 eof
 --> *******************************************************************
