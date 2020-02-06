@@ -657,14 +657,14 @@ module! STATERules {
 
   -- An Import of a started Component should be unwired when its export Component should stop.
   trans [RS-unwire2]:
-     < (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, TSCO') SCO), 
+     < (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, started) SCO), 
        (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, wired) SIM),
        ListLG >
-  => < (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, TSCO') SCO), 
+  => < (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, started) SCO), 
        (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, wired) SIM),
        (ilog("RS-unwire2:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, wired),
 	  mlog(
-       (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, TSCO') SCO), 
+       (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, started) SCO), 
        (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, wired) SIM)
 	 )) ListLG) > .
 
