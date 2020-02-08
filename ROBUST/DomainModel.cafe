@@ -429,7 +429,7 @@ module! STATEfuns {
   pred validTarget : SetOfComponent SetOfImport
   eq validTarget(SCO,SIM)
      = validTargetComponent(SCO,SCO,SIM) and validTargetImport(SIM,SCO) .
-  -- and noCycleTraget(SCO,SIM) .
+  -- ** and noCycleTraget(SCO,SIM) .
 
   pred validCurrentComponent : SetOfComponent SetOfComponent SetOfImport
   eq validCurrentComponent(empCO,SCO0,SIM0) = true .
@@ -454,26 +454,12 @@ module! STATEfuns {
   pred validCurrent : SetOfComponent SetOfImport
   eq validCurrent(SCO,SIM)
      = validCurrentComponent(SCO,SCO,SIM) and validCurrentImport(SIM,SCO) .
-  -- and noCycleTraget(SCO,SIM) .
+  -- ** and noCycleTraget(SCO,SIM) .
 
   pred allCOInBothStates : SetOfComponent SetOfCOState 
   eq allCOInBothStates(empCO,StCO) = true .
   eq allCOInBothStates((cmp(IDCO,CSCO,NSCO,TSCO) SCO),StCO) 
      = (CSCO in StCO) and (NSCO in StCO) and allCOInBothStates(SCO,StCO) .
-
-  -- op getIMsOfECOInNextStates : SetOfImport COID SetOfIMState -> SetOfImport
-  -- eq getIMsOfECOInNextStates(empIM,IDCO,StIM) = empIM .
-  -- ceq getIMsOfECOInNextStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM),IDCO,StIM) 
-  --    = (imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) getIMsOfECOInNextStates(SIM,IDCO,StIM))
-  --    if NSIM in StIM .
-  -- ceq getIMsOfECOInNextStates((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,TSIM) SIM),IDCO,StIM) 
-  --    = getIMsOfECOInNextStates(SIM,IDCO,StIM)
-  --    if not EIDCO = IDCO or not NSIM in StIM .
-
-  -- pred allIMInNextStates : SetOfImport SetOfIMState 
-  -- eq allIMInNextStates(empIM,StIM) = true .
-  -- eq allIMInNextStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM),StIM) 
-  --    = (NSIM in StIM) and allIMInNextStates(SIM,StIM) .
 
   pred allIMInBothStates : SetOfImport SetOfIMState 
   eq allIMInBothStates(empIM,StIM) = true .
@@ -632,8 +618,6 @@ module! STATERules {
        (cmp(IDCO, stopped, started, TSCO) SCO), SIM
 	 )) ListLG) >
      if canStart(IDCO,SCO,SIM) .
---     if allIMInBothStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(wired unused)) and
---        allCOInBothStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,wired)),started) .
 
   -- An Import should be wired if it is targeted.
   trans [RS-wire]:
@@ -769,8 +753,7 @@ module! STATERules {
        SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unused, unused) SIM)
 	 )) ListLG) > .
 
-  -- A Component can be stopped when there is no started component importing it.
-  -- N.B. This rule requires to check not cause loops.
+  -- A Component can be stopped when there is no wired import to it.
   ctrans [RD-stop]:
      < (cmp(IDCO, started, stopped, TSCO) SCO), SIM,
        ListLG >
@@ -779,6 +762,6 @@ module! STATERules {
 	  mlog(
        (cmp(IDCO, started, stopped, TSCO) SCO), SIM
 	 )) ListLG) >
-     if allCOInStates(getICOsOfIMs(SCO,getIMsOfECOInStates(SIM,IDCO,wired)),stopped) .
+     if getIMsOfECOInStates(SIM,IDCO,wired) = empIM .
 
 }
