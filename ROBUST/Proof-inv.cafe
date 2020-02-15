@@ -244,24 +244,16 @@ show proof
               (imp(tIM, idIM, iidCO, eidCO, wired,   wired, wired) sIM),
               lg >) = true .
 }
-:def eidCOctf = :ctf {
-  eq eidCO = iidCO .
-}
-:def nCOs = :csp {
-  eq nCOs = started .
-  eq nCOs = stopped .
-}
-:def tCOs = :csp {
-  eq tCOs = started .
-  eq tCOs = stopped .
-}
 :def tIM = :csp {
   eq tIM = mandatory .
   eq tIM = optional .
 }
-:apply (eidCOctf nCOs tCOs tIM rd-)
+:def eidCOctf = :ctf {
+  eq eidCO = iidCO .
+}
+:apply (tIM eidCOctf rd-)
 show proof
-eof
+
 --> *********************************************************************************************
 -->  trans [RS-unwire3]:
 -->     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unused) SIM),
@@ -483,7 +475,7 @@ show proof
 :apply (rd-)
 show proof
 
---> *************************************************************************************
+--> ****************************************************************
 -->  ctrans [RD-stop]:
 -->     < (cmp(IDCO, started, stopped, TSCO) SCO), SIM,
 -->       ListLG >
@@ -492,8 +484,8 @@ show proof
 -->	  mlog(
 -->       (cmp(IDCO, started, stopped, TSCO) SCO), SIM
 -->	 )) ListLG) >
--->     if allCOInStates(getICOsOfIMs(SCO,getIMsOfECOInStates(SIM,IDCO,wired)),stopped) .
---> *************************************************************************************
+-->     if getIMsOfECOInStates(SIM,IDCO,wired) = empIM .
+--> ****************************************************************
 --> *************************************************************************
 --> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -507,24 +499,6 @@ show proof
 :apply (tCOs rd-)
 show proof
 eof
---> ***************************************************************************************
--->  trans [RS-wire]:
--->     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, wired) SIM),
--->       ListLG >
--->  => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired,   wired, wired) SIM),
--->       (ilog("RS-wire:Should Wire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired),
--->	  mlog(
--->       SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, wired) SIM)
--->	 )) ListLG) > .
---> ***************************************************************************************
---> *************************************************************************
---> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
-:goal {
-  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, unwired, unwired, wired) sIM), lg >) = true .
-}
-:apply (rd-)
-show proof
 
 --> Proof of inv-allFFIMHasFFECO done.
 --> 19 goals should be proved.
@@ -1067,7 +1041,7 @@ show proof
 -->	  mlog(
 -->       (cmp(IDCO, started, stopped, TSCO) SCO), SIM
 -->	 )) ListLG) >
--->     if allCOInStates(getICOsOfIMs(SCO,getIMsOfECOInStates(SIM,IDCO,wired)),stopped) .
+-->     if getIMsOfECOInStates(SIM,IDCO,wired) = empIM .
 --> *************************************************************************************
 --> *************************************************************************
 --> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
