@@ -69,6 +69,13 @@ module Proofinv-allFFIMHasFFECO {
     if (id(CO) = id(CO')) and 
        not isFForced1(CO) and isFForced1(CO') and
        (fdis(CO) > fdis(CO')) .
+
+  -- eq robust-lemma21(SIM,CO,SCO)
+  --    = (allFFIMHasFFECO(SIM, CO SCO) implies allFFIMHasFFECO(SIM, SCO))
+  --  when getIMsOfECOInStates(SIM,id(CO),wired) = empIM .
+  ceq allFFIMHasFFECO(SIM, CO SCO) = allFFIMHasFFECO(SIM, SCO)
+   if getIMsOfECOInStates(SIM,id(CO),wired) = empIM .
+  
 }
 
 select Proofinv-allFFIMHasFFECO
@@ -346,7 +353,6 @@ show proof
 :apply (tIM rd-)
 show proof
 
-
 --> *******************************************************************
 -->  trans [RD-wire2]:
 -->     < (cmp(EIDCO, started, started, TSCO) SCO), 
@@ -497,13 +503,15 @@ show proof
   eq tCOs = stopped .
 }
 :apply (tCOs rd-)
+:def noWiredIMctf = :ctf {
+  eq getIMsOfECOInStates(sIM,idCO,wired) = empIM .
+}
+:apply (noWiredIMctf rd-)
 show proof
-eof
 
 --> Proof of inv-allFFIMHasFFECO done.
---> 19 goals should be proved.
+--> 18 goals should be proved.
 select
-eof
 
 --> **************************************
 --> Proof of inv-allFFCOHasFFIIM.
@@ -783,7 +791,6 @@ show proof
 --> *************************************************************************
 --> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
-eof
 :goal {
   eq invinv(< (cmp(iidCO, started, nCOs, tCOs) cmp(eidCO, started, stopped, tCOs') sCO), 
               (imp(tIM, idIM, iidCO, eidCO, wired,   wired, wired) sIM),
@@ -902,7 +909,6 @@ show proof
 }
 :apply (tIM rd-)
 show proof
-
 
 --> *******************************************************************
 -->  trans [RD-wire2]:
@@ -1057,5 +1063,7 @@ show proof
 show proof
 
 --> Proof of inv-allFFCOHasFFIIM done.
---> 19 goals should be proved.
+--> 18 goals should be proved.
 select
+
+--> Totally 36 goals should be proved.

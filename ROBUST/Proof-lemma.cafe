@@ -176,109 +176,12 @@ module ROBUSTLEMMA {
         not isFForced1(CO) and isFForced1(CO') and
         (fdis(CO) > fdis(CO')) .
 
-  pred robust-lemma21 : SetOfImport Component Component SetOfComponent
-  eq robust-lemma21(SIM,CO,CO',SCO)
-     = (allFFIMHasFFECO(SIM, CO SCO) implies allFFIMHasFFECO(SIM, CO' SCO))
-   when (id(CO) = id(CO')) and 
-        isFForced1(CO) and not isFForced1(CO') and
-        iidCOeidCODiffer(SIM) and
-        allFFCOHasFFIIM(CO SCO,SIM) and
-        (fdis(CO) > fdis(CO')) .
+  pred robust-lemma21 : SetOfImport Component SetOfComponent
+  eq robust-lemma21(SIM,CO,SCO)
+     = (allFFIMHasFFECO(SIM, CO SCO) = allFFIMHasFFECO(SIM, SCO))
+   when getIMsOfECOInStates(SIM,id(CO),wired) = empIM .
 }
 
---> **************************************************************************
---> Proof of robust-lemma21.
--->  eq robust-lemma21(SIM,CO,Co',SCO)
--->     = (allFFIMHasFFECO(SIM, CO SCO) implies allFFIMHasFFECO(SIM, CO' SCO))
--->   when (id(CO) = id(CO')) and 
--->        isFForced1(CO) and not isFForced1(CO') and
--->        iidCOeidCODiffer(SIM) and
--->        allFFCOHasFFIIM(CO SCO,SIM) and
--->        (fdis(CO) > fdis(CO')) .
---> **************************************************************************
-module ROBUSTLEMMA21 {
-  protecting(ROBUSTLEMMA)
-  -- Induction Hypothesis
-  ceq [robust-lemma21-IH :nonexec]:
-     robust-lemma21(SIM:SetOfImport, co, co', sCO) = true
-     if SIM <wf (imp(tIM,idIM,iidCO,eidCO,cIMs,nIMs,tIMs) sIM) .
-}
-
-select ROBUSTLEMMA21
-:goal { eq robust-lemma21(sIM0, co, co', sCO) = true .}
-:def idcoctf = :ctf {
-  eq id(co') = id(co) .
-}
-:def isFF1coctf = :ctf {
-  eq isFForced1(co) = true .
-}
-:def isFF1co'ctf = :ctf {
-  eq isFForced1(co') = true .
-}
-:apply (idcoctf isFF1coctf isFF1co'ctf rd-)
-:def sIM0 = :csp {
-  eq sIM0 = empIM .
-  eq sIM0 = (im sIM) .
-}
-:apply (sIM0)
-:apply (rd-)
-:def idcoisExporterctf = :ctf {
-  eq id(co) = exporter(im) .
-}
-:apply (idcoisExporterctf)
-:def iidCOeidCODifferctf = :ctf {
-  eq exporter(im) = importer(im) .
-}
-:apply (iidCOeidCODifferctf rd-)
-:def iidCOeidCODiffersIMctf = :ctf {
-  eq iidCOeidCODiffer(sIM) = true .
-}  
-:apply (iidCOeidCODiffersIMctf rd-)
-:def existFFctf = :ctf { 
-  eq existFFIM(getIMsOfICO(sIM,exporter(im))) = true .
-}
-:apply (existFFctf rd-)
-:def allFFCOHasFFIIMsCOctf = :ctf {
-  eq allFFCOHasFFIIM(sCO,(im sIM)) = true .
-}
-:apply (allFFCOHasFFIIMsCOctf rd-)
-eof
-:def isFFimctf = :ctf {
-  eq isFForced1(im) = true .
-}
-:apply (isFFimctf rd-)
-:def iidCOeidCODiffersIMctf = :ctf {
-  eq iidCOeidCODiffer(sIM) = true .
-}  
-:apply (iidCOeidCODiffersIMctf rd-)
-:def allFFCOHasFFIIMsCOctf = :ctf {
-  eq allFFCOHasFFIIM(sCO,(im sIM)) = true .
-}
-:apply (allFFCOHasFFIIMsCOctf rd-)
-eof
-:init as robust-lemma21-IH-in [robust-lemma21-IH]
-      by {SIM:SetOfImport <- SIM:SetOfImport;}
-:def isFF1imcoctf = :ctf {
-  eq isFForced1(getComponent(sCO,exporter(im))) = true .
-}
-:apply (isFF1imcoctf rd-)
-eof
---> Proof of robust-lemma21 done.
--->
-
-root
-[idcoctf] 1
-[isFF1coctf] 1-1
-[isFF1co'ctf] 1-1-2
-[sIM0] 1-1-2-2
-[idcoisExporterctf] 1-1-2-2-1
->[isFFimctf] 1-1-2-2-1-1
-:goal { ** 1-1-2-2-1-1 -----------------------------------------
-
-show proof
-select
-
-eof
 --> **************************************************************************
 --> Proof of robust-lemma01.
 -->  ceq robust-lemma01(SIM, CO, CO', SCO', SIM')
@@ -1309,6 +1212,49 @@ select ROBUSTLEMMA20
 --> Proof of robust-lemma20 done.
 -->
 show proof
+
+--> **********************************************************************
+--> Proof of robust-lemma21.
+-->  eq robust-lemma21(SIM,CO,SCO)
+-->     = (allFFIMHasFFECO(SIM, CO SCO) implies allFFIMHasFFECO(SIM, SCO))
+-->   when getIMsOfECOInStates(SIM,id(CO),wired) = empIM .
+--> **********************************************************************
+module ROBUSTLEMMA21 {
+  protecting(ROBUSTLEMMA)
+  -- Induction Hypothesis
+  ceq [robust-lemma21-IH :nonexec]:
+     robust-lemma21(SIM:SetOfImport, co, sCO) = true
+     if SIM <wf (im sIM) .
+}
+
+select ROBUSTLEMMA21
+:goal { eq robust-lemma21(sIM0, co, sCO) = true .}
+:init as robust-lemma21-IH-in [robust-lemma21-IH]
+      by {SIM:SetOfImport <- SIM:SetOfImport;}
+:def sIM0 = :csp {
+  eq sIM0 = empIM .
+  eq sIM0 = (im sIM) .
+}
+:apply (sIM0 rd-)
+:def idcoisExporterctf = :ctf {
+  eq exporter(im) = id(co) .
+}
+:def imWiredctf = :ctf {
+  eq state(im) = wired .
+}
+:apply (idcoisExporterctf imWiredctf rd-)
+:def isFF1imctf = :ctf {
+  eq isFForced1(im) = true .
+}
+:apply (isFF1imctf rd-)
+:def isFF1ExpCoctf = :ctf {
+  eq isFForced1(getComponent(sCO,exporter(im))) = true .
+}
+:apply (isFF1ExpCoctf rd-)
+--> Proof of robust-lemma21 done.
+-->
+show proof
+
 select
 
---> Totally 17 goals should be proved.
+--> Totally 18 goals should be proved.
