@@ -300,6 +300,27 @@ module! LINKS {
 	   op ifXInStatesThenZInStates3 -> ifECOInTargetStatesThenIMInStates}
 	)
 
+  var CO : Component
+  var IM : Import
+  var SCO0 : SetOfComponent
+  vars SIM SIM0 : SetOfImport
+  var tIM : IMType
+
+  -- Note that this op should be defined by Template.
+  op getIMsOfType : SetOfImport IMType -> SetOfImport
+  eq getIMsOfType(empIM,tIM) = empIM .
+  eq getIMsOfType(IM SIM,tIM) 
+   = if (type(IM) = tIM) then 
+       (IM getIMsOfType(SIM,tIM)) 
+     else 
+       getIMsOfType(SIM,tIM) fi .
+    
+  pred isMandatoryClientOf : Component SetOfImport SetOfComponent SetOfImport 
+  ceq isMandatoryClientOf(CO,SIM,SCO0,SIM0) = true
+    if (CO in getICOsOfIMs(SCO0,getIMsOfType(SIM,mandatory))) .
+  ceq isMandatoryClientOf(CO,SIM,SCO0,SIM0) = true
+    if isMandatoryClientOf(CO,getIMsOfECOs(SIM0,getICOsOfIMs(SCO0,SIM)),SCO0,SIM0) .
+
 }
 
 module! LOG {

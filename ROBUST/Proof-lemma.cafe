@@ -92,11 +92,6 @@ module ROBUSTLEMMA {
      = (allFFCOHasFFIIM(SCO, IM SIM) = allFFCOHasFFIIM(SCO, SIM)) 
    when (not existCO(SCO,importer(IM))) .
 
-  -- pred robust-lemma21 : SetOfImport Component SetOfComponent
-  -- eq robust-lemma21(SIM,CO,SCO)
-  --    = (allFFIMHasFFECO(SIM, CO SCO) = allFFIMHasFFECO(SIM, SCO)) 
-  --  when (not existIM(SIM,exporter(CO))) .
-
   pred robust-lemma11 : SetOfComponent SetOfImport
   eq robust-lemma11(SCO,SIM)
      = (allFFCOHasFFIIM(SCO,SIM) = true)
@@ -111,7 +106,7 @@ module ROBUSTLEMMA {
   eq robust-lemma13(SCO,IM,IM',SIM)
      = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
    when (importer(IM) = importer(IM')) and 
-        not isForced(IM) and not isFForced1(IM) and
+        not isForced1(IM) and not isFForced1(IM) and
         (tdis(IM) >= tdis(IM')) and
         (fdis(IM) > fdis(IM')) .
 
@@ -119,7 +114,7 @@ module ROBUSTLEMMA {
   eq robust-lemma14(SCO,IM,IM',SIM)
      = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
    when (importer(IM) = importer(IM')) and 
-        not isForced(IM) and not isFForced1(IM) and
+        not isForced1(IM) and not isFForced1(IM) and
         (tdis(IM) > tdis(IM')) and
         (fdis(IM) >= fdis(IM')) .
 
@@ -127,7 +122,7 @@ module ROBUSTLEMMA {
   eq robust-lemma15(SCO,IM,IM',SIM)
      = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
    when (importer(IM) = importer(IM')) and 
-        isForced(IM) and isForced(IM') and
+        isForced1(IM) and isForced1(IM') and
         (tdis(IM) > tdis(IM')) .
 
   -- This lemma is not necessary.
@@ -180,6 +175,16 @@ module ROBUSTLEMMA {
   eq robust-lemma21(SIM,CO,SCO)
      = (allFFIMHasFFECO(SIM, CO SCO) = allFFIMHasFFECO(SIM, SCO))
    when getIMsOfECOInStates(SIM,id(CO),wired) = empIM .
+
+  pred robust-lemma30 : Component Component Import  SetOfComponent SetOfImport
+  eq robust-lemma30(CO,CO',IM,SCO,SIM)
+     = fdis(getComponent((CO  SCO),importer(IM)),(CO  SCO),SIM) >
+       fdis(getComponent((CO' SCO),importer(IM)),(CO' SCO),SIM)
+   when isMandatoryClientOf(CO,IM,(CO SCO),SIM) and
+        id(CO) = id(CO') and
+	isFForced0(CO) and
+	isFForced1(CO') and
+	isForced1(IM) .
 }
 
 --> **************************************************************************
@@ -284,10 +289,10 @@ select ROBUSTLEMMA02
   eq sIM0 = (im sIM) .
 }
 :apply (sIM0 rd-)
-:def imisForcedctf = :ctf {
+:def isFimctf = :ctf {
   eq isForced(im) = true .
 }
-:apply (imisForcedctf rd-)
+:apply (isFimctf rd-)
 :def idcoisImporterctf = :ctf {
   eq importer(im) = id(co) .
 }
@@ -298,6 +303,7 @@ select ROBUSTLEMMA02
 :apply (importerisFFctf rd-)
 --> Proof of robust-lemma02 done.
 -->
+
 show proof
 select
 
@@ -470,10 +476,10 @@ select ROBUSTLEMMA05
   eq sIM0 = (im sIM) .
 }
 :apply (sIM0 rd-)
-:def imisForcedctf = :ctf {
+:def isFimctf = :ctf {
   eq isForced(im) = true .
 }
-:apply (imisForcedctf rd-)
+:apply (isFimctf rd-)
 :def idcoisImporterctf = :ctf {
   eq importer(im) = id(co) .
 }
@@ -484,6 +490,7 @@ select ROBUSTLEMMA05
 :apply (importerisFFctf rd-)
 --> Proof of robust-lemma05 done.
 -->
+
 show proof
 select
 
@@ -671,7 +678,7 @@ select
 -->  ceq robust-lemma13(SCO,IM,IM',SIM)
 -->     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
 -->    if (importer(IM) = importer(IM') and 
--->       not isForced(IM) and not isFForced1(IM) and
+-->       not isForced1(IM) and not isFForced1(IM) and
 -->       (tdis(IM) >= tdis(IM')) and
 -->       (fdis(IM) > fdis(IM')) .
 --> **************************************************************************
@@ -688,20 +695,21 @@ select ROBUSTLEMMA13
 :def importerimctf = :ctf {
   eq importer(im') = importer(im) .
 }
-:def isFimctf = :ctf {
-  eq isForced(im) = true .
+:def isF1imctf = :ctf {
+  eq isForced1(im) = true .
 }
 :def isFF1imctf = :ctf {
   eq isFForced1(im) = true .
 }
-:apply (importerimctf isFimctf isFF1imctf rd-)
+:apply (importerimctf isF1imctf isFF1imctf rd-)
 :init as robust-lemma13-IH-in [robust-lemma13-IH]
       by {SCO:SetOfComponent <- SCO:SetOfComponent;}
 :def sCO0 = :csp {
   eq sCO0 = empCO .
   eq sCO0 = (cmp(idCO,cCOs,nCOs,tCOs) sCO) .
 }
-:apply (sCO0 rd-)
+:apply (sCO0)
+:apply (rd-)
 :def cCOs = :csp {
   eq cCOs = started .
   eq cCOs = stopped .
@@ -738,7 +746,7 @@ select
 -->  ceq robust-lemma14(SCO,IM,IM',SIM)
 -->     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
 -->    if (importer(IM) = importer(IM') and 
--->       not isForced(IM) and not isFForced1(IM) .
+-->       not isForced1(IM) and not isFForced1(IM) .
 -->       (fdis(IM) > fdis(IM')) and (fdis(IM') > 0) .
 --> **************************************************************************
 module ROBUSTLEMMA14 {
@@ -754,13 +762,13 @@ select ROBUSTLEMMA14
 :def importerimctf = :ctf {
   eq importer(im') = importer(im) .
 }
-:def isFimctf = :ctf {
-  eq isForced(im) = true .
+:def isF1imctf = :ctf {
+  eq isForced1(im) = true .
 }
 :def isFF1imctf = :ctf {
   eq isFForced1(im) = true .
 }
-:apply (importerimctf isFimctf isFF1imctf rd-)
+:apply (importerimctf isF1imctf isFF1imctf rd-)
 :init as robust-lemma14-IH-in [robust-lemma14-IH]
       by {SCO:SetOfComponent <- SCO:SetOfComponent;}
 :def sCO0 = :csp {
@@ -804,7 +812,7 @@ select
 -->  ceq robust-lemma15(SCO,IM,IM',SIM)
 -->     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
 -->    if (importer(IM) = importer(IM') and 
--->       isForced(IM) and isForced(IM') .
+-->       isForced1(IM) and isForced1(IM') .
 -->       (tdis(IM) > tdis(IM')) .
 --> **************************************************************************
 module ROBUSTLEMMA15 {
@@ -820,13 +828,13 @@ select ROBUSTLEMMA15
 :def importerimctf = :ctf {
   eq importer(im') = importer(im) .
 }
-:def isFimctf = :ctf {
-  eq isForced(im) = true .
+:def isF1imctf = :ctf {
+  eq isForced1(im) = true .
 }
-:def isFim'ctf = :ctf {
-  eq isForced(im') = true .
+:def isF1im'ctf = :ctf {
+  eq isForced1(im') = true .
 }
-:apply (importerimctf isFimctf isFim'ctf rd-)
+:apply (importerimctf isF1imctf isF1im'ctf rd-)
 :init as robust-lemma15-IH-in [robust-lemma15-IH]
       by {SCO:SetOfComponent <- SCO:SetOfComponent;}
 :def sCO0 = :csp {

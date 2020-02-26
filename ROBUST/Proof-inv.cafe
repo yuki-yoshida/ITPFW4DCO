@@ -540,13 +540,13 @@ module Proofinv-allFFCOHasFFIIM {
   -- eq robust-lemma13(SCO,IM,IM',SIM)
   --    = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
   -- when (importer(IM) = importer(IM')) and 
-  --      not isForced(IM) and not isFForced1(IM) and
+  --      not isForced1(IM) and not isFForced1(IM) and
   --      (tdis(IM) >= tdis(IM')) and
   --      (fdis(IM) > fdis(IM')) .
   ceq (allFFCOHasFFIIM(SCO, IM SIM) and allFFCOHasFFIIM(SCO, IM' SIM))
     = allFFCOHasFFIIM(SCO, IM SIM)
     if (importer(IM) = importer(IM')) and 
-       not isForced(IM) and not isFForced1(IM) and
+       not isForced1(IM) and not isFForced1(IM) and
        (tdis(IM) >= tdis(IM')) and
        (fdis(IM) > fdis(IM')) .
 
@@ -554,13 +554,13 @@ module Proofinv-allFFCOHasFFIIM {
   -- eq robust-lemma14(SCO,IM,IM',SIM)
   --    = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
   -- when (importer(IM) = importer(IM')) and 
-  --      not isForced(IM) and not isFForced1(IM) and
+  --      not isForced1(IM) and not isFForced1(IM) and
   --      (tdis(IM) > tdis(IM')) and
   --      (fdis(IM) >= fdis(IM')) .
   ceq (allFFCOHasFFIIM(SCO, IM SIM) and allFFCOHasFFIIM(SCO, IM' SIM))
     = allFFCOHasFFIIM(SCO, IM SIM)
     if (importer(IM) = importer(IM')) and 
-       not isForced(IM) and not isFForced1(IM) and
+       not isForced1(IM) and not isFForced1(IM) and
        (tdis(IM) > tdis(IM')) and
        (fdis(IM) >= fdis(IM')) .
 
@@ -568,12 +568,12 @@ module Proofinv-allFFCOHasFFIIM {
   -- eq robust-lemma15(SCO,IM,IM',SIM)
   --    = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
   -- when (importer(IM) = importer(IM')) and 
-  --      isForced(IM) and isForced(IM') and
+  --      isForced1(IM) and isForced1(IM') and
   --      (tdis(IM) > tdis(IM')) .
   ceq (allFFCOHasFFIIM(SCO, IM SIM) and allFFCOHasFFIIM(SCO, IM' SIM))
     = allFFCOHasFFIIM(SCO, IM SIM)
     if (importer(IM) = importer(IM')) and 
-       isForced(IM) and isForced(IM') and
+       isForced1(IM) and isForced1(IM') and
        (tdis(IM) > tdis(IM')) .
 
   -- pred robust-lemma10 : SetOfComponent Import SetOfImport
