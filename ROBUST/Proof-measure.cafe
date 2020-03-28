@@ -29,7 +29,7 @@ module ProofMeasure {
             not ((CC implies mmes(S,SS)) == true)
      	   { S => SS !! CC ! inv(S) ! final(S) ! (m(S) > m(SS)) }) .
 
-  vars X Y Z : Nat
+  vars X Y Z1 Z2 : Nat
   vars CO CO' CO0 : Component
   var IDCO : COID
   vars SCO SCO' SCO0 SCO1 : SetOfComponent
@@ -41,8 +41,9 @@ module ProofMeasure {
 --  ceq ((X1 + Y1) > (X2 + Y2)) = true
 --    if (X1 >= X2) and (Y1 > Y2) .
   
-  eq ((X + Z) > (Y + Z))
-    =  (X > Y) .
+  ceq ((X + Z1) > (Y + Z2))
+    =  (X > Y) 
+   if Z1 = Z2 .
 
   ceq ((X + tdis(SCO,SCO0,SIM0)) > (Y + tdis(SCO,SCO1,SIM1)))
     =  (X > Y) 
@@ -62,7 +63,8 @@ module ProofMeasure {
   -- eq robust-lemma02(SIM, CO, CO', SCO', SIM')
   --   = (tdis(SIM, (CO SCO'), SIM') = tdis(SIM, (CO' SCO'), SIM'))
   --  when (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
-  ceq (tdis(SIM, (CO SCO'), SIM') = tdis(SIM, (CO' SCO'), SIM')) = true
+  ceq [robust-lemma02 :nonexec]:
+    (tdis(SIM, (CO SCO'), SIM') = tdis(SIM, (CO' SCO'), SIM')) = true
     if (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
 
   -- pred robust-lemma03 : SetOfComponent Component Component SetOfComponent SetOfImport
@@ -71,7 +73,8 @@ module ProofMeasure {
   -- eq robust-lemma03(SCO, CO, CO', SCO', SIM')
   --   = (tdis(SCO, (CO SCO'), SIM') = tdis(SCO, (CO' SCO'), SIM'))
   --  when (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
-  ceq (tdis(SCO, (CO SCO'), SIM') = tdis(SCO, (CO' SCO'), SIM')) = true
+  ceq [robust-lemma03 :nonexec]:
+    (tdis(SCO, (CO SCO'), SIM') = tdis(SCO, (CO' SCO'), SIM')) = true
     if (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
 
   -- pred robust-lemma04 : SetOfImport Component Component SetOfComponent SetOfImport
@@ -81,7 +84,8 @@ module ProofMeasure {
   --    = (fdis(SIM, (CO SCO'), SIM') >= fdis(SIM, (CO' SCO'), SIM'))
   --  when (id(CO) = id(CO')) and (fdis(Co) > fdis(CO'))
   --       and isFForced(CO) and isFForced(CO') .
-  ceq (fdis(SIM, (CO SCO'), SIM') >= fdis(SIM, (CO' SCO'), SIM')) = true
+  ceq [robust-lemma04 :nonexec]:
+   (fdis(SIM, (CO SCO'), SIM') >= fdis(SIM, (CO' SCO'), SIM')) = true
    if (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
         and isFForced(CO) and isFForced(CO') .
 
@@ -92,7 +96,8 @@ module ProofMeasure {
   --    = (tdis(SIM, (CO SCO'), SIM') >= tdis(SIM, (CO' SCO'), SIM'))
   --  when (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
   --       and isFForced(CO) and isFForced(CO') .
-  ceq (tdis(SIM, (CO SCO'), SIM') >= tdis(SIM, (CO' SCO'), SIM')) = true
+  ceq [robust-lemma05 :nonexec]:
+   (tdis(SIM, (CO SCO'), SIM') >= tdis(SIM, (CO' SCO'), SIM')) = true
    if (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
         and isFForced(CO) and isFForced(CO') .
 
@@ -103,7 +108,8 @@ module ProofMeasure {
   --    = (tdis(SCO, (CO SCO'), SIM') >= tdis(SCO, (CO' SCO'), SIM'))
   --  when (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
   --       and isFForced(CO) and isFForced(CO') .
-  ceq (tdis(SCO, (CO SCO'), SIM') >= tdis(SCO, (CO' SCO'), SIM')) = true
+  ceq [robust-lemma06 :nonexec]:
+   (tdis(SCO, (CO SCO'), SIM') >= tdis(SCO, (CO' SCO'), SIM')) = true
    if (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
         and isFForced(CO) and isFForced(CO') .
 
@@ -118,15 +124,15 @@ module ProofMeasure {
   -- 	id(CO) = importer(IM) and
   --       isMandatoryClientOf(IM,IM0,(CO CO0 SCO), (IM IM0 SIM)) and
   --       id(CO0) = exporter(IM0) .
-  ceq (tdis(CO0, (CO  CO0 SCO), (IM IM0 SIM)) >
-       tdis(CO0, (CO' CO0 SCO), (IM IM0 SIM))) = true
-     if id(CO) = id(CO') and
-	isFForced0(CO) and
-	isFForced1(CO') and
-	isFForced1(IM) and
-	id(CO) = importer(IM) and
-        isMandatoryClientOf(IM,IM0,(CO CO0 SCO), (IM IM0 SIM)) and
-        id(CO0) = exporter(IM0) .
+  -- ceq (tdis(CO0, (CO  CO0 SCO), (IM IM0 SIM)) >
+  --      tdis(CO0, (CO' CO0 SCO), (IM IM0 SIM))) = true
+  --    if id(CO) = id(CO') and
+  -- 	isFForced0(CO) and
+  -- 	isFForced1(CO') and
+  -- 	isFForced1(IM) and
+  -- 	id(CO) = importer(IM) and
+  --       isMandatoryClientOf(IM,IM0,(CO CO0 SCO), (IM IM0 SIM)) and
+  --       id(CO0) = exporter(IM0) .
 
 }
 
@@ -187,8 +193,6 @@ select ProofMeasure-RS-stop2 .
 }
 :apply (rd-)
 eof
-
-
 --> **************************************************************************
 --> trans [RS-start1]:
 -->    < (cmp(IDCO, stopped, stopped, started) SCO), SIM,
@@ -205,6 +209,20 @@ select ProofMeasure .
 --> *************************************************************************
 :goal {
   eq mesmes(< (cmp(idCO, stopped, stopped, started) sCO), sIM, lg >) = true .
+}
+:init [robust-lemma02] by {
+  SIM:SetOfImport <- SIM:SetOfImport;
+  CO:Component <- CO:Component;  
+  CO':Component <- CO':Component;  
+  SCO':SetOfComponent <- SCO':SetOfComponent;
+  SIM':SetOfImport <- SIM':SetOfImport;
+}
+:init [robust-lemma03] by {
+  SCO:SetOfComponent <- SCO:SetOfComponent;
+  CO:Component <- CO:Component;  
+  CO':Component <- CO':Component;  
+  SCO':SetOfComponent <- SCO':SetOfComponent;
+  SIM':SetOfImport <- SIM':SetOfImport;
 }
 :apply (rd-)
 --> Proof of RS-start1 done.
@@ -229,10 +247,23 @@ select ProofMeasure .
 :goal {
   eq mesmes(< (cmp(idCO, started, started, stopped) sCO), sIM, lg >) = true .
 }
+:init [robust-lemma02] by {
+  SIM:SetOfImport <- SIM:SetOfImport;
+  CO:Component <- CO:Component;  
+  CO':Component <- CO':Component;  
+  SCO':SetOfComponent <- SCO':SetOfComponent;
+  SIM':SetOfImport <- SIM':SetOfImport;
+}
+:init [robust-lemma03] by {
+  SCO:SetOfComponent <- SCO:SetOfComponent;
+  CO:Component <- CO:Component;  
+  CO':Component <- CO':Component;  
+  SCO':SetOfComponent <- SCO':SetOfComponent;
+  SIM':SetOfImport <- SIM':SetOfImport;
+}
 :apply (rd-)
 --> Proof of RS-stop1 done.
 -->
 show proof
 select
-eof
 --> Totally 3 goals should be proved.
