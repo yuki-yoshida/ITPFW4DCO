@@ -257,8 +257,8 @@ module ProofBase {
 --> **************************************
 --> Step 0-5: Prepare arbitrary constants.
 --> **************************************
-  ops idCO idCO' iidCO eidCO : -> COID
-  ops idIM idIM' : -> IMID
+  ops idCO idCO' iidCO eidCO : -> COIDLt
+  ops idIM idIM' : -> IMIDLt
   ops sCO sCO' sCO'' sCO0 : -> SetOfComponent
   ops sIM sIM' sIM'' sIM0 : -> SetOfImport
   ops tIM tIM' : -> IMType

@@ -300,7 +300,6 @@ module! LINKS {
 	   op ifXInStatesThenZInStates3 -> ifECOInTargetStatesThenIMInStates}
 	)
 
-  var CO : Component
   var IM : Import
   var SCO0 : SetOfComponent
   vars SIM SIM0 : SetOfImport
@@ -315,11 +314,11 @@ module! LINKS {
      else 
        getIMsOfType(SIM,tIM) fi .
     
-  pred isMandatoryClientOf : Component SetOfImport SetOfComponent SetOfImport 
-  ceq isMandatoryClientOf(CO,SIM,SCO0,SIM0) = true
-    if (CO in getICOsOfIMs(SCO0,getIMsOfType(SIM,mandatory))) .
-  ceq isMandatoryClientOf(CO,SIM,SCO0,SIM0) = true
-    if isMandatoryClientOf(CO,getIMsOfECOs(SIM0,getICOsOfIMs(SCO0,SIM)),SCO0,SIM0) .
+  pred isMandatoryClientOf : Import SetOfImport SetOfComponent SetOfImport 
+  ceq [:nonexec]: isMandatoryClientOf(IM,SIM,SCO0,SIM0) = true
+    if IM in getIMsOfType(SIM,mandatory) .
+  ceq [:nonexec]: isMandatoryClientOf(IM,SIM,SCO0,SIM0) = true
+    if isMandatoryClientOf(IM,getIMsOfECOs(SIM0,getICOsOfIMs(SCO0,SIM)),SCO0,SIM0) .
 
 }
 

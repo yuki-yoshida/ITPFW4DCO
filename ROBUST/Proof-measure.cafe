@@ -30,10 +30,10 @@ module ProofMeasure {
      	   { S => SS !! CC ! inv(S) ! final(S) ! (m(S) > m(SS)) }) .
 
   vars X Y Z : Nat
-  vars CO CO' : Component
+  vars CO CO' CO0 : Component
   var IDCO : COID
   vars SCO SCO' SCO0 SCO1 : SetOfComponent
-  vars IM IM' : Import
+  vars IM IM' IM0 : Import
   vars SIM SIM' SIM0 SIM1 : SetOfImport
 
 --  vars X X1 X2 Y Y1 Y2 Z1 Z2 : Nat
@@ -107,22 +107,27 @@ module ProofMeasure {
    if (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
         and isFForced(CO) and isFForced(CO') .
 
-  -- pred robust-lemma30 : Component Component Import  SetOfComponent SetOfImport
-  -- eq robust-lemma30(CO,CO',IM,SCO,SIM)
-  --    = fdis(getComponent((CO  SCO),importer(IM)),(CO  SCO),SIM) >
-  --      fdis(getComponent((CO' SCO),importer(IM)),(CO' SCO),SIM)
-  --  when isMandatoryClientOf(CO,IM,(CO SCO),SIM) and
-  --       id(CO) = id(CO') and
+  -- pred robust-lemma30 : Component Component Component Import Import SetOfComponent SetOfImport
+  -- eq robust-lemma30(CO,CO',CO0,IM,IM0,SCO,SIM)
+  --    = tdis(CO0, (CO  CO0 SCO), (IM IM0 SIM)) >
+  --      tdis(CO0, (CO' CO0 SCO), (IM IM0 SIM)) 
+  --  when id(CO) = id(CO') and
   -- 	isFForced0(CO) and
   -- 	isFForced1(CO') and
-  -- 	isForced(IM) .
-  ceq (fdis(getComponent((CO  SCO),importer(IM)),(CO  SCO),SIM) >
-       fdis(getComponent((CO' SCO),importer(IM)),(CO' SCO),SIM)) = true
-     if isMandatoryClientOf(CO,IM,(CO SCO),SIM) and
-        id(CO) = id(CO') and
+  -- 	isFForced1(IM) and
+  -- 	id(CO) = importer(IM) and
+  --       isMandatoryClientOf(IM,IM0,(CO CO0 SCO), (IM IM0 SIM)) and
+  --       id(CO0) = exporter(IM0) .
+  ceq (tdis(CO0, (CO  CO0 SCO), (IM IM0 SIM)) >
+       tdis(CO0, (CO' CO0 SCO), (IM IM0 SIM))) = true
+     if id(CO) = id(CO') and
 	isFForced0(CO) and
 	isFForced1(CO') and
-	isForced(IM) .
+	isFForced1(IM) and
+	id(CO) = importer(IM) and
+        isMandatoryClientOf(IM,IM0,(CO CO0 SCO), (IM IM0 SIM)) and
+        id(CO0) = exporter(IM0) .
+
 }
 
 --> ************************************************************************
@@ -138,7 +143,40 @@ module ProofMeasure {
 -->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM)
 --> 	 )) ListLG) > .
 --> ************************************************************************
-select ProofMeasure .
+module ProofMeasure-RS-stop2 {
+  protecting(ProofMeasure)
+
+  -- pred robust-lemma30 : COID COID IMID IMState SetOfComponent SetOfImport
+  -- eq robust-lemma30(IDCO,EIDCO,IDIM,TSIM,SCO,SIM)
+  --    = tdis((cmp(IDCO, started, started, started) SCO),
+  -- 	    (cmp(IDCO, started, started, started) SCO),
+  -- 	    (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM))
+  --    > tdis((cmp(IDCO, started, stopped, started) SCO),
+  -- 	    (cmp(IDCO, started, stopped, started) SCO),
+  -- 	    (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM))
+  --  when allFFCOHasFFIIM(
+  -- 	    (cmp(IDCO, started, started, started) SCO),
+  -- 	    (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM))
+  --   and allFFIMHasFFECO(
+  -- 	    (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
+  -- 	    (cmp(IDCO, started, started, started) SCO))
+  --   and allIMHaveECO(
+  -- 	    (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
+  -- 	    (cmp(IDCO, started, started, started) SCO)) .
+  vars IDCO EIDCO : COID
+  var IDIM : IMID
+  var TSIM : IMState
+  var SCO : SetOfComponent
+  var SIM : SetOfImport
+  eq (tdis((cmp(IDCO, started, started, started) SCO),
+	   (cmp(IDCO, started, started, started) SCO),
+	   (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM)) >
+      tdis((cmp(IDCO, started, stopped, started) SCO),
+	   (cmp(IDCO, started, stopped, started) SCO),
+	   (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM))) = true .
+}
+
+select ProofMeasure-RS-stop2 .
 --> *************************************************************************
 --> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -147,96 +185,9 @@ select ProofMeasure .
               (imp(mandatory, idIM, idCO, eidCO, wired, unwired, tIMs) sIM),
               lg >) = true .
 }
-:def ctfidCO = :ctf {
-  eq idCO = eidCO .
-}
-:apply (ctfidCO)
 :apply (rd-)
-:def eidCOcsp = :csp {
-  eq existCO(sCO,eidCO) = false .
-  eq sCO = (cmp(eidCO,cCOs,nCOs,tCOs) sCO') .
-}
-:apply (eidCOcsp)
-:apply (rd-)
-:def tIMscsp = :csp {
-  eq tIMs = wired .
-  eq tIMs = unwired .
-  eq tIMs = unused .
-}
-:apply (tIMscsp rd-)
-:def isFFeidCOctf = :ctf {
-  eq isFForced1(cmp(eidCO,cCOs,nCOs,tCOs)) = true .
-}
-:apply(isFFeidCOctf rd-)
-:def existFFIMcsp = :csp {
-  eq existFFIM(getIMsOfICO(sIM,eidCO)) = false .
-  eq sIM = (imp(mandatory, idIM', iidCO, idCO', wired, nIMs, unused) sIM') .
-}
-:apply (existFFIMcsp rd-)
-:def idCO'csp = :csp {
-  eq existCO(sCO',idCO') = false .
-  eq sCO' = (cmp(idCO',cCOs',nCOs',tCOs') sCO'') .
-}
-:apply (idCO'csp rd-)
 eof
--- It should be isForced(idIM') and isMandatoryClientOf(idCO,idIM').
 
-:def existFFIMcsp = :csp {
-  eq existFFIM(getIMsOfICO(sIM,eidCO)) = false .
-  eq sIM = (imp(mandatory, idIM', eidCO, idCO', wired, wired, unused) sIM') .
-}
-:apply(existFFIMcsp rd-)
-:def eidCOidCO'ctf = :ctf {
-  eq eidCO = idCO' .
-}
-:apply(eidCOidCO'ctf)
-:apply(rd-)
-:def isForcedidIM'csp = :csp {
-  eq isFForced1(imp(mandatory, idIM', eidCO, idCO', cIMs, nIMs, tIMs')) = true .
-  eq isForced(imp(mandatory, idIM', eidCO, idCO', cIMs, nIMs, tIMs')) = true .
-}
-:def idCOidCO'ctf = :ctf {
-  eq idCO = idCO' .
-}
-:apply(isForcedidIM'csp idCOidCO'ctf rd-)
-:select 2-2-1-1-2-2-2-2
-:def existidCO'csp = :csp {
-  eq existCO(sCO',idCO') = false .
-  eq sCO' = (cmp(idCO', cCOs', nCOs', tCOs') sCO'') .
-}
-:apply(existidCO'csp rd-)
-eof
-:goal { ** 2-2-1-1-2-2-1-2 -----------------------------------------
-  -- context module: ProofMeasure
-  -- introduced axioms
-    eq [ctfidCO]: (idCO = eidCO) = false .
-    eq [eidCOcsp]: sCO = cmp(eidCO, 
-       cCOs, nCOs, tCOs) sCO' .
-    eq [tIMscsp]: tIMs = wired .
-    eq [isFFeidCOctf]: isFForced1(cmp(eidCO, 
-       cCOs, nCOs, tCOs)) = true .
-    eq [existFFIMcsp]: sIM = imp(mandatory, 
-       idIM', 
-       eidCO, idCO', cIMs, nIMs, tIMs') sIM' .
-    eq [eidCOidCO'ctf]: (eidCO = idCO') = false .
-    eq [isForcedidIM'csp]: isFForced1(imp(mandatory, 
-       idIM', 
-       eidCO, idCO', cIMs, nIMs, tIMs'))
-        = true .
-    eq [idCOidCO'ctf]: (idCO = idCO') = false .
-  -- sentence to be proved
-    eq mesmes(< (cmp(idCO, started, started, started) sCO) ,
-        (imp(mandatory, 
-       idIM, 
-       idCO, eidCO, wired, unwired, tIMs) sIM) , lg >)
-        = true .
-}
-    cmp(idCO,started,started,started)
-FF1:imp(mandatory,idIM,idCO,eidCO,wired,unwired,wired) 
-FF1:cmp(eidCO,cCOs,nCOs,tCOs)
-FF1:imp(mandatory,idIM',eidCO,idCO',cIMs,nIMs,tIMs')
-
-select
 
 --> **************************************************************************
 --> trans [RS-start1]:

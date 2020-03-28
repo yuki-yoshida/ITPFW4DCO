@@ -161,10 +161,6 @@ show proof
   eq tIMs = unused .
 }
 :apply (tIMs rd-)
-:def iidCOctf = :ctf {
-  eq idCO = iidCO .
-}
-:apply (iidCOctf rd-)
 show proof
 
 --> *******************************************************************
@@ -255,10 +251,7 @@ show proof
   eq tIM = mandatory .
   eq tIM = optional .
 }
-:def eidCOctf = :ctf {
-  eq eidCO = iidCO .
-}
-:apply (tIM eidCOctf rd-)
+:apply (tIM rd-)
 show proof
 
 --> *********************************************************************************************
@@ -796,9 +789,6 @@ show proof
               (imp(tIM, idIM, iidCO, eidCO, wired,   wired, wired) sIM),
               lg >) = true .
 }
-:def eidCOctf = :ctf {
-  eq eidCO = iidCO .
-}
 :def nCOs = :csp {
   eq nCOs = started .
   eq nCOs = stopped .
@@ -815,7 +805,7 @@ show proof
   eq tIM = mandatory .
   eq tIM = optional .
 }
-:apply (eidCOctf nCOs tCOs tCOs' tIM rd-)
+:apply (nCOs tCOs tCOs' tIM rd-)
 show proof
 
 --> *********************************************************************************************
