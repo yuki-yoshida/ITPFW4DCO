@@ -113,26 +113,22 @@ module ProofMeasure {
    if (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
         and isFForced(CO) and isFForced(CO') .
 
-  -- pred robust-lemma30 : Component Component Component Import Import SetOfComponent SetOfImport
-  -- eq robust-lemma30(CO,CO',CO0,IM,IM0,SCO,SIM)
-  --    = tdis(CO0, (CO  CO0 SCO), (IM IM0 SIM)) >
-  --      tdis(CO0, (CO' CO0 SCO), (IM IM0 SIM)) 
-  --  when id(CO) = id(CO') and
-  -- 	isFForced0(CO) and
-  -- 	isFForced1(CO') and
-  -- 	isFForced1(IM) and
-  -- 	id(CO) = importer(IM) and
-  --       isMandatoryClientOf(IM,IM0,(CO CO0 SCO), (IM IM0 SIM)) and
-  --       id(CO0) = exporter(IM0) .
-  -- ceq (tdis(CO0, (CO  CO0 SCO), (IM IM0 SIM)) >
-  --      tdis(CO0, (CO' CO0 SCO), (IM IM0 SIM))) = true
-  --    if id(CO) = id(CO') and
-  -- 	isFForced0(CO) and
-  -- 	isFForced1(CO') and
-  -- 	isFForced1(IM) and
-  -- 	id(CO) = importer(IM) and
-  --       isMandatoryClientOf(IM,IM0,(CO CO0 SCO), (IM IM0 SIM)) and
-  --       id(CO0) = exporter(IM0) .
+  -- pred robust-lemma07 : Component Component Import SetOfComponent SetOfImport
+  -- tdis(SCO) may decrease when an isFForced Component is changed
+  -- and it has isFFoced1 exporter .
+  -- eq robust-lemma07(CO,CO',IM,SCO,SIM)
+  --    = tdis(SCO,(CO  SCO),(IM SIM))
+  --    > tdis(SCO,(CO' SCO),(IM SIM))
+  --  when id(CO) = id(CO')
+  --       and importer(IM) = id(CO)
+  --       and isFForced0(CO) and isFForced1(CO') and isFForced1(IM)
+  --       and allFFCOHasFFIIM((CO SCO),(IM SIM))
+  --       and allFFIMHasFFECO((IM SIM),(CO SCO))
+  --       and allIMHaveECO((IM SIM),(CO SCO)) .
+  ceq [robust-lemma07 :nonexec]:
+   (tdis(SCO,(CO  SCO),(IM SIM)) > tdis(SCO,(CO' SCO),(IM SIM))) = true
+   if (id(CO) = id(CO')) and (importer(IM) = id(CO))
+        and isFForced0(CO) and isFForced1(CO') and isFForced1(IM) .
 
 }
 
@@ -149,40 +145,7 @@ module ProofMeasure {
 -->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM)
 --> 	 )) ListLG) > .
 --> ************************************************************************
-module ProofMeasure-RS-stop2 {
-  protecting(ProofMeasure)
-
-  -- pred robust-lemma30 : COID COID IMID IMState SetOfComponent SetOfImport
-  -- eq robust-lemma30(IDCO,EIDCO,IDIM,TSIM,SCO,SIM)
-  --    = tdis((cmp(IDCO, started, started, started) SCO),
-  -- 	    (cmp(IDCO, started, started, started) SCO),
-  -- 	    (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM))
-  --    > tdis((cmp(IDCO, started, stopped, started) SCO),
-  -- 	    (cmp(IDCO, started, stopped, started) SCO),
-  -- 	    (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM))
-  --  when allFFCOHasFFIIM(
-  -- 	    (cmp(IDCO, started, started, started) SCO),
-  -- 	    (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM))
-  --   and allFFIMHasFFECO(
-  -- 	    (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
-  -- 	    (cmp(IDCO, started, started, started) SCO))
-  --   and allIMHaveECO(
-  -- 	    (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
-  -- 	    (cmp(IDCO, started, started, started) SCO)) .
-  vars IDCO EIDCO : COID
-  var IDIM : IMID
-  var TSIM : IMState
-  var SCO : SetOfComponent
-  var SIM : SetOfImport
-  eq (tdis((cmp(IDCO, started, started, started) SCO),
-	   (cmp(IDCO, started, started, started) SCO),
-	   (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM)) >
-      tdis((cmp(IDCO, started, stopped, started) SCO),
-	   (cmp(IDCO, started, stopped, started) SCO),
-	   (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM))) = true .
-}
-
-select ProofMeasure-RS-stop2 .
+select ProofMeasure .
 --> *************************************************************************
 --> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -191,7 +154,44 @@ select ProofMeasure-RS-stop2 .
               (imp(mandatory, idIM, idCO, eidCO, wired, unwired, tIMs) sIM),
               lg >) = true .
 }
-:apply (rd-)
+:init [robust-lemma05] by {
+  SIM:SetOfImport <- SIM:SetOfImport;
+  CO:Component <- CO:Component;  
+  CO':Component <- CO':Component;  
+  SCO':SetOfComponent <- SCO':SetOfComponent;
+  SIM':SetOfImport <- SIM':SetOfImport;
+}
+:init [robust-lemma07] by {
+  CO:Component <- CO:Component;  
+  CO':Component <- CO':Component;  
+  SCO:SetOfComponent <- SCO:SetOfComponent;
+  SIM:SetOfImport <- SIM:SetOfImport;
+}
+:def tIMscsp = :csp {
+  eq tIMs = wired .
+  eq tIMs = unwired .
+  eq tIMs = unused .
+}
+:apply (tIMscsp rd-)
+:init [robust-lemma04] by {
+  SIM:SetOfImport <- SIM:SetOfImport;
+  CO:Component <- CO:Component;  
+  CO':Component <- CO':Component;  
+  SCO':SetOfComponent <- SCO':SetOfComponent;
+  SIM':SetOfImport <- SIM':SetOfImport;
+}
+:init [robust-lemma06] by {
+  SCO:SetOfComponent <- SCO:SetOfComponent;
+  CO:Component <- CO:Component;  
+  CO':Component <- CO':Component;  
+  SCO':SetOfComponent <- SCO':SetOfComponent;
+  SIM':SetOfImport <- SIM':SetOfImport;
+}
+:def eidCOcsp = :csp {
+  eq existCO(sCO,eidCO) = false .
+  eq sCO = (cmp(eidCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (eidCOcsp rd-)
 eof
 --> **************************************************************************
 --> trans [RS-start1]:
