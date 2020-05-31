@@ -10,7 +10,7 @@ module ROBUSTLEMMA {
      = B2 implies B1 .
 
   -- Nat Axiom
-  vars X Y Z Z1 Z2 : Nat
+  vars X X1 X2 Y Y1 Y2 Z Z1 Z2 : Nat
 
   ceq (X >= Y) = true
     if (X > Y) .
@@ -26,6 +26,12 @@ module ROBUSTLEMMA {
     =  (X >= Y) 
     if (Z1 >= Z2) .
 
+  ceq ((X1 + Y1) > (X2 + Y2)) = true
+    if (X1 >= X2) and (Y1 > Y2) .
+  
+  ceq ((X1 + Y1) >= (X2 + Y2)) = true
+    if (X1 >= X2) and (Y1 >= Y2) .
+  
   vars CO CO' CO0 : Component
   vars SCO SCO' SCO0 : SetOfComponent
   vars IDCO IIDCO EIDCO : COID 
@@ -87,18 +93,16 @@ module ROBUSTLEMMA {
    when (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
         and isFForced(CO) and isFForced(CO') .
 
-  pred robust-lemma07 : Component Component Import SetOfComponent SetOfImport
-  -- tdis(SCO) may decrease when an isFForced Component is changed
-  -- and it has isFFoced1 exporter .
-  eq robust-lemma07(CO,CO',IM,SCO,SIM)
-     = tdis(SCO,(CO  SCO),(IM SIM))
-     > tdis(SCO,(CO' SCO),(IM SIM))
-   when id(CO) = id(CO')
-        and importer(IM) = id(CO)
-        and isFForced0(CO) and isFForced1(CO') and isFForced1(IM)
-        and allFFCOHasFFIIM((CO SCO),(IM SIM))
-        and allFFIMHasFFECO((IM SIM),(CO SCO))
-        and allIMHaveECO((IM SIM),(CO SCO)) .
+  pred robust-lemma07 : Component Component SetOfComponent SetOfImport
+  -- tdis(SCO) may decrease when an isFForced Component is changed .
+  eq robust-lemma07(CO,CO',SCO,SIM)
+     = tdis(SCO,(CO  SCO),SIM) > tdis(SCO,(CO' SCO),SIM)
+   when (id(CO) = id(CO'))
+    and isFForced0(CO)
+    and isFForced1(CO') 
+    and allFFCOHasFFIIM((CO' SCO),SIM)
+    and allFFIMHasFFECO(SIM,(CO' SCO))
+    and allIMHaveECO(SIM,(CO SCO)) .
 
   pred robust-lemma10 : SetOfComponent Import SetOfImport
   eq robust-lemma10(SCO,IM,SIM)
@@ -191,38 +195,106 @@ module ROBUSTLEMMA {
 
 }
 
---> **********************************************************************
+--> ***********************************************
 --> Proof of robust-lemma07.
--->  eq robust-lemma07(IDCO,EIDCO,IDIM,TSIM,SCO,SIM)
--->     = tdis((cmp(IDCO, started, started, started) SCO),
--->	    (cmp(IDCO, started, started, started) SCO),
--->	    (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM))
--->  > tdis((cmp(IDCO, started, stopped, started) SCO),
--->	    (cmp(IDCO, started, stopped, started) SCO),
--->	    (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM))
--->   when allFFCOHasFFIIM(
--->	    (cmp(IDCO, started, started, started) SCO),
--->	    (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM))
--->    and allFFIMHasFFECO(
--->	    (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
--->	    (cmp(IDCO, started, started, started) SCO))
--->    and allIMHaveECO(
--->	    (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
--->	    (cmp(IDCO, started, started, started) SCO)) .
---> **********************************************************************
+-->  eq robust-lemma07(CO,CO',SCO,SIM)
+-->     = tdis(SCO,(CO  SCO),SIM)
+-->     > tdis(SCO,(CO' SCO),SIM)
+-->   when id(CO) = id(CO')
+-->        and isFForced0(CO) and isFForced1(CO') 
+-->        and allFFCOHasFFIIM((CO' SCO),SIM)
+-->        and allFFIMHasFFECO(SIM,(CO' SCO)) .
+--> ***********************************************
 
 module ROBUSTLEMMA07 {
   protecting(ROBUSTLEMMA)
+
+  vars CO CO' : Component
+  vars SCO SCO' : SetOfComponent
+  vars IDCO IIDCO EIDCO : COID 
+  var IM : Import
+  vars SIM SIM' : SetOfImport
+  var IDIM : IMID
+
+  -- pred robust-lemma04 : SetOfImport Component Component SetOfComponent SetOfImport
+  -- fdis(SIM) may decrease when an isFForced Component is changed
+  -- and fdis of the component decreases.
+  -- eq robust-lemma04(SIM, CO, CO', SCO', SIM')
+  --    = (fdis(SIM, (CO SCO'), SIM') >= fdis(SIM, (CO' SCO'), SIM'))
+  --  when (id(CO) = id(CO')) and (fdis(Co) > fdis(CO'))
+  --       and isFForced(CO) and isFForced(CO') .
+  ceq (fdis(SIM, (CO SCO'), SIM') >= fdis(SIM, (CO' SCO'), SIM')) = true
+   if (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
+        and isFForced(CO) and isFForced(CO') .
+
+  -- pred robust-lemma05 : SetOfImport Component Component SetOfComponent SetOfImport
+  -- tdis(SIM) may decrease when an isFForced Component is changed
+  -- and fdis of the component decreases.
+  -- eq robust-lemma05(SIM, CO, CO', SCO', SIM')
+  --    = (tdis(SIM, (CO SCO'), SIM') >= tdis(SIM, (CO' SCO'), SIM'))
+  --  when (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
+  --       and isFForced(CO) and isFForced(CO') .
+  ceq (tdis(SIM, (CO SCO'), SIM') >= tdis(SIM, (CO' SCO'), SIM')) = true
+   if (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
+        and isFForced(CO) and isFForced(CO') .
+
+  -- pred robust-lemma06 : SetOfComponent Component Component SetOfComponent SetOfImport
+  -- tdis(SCO) may decrease when an isFForced Component is changed
+  -- and fdis of the component decreases.
+  -- eq robust-lemma06(SCO, CO, CO', SCO', SIM')
+  --    = (tdis(SCO, (CO SCO'), SIM') >= tdis(SCO, (CO' SCO'), SIM'))
+  --  when (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
+  --       and isFForced(CO) and isFForced(CO') .
+  ceq (tdis(SCO, (CO SCO'), SIM') >= tdis(SCO, (CO' SCO'), SIM')) = true
+   if (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
+        and isFForced(CO) and isFForced(CO') .
 }
 
 select ROBUSTLEMMA07
-:goal { eq robust-lemma07(idCO, eidCO, idIM, tIMs, sCO, sIM) = true .}
-:def eidCOcsp = :csp {
+:goal { eq robust-lemma07(co, co', sCO, sIM) = true .}
+:def isFFcocsp = :csp {
+  eq isFForced0(co) = false .
+  eq co = cmp(idCO,started,started,started) .
+}
+:apply (isFFcocsp rd-)
+:def isFFco'csp = :csp {
+  eq (id(co') = idCO) = false .
+  eq isFForced1(co') = false .
+  eq co' = cmp(idCO,started,stopped,started) .
+}
+:apply (isFFco'csp rd-)
+:def existFFIMidCOcsp = :csp {
+  eq existFFIM(getIMsOfICO(sIM,idCO)) = false .
+  eq sIM = (imp(mandatory,idIM,idCO,eidCO,wired,unwired,unused) sIM') .
+  eq sIM = (imp(mandatory,idIM,idCO,eidCO,wired,unwired,wired) sIM') .
+}
+:apply (existFFIMidCOcsp rd-)
+-- When idIM is Forced.
+:def existECOcsp = :csp {
   eq existCO(sCO,eidCO) = false .
   eq sCO = (cmp(eidCO,cCOs,nCOs,tCOs) sCO') .
 }
-:apply (eidCOcsp)
-:apply (rd-)
+:apply (existECOcsp rd-)
+-- When idIM is FForced1.
+:def existFF1ECOcsp = :csp {
+  eq isFForced1(getComponent(sCO,eidCO)) = false .
+  eq sCO = (cmp(eidCO,started,stopped,started) sCO') .
+}
+:apply (existFF1ECOcsp rd-)
+:def existFFIMeidCOcsp = :csp {
+  eq existFFIM(getIMsOfICO(sIM',eidCO)) = false .
+  eq sIM' = (imp(mandatory,idIM',eidCO,idCO',wired,unwired,unused) sIM'') .
+  eq sIM' = (imp(mandatory,idIM',eidCO,idCO',wired,unwired,wired) sIM'') .
+}
+:apply (existFFIMeidCOcsp rd-)
+-- When idIM' is Forced.
+:def existECO'csp = :csp {
+  eq existCO(sCO',idCO') = false .
+  eq sCO' = (cmp(idCO',cCOs',nCOs',tCOs') sCO'') .
+}
+:apply (existECO'csp rd-)
+-- When idIM is FForced1.
+eof
 :def tIMscsp = :csp {
   eq tIMs = wired .
   eq tIMs = unwired .

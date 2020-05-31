@@ -92,8 +92,6 @@ module ProofBase {
   eq iidCOeidCODiffer(empIM) = true .
   eq iidCOeidCODiffer(IM SIM)
     = not (importer(IM) = exporter(IM)) and iidCOeidCODiffer(SIM) .
---  eq iidCOeidCODiffer(imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,TSIM) SIM)
---    = not (IIDCO = EIDCO) and iidCOeidCODiffer(SIM) .
 
   pred wfs-iidCOeidCODiffer : State
   eq wfs-iidCOeidCODiffer(< SCO,SIM,L >)

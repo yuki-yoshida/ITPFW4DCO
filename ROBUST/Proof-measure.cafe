@@ -29,33 +29,23 @@ module ProofMeasure {
             not ((CC implies mmes(S,SS)) == true)
      	   { S => SS !! CC ! inv(S) ! final(S) ! (m(S) > m(SS)) }) .
 
-  vars X Y Z1 Z2 : Nat
   vars CO CO' CO0 : Component
   var IDCO : COID
   vars SCO SCO' SCO0 SCO1 : SetOfComponent
   vars IM IM' IM0 : Import
   vars SIM SIM' SIM0 SIM1 : SetOfImport
 
---  vars X X1 X2 Y Y1 Y2 Z1 Z2 : Nat
+  vars X X1 X2 Y Y1 Y2 Z1 Z2 : Nat
 
---  ceq ((X1 + Y1) > (X2 + Y2)) = true
---    if (X1 >= X2) and (Y1 > Y2) .
+  ceq ((X1 + Y1) > (X2 + Y2)) = true
+    if (X1 >= X2) and (Y1 > Y2) .
+  
+  ceq ((X1 + Y1) >= (X2 + Y2)) = true
+    if (X1 >= X2) and (Y1 >= Y2) .
   
   ceq ((X + Z1) > (Y + Z2))
     =  (X > Y) 
-   if Z1 = Z2 .
-
-  ceq ((X + tdis(SCO,SCO0,SIM0)) > (Y + tdis(SCO,SCO1,SIM1)))
-    =  (X > Y) 
-   if (tdis(SCO,SCO0,SIM0) >= tdis(SCO,SCO1,SIM1)) .
-
-  ceq ((X + tdis(SIM,SCO0,SIM0)) > (Y + tdis(SIM,SCO1,SIM1)))
-    =  (X > Y) 
-   if (tdis(SIM,SCO0,SIM0) >= tdis(SIM,SCO1,SIM1)) .
-
-  ceq ((X + fdis(SIM,SCO0,SIM0)) > (Y + fdis(SIM,SCO1,SIM1)))
-    =  (X > Y) 
-   if (fdis(SIM,SCO0,SIM0) >= fdis(SIM,SCO1,SIM1)) .
+    if Z1 = Z2 .
 
   -- pred robust-lemma02 : SetOfImport Component Component SetOfComponent SetOfImport
   -- tdis(SIM) is the same when a non-isFForced Component is changed
@@ -126,73 +116,14 @@ module ProofMeasure {
   --       and allFFIMHasFFECO((IM SIM),(CO SCO))
   --       and allIMHaveECO((IM SIM),(CO SCO)) .
   ceq [robust-lemma07 :nonexec]:
-   (tdis(SCO,(CO  SCO),(IM SIM)) > tdis(SCO,(CO' SCO),(IM SIM))) = true
-   if (id(CO) = id(CO')) and (importer(IM) = id(CO))
-        and isFForced0(CO) and isFForced1(CO') and isFForced1(IM) .
+   (tdis(SCO,(CO  SCO),SIM) > tdis(SCO,(CO' SCO),SIM)) = true
+   if (id(CO) = id(CO')) and isFForced0(CO) and isFForced1(CO') .
+   -- (tdis(SCO,(CO  SCO),(IM SIM)) > tdis(SCO,(CO' SCO),(IM SIM))) = true
+   -- if (id(CO) = id(CO')) and (importer(IM) = id(CO))
+   --      and isFForced0(CO) and isFForced1(CO') and isFForced1(IM) .
 
 }
 
---> ************************************************************************
---> trans [RS-stop2]:
--->    < (cmp(IDCO, started, started, started) SCO),
--->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
--->       ListLG >
---> => < (cmp(IDCO, started, stopped, started) SCO),
--->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
--->      (clog("RS-stop2:Should Stop", cmp(IDCO, started, stopped, started),
---> 	  mlog(
--->      (cmp(IDCO, started, started, started) SCO),
--->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM)
---> 	 )) ListLG) > .
---> ************************************************************************
-select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
-:goal {
-  eq mesmes(< (cmp(idCO, started, started, started) sCO), 
-              (imp(mandatory, idIM, idCO, eidCO, wired, unwired, tIMs) sIM),
-              lg >) = true .
-}
-:init [robust-lemma05] by {
-  SIM:SetOfImport <- SIM:SetOfImport;
-  CO:Component <- CO:Component;  
-  CO':Component <- CO':Component;  
-  SCO':SetOfComponent <- SCO':SetOfComponent;
-  SIM':SetOfImport <- SIM':SetOfImport;
-}
-:init [robust-lemma07] by {
-  CO:Component <- CO:Component;  
-  CO':Component <- CO':Component;  
-  SCO:SetOfComponent <- SCO:SetOfComponent;
-  SIM:SetOfImport <- SIM:SetOfImport;
-}
-:def tIMscsp = :csp {
-  eq tIMs = wired .
-  eq tIMs = unwired .
-  eq tIMs = unused .
-}
-:apply (tIMscsp rd-)
-:init [robust-lemma04] by {
-  SIM:SetOfImport <- SIM:SetOfImport;
-  CO:Component <- CO:Component;  
-  CO':Component <- CO':Component;  
-  SCO':SetOfComponent <- SCO':SetOfComponent;
-  SIM':SetOfImport <- SIM':SetOfImport;
-}
-:init [robust-lemma06] by {
-  SCO:SetOfComponent <- SCO:SetOfComponent;
-  CO:Component <- CO:Component;  
-  CO':Component <- CO':Component;  
-  SCO':SetOfComponent <- SCO':SetOfComponent;
-  SIM':SetOfImport <- SIM':SetOfImport;
-}
-:def eidCOcsp = :csp {
-  eq existCO(sCO,eidCO) = false .
-  eq sCO = (cmp(eidCO,cCOs,nCOs,tCOs) sCO') .
-}
-:apply (eidCOcsp rd-)
-eof
 --> **************************************************************************
 --> trans [RS-start1]:
 -->    < (cmp(IDCO, stopped, stopped, started) SCO), SIM,
@@ -263,6 +194,52 @@ select ProofMeasure .
 }
 :apply (rd-)
 --> Proof of RS-stop1 done.
+-->
+show proof
+select
+
+--> ************************************************************************
+--> trans [RS-stop2]:
+-->    < (cmp(IDCO, started, started, started) SCO),
+-->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
+-->       ListLG >
+--> => < (cmp(IDCO, started, stopped, started) SCO),
+-->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
+-->      (clog("RS-stop2:Should Stop", cmp(IDCO, started, stopped, started),
+--> 	  mlog(
+-->      (cmp(IDCO, started, started, started) SCO),
+-->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM)
+--> 	 )) ListLG) > .
+--> ************************************************************************
+select ProofMeasure .
+--> *************************************************************************
+--> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq mesmes(< (cmp(idCO, started, started, started) sCO), 
+              (imp(mandatory, idIM, idCO, eidCO, wired, unwired, tIMs) sIM),
+              lg >) = true .
+}
+:init [robust-lemma05] by {
+  SIM:SetOfImport <- SIM:SetOfImport;
+  CO:Component <- CO:Component;  
+  CO':Component <- CO':Component;  
+  SCO':SetOfComponent <- SCO':SetOfComponent;
+  SIM':SetOfImport <- SIM':SetOfImport;
+}
+-- :init [robust-lemma07] by {
+--   CO:Component <- CO:Component;  
+--   CO':Component <- CO':Component;  
+--   SCO:SetOfComponent <- SCO:SetOfComponent;
+--   SIM:SetOfImport <- SIM:SetOfImport;
+-- }
+:def tIMscsp = :csp {
+  eq tIMs = wired .
+  eq tIMs = unwired .
+  eq tIMs = unused .
+}
+:apply (tIMscsp rd-)
+--> Proof of RS-stop2 done.
 -->
 show proof
 select
