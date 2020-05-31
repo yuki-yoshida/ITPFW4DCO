@@ -1,8 +1,19 @@
 require DomainModel DomainModel.cafe
+require BAG ../lib/BAG.cafe
 provide Proof
+
+module! CMPIMPID {
+  protecting(LINKS)
+  [CID IID < CIID]
+  op cid : COID -> CID {constr}
+  op iid : IMID -> IID {constr}
+}
 
 module ProofBase {
   protecting(STATERules)
+  including(BAG(CMPIMPID {sort Elt -> CIID})
+      * {sort Bag -> BagOfID,
+	 op empty -> empID})
 
   op _!_ : Bool Bool -> Bool {constr assoc}
   op _=>_!!_ : State State Bool -> Bool {constr}
@@ -22,6 +33,8 @@ module ProofBase {
 
   var L : ListOfLog
   vars S SS : State
+
+  var BG : BagOfID
 
   -- isForced(IM) means that IM is forced to be unwired temporally.
   -- isForced0(IM) means that IM is Forced but keeps stable.
@@ -138,13 +151,12 @@ module ProofBase {
   op tdis : SetOfComponent SetOfComponent SetOfImport -> Nat
   op tdis : SetOfImport SetOfComponent SetOfImport -> Nat
 
-  -- Forced Distance (the last parameter is a set of visited mandatory imports)
+  -- Forced Distance 
   -- Forced to become stopped temporally
   op fdis : Component -> Nat
-  op fdis : Component SetOfComponent SetOfImport -> Nat
   -- Forced to become unwired temporally
   op fdis : Import -> Nat
-  op fdis : SetOfImport SetOfComponent SetOfImport -> Nat
+  op fdis : BagOfID SetOfComponent SetOfImport -> Nat
 
   eq tdis(cmp(IDCO,started,started,stopped)) = 2 .
   eq tdis(cmp(IDCO,started,stopped,stopped)) = 1 .
@@ -156,10 +168,7 @@ module ProofBase {
   eq tdis(cmp(IDCO,started,stopped,started)) = 0 .
 
   eq tdis(empCO,SCO0,SIM0) = 0 .
-  eq tdis((CO SCO),SCO0,SIM0) = tdis(CO,SCO0,SIM0) + tdis(SCO,SCO0,SIM0) .
-
-  eq tdis(CO,SCO0,SIM0)
-    = tdis(CO) + tdis(getIMsOfECO(SIM0,id(CO)),SCO0,SIM0) .
+  eq tdis((CO SCO),SCO0,SIM0) = tdis(CO) + tdis(SCO,SCO0,SIM0) .
 
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unwired)) = 2 .
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unwired)) = 1 .
@@ -195,23 +204,11 @@ module ProofBase {
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,unwired,unused)) = 100 .
 
   eq tdis(empIM,SCO0,SIM0) = 0 .
-  eq tdis((IM SIM),SCO0,SIM0) = tdis(IM,SCO0,SIM0) + tdis(SIM,SCO0,SIM0) .
-
-  eq tdis(IM,SCO0,SIM0) 
-    = tdis(IM) +
-      if isForced(IM) then
-	fdis(getComponent(SCO0,importer(IM)),SCO0,SIM0)
-      else 0 fi .
+  eq tdis((IM SIM),SCO0,SIM0) = tdis(IM) + tdis(SIM,SCO0,SIM0) .
 
   ceq fdis(CO) = 0 if not isFForced(CO) .
   eq fdis(cmp(IDCO,started,started,started)) = 4 .
   eq fdis(cmp(IDCO,started,stopped,started)) = 3 .
-
-  eq fdis(CO,SCO0,SIM0) 
-     = fdis(CO) +
-       if isFForced(CO) then
-         fdis(getIMsOfECOInTargetStates(SIM0,id(CO),wired),SCO0,SIM0)
-       else 0 fi .
 
   ceq fdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM))
      = 0 if not (CSIM = wired) or not (TSIM in (wired unused)) .
@@ -220,19 +217,43 @@ module ProofBase {
   eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = 4 .
   eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = 3 .
 
-  eq fdis(empIM,SCO0,SIM0) = 0 .
-  eq fdis((IM SIM),SCO0,SIM0) = fdis(IM,SCO0,SIM0) + fdis(SIM,SCO0,SIM0) .
+  eq fdis(empID,SCO0,SIM0) = 0 .
+  eq fdis((cid(IDCO) BG),SCO0,SIM0)
+    = fdis(getComponent(SCO0,IDCO)) + fdis(BG,SCO0,SIM0) .
+  eq fdis((iid(IDIM) BG),SCO0,SIM0)
+    = fdis(getImport(SIM0,IDIM)) + fdis(BG,SCO0,SIM0) .
 
-  eq fdis(IM,SCO0,SIM0) 
-    = fdis(IM) +
-      if isFForced(IM) then
-        fdis(getComponent(SCO0,importer(IM)),SCO0,SIM0)
-      else 0 fi .
+  op makeIDBag : SetOfImport SetOfComponent SetOfImport -> BagOfID
+  op makeupIDBag : SetOfImport SetOfComponent SetOfImport -> BagOfID
+  op makeupIDBag : Component SetOfComponent SetOfImport -> BagOfID
+
+  eq makeIDBag(empIM,SCO0,SIM0) = empID .
+  ceq makeIDBag((IM SIM),SCO0,SIM0)
+    = makeIDBag(SIM,SCO0,SIM0) 
+    if not isForced(IM) .
+  ceq makeIDBag((IM SIM),SCO0,SIM0)
+    = (makeupIDBag(getComponent(SCO0,importer(IM)),SCO0,SIM0) makeIDBag(SIM,SCO0,SIM0))
+    if isForced(IM) .
+
+  eq makeupIDBag(empIM,SCO0,SIM0) = empID .
+  ceq makeupIDBag((IM SIM),SCO0,SIM0)
+    = (iid(id(IM)) makeupIDBag(SIM,SCO0,SIM0))
+    if not isFForced(IM) .
+  ceq makeupIDBag((IM SIM),SCO0,SIM0)
+    = (iid(id(IM)) makeupIDBag(getComponent(SCO0,importer(IM)),SCO0,SIM0) makeupIDBag(SIM,SCO0,SIM0))
+    if isFForced(IM) .
+
+  ceq makeupIDBag(CO,SCO0,SIM0)
+    = cid(id(CO))
+    if not isFForced(CO) .
+  ceq makeupIDBag(CO,SCO0,SIM0)
+    = (cid(id(CO)) makeupIDBag(getIMsOfECOInTargetStates(SIM0,CO,wired),SCO0,SIM0))
+    if isFForced(CO) .
 
   eq m(< SCO,SIM,L >)
-    = tdis(SCO, SCO, SIM) .
+    = tdis(SCO, SCO, SIM) + tdis(SIM, SCO, SIM) + fdis(makeIDBag(SIM,SCO,SIM), SCO, SIM) .
   eq mlog(SCO, SIM)
-    = tdis(SCO, SCO, SIM) .
+    = tdis(SCO, SCO, SIM) + tdis(SIM, SCO, SIM) + fdis(makeIDBag(SIM,SCO,SIM), SCO, SIM) .
 
 --> ************************
 --> Step 0-4: Define inv(S).
@@ -269,16 +290,6 @@ module ProofBase {
 
   ops lg lg' : -> ListOfLog
 
-  -- idCO1 is a COID different from idCO.
-  op idCO1 : -> COID
-  eq (idCO1 = idCO) = false .
-
-  op cCOs1 : -> COState
-  eq (cCOs = cCOs1) = false .
-
-  op tCOs1 : -> COState
-  eq (tCOs = tCOs1) = false .
-
 }
 
 -- *************************************************************************
@@ -309,3 +320,60 @@ module ProofBase {
 -- (5) inv(S) implies inv(SS).
 -- ***************************
 -- in Proof-inv.cafe
+
+-- eof
+**> Check Start <**
+open ProofBase . 
+
+ops COC COC1 COC2 COD : -> COIDLt .
+ops IMW IMV IMW1 IMW2 : -> IMIDLt .
+
+op components1 : -> SetOfComponent .
+eq components1 =
+  (cmp(COC,  started, started, started) 
+   cmp(COC1, started, started, started)) .
+
+op imports1 : -> SetOfImport .
+eq imports1 =
+  (imp(optional, IMW1, COC,  COC1,  wired,  wired, unused)) .
+
+red makeIDBag(imports1,components1,imports1) .
+red tdis(components1,components1,imports1) .
+red tdis(imports1,components1,imports1) .
+red fdis(makeIDBag(imports1,components1,imports1),components1,imports1) .
+red m(< components1,imports1,lg >) .
+
+op components2 : -> SetOfComponent .
+eq components2 =
+  (cmp(COC,  started, started, started) 
+   cmp(COC2, started, started, started)) .
+
+op imports2 : -> SetOfImport .
+eq imports2 =
+  (imp(mandatory, IMW2, COC,  COC2, unused, unused,  wired)) .
+
+red makeIDBag(imports2,components2,imports2) .
+red tdis(components2,components2,imports2) .
+red tdis(imports2,components2,imports2) .
+red fdis(makeIDBag(imports2,components2,imports2),components2,imports2) .
+red m(< components2,imports2,lg >) .
+
+op components : -> SetOfComponent .
+eq components =
+  (cmp(COD,  started, started, started) cmp(COC,  started, started, started) 
+   cmp(COC1, started, started, started) cmp(COC2, started, started, started)) .
+
+op imports : -> SetOfImport .
+eq imports =
+  (imp(mandatory, IMW,  COD,  COC,   wired,  wired,  wired)
+   imp(optional,  IMV,  COC1, COC,   wired,  wired,  wired)
+   imp(mandatory, IMW1, COC,  COC1,  wired,  wired, unused)
+   imp(mandatory, IMW2, COC,  COC2, unused, unused,  wired)) .
+
+red makeIDBag(imports,components,imports) .
+red tdis(components,components,imports) .
+red tdis(imports,components,imports) .
+red fdis(makeIDBag(imports,components,imports),components,imports) .
+red m(< components,imports,lg >) .
+
+-- close
