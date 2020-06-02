@@ -6,6 +6,8 @@ mod! SET(X :: TRIV) {
   op empty : -> Set {constr}
   op _ _ : Set Set -> Set {constr assoc comm id: empty}
 
+  ceq S:Set S = S if not (S == empty) .
+
   --
   op _U_ : Set Set -> Set
   op _in_ : Elt.X Set -> Bool

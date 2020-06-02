@@ -321,7 +321,7 @@ module ProofBase {
 -- ***************************
 -- in Proof-inv.cafe
 
--- eof
+eof
 **> Check Start <**
 open ProofBase . 
 
@@ -376,4 +376,4 @@ red tdis(imports,components,imports) .
 red fdis(makeIDBag(imports,components,imports),components,imports) .
 red m(< components,imports,lg >) .
 
--- close
+close
