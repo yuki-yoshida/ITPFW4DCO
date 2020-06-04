@@ -495,6 +495,10 @@ module! STATEfuns {
   pred allCOStabllyStarted : SetOfComponent SetOfComponent SetOfImport
   pred isCOStabllyStarted : Component SetOfComponent SetOfImport
 
+  -- An import is stablly wired if
+  --  it is wired or unused,
+  --  it should be in the current state finally, and
+  --  its exporter is stablly started.
   eq isIMStablyWired(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM),SCO,SIM)
      = (CSIM in (wired unused)) and
        (CSIM == TSIM) and
@@ -504,6 +508,10 @@ module! STATEfuns {
   eq allIMStablyWired((IM0 SIM),SCO0,SIM0)
      = isIMStablyWired(IM0,SCO0,SIM0) and allIMStablyWired(SIM,SCO0,SIM0) .
 
+  -- A component is stablly started if
+  --  it is started,
+  --  it should be started finally, and
+  --  all of its mandatory importings are stablly wired.
   eq isCOStabllyStarted(cmp(IDCO,CSCO,NSCO,TSCO),SCO,SIM)
      = (CSCO == started) and
        (TSCO == started) and
@@ -513,6 +521,9 @@ module! STATEfuns {
   eq allCOStabllyStarted((CO0 SCO),SCO0,SIM0)
       = isCOStabllyStarted(CO0,SCO0,SIM0) and allCOStabllyStarted(SCO,SCO0,SIM0) .
 
+  -- A component can start if
+  --  all of its mandatory importings are stablly wired and
+  --  all of its wired exporters are stablly started. 
   eq canStart(IDCO,SCO,SIM)
      = allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,IDCO),SCO,SIM) and
        allCOStabllyStarted(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,wired)),SCO,SIM) .
@@ -730,14 +741,14 @@ module! STATERules {
   -- An Optional Imports can be unwired anytime.
   -- N.B. "Anytime" means the component is not failed.
   ctrans [RD-unwire1]:
-     < (cmp(IDCO, CSCO, CSCO, TSCO) SCO),
+     < (cmp(IDCO, CSCO, NSCO, TSCO) SCO),
        (imp(optional, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM),
        ListLG >
-  => < (cmp(IDCO, CSCO, CSCO, TSCO) SCO),
+  => < (cmp(IDCO, CSCO, NSCO, TSCO) SCO),
        (imp(optional, IDIM, IDCO, EIDCO, unwired, unwired, TSIM) SIM),
        (ilog("RD-unwire1:Do Unwire", imp(optional, IDIM, IDCO, EIDCO, unwired, unwired, TSIM),
 	  mlog(
-       (cmp(IDCO, CSCO, CSCO, TSCO) SCO),
+       (cmp(IDCO, CSCO, NSCO, TSCO) SCO),
        (imp(optional, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM)
 	 )) ListLG) >
      if not (CSCO = failed) .
