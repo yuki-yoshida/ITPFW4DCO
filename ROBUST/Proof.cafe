@@ -146,10 +146,8 @@ module ProofBase {
 --> **********************
   -- Measuring functions
   -- Target Distance
-  op tdis : Component -> Nat
-  op tdis : Import -> Nat
-  op tdis : SetOfComponent SetOfComponent SetOfImport -> Nat
-  op tdis : SetOfImport SetOfComponent SetOfImport -> Nat
+  op tdis : SetOfComponent -> Nat
+  op tdis : SetOfImport    -> Nat
 
   -- Forced Distance 
   -- Forced to become stopped temporally
@@ -157,6 +155,9 @@ module ProofBase {
   -- Forced to become unwired temporally
   op fdis : Import -> Nat
   op fdis : BagOfID SetOfComponent SetOfImport -> Nat
+
+  eq tdis(empCO) = 0 .
+  eq tdis((CO SCO)) = tdis(CO) + tdis(SCO) .
 
   eq tdis(cmp(IDCO,started,started,stopped)) = 2 .
   eq tdis(cmp(IDCO,started,stopped,stopped)) = 1 .
@@ -167,8 +168,8 @@ module ProofBase {
   eq tdis(cmp(IDCO,started,started,started)) = 0 .
   eq tdis(cmp(IDCO,started,stopped,started)) = 0 .
 
-  eq tdis(empCO,SCO0,SIM0) = 0 .
-  eq tdis((CO SCO),SCO0,SIM0) = tdis(CO) + tdis(SCO,SCO0,SIM0) .
+  eq tdis(empIM) = 0 .
+  eq tdis((IM SIM)) = tdis(IM) + tdis(SIM) .
 
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unwired)) = 2 .
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unwired)) = 1 .
@@ -202,9 +203,6 @@ module ProofBase {
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired, unused,unused)) = 1 .
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused, unused,unused)) = 0 .
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,unwired,unused)) = 100 .
-
-  eq tdis(empIM,SCO0,SIM0) = 0 .
-  eq tdis((IM SIM),SCO0,SIM0) = tdis(IM) + tdis(SIM,SCO0,SIM0) .
 
   ceq fdis(CO) = 0 if not isFForced(CO) .
   eq fdis(cmp(IDCO,started,started,started)) = 4 .
@@ -251,9 +249,9 @@ module ProofBase {
     if isFForced(CO) .
 
   eq m(< SCO,SIM,L >)
-    = tdis(SCO, SCO, SIM) + tdis(SIM, SCO, SIM) + fdis(makeIDBag(SIM,SCO,SIM), SCO, SIM) .
+    = tdis(SCO) + tdis(SIM) + fdis(makeIDBag(SIM,SCO,SIM), SCO, SIM) .
   eq mlog(SCO, SIM)
-    = tdis(SCO, SCO, SIM) + tdis(SIM, SCO, SIM) + fdis(makeIDBag(SIM,SCO,SIM), SCO, SIM) .
+    = tdis(SCO) + tdis(SIM) + fdis(makeIDBag(SIM,SCO,SIM), SCO, SIM) .
 
 --> ************************
 --> Step 0-4: Define inv(S).
@@ -337,11 +335,11 @@ op imports1 : -> SetOfImport .
 eq imports1 =
   (imp(optional, IMW1, COC,  COC1,  wired,  wired, unused)) .
 
-red makeIDBag(imports1,components1,imports1) .
-red tdis(components1,components1,imports1) .
-red tdis(imports1,components1,imports1) .
-red fdis(makeIDBag(imports1,components1,imports1),components1,imports1) .
-red m(< components1,imports1,lg >) .
+red makeIDBag(imports1,components1,imports1) = empID .
+red tdis(components1) = 0 .
+red tdis(imports1) = 4 .
+red fdis(makeIDBag(imports1,components1,imports1),components1,imports1) = 0 .
+red m(< components1,imports1,lg >) = 4 .
 
 op components2 : -> SetOfComponent .
 eq components2 =
@@ -352,11 +350,11 @@ op imports2 : -> SetOfImport .
 eq imports2 =
   (imp(mandatory, IMW2, COC,  COC2, unused, unused,  wired)) .
 
-red makeIDBag(imports2,components2,imports2) .
-red tdis(components2,components2,imports2) .
-red tdis(imports2,components2,imports2) .
-red fdis(makeIDBag(imports2,components2,imports2),components2,imports2) .
-red m(< components2,imports2,lg >) .
+red makeIDBag(imports2,components2,imports2) = empID .
+red tdis(components2) = 0 .
+red tdis(imports2) = 4 .
+red fdis(makeIDBag(imports2,components2,imports2),components2,imports2) = 0 .
+red m(< components2,imports2,lg >) = 4 .
 
 op components : -> SetOfComponent .
 eq components =
@@ -370,10 +368,10 @@ eq imports =
    imp(mandatory, IMW1, COC,  COC1,  wired,  wired, unused)
    imp(mandatory, IMW2, COC,  COC2, unused, unused,  wired)) .
 
-red makeIDBag(imports,components,imports) .
-red tdis(components,components,imports) .
-red tdis(imports,components,imports) .
-red fdis(makeIDBag(imports,components,imports),components,imports) .
-red m(< components,imports,lg >) .
+red makeIDBag(imports,components,imports) = (cid(COC) iid(IMV) iid(IMW) cid(COD)) .
+red tdis(components) = 0 .
+red tdis(imports) = 8 .
+red fdis(makeIDBag(imports,components,imports),components,imports) = 16 .
+red m(< components,imports,lg >) = 24 .
 
 close

@@ -35,92 +35,44 @@ module ProofMeasure {
   vars IM IM' IM0 : Import
   vars SIM SIM' SIM0 SIM1 : SetOfImport
 
+  vars BID BID' : BagOfID
+
   vars X X1 X2 Y Y1 Y2 Z1 Z2 : Nat
 
+  -- Nat Axioms
   ceq ((X1 + Y1) > (X2 + Y2)) = true
     if (X1 >= X2) and (Y1 > Y2) .
   
-  ceq ((X1 + Y1) >= (X2 + Y2)) = true
-    if (X1 >= X2) and (Y1 >= Y2) .
+  -- ceq ((X1 + Y1) >= (X2 + Y2)) = true
+  --   if (X1 >= X2) and (Y1 >= Y2) .
   
-  ceq ((X + Z1) > (Y + Z2))
-    =  (X > Y) 
+  ceq ((X + Z1) > (Y + Z2)) =  (X > Y) 
     if Z1 = Z2 .
 
-  -- pred robust-lemma02 : SetOfImport Component Component SetOfComponent SetOfImport
-  -- tdis(SIM) is the same when a non-isFForced Component is changed
-  -- because fdis of non-isFForced Components are zero.
-  -- eq robust-lemma02(SIM, CO, CO', SCO', SIM')
-  --   = (tdis(SIM, (CO SCO'), SIM') = tdis(SIM, (CO' SCO'), SIM'))
-  --  when (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
-  ceq [robust-lemma02 :nonexec]:
-    (tdis(SIM, (CO SCO'), SIM') = tdis(SIM, (CO' SCO'), SIM')) = true
-    if (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
+  -- Lemmas
 
-  -- pred robust-lemma03 : SetOfComponent Component Component SetOfComponent SetOfImport
-  -- tdis(SCO) is the same when a non-isFForced Component is changed
-  -- because tdis and fdis of non-isFForced Components are zero.
-  -- eq robust-lemma03(SCO, CO, CO', SCO', SIM')
-  --   = (tdis(SCO, (CO SCO'), SIM') = tdis(SCO, (CO' SCO'), SIM'))
-  --  when (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
-  ceq [robust-lemma03 :nonexec]:
-    (tdis(SCO, (CO SCO'), SIM') = tdis(SCO, (CO' SCO'), SIM')) = true
-    if (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
+  -- eq robust-lemmaM10(SIM,CO,CO',SCO0,SIM0)
+  --   = (makeIDBag(SIM,(CO  SCO0),SIM0) =
+  --      makeIDBag(SIM,(CO' SCO0),SIM0))
+  --   when id(CO) = id(CO') and
+  --        not isFForced(CO) and
+  --        not isFForced(CO') .
+  ceq (makeIDBag(SIM,(CO  SCO0),SIM0) =
+       makeIDBag(SIM,(CO' SCO0),SIM0)) = true 
+    if id(CO) = id(CO') and
+       not isFForced(CO) and
+       not isFForced(CO') .
 
-  -- pred robust-lemma04 : SetOfImport Component Component SetOfComponent SetOfImport
-  -- fdis(SIM) may decrease when an isFForced Component is changed
-  -- and fdis of the component decreases.
-  -- eq robust-lemma04(SIM, CO, CO', SCO', SIM')
-  --    = (fdis(SIM, (CO SCO'), SIM') >= fdis(SIM, (CO' SCO'), SIM'))
-  --  when (id(CO) = id(CO')) and (fdis(Co) > fdis(CO'))
-  --       and isFForced(CO) and isFForced(CO') .
-  ceq [robust-lemma04 :nonexec]:
-   (fdis(SIM, (CO SCO'), SIM') >= fdis(SIM, (CO' SCO'), SIM')) = true
-   if (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
-        and isFForced(CO) and isFForced(CO') .
-
-  -- pred robust-lemma05 : SetOfImport Component Component SetOfComponent SetOfImport
-  -- tdis(SIM) may decrease when an isFForced Component is changed
-  -- and fdis of the component decreases.
-  -- eq robust-lemma05(SIM, CO, CO', SCO', SIM')
-  --    = (tdis(SIM, (CO SCO'), SIM') >= tdis(SIM, (CO' SCO'), SIM'))
-  --  when (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
-  --       and isFForced(CO) and isFForced(CO') .
-  ceq [robust-lemma05 :nonexec]:
-   (tdis(SIM, (CO SCO'), SIM') >= tdis(SIM, (CO' SCO'), SIM')) = true
-   if (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
-        and isFForced(CO) and isFForced(CO') .
-
-  -- pred robust-lemma06 : SetOfComponent Component Component SetOfComponent SetOfImport
-  -- tdis(SCO) may decrease when an isFForced Component is changed
-  -- and fdis of the component decreases.
-  -- eq robust-lemma06(SCO, CO, CO', SCO', SIM')
-  --    = (tdis(SCO, (CO SCO'), SIM') >= tdis(SCO, (CO' SCO'), SIM'))
-  --  when (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
-  --       and isFForced(CO) and isFForced(CO') .
-  ceq [robust-lemma06 :nonexec]:
-   (tdis(SCO, (CO SCO'), SIM') >= tdis(SCO, (CO' SCO'), SIM')) = true
-   if (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
-        and isFForced(CO) and isFForced(CO') .
-
-  -- pred robust-lemma07 : Component Component Import SetOfComponent SetOfImport
-  -- tdis(SCO) may decrease when an isFForced Component is changed
-  -- and it has isFFoced1 exporter .
-  -- eq robust-lemma07(CO,CO',IM,SCO,SIM)
-  --    = tdis(SCO,(CO  SCO),(IM SIM))
-  --    > tdis(SCO,(CO' SCO),(IM SIM))
-  --  when id(CO) = id(CO')
-  --       and importer(IM) = id(CO)
-  --       and isFForced0(CO) and isFForced1(CO') and isFForced1(IM)
-  --       and allFFCOHasFFIIM((CO SCO),(IM SIM))
-  --       and allFFIMHasFFECO((IM SIM),(CO SCO))
-  --       and allIMHaveECO((IM SIM),(CO SCO)) .
-  ceq [robust-lemma07 :nonexec]:
-   (tdis(SCO,(CO  SCO),SIM) > tdis(SCO,(CO' SCO),SIM)) = true
-   if (id(CO) = id(CO')) and isFForced0(CO) and isFForced1(CO') .
-   -- (tdis(SCO,(CO  SCO),(IM SIM)) > tdis(SCO,(CO' SCO),(IM SIM))) = true
-   -- if (id(CO) = id(CO')) and (importer(IM) = id(CO))
-   --      and isFForced0(CO) and isFForced1(CO') and isFForced1(IM) .
+  -- eq robust-lemmaM11(BID,CO,CO',SCO,SIM)
+  --   = fdis(BID,(CO  SCO),SIM) >= 
+  --     fdis(BID,(CO' SCO),SIM) 
+  --   when id(CO) = id(CO') and
+  --        fdis(CO) >= fdis(CO') .
+  ceq (fdis(BID, (CO  SCO),SIM) >= 
+       fdis(BID',(CO' SCO),SIM) ) = true
+    if BID = BID' and
+       id(CO) = id(CO') and
+       fdis(CO) >= fdis(CO') .
 
 }
 
@@ -141,25 +93,12 @@ select ProofMeasure .
 :goal {
   eq mesmes(< (cmp(idCO, stopped, stopped, started) sCO), sIM, lg >) = true .
 }
-:init [robust-lemma02] by {
-  SIM:SetOfImport <- SIM:SetOfImport;
-  CO:Component <- CO:Component;  
-  CO':Component <- CO':Component;  
-  SCO':SetOfComponent <- SCO':SetOfComponent;
-  SIM':SetOfImport <- SIM':SetOfImport;
-}
-:init [robust-lemma03] by {
-  SCO:SetOfComponent <- SCO:SetOfComponent;
-  CO:Component <- CO:Component;  
-  CO':Component <- CO':Component;  
-  SCO':SetOfComponent <- SCO':SetOfComponent;
-  SIM':SetOfImport <- SIM':SetOfImport;
-}
 :apply (rd-)
 --> Proof of RS-start1 done.
 -->
 show proof
 select
+eof
 
 --> ************************************************************************
 --> trans [RS-stop1]:
