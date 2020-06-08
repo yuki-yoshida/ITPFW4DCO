@@ -98,7 +98,6 @@ select ProofMeasure .
 -->
 show proof
 select
-eof
 
 --> ************************************************************************
 --> trans [RS-stop1]:
@@ -117,24 +116,11 @@ select ProofMeasure .
 :goal {
   eq mesmes(< (cmp(idCO, started, started, stopped) sCO), sIM, lg >) = true .
 }
-:init [robust-lemma02] by {
-  SIM:SetOfImport <- SIM:SetOfImport;
-  CO:Component <- CO:Component;  
-  CO':Component <- CO':Component;  
-  SCO':SetOfComponent <- SCO':SetOfComponent;
-  SIM':SetOfImport <- SIM':SetOfImport;
-}
-:init [robust-lemma03] by {
-  SCO:SetOfComponent <- SCO:SetOfComponent;
-  CO:Component <- CO:Component;  
-  CO':Component <- CO':Component;  
-  SCO':SetOfComponent <- SCO':SetOfComponent;
-  SIM':SetOfImport <- SIM':SetOfImport;
-}
 :apply (rd-)
 --> Proof of RS-stop1 done.
 -->
 show proof
+eof
 select
 
 --> ************************************************************************
