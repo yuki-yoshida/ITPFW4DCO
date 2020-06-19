@@ -63,7 +63,7 @@ module ProofMeasure {
        not isFForced(CO) and
        not isFForced(CO') .
 
-  -- eq robust-lemmaM11(BID,CO,CO',SCO,SIM)
+  -- eq robust-lemmaM12(BID,CO,CO',SCO,SIM)
   --   = fdis(BID,(CO  SCO),SIM) >= 
   --     fdis(BID,(CO' SCO),SIM) 
   --   when id(CO) = id(CO') and
@@ -120,7 +120,6 @@ select ProofMeasure .
 --> Proof of RS-stop1 done.
 -->
 show proof
-eof
 select
 
 --> ************************************************************************
@@ -145,19 +144,6 @@ select ProofMeasure .
               (imp(mandatory, idIM, idCO, eidCO, wired, unwired, tIMs) sIM),
               lg >) = true .
 }
-:init [robust-lemma05] by {
-  SIM:SetOfImport <- SIM:SetOfImport;
-  CO:Component <- CO:Component;  
-  CO':Component <- CO':Component;  
-  SCO':SetOfComponent <- SCO':SetOfComponent;
-  SIM':SetOfImport <- SIM':SetOfImport;
-}
--- :init [robust-lemma07] by {
---   CO:Component <- CO:Component;  
---   CO':Component <- CO':Component;  
---   SCO:SetOfComponent <- SCO:SetOfComponent;
---   SIM:SetOfImport <- SIM:SetOfImport;
--- }
 :def tIMscsp = :csp {
   eq tIMs = wired .
   eq tIMs = unwired .
@@ -167,5 +153,6 @@ select ProofMeasure .
 --> Proof of RS-stop2 done.
 -->
 show proof
+eof
 select
 --> Totally 3 goals should be proved.

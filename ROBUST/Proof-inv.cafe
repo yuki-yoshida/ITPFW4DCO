@@ -41,7 +41,6 @@ module Proofinv-allFFIMHasFFECO {
   var SCO : SetOfComponent
   var SIM : SetOfImport
 
-  -- pred robust-lemma12 : SetOfImport SetOfComponent
   -- eq robust-lemma12(SIM,SCO)
   --    = (allFFIMHasFFECO(SIM,SCO) = true)
   --  when stableIMSet(SIM) .
@@ -522,14 +521,12 @@ module Proofinv-allFFCOHasFFIIM {
   var SCO : SetOfComponent
   var SIM : SetOfImport
 
-  -- pred robust-lemma11 : SetOfComponent SetOfImport
   -- eq robust-lemma11(SCO,SIM)
   --    = (allFFCOHasFFIIM(SCO,SIM) = true)
   --  when stableCOSet(SCO) .
   eq (allFFCOHasFFIIM(SCO,SIM) and stableCOSet(SCO))
     = stableCOSet(SCO) .
 
-  -- pred robust-lemma13 : SetOfComponent Import Import SetOfImport
   -- eq robust-lemma13(SCO,IM,IM',SIM)
   --    = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
   -- when (importer(IM) = importer(IM')) and 
@@ -543,7 +540,6 @@ module Proofinv-allFFCOHasFFIIM {
        (tdis(IM) >= tdis(IM')) and
        (fdis(IM) > fdis(IM')) .
 
-  -- pred robust-lemma14 : SetOfComponent Import Import SetOfImport
   -- eq robust-lemma14(SCO,IM,IM',SIM)
   --    = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
   -- when (importer(IM) = importer(IM')) and 
@@ -557,7 +553,6 @@ module Proofinv-allFFCOHasFFIIM {
        (tdis(IM) > tdis(IM')) and
        (fdis(IM) >= fdis(IM')) .
 
-  -- pred robust-lemma15 : SetOfComponent Import Import SetOfImport
   -- eq robust-lemma15(SCO,IM,IM',SIM)
   --    = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
   -- when (importer(IM) = importer(IM')) and 
@@ -569,7 +564,6 @@ module Proofinv-allFFCOHasFFIIM {
        isForced1(IM) and isForced1(IM') and
        (tdis(IM) > tdis(IM')) .
 
-  -- pred robust-lemma10 : SetOfComponent Import SetOfImport
   -- eq robust-lemma10(SCO,IM,SIM)
   --    = (allFFCOHasFFIIM(SCO, IM SIM) = allFFCOHasFFIIM(SCO, SIM)) 
   --  when (not existCO(SCO,importer(IM))) .
@@ -577,7 +571,6 @@ module Proofinv-allFFCOHasFFIIM {
     = allFFCOHasFFIIM(SCO, SIM)
     if (not existCO(SCO,importer(IM))) .
 
-  -- pred robust-lemma17 : SetOfComponent Import Import SetOfImport
   -- eq robust-lemma17(SCO,IM,IM',SIM)
   --    = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
   -- when (importer(IM) = importer(IM')) and 
@@ -597,7 +590,6 @@ module Proofinv-allFFCOHasFFIIM {
        (next(IM')   = wired) and
        (target(IM') = wired) .
 
-  -- pred robust-lemma18 : SetOfComponent Import Import SetOfImport
   -- eq robust-lemma18(SCO,IM,IM',SIM)
   --    = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
   -- when (importer(IM) = importer(IM')) and 

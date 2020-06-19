@@ -216,9 +216,6 @@ module ROBUSTLEMMA07 {
   vars SIM SIM' : SetOfImport
   var IDIM : IMID
 
-  -- pred robust-lemma04 : SetOfImport Component Component SetOfComponent SetOfImport
-  -- fdis(SIM) may decrease when an isFForced Component is changed
-  -- and fdis of the component decreases.
   -- eq robust-lemma04(SIM, CO, CO', SCO', SIM')
   --    = (fdis(SIM, (CO SCO'), SIM') >= fdis(SIM, (CO' SCO'), SIM'))
   --  when (id(CO) = id(CO')) and (fdis(Co) > fdis(CO'))
@@ -227,9 +224,6 @@ module ROBUSTLEMMA07 {
    if (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
         and isFForced(CO) and isFForced(CO') .
 
-  -- pred robust-lemma05 : SetOfImport Component Component SetOfComponent SetOfImport
-  -- tdis(SIM) may decrease when an isFForced Component is changed
-  -- and fdis of the component decreases.
   -- eq robust-lemma05(SIM, CO, CO', SCO', SIM')
   --    = (tdis(SIM, (CO SCO'), SIM') >= tdis(SIM, (CO' SCO'), SIM'))
   --  when (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
@@ -238,9 +232,6 @@ module ROBUSTLEMMA07 {
    if (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
         and isFForced(CO) and isFForced(CO') .
 
-  -- pred robust-lemma06 : SetOfComponent Component Component SetOfComponent SetOfImport
-  -- tdis(SCO) may decrease when an isFForced Component is changed
-  -- and fdis of the component decreases.
   -- eq robust-lemma06(SCO, CO, CO', SCO', SIM')
   --    = (tdis(SCO, (CO SCO'), SIM') >= tdis(SCO, (CO' SCO'), SIM'))
   --  when (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
@@ -402,7 +393,7 @@ module ROBUSTLEMMA02 {
   vars CO CO' : Component
   var SCO' : SetOfComponent
   vars SIM SIM' : SetOfImport
-  -- pred robust-lemma01 : SetOfImport Component Component SetOfComponent SetOfImport
+
   -- eq robust-lemma01(SIM, CO, CO', SCO', SIM')
   --   = (fdis(SIM, (CO SCO'), SIM') = fdis(SIM, (CO' SCO'), SIM'))
   --  when (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
@@ -463,7 +454,7 @@ module ROBUSTLEMMA03 {
   vars CO CO' : Component
   var SCO' : SetOfComponent
   vars SIM SIM' : SetOfImport
-  -- pred robust-lemma02 : SetOfImport Component Component SetOfComponent SetOfImport
+
   -- eq robust-lemma02(SIM, CO, CO', SCO', SIM')
   --   = (tdis(SIM, (CO SCO'), SIM') = tdis(SIM, (CO' SCO'), SIM'))
   --  when (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
@@ -1030,7 +1021,7 @@ module ROBUSTLEMMA16 {
   var SCO : SetOfComponent
   var SIM : SetOfImport
   var IM : Import
-  -- pred robust-lemma10 : SetOfComponent Import SetOfImport
+
   -- eq robust-lemma10(SCO,IM,SIM)
   --    = (allFFCOHasFFIIM(SCO, IM SIM) = allFFCOHasFFIIM(SCO, SIM)) 
   --  when (not existCO(SCO,importer(IM))) .
