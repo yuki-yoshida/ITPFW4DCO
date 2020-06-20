@@ -53,45 +53,55 @@ module ROBUSTLEMMA {
   -- because fdis of non-isFForced Components are zero.
   eq robust-lemma01(SIM, CO, CO', SCO', SIM')
      = (fdis(SIM, (CO SCO'), SIM') = fdis(SIM, (CO' SCO'), SIM'))
-   when (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
+   when (id(CO) = id(CO')) 
+    and (not isFForced(CO))
+    and (not isFForced(CO')) .
 
   pred robust-lemma02 : SetOfImport Component Component SetOfComponent SetOfImport
   -- tdis(SIM) is the same when a non-isFForced Component is changed
   -- because fdis of non-isFForced Components are zero.
   eq robust-lemma02(SIM, CO, CO', SCO', SIM')
      = (tdis(SIM, (CO SCO'), SIM') = tdis(SIM, (CO' SCO'), SIM'))
-   when (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
+   when (id(CO) = id(CO'))
+    and (not isFForced(CO))
+    and (not isFForced(CO')) .
 
   pred robust-lemma03 : SetOfComponent Component Component SetOfComponent SetOfImport
   -- tdis(SCO) is the same when a non-isFForced Component is changed
   -- because tdis and fdis of non-isFForced Components are zero.
   eq robust-lemma03(SCO, CO, CO', SCO', SIM')
      = (tdis(SCO, (CO SCO'), SIM') = tdis(SCO, (CO' SCO'), SIM'))
-   when (id(CO) = id(CO')) and (not isFForced(CO)) and (not isFForced(CO')) .
+   when (id(CO) = id(CO'))
+    and (not isFForced(CO))
+    and (not isFForced(CO')) .
 
   pred robust-lemma04 : SetOfImport Component Component SetOfComponent SetOfImport
   -- fdis(SIM) may decrease when an isFForced Component is changed
   -- and fdis of the component decreases.
   eq robust-lemma04(SIM, CO, CO', SCO', SIM')
      = (fdis(SIM, (CO SCO'), SIM') >= fdis(SIM, (CO' SCO'), SIM'))
-   when (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
-        and isFForced(CO) and isFForced(CO') .
+   when (id(CO) = id(CO'))
+    and (fdis(CO) > fdis(CO'))
+    and isFForced(CO) and isFForced(CO') .
 
   pred robust-lemma05 : SetOfImport Component Component SetOfComponent SetOfImport
   -- tdis(SIM) may decrease when an isFForced Component is changed
   -- and fdis of the component decreases.
   eq robust-lemma05(SIM, CO, CO', SCO', SIM')
      = (tdis(SIM, (CO SCO'), SIM') >= tdis(SIM, (CO' SCO'), SIM'))
-   when (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
-        and isFForced(CO) and isFForced(CO') .
+   when (id(CO) = id(CO'))
+    and (fdis(CO) > fdis(CO'))
+    and isFForced(CO) and isFForced(CO') .
 
   pred robust-lemma06 : SetOfComponent Component Component SetOfComponent SetOfImport
   -- tdis(SCO) may decrease when an isFForced Component is changed
   -- and fdis of the component decreases.
   eq robust-lemma06(SCO, CO, CO', SCO', SIM')
      = (tdis(SCO, (CO SCO'), SIM') >= tdis(SCO, (CO' SCO'), SIM'))
-   when (id(CO) = id(CO')) and (fdis(CO) > fdis(CO'))
-        and isFForced(CO) and isFForced(CO') .
+   when (id(CO) = id(CO'))
+    and (fdis(CO) > fdis(CO'))
+    and isFForced(CO)
+    and isFForced(CO') .
 
   pred robust-lemma07 : Component Component SetOfComponent SetOfImport
   -- tdis(SCO) may decrease when an isFForced Component is changed .
@@ -122,10 +132,11 @@ module ROBUSTLEMMA {
   pred robust-lemma13 : SetOfComponent Import Import SetOfImport
   eq robust-lemma13(SCO,IM,IM',SIM)
      = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
-   when (importer(IM) = importer(IM')) and 
-        not isForced1(IM) and not isFForced1(IM) and
-        (tdis(IM) >= tdis(IM')) and
-        (fdis(IM) > fdis(IM')) .
+   when (importer(IM) = importer(IM'))
+    and not isForced1(IM)
+    and not isFForced1(IM)
+    and (tdis(IM) >= tdis(IM'))
+    and (fdis(IM) > fdis(IM')) .
 
   pred robust-lemma14 : SetOfComponent Import Import SetOfImport
   eq robust-lemma14(SCO,IM,IM',SIM)

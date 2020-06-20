@@ -54,26 +54,51 @@ module ProofMeasure {
   -- eq robust-lemmaM10(SIM,CO,CO',SCO0,SIM0)
   --   = (makeIDBag(SIM,(CO  SCO0),SIM0) =
   --      makeIDBag(SIM,(CO' SCO0),SIM0))
-  --   when id(CO) = id(CO') and
-  --        not isFForced(CO) and
-  --        not isFForced(CO') .
+  --   when id(CO) = id(CO')
+  --    and not isFForced(CO)
+  --    and not isFForced(CO') .
   ceq (makeIDBag(SIM,(CO  SCO0),SIM0) =
        makeIDBag(SIM,(CO' SCO0),SIM0)) = true 
     if id(CO) = id(CO') and
        not isFForced(CO) and
        not isFForced(CO') .
 
+  -- eq robust-lemmaM11(SIM,CO,CO',SCO0,SIM0)
+  --   = (makeIDBag(SIM,(CO  SCO0),SIM0) =
+  --      makeIDBag(SIM,(CO' SCO0),SIM0))
+  --   when id(CO) = id(CO')
+  --    and isFForced(CO)
+  --    and isFForced(CO') .
+  ceq [robust-lemmaM11 :nonexec]:
+      makeIDBag(SIM,(CO  SCO0),SIM0)
+      = makeIDBag(SIM,(CO' SCO0),SIM0)
+    if id(CO) = id(CO') and
+       isFForced(CO) and
+       isFForced(CO') .
+
   -- eq robust-lemmaM12(BID,CO,CO',SCO,SIM)
   --   = fdis(BID,(CO  SCO),SIM) >= 
   --     fdis(BID,(CO' SCO),SIM) 
-  --   when id(CO) = id(CO') and
-  --        fdis(CO) >= fdis(CO') .
+  --   when id(CO) = id(CO')
+  --    and fdis(CO) >= fdis(CO') .
   ceq (fdis(BID, (CO  SCO),SIM) >= 
        fdis(BID',(CO' SCO),SIM) ) = true
     if BID = BID' and
        id(CO) = id(CO') and
        fdis(CO) >= fdis(CO') .
 
+  -- Additional fresh constants
+  op bID : -> BagOfID
+  -- eq robust-lemmaM13(SIM,CO,SCO)
+  --   = cid(id(CO)) in makeIDBag(SIM,(CO SCO),SIM)
+  --   when isFForced(CO)
+  --    and allFFCOHasFFIIM((CO SCO),SIM)
+  --    and allFFIMHasFFECO(SIM,(CO SCO)) .
+  ceq [robust-lemmaM13 :nonexec]:
+      makeIDBag(SIM,(CO SCO0),SIM0) = (cid(id(CO)) BID)
+    if isFForced(CO) and
+       allFFCOHasFFIIM((CO SCO0),SIM0) and
+       allFFIMHasFFECO(SIM0,(CO SCO0)) .
 }
 
 --> **************************************************************************
@@ -144,15 +169,33 @@ select ProofMeasure .
               (imp(mandatory, idIM, idCO, eidCO, wired, unwired, tIMs) sIM),
               lg >) = true .
 }
+:init as robust-lemmaM11-in [robust-lemmaM11] by
+  {CO:Component  <- cmp(idCO,started,stopped,started);
+   CO':Component <- cmp(idCO,started,started,started);}
 :def tIMscsp = :csp {
   eq tIMs = wired .
   eq tIMs = unwired .
   eq tIMs = unused .
 }
-:apply (tIMscsp rd-)
+:apply (tIMscsp)
+:def allFFCOctf = :ctf {
+  eq allFFCOHasFFIIM(sCO,(imp(mandatory,idIM,idCO,eidCO,wired,unwired,wired) sIM)) = true .
+}  
+:def allFFIMctf = :ctf {
+  eq allFFIMHasFFECO((imp(mandatory,idIM,idCO,eidCO,wired,unwired,wired) sIM),
+		     (cmp(idCO, started, started, started) sCO)) = true .
+}  
+:apply (allFFCOctf allFFIMctf rd-)
+:init as robust-lemmaM13-in [robust-lemmaM13] by
+  {SIM:SetOfImport <- sIM;
+   CO:Component  <- cmp(idCO,started,started,started);
+   BID:BagOfID <- bID;}
+:apply (rd-)
+:apply (rd-)
+:apply (rd-)
+
 --> Proof of RS-stop2 done.
 -->
 show proof
-eof
 select
 --> Totally 3 goals should be proved.
