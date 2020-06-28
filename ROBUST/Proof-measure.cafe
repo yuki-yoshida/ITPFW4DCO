@@ -91,14 +91,23 @@ module ProofMeasure {
   op bID : -> BagOfID
   -- eq robust-lemmaM13(SIM,CO,SCO)
   --   = cid(id(CO)) in makeIDBag(SIM,(CO SCO),SIM)
-  --   when isFForced(CO)
+  --   when isFForced1(CO)
   --    and allFFCOHasFFIIM((CO SCO),SIM)
   --    and allFFIMHasFFECO(SIM,(CO SCO)) .
   ceq [robust-lemmaM13 :nonexec]:
-      makeIDBag(SIM,(CO SCO0),SIM0) = (cid(id(CO)) BID)
-    if isFForced(CO) and
-       allFFCOHasFFIIM((CO SCO0),SIM0) and
-       allFFIMHasFFECO(SIM0,(CO SCO0)) .
+      makeIDBag(SIM,(CO SCO),SIM) = (cid(id(CO)) BID)
+    if isFForced1(CO) and
+       allFFCOHasFFIIM((CO SCO),SIM) and
+       allFFIMHasFFECO(SIM,(CO SCO)) . 
+
+  -- eq robust-lemma20(SIM,CO,CO',SCO)
+  --    = (allFFIMHasFFECO(SIM, CO SCO) implies allFFIMHasFFECO(SIM, CO' SCO))
+  --  when (id(CO) = id(CO')) and 
+  --       not isFForced1(CO) and isFForced1(CO') and
+  --       (fdis(CO) > fdis(CO')) .
+  ceq allFFIMHasFFECO(SIM, cmp(IDCO, started, stopped, started) SCO) = true
+    if allFFIMHasFFECO(SIM, cmp(IDCO, started, started, started) SCO) .
+
 }
 
 --> **************************************************************************
@@ -170,8 +179,8 @@ select ProofMeasure .
               lg >) = true .
 }
 :init as robust-lemmaM11-in [robust-lemmaM11] by
-  {CO:Component  <- cmp(idCO,started,stopped,started);
-   CO':Component <- cmp(idCO,started,started,started);}
+  {CO:Component  <- cmp(idCO,started,started,started);
+   CO':Component <- cmp(idCO,started,stopped,started);}
 :def tIMscsp = :csp {
   eq tIMs = wired .
   eq tIMs = unwired .
@@ -187,8 +196,8 @@ select ProofMeasure .
 }  
 :apply (allFFCOctf allFFIMctf rd-)
 :init as robust-lemmaM13-in [robust-lemmaM13] by
-  {SIM:SetOfImport <- sIM;
-   CO:Component  <- cmp(idCO,started,started,started);
+  {SIM:SetOfImport <- (imp(mandatory,idIM,idCO,eidCO,wired,unwired,wired) sIM);
+   CO:Component  <- cmp(idCO,started,stopped,started);
    BID:BagOfID <- bID;}
 :apply (rd-)
 :apply (rd-)

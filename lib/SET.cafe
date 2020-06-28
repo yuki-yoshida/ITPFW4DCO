@@ -39,7 +39,10 @@ mod! SET(X :: TRIV) {
   ceq (E1 S) \\ E = (E1 (S \\ E)) if not (E = E1) .
   -- for subset
   eq subset(empty,S) = true .
+  eq subset(S,empty) = (S = empty) .
+  eq subset(S,S) = true .
   eq subset((E S1),S2) = E in S2 and subset(S1,S2) .
+  eq subset(S1,(E S2)) = true .
   -- for well-founded binary relation
   eq (S <wf (E S)) = true .
 

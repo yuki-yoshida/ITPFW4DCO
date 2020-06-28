@@ -121,6 +121,7 @@ module ProofBase {
     = allFFIMHasFFECO(SIM,SCO) .
 
   pred existFFIM : SetOfImport
+  eq existFFIM(empIM) = false .
   eq existFFIM(IM SIM)
     = isFForced1(IM) or isForced1(IM) or existFFIM(SIM) .
 

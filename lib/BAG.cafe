@@ -10,6 +10,7 @@ mod! BAG(X :: TRIV) {
   op _in_ : Elt.X Bag -> Bool
   op _A_ : Bag Bag -> Bag
   op _\\_ : Bag Bag -> Bag
+  op subbag : Bag Bag -> Bool
   pred _<wf_ : Bag Bag
   --
   vars B B1 B2 : Bag 
@@ -30,6 +31,12 @@ mod! BAG(X :: TRIV) {
   eq empty \\ E = empty .
   eq (E B) \\ E = B .
   ceq (E1 B) \\ E = (E1 (B \\ E)) if not (E = E1) .
+  -- for subbag
+  eq subbag(empty,B) = true .
+  eq subbag(B,empty) = (B = empty) .
+  eq subbag(B,B) = true .
+  eq subbag((E B1),B2) = E in B2 and subbag(B1,B2) .
+  eq subbag(B1,(E B2)) = true .
   -- for well-founded binary relation
   eq (B <wf (E B)) = true .
 
