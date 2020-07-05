@@ -492,10 +492,6 @@ module -OBJLINKMANY2ONE0(LINK :: PRMOBJLINK) {
   ceq (IDX = link(null) ) = false
     if not (IDX == link(null)) .
 
-  op getLObject : SetOfLObject Object -> LObject
-  eq getLObject(S_X,Z)
-     = getObject(S_X,link(Z)) .
-
   pred ifXInStatesThenZInStates0 : SetOfLObject SetOfLObjState SetOfObject SetOfObjState
   eq ifXInStatesThenZInStates0(empLObj,St_X,S_Z,St_Z)
      = true .

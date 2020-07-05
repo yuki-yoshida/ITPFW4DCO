@@ -41,8 +41,10 @@ mod! SET(X :: TRIV) {
   eq subset(empty,S) = true .
   eq subset(S,empty) = (S = empty) .
   eq subset(S,S) = true .
-  eq subset((E S1),S2) = E in S2 and subset(S1,S2) .
-  eq subset(S1,(E S2)) = true .
+  -- eq subset((E S1),S2) = E in S2 and subset(S1,S2) .
+  ceq subset((E S1),S2) = subset(S1,S2) if (E in S2) .
+  ceq subset((E S1),S2) = false if not (E in S2) .
+  eq subset(S1,(E S1)) = true .
   -- for well-founded binary relation
   eq (S <wf (E S)) = true .
 
