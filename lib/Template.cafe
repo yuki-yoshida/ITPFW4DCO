@@ -219,7 +219,7 @@ module -PRMOBJBASE {
     
 }
 
-module -OBJECTBASE0 {
+module -OBJECTBASE0-lemma {
 
   including(-ALLOBJPRED1(-PRMOBJBASE {sort Arg -> ObjID,
   	                             op p -> hasID})
@@ -246,11 +246,9 @@ module -OBJECTBASE0 {
   op getObject : SetOfObject ObjID -> Object
   
   var ID : ObjID
-  vars O O' : Object
-  vars S_O S_O' S_O1 S_O2 : SetOfObject
-  var St : ObjState 
+  var O : Object
+  var S_O : SetOfObject
   var S_St : SetOfObjState
-  var OT : ObjType
 
   eq uniqObj(empObj)
      = true .
@@ -263,12 +261,23 @@ module -OBJECTBASE0 {
      = if (state(O) in S_St) then 1 else 0 fi
        + #ObjInStates0(S_St,S_O) .
 
-  eq getObject(empObj,ID:ObjID)
+  eq getObject(empObj,ID)
      = null .
   eq getObject((O:Object S:SetOfObject),ID:ObjID)
      = if (id(O) = ID) then O else getObject(S,ID) fi .
+}
+
+module -OBJECTBASE0 {
+  including(-OBJECTBASE0-lemma)
 
   -- Proved Lemmas
+  var ID : ObjID
+  vars O O' : Object
+  vars S_O S_O' S_O1 S_O2 : SetOfObject
+  var St : ObjState 
+  var S_St : SetOfObjState
+  var OT : ObjType
+
   eq [base-lemma01]:
       (existObj(S_O,ID) and existObj((O S_O),ID))
      = existObj(S_O,ID) .
@@ -372,11 +381,12 @@ module PRMOBJLINK {
   pred existObj : SetOfObject ObjID
   op getObject : SetOfObject ObjID -> Object
   [ObjState < SetOfObjState]
+  op empState : -> SetOfObjState {constr}
   pred allObjInStates : SetOfObject SetOfObjState
 
   -- The followings are usually not renamed.
-  op _ _ : SetOfObject SetOfObject -> SetOfObject {constr assoc comm}
-  op _ _ : SetOfObjState SetOfObjState -> SetOfObjState {constr assoc comm}
+  op _ _ : SetOfObject SetOfObject -> SetOfObject {constr assoc comm id: empObj}
+  op _ _ : SetOfObjState SetOfObjState -> SetOfObjState {constr assoc comm id: empState}
   op id : Object -> ObjID
   op type : Object -> ObjType
   op state : Object -> ObjState
@@ -392,6 +402,7 @@ module PRMOBJLINK {
   pred existObj : SetOfLObject LObjID
   op getObject : SetOfLObject LObjID -> LObject
   [LObjState < SetOfLObjState]
+  op empState : -> SetOfLObjState {constr}
   pred allObjInStates : SetOfLObject SetOfLObjState
   pred existObjInStates : SetOfLObject LObjID SetOfLObjState
 
@@ -400,6 +411,7 @@ module PRMOBJLINK {
 
   -- The followings are usually not renamed.
   op _ _ : SetOfLObject SetOfLObject -> SetOfLObject {constr assoc comm}
+  op _ _ : SetOfLObjState SetOfLObjState -> SetOfLObjState {constr assoc comm id: empState}
   op id : LObject -> LObjID
   op state : LObject -> LObjState
   pred _>_ : LObjState LObjState
@@ -456,7 +468,7 @@ module -PRMOBJLINKPRED(LINK :: PRMOBJLINK) {
        (state(LO1) > state(LO2)) .
 }
 
-module -OBJLINKMANY2ONE0(LINK :: PRMOBJLINK) {
+module -OBJLINKMANY2ONE0-lemma(LINK :: PRMOBJLINK) {
   -- one X has zero or many coressponding Z
   -- Z has a link to X
 
@@ -477,14 +489,11 @@ module -OBJLINKMANY2ONE0(LINK :: PRMOBJLINK) {
 			  sort Arg3 -> SetOfObjState
 			  op p -> ifOfTypeOfXThenInStates0})
                     * {op allObjP -> allZOfTypeOfXInStates0})
-  vars X X' : LObject
-  vars Z Z' : Object
+  var X : LObject
+  var Z : Object
   var IDX : LObjID
-  var IDZ : ObjID
-  vars S_X S_X' : SetOfLObject
-  vars S_Z S_Z' : SetOfObject
-  var SX : LObjState
-  var SZ : ObjState
+  var S_X : SetOfLObject
+  var S_Z : SetOfObject
   var St_X : SetOfLObjState
   var St_Z : SetOfObjState
   var OT : ObjType
@@ -621,8 +630,24 @@ module -OBJLINKMANY2ONE0(LINK :: PRMOBJLINK) {
      = empObj .
   eq getZsOfTypeOfXsInStates0(S_Z,OT,(X S_X),St_Z)
      = (getZsOfTypeOfXInStates0(S_Z,OT,X,St_Z) getZsOfTypeOfXsInStates0(S_Z,OT,S_X,St_Z)) .
+}
+
+module -OBJLINKMANY2ONE0 {
+  including(-OBJLINKMANY2ONE0-lemma)
 
   -- Proved Lemmas
+  vars X X' : LObject
+  vars Z Z' : Object
+  var IDX : LObjID
+  var IDZ : ObjID
+  vars S_X S_X' : SetOfLObject
+  vars S_Z S_Z' : SetOfObject
+  var SX : LObjState
+  var SZ : ObjState
+  var St_X : SetOfLObjState
+  var St_Z : SetOfObjState
+  var OT : ObjType
+
   ceq [m2o-lemma01]:
       (allObjInStates(S_Z,SZ) and
        allZOfXInStates0(S_Z,IDX,St_Z))
@@ -837,7 +862,7 @@ module OBJLINKMANY2ONE3(LINK :: PRMOBJLINK3) {
 		op ifXInStatesThenZOfTypeInStates0 -> ifXInStatesThenZOfTypeInStates3})
 }
 
-module -OBJLINKONE2ONE0(LINK :: PRMOBJLINK) {
+module -OBJLINKONE2ONE0-lemma(LINK :: PRMOBJLINK) {
   -- one X has exactly one coressponding Y
   -- Y has a link to X
 
@@ -847,17 +872,13 @@ module -OBJLINKONE2ONE0(LINK :: PRMOBJLINK) {
                     * {op someObjP -> existX0,
 		       op onlyOneObjP -> onlyOneYOfX0})
 
-  vars X X' : LObject
-  vars Y Y' : Object
+  var X : LObject
+  var Y : Object
   var IDX : LObjID
-  var IDY : ObjID
-  var SX : LObjState
-  var SY : ObjState
-  vars S_X S_X' : SetOfLObject
-  vars S_Y S_Y' : SetOfObject
+  var S_X : SetOfLObject
+  var S_Y : SetOfObject
   var St_X : SetOfLObjState
   var St_Y : SetOfObjState
-  var OT : ObjType
 
   ceq (IDX = link(null) ) = false
     if not (IDX == link(null)) .
@@ -970,8 +991,24 @@ module -OBJLINKONE2ONE0(LINK :: PRMOBJLINK) {
      = true .
   eq allXHaveY((X S_X),S_Y)
      = onlyOneYOfX0(S_Y,id(X)) and allXHaveY(S_X,S_Y) .
+}
+
+module -OBJLINKONE2ONE0 {
+  including(-OBJLINKONE2ONE0-lemma)
 
   -- Proved Lemmas
+  vars X X' : LObject
+  vars Y Y' : Object
+  var IDX : LObjID
+  var IDY : ObjID
+  var SX : LObjState
+  var SY : ObjState
+  vars S_X S_X' : SetOfLObject
+  vars S_Y S_Y' : SetOfObject
+  var St_X : SetOfLObjState
+  var St_Y : SetOfObjState
+  var OT : ObjType
+
   ceq [o2o-lemma01]:
       (allObjInStates(S_Y,St_Y) and YOfXInStates0(S_Y,IDX,St_Y))
      = allObjInStates(S_Y,St_Y)
