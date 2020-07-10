@@ -4,7 +4,7 @@ mod! BAG(X :: TRIV) {
   [Elt.X < Bag]
   op empty : -> Bag {constr}
   op _ _ : Bag Bag -> Bag {constr assoc comm id: empty}
-  eq ((E:Elt.X B1:Bag) = (E B2:Bag)) = (B1 = B2) .
+
   --
   op _U_ : Bag Bag -> Bag
   op _in_ : Elt.X Bag -> Bool
@@ -15,6 +15,9 @@ mod! BAG(X :: TRIV) {
   --
   vars B B1 B2 : Bag 
   vars E E1 : Elt.X
+
+  -- for =
+  eq ((E B1) = (E B2)) = (B1 = B2) .
   -- for empty
   eq ((E B) = empty) = false .
   -- for _U_
