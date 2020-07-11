@@ -123,8 +123,14 @@ module SETLEMMAS {
   eq set-lemma12(S)
      = subset(S,S) .
 
+  pred set-lemma13 : SetOfObject SetOfObject SetOfObject
+  -- When subset(S1,S2) and subset(S2,S) holds, subset(S1,S) also holds.
+  eq set-lemma13(S,S1,S2)
+     = subset(S1,S2) implies subset(S1,S) 
+     when subset(S2,S) .
+
   ops o o' o1 o2 : -> Object .
-  ops s s1 s2 : -> SetOfObject .
+  ops s s1 s2 s2' : -> SetOfObject .
   op a : -> Arg .
 }
 
@@ -367,6 +373,25 @@ eq [set-lemma09]:
 :apply (rd-)
 show proof
 close
+
+--> ******************************************************************************
+--> Prove that when subset(S1,S2) and subset(S2,S) holds, subset(S1,S) also holds.
+--> ******************************************************************************
+select SETLEMMAS
+:goal {
+  eq set-lemma13(s,empObj,s2) = true .
+  eq set-lemma13(s,s1,s2) implies set-lemma13(s,(o s1),s2) = true .
+}
+:def cspos2 = :csp {
+  eq (o in s2) = false .
+  eq s2 = (o s2') .
+}
+:apply (cspos2 rd-)
+:def ctfos = :ctf {
+  eq o in s = true . 
+}
+:apply (ctfos rd-)
+show proof
 
 module BASE-LEMMAS {
   including(-OBJECTBASE0-lemma)
@@ -1601,5 +1626,5 @@ select O2O-LEMMAS
 show proof
 
 select
---> Totally 52 goals should be proved
---> including 14 bool&set-lemmas, 4 base-lemmas(+1), 28 m2o-lemmas, and 6 o2o-lemmas.
+--> Totally 53 goals should be proved
+--> including 15 bool&set-lemmas, 4 base-lemmas(+1), 28 m2o-lemmas, and 6 o2o-lemmas.
