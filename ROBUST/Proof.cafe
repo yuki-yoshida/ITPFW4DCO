@@ -85,7 +85,6 @@ module ProofBase {
     (next(IM)   = unwired) and
     (target(IM) = wired) .
   eq isForced(IM) = isForced0(IM) or isForced1(IM) .
---  eq isForced(IM) = isForcing(IM) or isForced0(IM) or isForced1(IM) .
 
   -- eq isForced0(cmp(IDCO,started,started,started)) = true . -- case (C)
   eq isForced0(CO) =
@@ -214,8 +213,10 @@ module ProofBase {
      = 0 if not (CSIM = wired) or not (TSIM in (wired unused)) .
   eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,wired)) = 4 .
   eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,wired)) = 3 .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = 4 .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = 3 .
+  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = 0 .
+  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = 0 .
+--  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = 4 .
+--  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = 3 .
 
   eq fdis(empID,SCO0,SIM0) = 0 .
   eq fdis((cid(IDCO) BG),SCO0,SIM0)
