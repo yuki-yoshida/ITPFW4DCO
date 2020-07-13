@@ -172,51 +172,47 @@ module ProofBase {
   eq tdis(empIM) = 0 .
   eq tdis((IM SIM)) = tdis(IM) + tdis(SIM) .
 
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unwired)) = 2 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unwired)) = 1 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,unwired,unwired)) = 0 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,  wired,unwired)) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,  wired,unwired)) = 2 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,unwired,unwired)) = 1 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired,unwired)) = 0 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired,  wired,unwired)) = 100 .
 
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired, unused,unwired)) = 100 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired, unused,unwired)) = 100 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused, unused,unwired)) = 100 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,unwired,unwired)) = 100 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,  wired,unwired)) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired, unused,unwired)) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired, unused,unwired)) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused, unused,unwired)) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused,unwired,unwired)) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused,  wired,unwired)) = 100 .
 
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused, unused,  wired)) = 4 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,unwired,  wired)) = 3 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,  wired,  wired)) = 100 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired, unused,  wired)) = 100 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired, unused,  wired)) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused, unused,  wired)) = 4 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused,unwired,  wired)) = 3 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused,  wired,  wired)) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired, unused,  wired)) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired, unused,  wired)) = 100 .
 
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,unwired,  wired)) = 2 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,  wired,  wired)) = 1 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,  wired)) = 0 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,  wired)) = 0 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired,  wired)) = 2 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired,  wired,  wired)) = 1 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,  wired,  wired)) = 0 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,unwired,  wired)) = 0 .
 
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = 4 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = 3 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,  wired, unused,unused)) = 100 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,  wired,unused)) = 100 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,  wired,unused)) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,  wired,unused)) = 4 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,unwired,unused)) = 3 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired, unused,unused)) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused,  wired,unused)) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired,  wired,unused)) = 100 .
 
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired,unwired,unused)) = 2 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO,unwired, unused,unused)) = 1 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused, unused,unused)) = 0 .
-  eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,unwired,unused)) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired,unused)) = 2 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired, unused,unused)) = 1 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused, unused,unused)) = 0 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused,unwired,unused)) = 100 .
 
   ceq fdis(CO) = 0 if not isForced(CO) .
   eq fdis(cmp(IDCO,started,started,started)) = 4 .
   eq fdis(cmp(IDCO,started,stopped,started)) = 3 .
 
-  ceq fdis(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM))
-     = 0 if not (CSIM = wired) or not (TSIM in (wired unused)) .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,wired)) = 4 .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,wired)) = 3 .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = 0 .
-  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = 0 .
---  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = 4 .
---  eq fdis(imp(TIM,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = 3 .
+  ceq fdis(imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,TSIM))
+     = 0 if not (CSIM = wired) or not (TSIM = wired) .
+  eq fdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,  wired,wired)) = 4 .
+  eq fdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,unwired,wired)) = 3 .
 
   eq fdis(empID,SCO0,SIM0) = 0 .
   eq fdis((cid(IDCO) BG),SCO0,SIM0)
