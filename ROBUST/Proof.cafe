@@ -36,67 +36,68 @@ module ProofBase {
 
   var BG : BagOfID
 
-  -- isForced(IM) means that IM is forced to be unwired temporally.
-  -- isForced0(IM) means that IM is Forced but keeps stable.
-  -- isForced1(IM) means that IM is Forced and is not already stable.
+  -- isForcing(IM) means that IM is forcing its importer to be stopped temporally.
+  -- isForcing0(IM) means that IM is forcing but keeps stable.
+  -- isForcing1(IM) means that IM is forcing and is not yet stable.
+  pred isForcing : Import
+  pred isForcing0 : Import
+  pred isForcing1 : Import
+
+  -- isForced(IM) means that IM may be forced because its exporter is forced.
+  -- isForced0(IM) means that IM is forced but keeps stable.
+  -- isForced1(IM) means that IM is forced and is not yet stable.
   pred isForced : Import
   pred isForced0 : Import
   pred isForced1 : Import
 
-  -- isFForced(IM) means that IM may be Forced because its exporter is FForced.
-  -- isFForced0(IM) means that IM is FForced but keeps stable.
-  -- isFForced1(IM) means that IM is FForced and is not yet stable.
-  pred isFForced : Import
-  pred isFForced0 : Import
-  pred isFForced1 : Import
+  -- isForced(CO) means that CO may be forced to be stopped temporally
+  --               because its imporint IM is forced or forcing.
+  -- isForced0(CO) means that CO is forced but keeps stable.
+  -- isForced1(CO) means that CO is forced and is not yet stable.
+  pred isForced : Component
+  pred isForced0 : Component
+  pred isForced1 : Component
 
-  -- isFForced(CO) means that CO may be forced to be stopped temporally
-  --               because an IM importing the CO is Forced or FForced.
-  -- isFForced0(CO) means that CO is FForced but keeps stable.
-  -- isFForced1(CO) means that CO is FForced and is not yet stable.
-  pred isFForced : Component
-  pred isFForced0 : Component
-  pred isFForced1 : Component
+  -- eq isForcing0(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = true . -- Case (A)
+  eq isForcing0(IM) =
+    (type(IM)   = mandatory) and
+    (state(IM)  = wired) and
+    (next(IM)   = wired) and
+    (target(IM) = unused) .
+  -- eq isForcing1(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = true . -- Case (A)
+  eq isForcing1(IM) =
+    (type(IM)   = mandatory) and
+    (state(IM)  = wired) and
+    (next(IM)   = unwired) and
+    (target(IM) = unused) .
+  eq isForcing(IM) = isForcing0(IM) or isForcing1(IM) .
 
-  -- eq isForced0(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = true . -- Case (A)
+  -- eq isForced0(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired, wired)) = true . -- case (B)
   eq isForced0(IM) =
     (type(IM)   = mandatory) and
     (state(IM)  = wired) and
     (next(IM)   = wired) and
-    (target(IM) = unused) .
-  -- eq isForced1(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = true . -- Case (A)
+    (target(IM) = wired) .
+  -- eq isForced1(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired, wired)) = true . -- case (B)
   eq isForced1(IM) =
     (type(IM)   = mandatory) and
     (state(IM)  = wired) and
     (next(IM)   = unwired) and
-    (target(IM) = unused) .
+    (target(IM) = wired) .
   eq isForced(IM) = isForced0(IM) or isForced1(IM) .
+--  eq isForced(IM) = isForcing(IM) or isForced0(IM) or isForced1(IM) .
 
-  -- eq isFForced0(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired, wired)) = true . -- case (B)
-  eq isFForced0(IM) =
-    (type(IM)   = mandatory) and
-    (state(IM)  = wired) and
-    (next(IM)   = wired) and
-    (target(IM) = wired) .
-  -- eq isFForced1(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired, wired)) = true . -- case (B)
-  eq isFForced1(IM) =
-    (type(IM)   = mandatory) and
-    (state(IM)  = wired) and
-    (next(IM)   = unwired) and
-    (target(IM) = wired) .
-  eq isFForced(IM) = isForced(IM) or isFForced0(IM) or isFForced1(IM) .
-
-  -- eq isFForced0(cmp(IDCO,started,started,started)) = true . -- case (C)
-  eq isFForced0(CO) =
+  -- eq isForced0(cmp(IDCO,started,started,started)) = true . -- case (C)
+  eq isForced0(CO) =
     (state(CO)  = started) and
     (next(CO)   = started) and
     (target(CO) = started) .
-  -- eq isFForced1(cmp(IDCO,started,stopped,started)) = true . -- case (C)
-  eq isFForced1(CO) =
+  -- eq isForced1(cmp(IDCO,started,stopped,started)) = true . -- case (C)
+  eq isForced1(CO) =
     (state(CO)  = started) and
     (next(CO)   = stopped) and
     (target(CO) = started) .
-  eq isFForced(CO) = isFForced0(CO) or isFForced1(CO) .
+  eq isForced(CO) = isForced0(CO) or isForced1(CO) .
 
   -- The invariant should be defined as the conjunction of all inv-* and all wfs-*.
   -- But this definition causes costly computations.
@@ -113,7 +114,7 @@ module ProofBase {
   pred allFFIMHasFFECO : SetOfImport SetOfComponent
   eq allFFIMHasFFECO(empIM, SCO) = true .
   eq allFFIMHasFFECO(IM SIM,SCO)
-    = (isFForced1(IM) implies isFForced1(getComponent(SCO,exporter(IM)))) and
+    = (isForced1(IM) implies isForced1(getComponent(SCO,exporter(IM)))) and
       allFFIMHasFFECO(SIM,SCO) .
 
   pred inv-allFFIMHasFFECO : State
@@ -123,12 +124,12 @@ module ProofBase {
   pred existFFIM : SetOfImport
   eq existFFIM(empIM) = false .
   eq existFFIM(IM SIM)
-    = isFForced1(IM) or isForced1(IM) or existFFIM(SIM) .
+    = isForced1(IM) or isForcing1(IM) or existFFIM(SIM) .
 
   pred allFFCOHasFFIIM : SetOfComponent SetOfImport
   eq allFFCOHasFFIIM(empCO,SIM) = true .
   eq allFFCOHasFFIIM(CO SCO,SIM)
-    = (isFForced1(CO) implies existFFIM(getIMsOfICO(SIM,CO))) and
+    = (isForced1(CO) implies existFFIM(getIMsOfICO(SIM,CO))) and
       allFFCOHasFFIIM(SCO,SIM) .
 
   pred inv-allFFCOHasFFIIM : State
@@ -205,7 +206,7 @@ module ProofBase {
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused, unused,unused)) = 0 .
   eq tdis(imp(TIM,IDIM,IIDCO,IDCO, unused,unwired,unused)) = 100 .
 
-  ceq fdis(CO) = 0 if not isFForced(CO) .
+  ceq fdis(CO) = 0 if not isForced(CO) .
   eq fdis(cmp(IDCO,started,started,started)) = 4 .
   eq fdis(cmp(IDCO,started,stopped,started)) = 3 .
 
@@ -229,25 +230,25 @@ module ProofBase {
   eq makeIDBag(empIM,SCO0,SIM0) = empID .
   ceq makeIDBag((IM SIM),SCO0,SIM0)
     = makeIDBag(SIM,SCO0,SIM0) 
-    if not isForced(IM) .
+    if not isForcing(IM) .
   ceq makeIDBag((IM SIM),SCO0,SIM0)
     = (makeupIDBag(getComponent(SCO0,importer(IM)),SCO0,SIM0) makeIDBag(SIM,SCO0,SIM0))
-    if isForced(IM) .
+    if isForcing(IM) .
 
   eq makeupIDBag(empIM,SCO0,SIM0) = empID .
   ceq makeupIDBag((IM SIM),SCO0,SIM0)
     = (iid(id(IM)) makeupIDBag(SIM,SCO0,SIM0))
-    if not isFForced(IM) .
+    if not isForced(IM) .
   ceq makeupIDBag((IM SIM),SCO0,SIM0)
     = (iid(id(IM)) makeupIDBag(getComponent(SCO0,importer(IM)),SCO0,SIM0) makeupIDBag(SIM,SCO0,SIM0))
-    if isFForced(IM) .
+    if isForced(IM) .
 
   ceq makeupIDBag(CO,SCO0,SIM0)
     = cid(id(CO))
-    if not isFForced(CO) .
+    if not isForced(CO) .
   ceq makeupIDBag(CO,SCO0,SIM0)
     = (cid(id(CO)) makeupIDBag(getIMsOfECOInTargetStates(SIM0,CO,wired),SCO0,SIM0))
-    if isFForced(CO) .
+    if isForced(CO) .
 
   eq m(< SCO,SIM,L >)
     = tdis(SCO) + tdis(SIM) + fdis(makeIDBag(SIM,SCO,SIM), SCO, SIM) .

@@ -80,45 +80,45 @@ module ROBUSTLEMMA {
     = (makeupIDBag(CO, SCO0,SIM0) =
        makeupIDBag(CO',SCO0,SIM0))
     when id(CO) = id(CO')
-     and not isFForced(CO)
-     and not isFForced(CO') .
+     and not isForced(CO)
+     and not isForced(CO') .
 
   pred robust-lemmaM02 : SetOfImport Component Component SetOfComponent SetOfImport
   eq robust-lemmaM02(SIM,CO,CO',SCO0,SIM0)
     = (makeupIDBag(SIM,(CO  SCO0),SIM0) =
        makeupIDBag(SIM,(CO' SCO0),SIM0))
     when id(CO) = id(CO')
-     and not isFForced(CO)
-     and not isFForced(CO') .
+     and not isForced(CO)
+     and not isForced(CO') .
 
   pred robust-lemmaM03 : Component Component Component SetOfComponent SetOfImport
   eq robust-lemmaM03(CO0,CO,CO',SCO0,SIM0)
     = (makeupIDBag(CO0,(CO  SCO0),SIM0) =
        makeupIDBag(CO0,(CO' SCO0),SIM0))
     when id(CO) = id(CO')
-     and not isFForced(CO)
-     and not isFForced(CO') .
+     and not isForced(CO)
+     and not isForced(CO') .
 
   pred robust-lemmaM04 : SetOfImport Component Component SetOfComponent SetOfImport
   eq robust-lemmaM04(SIM,CO,CO',SCO0,SIM0)
     = (makeupIDBag(SIM,(CO  SCO0),SIM0) =
        makeupIDBag(SIM,(CO' SCO0),SIM0))
     when id(CO) = id(CO')
-     and isFForced(CO)
-     and isFForced(CO') .
+     and isForced(CO)
+     and isForced(CO') .
 
   pred robust-lemmaM05 : Component Component Component SetOfComponent SetOfImport
   eq robust-lemmaM05(CO0,CO,CO',SCO0,SIM0)
     = (makeupIDBag(CO0,(CO  SCO0),SIM0) =
        makeupIDBag(CO0,(CO' SCO0),SIM0))
     when id(CO) = id(CO')
-     and isFForced(CO)
-     and isFForced(CO') .
+     and isForced(CO)
+     and isForced(CO') .
 
   pred robust-lemmaM06 : Component SetOfComponent SetOfImport
   eq robust-lemmaM06(CO,SCO,SIM)
     = subbag(makeupIDBag(CO,(CO SCO),SIM),makeIDBag(SIM,(CO SCO),SIM))
-    when isFForced1(CO)
+    when isForced1(CO)
      and allFFCOHasFFIIM((CO SCO),SIM)
      and allFFIMHasFFECO(SIM,(CO SCO)) .
 
@@ -127,16 +127,16 @@ module ROBUSTLEMMA {
     = (makeIDBag(SIM,(CO  SCO0),SIM0) =
        makeIDBag(SIM,(CO' SCO0),SIM0))
     when id(CO) = id(CO')
-     and not isFForced(CO)
-     and not isFForced(CO') .
+     and not isForced(CO)
+     and not isForced(CO') .
 
   pred robust-lemmaM11 : SetOfImport Component Component SetOfComponent SetOfImport
   eq robust-lemmaM11(SIM,CO,CO',SCO0,SIM0)
     = (makeIDBag(SIM,(CO  SCO0),SIM0) =
        makeIDBag(SIM,(CO' SCO0),SIM0))
     when id(CO) = id(CO')
-      and isFForced(CO)
-      and isFForced(CO') .
+      and isForced(CO)
+      and isForced(CO') .
 
   pred robust-lemmaM12 : BagOfID Component Component SetOfComponent SetOfImport
   eq robust-lemmaM12(BID,CO,CO',SCO,SIM)
@@ -148,7 +148,7 @@ module ROBUSTLEMMA {
   pred robust-lemmaM13 : SetOfImport Component SetOfComponent
   eq robust-lemmaM13(SIM,CO,SCO)
     = cid(id(CO)) in makeIDBag(SIM,(CO SCO),SIM)
-    when isFForced1(CO)
+    when isForced1(CO)
      and allFFCOHasFFIIM((CO SCO),SIM)
      and allFFIMHasFFECO(SIM,(CO SCO)) .
 }
@@ -159,8 +159,8 @@ module ROBUSTLEMMA {
 -->    = (makeupIDBag(CO, SCO0,SIM0) =
 -->       makeupIDBag(CO',SCO0,SIM0))
 -->    when id(CO) = id(CO')
--->     and not isFForced(CO)
--->     and not isFForced(CO') .
+-->     and not isForced(CO)
+-->     and not isForced(CO') .
 --> *************************************
 
 select ROBUSTLEMMA
@@ -169,10 +169,10 @@ select ROBUSTLEMMA
   eq id(co') = id(co) .
 }
 :def isFFCOctf = :ctf {
-  eq isFForced(co) = true .
+  eq isForced(co) = true .
 }
 :def isFFCO'ctf = :ctf {
-  eq isFForced(co') = true .
+  eq isForced(co') = true .
 }
 :apply (idCOctf isFFCOctf isFFCO'ctf rd-)
 --> Proof of robust-lemmaM01 done.
@@ -186,8 +186,8 @@ select
 -->    = (makeupIDBag(SIM,(CO  SCO0),SIM0) =
 -->       makeupIDBag(SIM,(CO' SCO0),SIM0))
 -->    when id(CO) = id(CO')
--->     and not isFForced(CO)
--->     and not isFForced(CO') .
+-->     and not isForced(CO)
+-->     and not isForced(CO') .
 --> *****************************************
 
 open ROBUSTLEMMA .
@@ -205,10 +205,10 @@ open ROBUSTLEMMA .
   eq id(co') = id(co) .
 }
 :def isFFCOctf = :ctf {
-  eq isFForced(co) = true .
+  eq isForced(co) = true .
 }
 :def isFFCO'ctf = :ctf {
-  eq isFForced(co') = true .
+  eq isForced(co') = true .
 }
 :apply (idCOctf isFFCOctf isFFCO'ctf rd-)
 :init as robust-lemmaM02-IH-in [robust-lemmaM02-IH]
@@ -220,7 +220,7 @@ open ROBUSTLEMMA .
 :apply (sIMcsp)
 :apply (rd-)
 :def isFFIMctp = :ctf {
-  eq isFForced(im) = true .
+  eq isForced(im) = true .
 }
 :apply (isFFIMctp rd-)
 :def impIMctf = :ctf {
@@ -228,7 +228,7 @@ open ROBUSTLEMMA .
 }
 :apply (impIMctf rd-)
 :def isFFimpCOctf = :ctf {
-  eq isFForced(getComponent(sCO0,importer(im))) = true .
+  eq isForced(getComponent(sCO0,importer(im))) = true .
 }
 :apply (isFFimpCOctf rd-)
 --> Proof of robust-lemmaM02 done.
@@ -242,8 +242,8 @@ close
 -->    = (makeupIDBag(CO0,(CO  SCO0),SIM0) =
 -->       makeupIDBag(CO0,(CO' SCO0),SIM0))
 -->    when id(CO) = id(CO')
--->     and not isFForced(CO)
--->     and not isFForced(CO') .
+-->     and not isForced(CO)
+-->     and not isForced(CO') .
 --> *****************************************
 
 open ROBUSTLEMMA .
@@ -251,27 +251,27 @@ open ROBUSTLEMMA .
   --   = (makeupIDBag(SIM,(CO  SCO0),SIM0) =
   --      makeupIDBag(SIM,(CO' SCO0),SIM0))
   --   when id(CO) = id(CO')
-  --    and not isFForced(CO)
-  --    and not isFForced(CO') .
+  --    and not isForced(CO)
+  --    and not isForced(CO') .
   ceq (makeupIDBag(SIM,(CO  SCO0),SIM0) =
        makeupIDBag(SIM,(CO' SCO0),SIM0)) = true
     if id(CO) = id(CO') and
-       not isFForced(CO) and
-       not isFForced(CO') .
+       not isForced(CO) and
+       not isForced(CO') .
 
 :goal { eq robust-lemmaM03(co0, co, co', sCO0, sIM0) = true .}
 :def idCOctf = :ctf {
   eq id(co') = id(co) .
 }
 :def isFFCOctf = :ctf {
-  eq isFForced(co) = true .
+  eq isForced(co) = true .
 }
 :def isFFCO'ctf = :ctf {
-  eq isFForced(co') = true .
+  eq isForced(co') = true .
 }
 :apply (idCOctf isFFCOctf isFFCO'ctf rd-)
 :def isFFCO0ctf = :ctf {
-  eq isFForced(co0) = true .
+  eq isForced(co0) = true .
 }
 :apply (isFFCO0ctf rd-)
 --> Proof of robust-lemmaM03 done.
@@ -285,8 +285,8 @@ close
 -->    = (makeupIDBag(SIM,(CO  SCO0),SIM0) =
 -->       makeupIDBag(SIM,(CO' SCO0),SIM0))
 -->    when id(CO) = id(CO')
--->     and isFForced(CO)
--->     and isFForced(CO') .
+-->     and isForced(CO)
+-->     and isForced(CO') .
 --> *****************************************
 
 open ROBUSTLEMMA .
@@ -306,10 +306,10 @@ open ROBUSTLEMMA .
   eq id(co') = id(co) .
 }
 :def isFFCOctf = :ctf {
-  eq isFForced(co) = true .
+  eq isForced(co) = true .
 }
 :def isFFCO'ctf = :ctf {
-  eq isFForced(co') = true .
+  eq isForced(co') = true .
 }
 :apply (idCOctf isFFCOctf isFFCO'ctf rd-)
 :init as robust-lemmaM04-IH-in [robust-lemmaM04-IH]
@@ -321,7 +321,7 @@ open ROBUSTLEMMA .
 :apply (sIMcsp)
 :apply (rd-)
 :def isFFIMctp = :ctf {
-  eq isFForced(im) = true .
+  eq isForced(im) = true .
 }
 :apply (isFFIMctp rd-)
 :def impIMctf = :ctf {
@@ -329,7 +329,7 @@ open ROBUSTLEMMA .
 }
 :apply (impIMctf rd-)
 :def isFFimpCOctf = :ctf {
-  eq isFForced(getComponent(sCO0,importer(im))) = true .
+  eq isForced(getComponent(sCO0,importer(im))) = true .
 }
 :apply (isFFimpCOctf rd-)
 --> Proof of robust-lemmaM04 done.
@@ -343,8 +343,8 @@ close
 -->    = (makeupIDBag(CO0,(CO  SCO0),SIM0) =
 -->       makeupIDBag(CO0,(CO' SCO0),SIM0))
 -->    when id(CO) = id(CO')
--->     and isFForced(CO)
--->     and isFForced(CO') .
+-->     and isForced(CO)
+-->     and isForced(CO') .
 --> *****************************************
 
 open ROBUSTLEMMA .
@@ -354,27 +354,27 @@ open ROBUSTLEMMA .
   --   = (makeupIDBag(SIM,(CO  SCO0),SIM0) =
   --      makeupIDBag(SIM,(CO' SCO0),SIM0))
   --   when id(CO) = id(CO')
-  --    and not isFForced(CO)
-  --    and not isFForced(CO') .
+  --    and not isForced(CO)
+  --    and not isForced(CO') .
   ceq (makeupIDBag(SIM,(CO  SCO0),SIM0) =
        makeupIDBag(SIM,(CO' SCO0),SIM0)) = true
     if id(CO) = id(CO') and
-       isFForced(CO) and
-       isFForced(CO') .
+       isForced(CO) and
+       isForced(CO') .
 
 :goal { eq robust-lemmaM05(co0, co, co', sCO0, sIM0) = true .}
 :def idCOctf = :ctf {
   eq id(co') = id(co) .
 }
 :def isFFCOctf = :ctf {
-  eq isFForced(co) = true .
+  eq isForced(co) = true .
 }
 :def isFFCO'ctf = :ctf {
-  eq isFForced(co') = true .
+  eq isForced(co') = true .
 }
 :apply (idCOctf isFFCOctf isFFCO'ctf rd-)
 :def isFFCO0ctf = :ctf {
-  eq isFForced(co0) = true .
+  eq isForced(co0) = true .
 }
 :apply (isFFCO0ctf rd-)
 --> Proof of robust-lemmaM05 done.
@@ -386,7 +386,7 @@ close
 --> Proof of robust-lemmaM06.
 -->  eq robust-lemmaM06(CO,SCO,SIM)
 -->    = subbag(makeupIDBag(CO,(CO SCO),SIM),makeIDBag(SIM,(CO SCO),SIM))
--->    when isFForced1(CO)
+-->    when isForced1(CO)
 -->     and allFFCOHasFFIIM((CO SCO),SIM)
 -->     and allFFIMHasFFECO(SIM,(CO SCO)) .
 --> *********************************************************************
@@ -403,14 +403,14 @@ open ROBUSTLEMMA .
 
   -- well-founded binary relation   
   ceq ( t(CO',(CO SCO),(IM SIM)) <wf t(CO,(CO SCO),(IM SIM)) ) = true
-    if isFForced1(CO) and
+    if isForced1(CO) and
        allFFCOHasFFIIM((CO SCO),(IM SIM)) and
        allFFIMHasFFECO((IM SIM),(CO SCO)) and
        CO' in SCO and
        importer(IM) = id(CO) and
-       isFForced1(IM) and
+       isForced1(IM) and
        exporter(IM) = id(CO') and
-       isFForced1(CO') .
+       isForced1(CO') .
 
    -- Assuming inv-iidCOeidCODiffer(S) holds.
    -- This rejects id(co) = eidCO,
@@ -419,7 +419,7 @@ open ROBUSTLEMMA .
 
 :goal { eq robust-lemmaM06(co, sCO, sIM) = true .}
 :def isFFCOctf = :ctf {
-  eq isFForced1(co) = true .
+  eq isForced1(co) = true .
 }
 :apply (isFFCOctf rd-)
 :def allFFCOcsp = :csp {
@@ -455,8 +455,8 @@ close
 -->    = makeIDBag(SIM,(CO  SCO0),SIM0) =
 -->      makeIDBag(SIM,(CO' SCO0),SIM0)
 -->    when id(CO) = id(CO')
--->     and not isFForced(CO)
--->     and not isFForced(CO') .
+-->     and not isForced(CO)
+-->     and not isForced(CO') .
 --> *****************************************
 
 open ROBUSTLEMMA .
@@ -470,35 +470,35 @@ open ROBUSTLEMMA .
   --   = (makeupIDBag(CO, SCO0,SIM0) =
   --      makeupIDBag(CO',SCO0,SIM0))
   --   when id(CO) = id(CO')
-  --    and not isFForced(CO)
-  --    and not isFForced(CO') .
+  --    and not isForced(CO)
+  --    and not isForced(CO') .
   ceq (makeupIDBag(CO, SCO0,SIM0) =
        makeupIDBag(CO',SCO0,SIM0)) = true
     if id(CO) = id(CO') and
-       not isFForced(CO) and
-       not isFForced(CO') .
+       not isForced(CO) and
+       not isForced(CO') .
 
   -- eq robust-lemmaM03(CO0,CO,CO',SCO0,SIM0)
   --   = (makeupIDBag(CO0,(CO  SCO0),SIM0) =
   --      makeupIDBag(CO0,(CO' SCO0),SIM0))
   --   when id(CO) = id(CO')
-  --    and not isFForced(CO)
-  --    and not isFForced(CO') .
+  --    and not isForced(CO)
+  --    and not isForced(CO') .
   ceq (makeupIDBag(CO0,(CO  SCO0),SIM0) =
        makeupIDBag(CO0,(CO' SCO0),SIM0)) = true
     if id(CO) = id(CO') and
-       not isFForced(CO) and
-       not isFForced(CO') .
+       not isForced(CO) and
+       not isForced(CO') .
 
 :goal { eq robust-lemmaM10(sIM, co, co', sCO0, sIM0) = true .}
 :def idCOctf = :ctf {
   eq id(co') = id(co) .
 }
 :def isFFCOctf = :ctf {
-  eq isFForced(co) = true .
+  eq isForced(co) = true .
 }
 :def isFFCO'ctf = :ctf {
-  eq isFForced(co') = true .
+  eq isForced(co') = true .
 }
 :apply (idCOctf isFFCOctf isFFCO'ctf rd-)
 :init as robust-lemmaM10-IH-in [robust-lemmaM10-IH]
@@ -509,7 +509,7 @@ open ROBUSTLEMMA .
 }
 :apply (sIMcsp rd-)
 :def isFIMctp = :ctf {
-  eq isForced(im) = true .
+  eq isForcing(im) = true .
 }
 :apply (isFIMctp rd-)
 :def impIMctf = :ctf {
@@ -527,8 +527,8 @@ close
 -->    = makeIDBag(SIM,(CO  SCO0),SIM0) =
 -->      makeIDBag(SIM,(CO' SCO0),SIM0)
 -->    when id(CO) = id(CO')
--->     and isFForced(CO)
--->     and isFForced(CO') .
+-->     and isForced(CO)
+-->     and isForced(CO') .
 --> *****************************************
 
 open ROBUSTLEMMA .
@@ -542,35 +542,35 @@ open ROBUSTLEMMA .
   --   = (makeupIDBag(SIM,(CO  SCO0),SIM0) =
   --      makeupIDBag(SIM,(CO' SCO0),SIM0))
   --   when id(CO) = id(CO')
-  --    and isFForced(CO)
-  --    and isFForced(CO') .
+  --    and isForced(CO)
+  --    and isForced(CO') .
   ceq (makeupIDBag(SIM,(CO  SCO0),SIM0) =
        makeupIDBag(SIM,(CO' SCO0),SIM0)) = true
     if id(CO) = id(CO') and
-       isFForced(CO) and
-       isFForced(CO') .
+       isForced(CO) and
+       isForced(CO') .
 
   -- eq robust-lemmaM05(CO0,CO,CO',SCO0,SIM0)
   --   = (makeupIDBag(CO0,(CO  SCO0),SIM0) =
   --      makeupIDBag(CO0,(CO' SCO0),SIM0))
   --   when id(CO) = id(CO')
-  --    and isFForced(CO)
-  --    and isFForced(CO') .
+  --    and isForced(CO)
+  --    and isForced(CO') .
   ceq (makeupIDBag(CO0,(CO  SCO0),SIM0) =
        makeupIDBag(CO0,(CO' SCO0),SIM0)) = true
     if id(CO) = id(CO') and
-       isFForced(CO) and
-       isFForced(CO') .
+       isForced(CO) and
+       isForced(CO') .
 
 :goal { eq robust-lemmaM11(sIM, co, co', sCO0, sIM0) = true .}
 :def idCOctf = :ctf {
   eq id(co') = id(co) .
 }
 :def isFFCOctf = :ctf {
-  eq isFForced(co) = true .
+  eq isForced(co) = true .
 }
 :def isFFCO'ctf = :ctf {
-  eq isFForced(co') = true .
+  eq isForced(co') = true .
 }
 :apply (idCOctf isFFCOctf isFFCO'ctf rd-)
 :init as robust-lemmaM11-IH-in [robust-lemmaM11-IH]
@@ -581,7 +581,7 @@ open ROBUSTLEMMA .
 }
 :apply (sIMcsp rd-)
 :def isFIMctp = :ctf {
-  eq isForced(im) = true .
+  eq isForcing(im) = true .
 }
 :apply (isFIMctp rd-)
 :def impIMctf = :ctf {
@@ -639,7 +639,7 @@ close
 --> Proof of robust-lemmaM13.
 -->  eq robust-lemmaM13(SIM,CO,SCO)
 -->    = cid(id(CO)) in makeIDBag(SIM,(CO SCO),SIM)
--->    when isFForced1(CO)
+-->    when isForced1(CO)
 -->     and allFFCOHasFFIIM((CO SCO),SIM)
 -->     and allFFIMHasFFECO(SIM,(CO SCO)) .
 --> ***********************************************
@@ -649,18 +649,18 @@ open ROBUSTLEMMA .
   -- Sublemmas
   -- eq robust-lemmaM06(CO,SCO,SIM)
   --   = subbag(makeupIDBag(CO,(CO SCO),SIM),makeIDBag(SIM,(CO SCO),SIM))
-  --   when isFForced1(CO)
+  --   when isForced1(CO)
   --    and allFFCOHasFFIIM((CO SCO),SIM)
   --    and allFFIMHasFFECO(SIM,(CO SCO)) .
   ceq [robust-lemmaM06 :nonexec]:
     (subbag(makeupIDBag(CO,(CO SCO),SIM),makeIDBag(SIM,(CO SCO),SIM))) = true
-    if isFForced1(CO) and
+    if isForced1(CO) and
        allFFCOHasFFIIM((CO SCO),SIM) and
        allFFIMHasFFECO(SIM,(CO SCO)) .
 
 :goal { eq robust-lemmaM13(sIM, co, sCO) = true .}
 :def isFFCOctf = :ctf {
-  eq isFForced1(co) = true .
+  eq isForced1(co) = true .
 }
 :apply (isFFCOctf rd-)
 :def allFFCOctf = :ctf {

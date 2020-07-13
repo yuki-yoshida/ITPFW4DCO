@@ -50,23 +50,23 @@ module Proofinv-allFFIMHasFFECO {
   -- eq robust-lemma19(SIM,CO,CO',SCO)
   --    = (allFFIMHasFFECO(SIM, CO SCO) implies allFFIMHasFFECO(SIM, CO' SCO))
   --   when (id(CO) = id(CO'))
-  --    and not isFForced1(CO)
+  --    and not isForced1(CO)
   --    and (tdis(CO) > tdis(CO')) .
   ceq (allFFIMHasFFECO(SIM, CO SCO) and allFFIMHasFFECO(SIM, CO' SCO))
     = allFFIMHasFFECO(SIM, CO SCO) 
     if (id(CO) = id(CO')) and 
-       not isFForced1(CO) and not isFForced1(CO') and
+       not isForced1(CO) and not isForced1(CO') and
        (tdis(CO) > tdis(CO')) .
 
   -- eq robust-lemma20(SIM,CO,CO',SCO)
   --    = (allFFIMHasFFECO(SIM, CO SCO) implies allFFIMHasFFECO(SIM, CO' SCO))
   --   when (id(CO) = id(CO'))
-  --    and not isFForced1(CO)
+  --    and not isForced1(CO)
   --    and (fdis(CO) > fdis(CO')) .
   ceq (allFFIMHasFFECO(SIM, CO SCO) and allFFIMHasFFECO(SIM, CO' SCO))
     = allFFIMHasFFECO(SIM, CO SCO)
     if (id(CO) = id(CO')) and 
-       not isFForced1(CO) and isFForced1(CO') and
+       not isForced1(CO) and isForced1(CO') and
        (fdis(CO) > fdis(CO')) .
 
   -- eq robust-lemma21(SIM,CO,SCO)
@@ -530,38 +530,38 @@ module Proofinv-allFFCOHasFFIIM {
   -- eq robust-lemma13(SCO,IM,IM',SIM)
   --    = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
   --   when (importer(IM) = importer(IM'))
-  --    and not isForced1(IM)
+  --    and not isForcing1(IM)
   --    and (tdis(IM) >= tdis(IM'))
   --    and (fdis(IM) > fdis(IM')) .
   ceq (allFFCOHasFFIIM(SCO, IM SIM) and allFFCOHasFFIIM(SCO, IM' SIM))
     = allFFCOHasFFIIM(SCO, IM SIM)
     if (importer(IM) = importer(IM')) and 
-       not isForced1(IM) and not isFForced1(IM) and
+       not isForcing1(IM) and not isForced1(IM) and
        (tdis(IM) >= tdis(IM')) and
        (fdis(IM) > fdis(IM')) .
 
   -- eq robust-lemma14(SCO,IM,IM',SIM)
   --    = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
   --   when (importer(IM) = importer(IM'))
-  --    and not isForced1(IM)
+  --    and not isForcing1(IM)
   --    and (tdis(IM) > tdis(IM'))
   --    and (fdis(IM) >= fdis(IM')) .
   ceq (allFFCOHasFFIIM(SCO, IM SIM) and allFFCOHasFFIIM(SCO, IM' SIM))
     = allFFCOHasFFIIM(SCO, IM SIM)
     if (importer(IM) = importer(IM')) and 
-       not isForced1(IM) and not isFForced1(IM) and
+       not isForcing1(IM) and not isForced1(IM) and
        (tdis(IM) > tdis(IM')) and
        (fdis(IM) >= fdis(IM')) .
 
   -- eq robust-lemma15(SCO,IM,IM',SIM)
   --    = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
   --   when (importer(IM) = importer(IM'))
-  --    and isForced1(IM)
+  --    and isForcing1(IM)
   --    and (tdis(IM) > tdis(IM')) .
   ceq (allFFCOHasFFIIM(SCO, IM SIM) and allFFCOHasFFIIM(SCO, IM' SIM))
     = allFFCOHasFFIIM(SCO, IM SIM)
     if (importer(IM) = importer(IM')) and 
-       isForced1(IM) and isForced1(IM') and
+       isForcing1(IM) and isForcing1(IM') and
        (tdis(IM) > tdis(IM')) .
 
   -- eq robust-lemma10(SCO,IM,SIM)

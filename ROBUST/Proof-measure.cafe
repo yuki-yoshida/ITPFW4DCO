@@ -55,26 +55,26 @@ module ProofMeasure {
   --   = (makeIDBag(SIM,(CO  SCO0),SIM0) =
   --      makeIDBag(SIM,(CO' SCO0),SIM0))
   --   when id(CO) = id(CO')
-  --    and not isFForced(CO)
-  --    and not isFForced(CO') .
+  --    and not isForced(CO)
+  --    and not isForced(CO') .
   ceq (makeIDBag(SIM,(CO  SCO0),SIM0) =
        makeIDBag(SIM,(CO' SCO0),SIM0)) = true 
     if id(CO) = id(CO') and
-       not isFForced(CO) and
-       not isFForced(CO') .
+       not isForced(CO) and
+       not isForced(CO') .
 
   -- eq robust-lemmaM11(SIM,CO,CO',SCO0,SIM0)
   --   = (makeIDBag(SIM,(CO  SCO0),SIM0) =
   --      makeIDBag(SIM,(CO' SCO0),SIM0))
   --   when id(CO) = id(CO')
-  --    and isFForced(CO)
-  --    and isFForced(CO') .
+  --    and isForced(CO)
+  --    and isForced(CO') .
   ceq [robust-lemmaM11 :nonexec]:
       makeIDBag(SIM,(CO  SCO0),SIM0)
       = makeIDBag(SIM,(CO' SCO0),SIM0)
     if id(CO) = id(CO') and
-       isFForced(CO) and
-       isFForced(CO') .
+       isForced(CO) and
+       isForced(CO') .
 
   -- eq robust-lemmaM12(BID,CO,CO',SCO,SIM)
   --   = fdis(BID,(CO  SCO),SIM) >= 
@@ -91,19 +91,19 @@ module ProofMeasure {
   op bID : -> BagOfID
   -- eq robust-lemmaM13(SIM,CO,SCO)
   --   = cid(id(CO)) in makeIDBag(SIM,(CO SCO),SIM)
-  --   when isFForced1(CO)
+  --   when isForced1(CO)
   --    and allFFCOHasFFIIM((CO SCO),SIM)
   --    and allFFIMHasFFECO(SIM,(CO SCO)) .
   ceq [robust-lemmaM13 :nonexec]:
       makeIDBag(SIM,(CO SCO),SIM) = (cid(id(CO)) BID)
-    if isFForced1(CO) and
+    if isForced1(CO) and
        allFFCOHasFFIIM((CO SCO),SIM) and
        allFFIMHasFFECO(SIM,(CO SCO)) . 
 
   -- eq robust-lemma20(SIM,CO,CO',SCO)
   --    = (allFFIMHasFFECO(SIM, CO SCO) implies allFFIMHasFFECO(SIM, CO' SCO))
   --  when (id(CO) = id(CO')) and 
-  --       not isFForced1(CO) and isFForced1(CO') and
+  --       not isForced1(CO) and isForced1(CO') and
   --       (fdis(CO) > fdis(CO')) .
   ceq allFFIMHasFFECO(SIM, cmp(IDCO, started, stopped, started) SCO) = true
     if allFFIMHasFFECO(SIM, cmp(IDCO, started, started, started) SCO) .
