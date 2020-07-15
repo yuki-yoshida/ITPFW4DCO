@@ -186,7 +186,7 @@ select ProofMeasure .
   eq tIMs = unwired .
   eq tIMs = unused .
 }
-:apply (tIMscsp)
+:apply (tIMscsp rd-)
 :def allFFCOctf = :ctf {
   eq allFFCOHasFFIIM(sCO,(imp(mandatory,idIM,idCO,eidCO,wired,unwired,wired) sIM)) = true .
 }  
@@ -200,9 +200,6 @@ select ProofMeasure .
    CO:Component  <- cmp(idCO,started,stopped,started);
    BID:BagOfID <- bID;}
 :apply (rd-)
-:apply (rd-)
-:apply (rd-)
-
 --> Proof of RS-stop2 done.
 -->
 show proof

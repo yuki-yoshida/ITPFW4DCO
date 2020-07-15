@@ -4,9 +4,9 @@ provide Proof
 
 module! CMPIMPID {
   protecting(LINKS)
-  [CID IID < CIID]
-  op cid : COID -> CID {constr}
-  op iid : IMID -> IID {constr}
+  [CIID]
+  op cid : COID -> CIID {constr}
+  op iid : IMID -> CIID {constr}
 }
 
 module ProofBase {
