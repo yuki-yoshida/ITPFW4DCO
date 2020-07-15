@@ -402,15 +402,9 @@ open ROBUSTLEMMA .
      if t(CO',(co sCO),sIM) <wf t(co,(co sCO),sIM) .
 
   -- well-founded binary relation   
-  ceq ( t(CO',(CO SCO),(IM SIM)) <wf t(CO,(CO SCO),(IM SIM)) ) = true
-    if isForced1(CO) and
-       allFFCOHasFFIIM((CO SCO),(IM SIM)) and
-       allFFIMHasFFECO((IM SIM),(CO SCO)) and
-       CO' in SCO and
-       importer(IM) = id(CO) and
-       isForced1(IM) and
-       exporter(IM) = id(CO') and
-       isForced1(CO') .
+  ceq ( t(CO',(CO CO' SCO),(IM SIM)) <wf t(CO,(CO CO' SCO),(IM SIM)) ) = true
+    if importer(IM) = id(CO) and
+       exporter(IM) = id(CO') .
 
    -- Assuming inv-iidCOeidCODiffer(S) holds.
    -- This rejects id(co) = eidCO,
