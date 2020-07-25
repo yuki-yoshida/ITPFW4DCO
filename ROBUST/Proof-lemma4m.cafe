@@ -191,14 +191,19 @@ select
 --> *****************************************
 
 open ROBUSTLEMMA .
+  -- tuple of SetOfImport, Component, SetOfComponent, and SetOfImport
+  [SIMCOSCOSIM] op t : SetOfImport Component SetOfComponent SetOfImport -> SIMCOSCOSIM {constr} .
+  pred _<wf_ : SIMCOSCOSIM SIMCOSCOSIM .
   -- Induction Hypothesis
   ceq [robust-lemmaM02-IH :nonexec]:
      robust-lemmaM02(SIM:SetOfImport,co,co',sCO0,sIM0) = true
-     if SIM <wf (im sIM') .
+     if t(SIM,co,sCO0,sIM0) <wf t((im sIM'),co',sCO0,sIM0) .
 
   -- well-founded binary relation   
-  eq (getIMsOfECOInTargetStates(SIM0,id(getComponent(SCO0,importer(IM))),wired)
-      <wf (IM SIM) ) = true .
+  ceq t(SIM,CO,SCO0,SIM0) <wf t(SIM',CO',SCO0,SIM0) = true
+     if SIM <wf SIM' .
+  ceq t(SIM,CO,SCO0,SIM0) <wf t((IM SIM'),CO',SCO0,SIM0) = true
+     if SIM = getIMsOfECOInTargetStates(SIM0,id(getComponent(SCO0,importer(IM))),wired) .
 
 :goal { eq robust-lemmaM02(sIM, co, co', sCO0, sIM0) = true .}
 :def idCOctf = :ctf {
@@ -290,16 +295,21 @@ close
 --> *****************************************
 
 open ROBUSTLEMMA .
+  -- tuple of SetOfImport, Component, SetOfComponent, and SetOfImport
+  [SIMCOSCOSIM] op t : SetOfImport Component SetOfComponent SetOfImport -> SIMCOSCOSIM {constr} .
+  pred _<wf_ : SIMCOSCOSIM SIMCOSCOSIM .
   -- Induction Hypothesis
   ceq [robust-lemmaM04-IH :nonexec]:
      robust-lemmaM04(SIM:SetOfImport,co,co',sCO0,sIM0) = true
-     if SIM <wf (im sIM') .
+     if t(SIM,co,sCO0,sIM0) <wf t((im sIM'),co',sCO0,sIM0) .
 
   -- well-founded binary relation   
-  eq (getIMsOfECOInTargetStates(SIM0,importer(IM),wired)
-      <wf (IM SIM) ) = true .
-  eq (getIMsOfECOInTargetStates(SIM0,id(getComponent(SCO0,importer(IM))),wired)
-      <wf (IM SIM) ) = true .
+  ceq t(SIM,CO,SCO0,SIM0) <wf t(SIM',CO',SCO0,SIM0) = true
+     if SIM <wf SIM' .
+  ceq t(SIM,CO,SCO0,SIM0) <wf t((IM SIM'),CO',SCO0,SIM0) = true
+     if SIM = getIMsOfECOInTargetStates(SIM0,importer(IM),wired) .
+  ceq t(SIM,CO,SCO0,SIM0) <wf t((IM SIM'),CO',SCO0,SIM0) = true
+     if SIM = getIMsOfECOInTargetStates(SIM0,id(getComponent(SCO0,importer(IM))),wired) .
 
 :goal { eq robust-lemmaM04(sIM, co, co', sCO0, sIM0) = true .}
 :def idCOctf = :ctf {
@@ -406,7 +416,7 @@ open ROBUSTLEMMA .
     if importer(IM) = id(CO) and
        exporter(IM) = id(CO') .
 
-   -- Assuming inv-iidCOeidCODiffer(S) holds.
+   -- Assuming wfs-iidCOeidCODiffer(S) holds.
    -- This rejects id(co) = eidCO,
    -- but it causes cyclic evaluation of makeupIDBag before discharing.
    eq (id(co) = eidCO) = false .
