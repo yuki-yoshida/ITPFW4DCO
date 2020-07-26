@@ -15,6 +15,9 @@ module ROBUSTLEMMA {
   eq ((X + Z) >= (Y + Z))
     =  (X >= Y) .
 
+  eq ((X + Z) = (Y + Z))
+    =  (X = Y) .
+
   ceq ((X + Z1) >= (Y + Z2))
     =  (X >= Y) 
     if (Z1 >= Z2) .
@@ -151,7 +154,56 @@ module ROBUSTLEMMA {
     when isForced1(CO)
      and allFFCOHasFFIIM((CO SCO),SIM)
      and allFFIMHasFFECO(SIM,(CO SCO)) .
+
+  pred robust-lemmaM14 : SetOfImport COID SetOfComponent
+  eq robust-lemmaM14(SIM,IDCO,SCO)
+    = makeIDBag(SIM,(cmp(IDCO,started,started,started) SCO),SIM) =
+      makeIDBag(SIM,(cmp(IDCO,stopped,started,started) SCO),SIM)
+    when canStart(IDCO,SCO,SIM) .
+
+  pred robust-lemmaM15 : SetOfImport Component SetOfComponent
+  eq robust-lemmaM15(SIM,CO,SCO)
+    = not (cid(id(CO)) in makeIDBag(SIM,(CO SCO),SIM))
+    when canStart(id(CO),SCO,SIM) .
+
+  pred robust-lemmaM16 : BagOfID Component SetOfComponent SetOfImport
+  eq robust-lemmaM16(BID,CO,SCO,SIM)
+    = (fdis(BID,(CO  SCO),SIM) = fdis(BID,SCO,SIM))
+    when not cid(id(CO)) in BID .
+
 }
+
+--> **************************************************
+--> Proof of robust-lemmaM16.
+-->  eq robust-lemmaM16(BID,CO,SCO,SIM)
+-->    = (fdis(BID,(CO  SCO),SIM) = fdis(BID,SCO,SIM))
+-->    when not cid(id(CO)) in BID .
+--> **************************************************
+
+open ROBUSTLEMMA .
+  -- Induction Hypothesis
+  ops bID bID' : -> BagOfID .
+  ceq [robust-lemmaM16-IH :nonexec]:
+     robust-lemmaM16(BID:BagOfID,co,sCO,sIM) = true
+     if BID <wf bID .
+
+:goal { eq robust-lemmaM16(bID, co, sCO, sIM) = true .}
+:init as robust-lemmaM16-IH-in [robust-lemmaM16-IH]
+      by {BID:BagOfID <- BID:BagOfID;}
+:def bIDcsp = :csp {
+  eq bID = empID .
+  eq bID = (cid(idCO) bID') .
+  eq bID = (iid(idIM) bID') .
+}
+:apply (bIDcsp rd-)
+:def idCOidCOctf = :ctf {
+  eq id(co) = idCO .
+}
+:apply (idCOidCOctf rd-)
+--> Proof of robust-lemmaM16 done.
+-->
+show proof
+close
 
 --> *************************************
 --> Proof of robust-lemmaM01.
@@ -608,11 +660,10 @@ close
 
 open ROBUSTLEMMA .
   -- Induction Hypothesis
+  ops bID bID' : -> BagOfID .
   ceq [robust-lemmaM12-IH :nonexec]:
      robust-lemmaM12(BID:BagOfID,co,co',sCO,sIM) = true
      if BID <wf bID .
-
-  ops bID bID' : -> BagOfID .
 
 :goal { eq robust-lemmaM12(bID, co, co', sCO, sIM) = true .}
 :def idCOctf = :ctf {

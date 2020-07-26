@@ -100,6 +100,27 @@ module ProofMeasure {
        allFFCOHasFFIIM((CO SCO),SIM) and
        allFFIMHasFFECO(SIM,(CO SCO)) . 
 
+  -- eq robust-lemmaM14(SIM,IDCO,SCO)
+  --   = makeIDBag(SIM,(cmp(IDCO,started,started,started) SCO),SIM) =
+  --     makeIDBag(SIM,(cmp(IDCO,stopped,started,started) SCO),SIM)
+  --   when canStart(IDCO,SCO,SIM) .
+  ceq makeIDBag(SIM,(cmp(IDCO,started,started,started) SCO),SIM) =
+      makeIDBag(SIM,(cmp(IDCO,stopped,started,started) SCO),SIM)
+    if canStart(IDCO,SCO,SIM) .
+
+  -- eq robust-lemmaM15(SIM,CO,SCO)
+  --   = not (cid(id(CO)) in makeIDBag(SIM,(CO SCO),SIM))
+  --   when canStart(id(CO),SCO,SIM) .
+  ceq [robust-lemmaM15 :nonexec]:
+      (cid(id(CO)) in makeIDBag(SIM,(CO SCO),SIM)) = false
+    if canStart(id(CO),SCO,SIM) .
+
+  -- eq robust-lemmaM16(BID,CO,SCO,SIM)
+  --   = (fdis(BID,(CO  SCO),SIM) = fdis(BID,SCO,SIM))
+  --   when not cid(id(CO)) in BID .
+  ceq fdis(BID,(CO  SCO),SIM) = fdis(BID,SCO,SIM)
+    if not cid(id(CO)) in BID .
+
   -- eq robust-lemma20(SIM,CO,CO',SCO)
   --    = (allFFIMHasFFECO(SIM, CO SCO) implies allFFIMHasFFECO(SIM, CO' SCO))
   --  when (id(CO) = id(CO')) and 
@@ -109,6 +130,42 @@ module ProofMeasure {
     if allFFIMHasFFECO(SIM, cmp(IDCO, started, started, started) SCO) .
 
 }
+
+--> ******************************************************************
+--> ctrans [RD-start]:
+-->    < (cmp(IDCO, stopped, started, TSCO) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, started, started, TSCO) SCO), SIM,
+-->      (clog("RD-start:Do Start", cmp(IDCO, started, started, TSCO),
+-->	  mlog(
+-->       (cmp(IDCO, stopped, started, TSCO) SCO), SIM
+-->	 )) ListLG) >
+-->     if canStart(IDCO,SCO,SIM) .
+--> ******************************************************************
+select ProofMeasure .
+--> *************************************************************************
+--> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq mesmes(< (cmp(idCO, stopped, started, tCOs) sCO), sIM,
+              lg >) = true .
+}
+:init as robust-lemmaM15-in [robust-lemmaM15] by
+  {CO:Component  <- cmp(idCO,stopped,started,started);}
+:def tCOscsp = :csp {
+  eq tCOs = started .
+  eq tCOs = stopped .
+}
+:apply (tCOscsp rd-)
+:def canStartctf = :ctf  {
+  eq canStart(idCO,sCO, sIM) = true .
+}
+:apply (canStartctf rd-)
+eof
+--> Proof of RD-start done.
+-->
+show proof
+select
 
 --> **************************************************************************
 --> trans [RS-start1]:
@@ -204,4 +261,5 @@ select ProofMeasure .
 -->
 show proof
 select
---> Totally 3 goals should be proved.
+
+--> Totally 4 goals should be proved.

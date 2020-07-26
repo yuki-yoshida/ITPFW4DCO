@@ -7,6 +7,14 @@ module! CMPIMPID {
   [CIID]
   op cid : COID -> CIID {constr}
   op iid : IMID -> CIID {constr}
+
+  vars IDCO IDCO' : COID
+  vars IDIM IDIM' : IMID
+  eq (cid(IDCO) = iid(IDIM)) = false .
+  eq (cid(IDCO) = cid(IDCO'))
+    = (IDCO = IDCO').
+  eq (iid(IDIM) = iid(IDIM'))
+    = (IDIM = IDIM').
 }
 
 module ProofBase {
