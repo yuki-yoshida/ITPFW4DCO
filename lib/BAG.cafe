@@ -41,7 +41,7 @@ mod! BAG(X :: TRIV) {
   -- eq subbag((E B1),B2) = E in B2 and subbag(B1,B2) .
   ceq subbag((E B1),B2) = subbag(B1,B2) if (E in B2) .
   ceq subbag((E B1),B2) = false if not (E in B2) .
-  eq subbag(B1,(E B1)) = true .
+  ceq subbag(B1,(E B2)) = true if subbag(B1,B2) .
   -- for well-founded binary relation
   eq (B <wf (E B)) = true .
 

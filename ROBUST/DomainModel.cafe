@@ -492,41 +492,35 @@ module! STATEfuns {
   pred canStart : COID SetOfComponent SetOfImport
   pred allIMStablyWired : SetOfImport SetOfComponent SetOfImport
   pred isIMStablyWired : Import SetOfComponent SetOfImport
-  pred allCOStabllyStarted : SetOfComponent SetOfComponent SetOfImport
-  pred isCOStabllyStarted : Component SetOfComponent SetOfImport
+  pred allCOStablyStarted : SetOfComponent SetOfComponent SetOfImport
+  pred isCOStablyStarted : Component SetOfComponent SetOfImport
 
-  -- An import is stablly wired if
+  -- An import is stably wired if
   --  it is wired or unused,
   --  it should be in the current state finally, and
-  --  its exporter is stablly started.
+  --  its exporter is stably started.
   eq isIMStablyWired(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM),SCO,SIM)
      = (CSIM in (wired unused)) and
        (CSIM == TSIM) and
-       allCOStabllyStarted(getComponent(SCO,IDCO),SCO,SIM) .
+       isCOStablyStarted(getComponent(SCO,IDCO),SCO,SIM) .
 
   eq allIMStablyWired(empIM,SCO0,SIM0) = true .
   eq allIMStablyWired((IM0 SIM),SCO0,SIM0)
      = isIMStablyWired(IM0,SCO0,SIM0) and allIMStablyWired(SIM,SCO0,SIM0) .
 
-  -- A component is stablly started if
+  -- A component is stably started if
   --  it is started,
   --  it should be started finally, and
-  --  all of its mandatory importings are stablly wired.
-  eq isCOStabllyStarted(cmp(IDCO,CSCO,NSCO,TSCO),SCO,SIM)
+  --  all of its mandatory importings are stably wired.
+  eq isCOStablyStarted(cmp(IDCO,CSCO,NSCO,TSCO),SCO,SIM)
      = (CSCO == started) and
        (TSCO == started) and
        allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,IDCO),SCO,SIM) .
 
-  eq allCOStabllyStarted(empCO,SCO0,SIM0) = true .
-  eq allCOStabllyStarted((CO0 SCO),SCO0,SIM0)
-      = isCOStabllyStarted(CO0,SCO0,SIM0) and allCOStabllyStarted(SCO,SCO0,SIM0) .
-
   -- A component can start if
-  --  all of its mandatory importings are stablly wired and
-  --  all of its wired exporters are stablly started. 
+  --  all of its mandatory importings are stably wired .
   eq canStart(IDCO,SCO,SIM)
-     = allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,IDCO),SCO,SIM) and
-       allCOStabllyStarted(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,wired)),SCO,SIM) .
+     = allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,IDCO),SCO,SIM) .
 
   pred wfs-uniqCO : State
   eq wfs-uniqCO(< SCO,SIM,L >) = uniqCO(SCO) .

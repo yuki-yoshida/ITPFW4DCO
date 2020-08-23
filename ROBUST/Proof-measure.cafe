@@ -131,42 +131,6 @@ module ProofMeasure {
 
 }
 
---> ******************************************************************
---> ctrans [RD-start]:
--->    < (cmp(IDCO, stopped, started, TSCO) SCO), SIM,
--->      ListLG >
---> => < (cmp(IDCO, started, started, TSCO) SCO), SIM,
--->      (clog("RD-start:Do Start", cmp(IDCO, started, started, TSCO),
--->	  mlog(
--->       (cmp(IDCO, stopped, started, TSCO) SCO), SIM
--->	 )) ListLG) >
--->     if canStart(IDCO,SCO,SIM) .
---> ******************************************************************
-select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
-:goal {
-  eq mesmes(< (cmp(idCO, stopped, started, tCOs) sCO), sIM,
-              lg >) = true .
-}
-:init as robust-lemmaM15-in [robust-lemmaM15] by
-  {CO:Component  <- cmp(idCO,stopped,started,started);}
-:def tCOscsp = :csp {
-  eq tCOs = started .
-  eq tCOs = stopped .
-}
-:apply (tCOscsp rd-)
-:def canStartctf = :ctf  {
-  eq canStart(idCO,sCO, sIM) = true .
-}
-:apply (canStartctf rd-)
-eof
---> Proof of RD-start done.
--->
-show proof
-select
-
 --> **************************************************************************
 --> trans [RS-start1]:
 -->    < (cmp(IDCO, stopped, stopped, started) SCO), SIM,
@@ -258,6 +222,41 @@ select ProofMeasure .
    BID:BagOfID <- bID;}
 :apply (rd-)
 --> Proof of RS-stop2 done.
+-->
+show proof
+select
+
+--> ******************************************************************
+--> ctrans [RD-start]:
+-->    < (cmp(IDCO, stopped, started, TSCO) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, started, started, TSCO) SCO), SIM,
+-->      (clog("RD-start:Do Start", cmp(IDCO, started, started, TSCO),
+-->	  mlog(
+-->       (cmp(IDCO, stopped, started, TSCO) SCO), SIM
+-->	 )) ListLG) >
+-->     if canStart(IDCO,SCO,SIM) .
+--> ******************************************************************
+select ProofMeasure .
+--> *************************************************************************
+--> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq mesmes(< (cmp(idCO, stopped, started, tCOs) sCO), sIM,
+              lg >) = true .
+}
+:init as robust-lemmaM15-in [robust-lemmaM15] by
+  {CO:Component  <- cmp(idCO,stopped,started,started);}
+:def tCOscsp = :csp {
+  eq tCOs = started .
+  eq tCOs = stopped .
+}
+:apply (tCOscsp rd-)
+:def canStartctf = :ctf  {
+  eq canStart(idCO,sCO, sIM) = true .
+}
+:apply (canStartctf rd-)
+--> Proof of RD-start done.
 -->
 show proof
 select

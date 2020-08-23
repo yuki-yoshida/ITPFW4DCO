@@ -283,8 +283,8 @@ module ProofBase {
 --> **************************************
   ops idCO idCO' iidCO eidCO : -> COIDLt
   ops idIM idIM' : -> IMIDLt
-  ops sCO sCO' sCO'' sCO0 : -> SetOfComponent
-  ops sIM sIM' sIM'' sIM0 : -> SetOfImport
+  ops sCO sCO' sCO'' sCO0 sCO0' : -> SetOfComponent
+  ops sIM sIM' sIM'' sIM0 sIM0' : -> SetOfImport
   ops tIM tIM' : -> IMType
   ops cCOs cCOs' nCOs nCOs' tCOs tCOs' : -> COState
   ops cIMs cIMs' nIMs nIMs' tIMs tIMs' : -> IMState

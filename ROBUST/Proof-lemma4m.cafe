@@ -155,11 +155,12 @@ module ROBUSTLEMMA {
      and allFFCOHasFFIIM((CO SCO),SIM)
      and allFFIMHasFFECO(SIM,(CO SCO)) .
 
-  pred robust-lemmaM14 : SetOfImport COID SetOfComponent
-  eq robust-lemmaM14(SIM,IDCO,SCO)
-    = makeIDBag(SIM,(cmp(IDCO,started,started,started) SCO),SIM) =
-      makeIDBag(SIM,(cmp(IDCO,stopped,started,started) SCO),SIM)
-    when canStart(IDCO,SCO,SIM) .
+  pred robust-lemmaM14 : SetOfImport COID SetOfComponent SetOfImport
+  eq robust-lemmaM14(SIM,IDCO,SCO0,SIM0)
+    = makeIDBag(SIM,(cmp(IDCO,started,started,started) SCO0),SIM0) =
+      makeIDBag(SIM,(cmp(IDCO,stopped,started,started) SCO0),SIM0)
+    when canStart(IDCO,SCO0,SIM0)
+     and subset(SIM,SIM0) .
 
   pred robust-lemmaM15 : SetOfImport Component SetOfComponent
   eq robust-lemmaM15(SIM,CO,SCO)
@@ -173,38 +174,85 @@ module ROBUSTLEMMA {
 
 }
 
---> **************************************************
---> Proof of robust-lemmaM16.
--->  eq robust-lemmaM16(BID,CO,SCO,SIM)
--->    = (fdis(BID,(CO  SCO),SIM) = fdis(BID,SCO,SIM))
--->    when not cid(id(CO)) in BID .
---> **************************************************
+--> *******************************************************************
+--> Proof of robust-lemmaM14.
+-->  eq robust-lemmaM14(SIM,IDCO,SCO0,SIM0)
+-->    = makeIDBag(SIM,(cmp(IDCO,started,started,started) SCO0),SIM0) =
+-->      makeIDBag(SIM,(cmp(IDCO,stopped,started,started) SCO0),SIM0)
+-->    when canStart(IDCO,SCO0,SIM0)
+-->     and subset(SIM,SIM0) .
+--> *******************************************************************
 
 open ROBUSTLEMMA .
   -- Induction Hypothesis
-  ops bID bID' : -> BagOfID .
-  ceq [robust-lemmaM16-IH :nonexec]:
-     robust-lemmaM16(BID:BagOfID,co,sCO,sIM) = true
-     if BID <wf bID .
+  ceq [robust-lemmaM14-IH :nonexec]:
+     robust-lemmaM14(SIM:SetOfImport,idCO,sCO0,sIM0) = true
+     if SIM <wf (im sIM') .
 
-:goal { eq robust-lemmaM16(bID, co, sCO, sIM) = true .}
-:init as robust-lemmaM16-IH-in [robust-lemmaM16-IH]
-      by {BID:BagOfID <- BID:BagOfID;}
-:def bIDcsp = :csp {
-  eq bID = empID .
-  eq bID = (cid(idCO) bID') .
-  eq bID = (iid(idIM) bID') .
+  -- Sublemmas
+
+:goal { eq robust-lemmaM14(sIM, idCO, sCO0,sIM0) = true .}
+:def sIMcsp = :csp {
+  eq sIM = empIM .
+  eq sIM = (im sIM') .
 }
-:apply (bIDcsp rd-)
-:def idCOidCOctf = :ctf {
-  eq id(co) = idCO .
+:apply (sIMcsp rd-)
+:def iminSIM0csp = :csp {
+  eq (im in sIM0) = false .
+  eq sIM0 = (im sIM0') .
 }
-:apply (idCOidCOctf rd-)
---> Proof of robust-lemmaM16 done.
+:apply (iminSIM0csp rd-)
+:def sIMsubsIM0csp = :csp {
+  eq subset(sIM',im sIM0') = false .
+  eq subset(sIM',sIM0') = true .
+}
+:apply (sIMsubsIM0csp rd-)
+:csp {
+  eq im = imp(tIM,idIM,iidCO,eidCO,cIMs,nIMs,tIMs) .
+}
+:def typeimctf = :ctf {
+  eq tIM = mandatory .
+}
+:def stateimctf = :ctf {
+  eq cIMs = wired .
+}
+:def nextimcsp = :csp {
+  eq nIMs = wired .
+  eq nIMs = unwired .
+  eq nIMs = unused .
+}
+:def targetimctf = :ctf {
+  eq tIMs = unused .
+}
+:def idCOctf = :ctf {
+  eq iidCO = idCO .
+}
+:apply (typeimctf stateimctf nextimcsp targetimctf idCOctf)
+:apply (rd-)
+eof
+:def expimstablectf = :ctf {
+  eq isCOStablyStarted(getComponent(sCO0,eidCO),sCO0,
+                                    (imp(mandatory,idIM,iidCO,eidCO,wired,wired,unused) sIM0')) = true .
+}
+:def allCOstablectf = :ctf {
+  eq allCOStablyStarted(getECOsOfIMs(sCO0,getIMsOfICOInStates(sIM0',idCO,wired)),sCO0,(imp(mandatory,idIM,iidCO,eidCO,wired,wired,unused) sIM0')) = true .
+}
+:def allIMstablectf = :ctf {
+  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,idCO),sCO0,(imp(mandatory,idIM,iidCO,eidCO,wired,wired,unused) sIM0')) = true .
+}
+:apply (typeimctf stateimctf nextimcsp targetimctf idCOctf)
+eof
+-- 2-2-2-1-1-1-1-1".
+:apply (idCOctf allCOstablectf allIMstablectf rd-)
+:init as robust-lemmaM14-IH-in [robust-lemmaM14-IH]
+      by {SIM:SetOfImport <- sIM';}
+eof
+--> Proof of robust-lemmaM14 done.
 -->
 show proof
 close
 
+eof
 --> *************************************
 --> Proof of robust-lemmaM01.
 -->  eq robust-lemmaM01(CO,CO',SCO0,SIM0)
@@ -740,4 +788,36 @@ open ROBUSTLEMMA .
 show proof
 close
 
---> Totally 10 goals should be proved.
+--> **************************************************
+--> Proof of robust-lemmaM16.
+-->  eq robust-lemmaM16(BID,CO,SCO,SIM)
+-->    = (fdis(BID,(CO  SCO),SIM) = fdis(BID,SCO,SIM))
+-->    when not cid(id(CO)) in BID .
+--> **************************************************
+
+open ROBUSTLEMMA .
+  -- Induction Hypothesis
+  ops bID bID' : -> BagOfID .
+  ceq [robust-lemmaM16-IH :nonexec]:
+     robust-lemmaM16(BID:BagOfID,co,sCO,sIM) = true
+     if BID <wf bID .
+
+:goal { eq robust-lemmaM16(bID, co, sCO, sIM) = true .}
+:init as robust-lemmaM16-IH-in [robust-lemmaM16-IH]
+      by {BID:BagOfID <- BID:BagOfID;}
+:def bIDcsp = :csp {
+  eq bID = empID .
+  eq bID = (cid(idCO) bID') .
+  eq bID = (iid(idIM) bID') .
+}
+:apply (bIDcsp rd-)
+:def idCOidCOctf = :ctf {
+  eq id(co) = idCO .
+}
+:apply (idCOidCOctf rd-)
+--> Proof of robust-lemmaM16 done.
+-->
+show proof
+close
+
+--> Totally 11 goals should be proved.
