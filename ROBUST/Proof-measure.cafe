@@ -100,10 +100,11 @@ module ProofMeasure {
        allFFCOHasFFIIM((CO SCO),SIM) and
        allFFIMHasFFECO(SIM,(CO SCO)) . 
 
-  -- eq robust-lemmaM14(SIM,IDCO,SCO)
-  --   = makeIDBag(SIM,(cmp(IDCO,started,started,started) SCO),SIM) =
-  --     makeIDBag(SIM,(cmp(IDCO,stopped,started,started) SCO),SIM)
-  --   when canStart(IDCO,SCO,SIM) .
+  -- eq robust-lemmaM14(SIM,IDCO,SCO0,SIM0)
+  --   = makeIDBag(SIM,(cmp(IDCO,started,started,started) SCO0),SIM0) =
+  --     makeIDBag(SIM,(cmp(IDCO,stopped,started,started) SCO0),SIM0)
+  --   when canStart(IDCO,SCO0,SIM0)
+  --    and subset(SIM,SIM0) .
   ceq makeIDBag(SIM,(cmp(IDCO,started,started,started) SCO),SIM) =
       makeIDBag(SIM,(cmp(IDCO,stopped,started,started) SCO),SIM)
     if canStart(IDCO,SCO,SIM) .
@@ -262,3 +263,27 @@ show proof
 select
 
 --> Totally 4 goals should be proved.
+eof
+--> ****************************************************************************************
+--> trans [RS-wire]:
+-->      < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, wired) SIM),
+-->        ListLG >
+-->   => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired,   wired, wired) SIM),
+-->        (ilog("RS-wire:Should Wire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, wired, wired),
+--> 	  mlog(
+-->        SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, wired) SIM)
+--> 	 )) ListLG) > .
+--> ****************************************************************************************
+select ProofMeasure .
+--> *************************************************************************
+--> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq mesmes(< sCO, (imp(tIM, idIM, iidCO, eidCO, unwired, unwired, wired) sIM), lg >) = true .
+}
+:apply (rd-)
+--> Proof of RS-wire done.
+-->
+show proof
+select
+
