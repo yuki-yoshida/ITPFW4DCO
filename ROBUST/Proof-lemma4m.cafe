@@ -229,7 +229,19 @@ open ROBUSTLEMMA .
 }
 :apply (typeimctf stateimctf nextimcsp targetimctf idCOctf)
 :apply (rd-)
+:def allIMstablectf = :ctf {
+  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,idCO),sCO0,(imp(mandatory,idIM,iidCO,eidCO,wired,wired,unused) sIM0')) = true .
+}
+:apply (allIMstablectf rd-)
+-- 2-2-2-1-1-1-1-1-2-1
+:init as robust-lemmaM14-IH-in [robust-lemmaM14-IH]
+      by {SIM:SetOfImport <- sIM';}
+:apply (rd-)
 eof
+(makeupIDBag(getComponent(sCO0,iidCO),(cmp(idCO,started,started,started) sCO0),(imp(mandatory,idIM,iidCO,eidCO,wired,wired,unused) sIM0')) = makeupIDBag(getComponent(sCO0,iidCO),(cmp(idCO,stopped,started,started) sCO0),(imp(mandatory,idIM,iidCO,eidCO,wired,wired,unused) sIM0'))):Bool
+
+
+
 :def expimstablectf = :ctf {
   eq isCOStablyStarted(getComponent(sCO0,eidCO),sCO0,
                                     (imp(mandatory,idIM,iidCO,eidCO,wired,wired,unused) sIM0')) = true .
@@ -237,16 +249,6 @@ eof
 :def allCOstablectf = :ctf {
   eq allCOStablyStarted(getECOsOfIMs(sCO0,getIMsOfICOInStates(sIM0',idCO,wired)),sCO0,(imp(mandatory,idIM,iidCO,eidCO,wired,wired,unused) sIM0')) = true .
 }
-:def allIMstablectf = :ctf {
-  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,idCO),sCO0,(imp(mandatory,idIM,iidCO,eidCO,wired,wired,unused) sIM0')) = true .
-}
-:apply (typeimctf stateimctf nextimcsp targetimctf idCOctf)
-eof
--- 2-2-2-1-1-1-1-1".
-:apply (idCOctf allCOstablectf allIMstablectf rd-)
-:init as robust-lemmaM14-IH-in [robust-lemmaM14-IH]
-      by {SIM:SetOfImport <- sIM';}
-eof
 --> Proof of robust-lemmaM14 done.
 -->
 show proof
