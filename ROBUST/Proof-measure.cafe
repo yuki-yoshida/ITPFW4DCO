@@ -51,7 +51,7 @@ module ProofMeasure {
 
   -- Lemmas
 
-  -- eq robust-lemmaM10(SIM,CO,CO',SCO0,SIM0)
+  -- eq robust-lemmaM20(SIM,CO,CO',SCO0,SIM0)
   --   = (makeIDBag(SIM,(CO  SCO0),SIM0) =
   --      makeIDBag(SIM,(CO' SCO0),SIM0))
   --   when id(CO) = id(CO')
@@ -63,20 +63,20 @@ module ProofMeasure {
        not isForced(CO) and
        not isForced(CO') .
 
-  -- eq robust-lemmaM11(SIM,CO,CO',SCO0,SIM0)
+  -- eq robust-lemmaM21(SIM,CO,CO',SCO0,SIM0)
   --   = (makeIDBag(SIM,(CO  SCO0),SIM0) =
   --      makeIDBag(SIM,(CO' SCO0),SIM0))
   --   when id(CO) = id(CO')
   --    and isForced(CO)
   --    and isForced(CO') .
-  ceq [robust-lemmaM11 :nonexec]:
+  ceq [robust-lemmaM21 :nonexec]:
       makeIDBag(SIM,(CO  SCO0),SIM0)
       = makeIDBag(SIM,(CO' SCO0),SIM0)
     if id(CO) = id(CO') and
        isForced(CO) and
        isForced(CO') .
 
-  -- eq robust-lemmaM12(BID,CO,CO',SCO,SIM)
+  -- eq robust-lemmaM22(BID,CO,CO',SCO,SIM)
   --   = fdis(BID,(CO  SCO),SIM) >= 
   --     fdis(BID,(CO' SCO),SIM) 
   --   when id(CO) = id(CO')
@@ -89,18 +89,18 @@ module ProofMeasure {
 
   -- Additional fresh constants
   op bID : -> BagOfID
-  -- eq robust-lemmaM13(SIM,CO,SCO)
+  -- eq robust-lemmaM23(SIM,CO,SCO)
   --   = cid(id(CO)) in makeIDBag(SIM,(CO SCO),SIM)
   --   when isForced1(CO)
   --    and allFFCOHasFFIIM((CO SCO),SIM)
   --    and allFFIMHasFFECO(SIM,(CO SCO)) .
-  ceq [robust-lemmaM13 :nonexec]:
+  ceq [robust-lemmaM23 :nonexec]:
       makeIDBag(SIM,(CO SCO),SIM) = (cid(id(CO)) BID)
     if isForced1(CO) and
        allFFCOHasFFIIM((CO SCO),SIM) and
        allFFIMHasFFECO(SIM,(CO SCO)) . 
 
-  -- eq robust-lemmaM14(SIM,IDCO,SCO0,SIM0)
+  -- eq robust-lemmaM24(SIM,IDCO,SCO0,SIM0)
   --   = makeIDBag(SIM,(cmp(IDCO,started,started,started) SCO0),SIM0) =
   --     makeIDBag(SIM,(cmp(IDCO,stopped,started,started) SCO0),SIM0)
   --   when canStart(IDCO,SCO0,SIM0)
@@ -109,14 +109,14 @@ module ProofMeasure {
       makeIDBag(SIM,(cmp(IDCO,stopped,started,started) SCO),SIM)
     if canStart(IDCO,SCO,SIM) .
 
-  -- eq robust-lemmaM15(SIM,CO,SCO)
+  -- eq robust-lemmaM25(SIM,CO,SCO)
   --   = not (cid(id(CO)) in makeIDBag(SIM,(CO SCO),SIM))
   --   when canStart(id(CO),SCO,SIM) .
-  ceq [robust-lemmaM15 :nonexec]:
+  ceq [robust-lemmaM25 :nonexec]:
       (cid(id(CO)) in makeIDBag(SIM,(CO SCO),SIM)) = false
     if canStart(id(CO),SCO,SIM) .
 
-  -- eq robust-lemmaM16(BID,CO,SCO,SIM)
+  -- eq robust-lemmaM26(BID,CO,SCO,SIM)
   --   = (fdis(BID,(CO  SCO),SIM) = fdis(BID,SCO,SIM))
   --   when not cid(id(CO)) in BID .
   ceq fdis(BID,(CO  SCO),SIM) = fdis(BID,SCO,SIM)
@@ -200,7 +200,7 @@ select ProofMeasure .
               (imp(mandatory, idIM, idCO, eidCO, wired, unwired, tIMs) sIM),
               lg >) = true .
 }
-:init as robust-lemmaM11-in [robust-lemmaM11] by
+:init as robust-lemmaM21-in [robust-lemmaM21] by
   {CO:Component  <- cmp(idCO,started,started,started);
    CO':Component <- cmp(idCO,started,stopped,started);}
 :def tIMscsp = :csp {
@@ -217,7 +217,7 @@ select ProofMeasure .
 		     (cmp(idCO, started, started, started) sCO)) = true .
 }  
 :apply (allFFCOctf allFFIMctf rd-)
-:init as robust-lemmaM13-in [robust-lemmaM13] by
+:init as robust-lemmaM23-in [robust-lemmaM23] by
   {SIM:SetOfImport <- (imp(mandatory,idIM,idCO,eidCO,wired,unwired,wired) sIM);
    CO:Component  <- cmp(idCO,started,stopped,started);
    BID:BagOfID <- bID;}
@@ -246,7 +246,7 @@ select ProofMeasure .
   eq mesmes(< (cmp(idCO, stopped, started, tCOs) sCO), sIM,
               lg >) = true .
 }
-:init as robust-lemmaM15-in [robust-lemmaM15] by
+:init as robust-lemmaM25-in [robust-lemmaM25] by
   {CO:Component  <- cmp(idCO,stopped,started,started);}
 :def tCOscsp = :csp {
   eq tCOs = started .
