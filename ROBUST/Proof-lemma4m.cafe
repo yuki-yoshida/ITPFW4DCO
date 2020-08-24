@@ -206,13 +206,13 @@ select ROBUSTLEMMA
 :def idCOctf = :ctf {
   eq id(co') = id(co) .
 }
-:def isFFCOctf = :ctf {
+:def isFCOctf = :ctf {
   eq isForced(co) = true .
 }
-:def isFFCO'ctf = :ctf {
+:def isFCO'ctf = :ctf {
   eq isForced(co') = true .
 }
-:apply (idCOctf isFFCOctf isFFCO'ctf rd-)
+:apply (idCOctf isFCOctf isFCO'ctf rd-)
 --> Proof of robust-lemmaM01 done.
 -->
 show proof
@@ -230,30 +230,30 @@ select
 
 open ROBUSTLEMMA .
   -- tuple of SetOfImport, Component, SetOfComponent, and SetOfImport
-  [SIMCOSCOSIM] op t : SetOfImport Component SetOfComponent SetOfImport -> SIMCOSCOSIM {constr} .
-  pred _<wf_ : SIMCOSCOSIM SIMCOSCOSIM .
+  [SIMSCOSIM] op t : SetOfImport SetOfComponent SetOfImport -> SIMSCOSIM {constr} .
+  pred _<wf_ : SIMSCOSIM SIMSCOSIM .
   -- Induction Hypothesis
   ceq [robust-lemmaM02-IH :nonexec]:
      robust-lemmaM02(SIM:SetOfImport,co,co',sCO0,sIM0) = true
-     if t(SIM,co,sCO0,sIM0) <wf t((im sIM'),co',sCO0,sIM0) .
+     if t(SIM,sCO0,sIM0) <wf t((im sIM'),sCO0,sIM0) .
 
   -- well-founded binary relation   
-  ceq t(SIM,CO,SCO0,SIM0) <wf t(SIM',CO',SCO0,SIM0) = true
+  ceq t(SIM,SCO0,SIM0) <wf t(SIM',SCO0,SIM0) = true
      if SIM <wf SIM' .
-  ceq t(SIM,CO,SCO0,SIM0) <wf t((IM SIM'),CO',SCO0,SIM0) = true
-     if SIM = getIMsOfECOInTargetStates(SIM0,id(getComponent(SCO0,importer(IM))),wired) .
+  ceq t(SIM,SCO0,SIM0) <wf t((IM SIM'),SCO0,SIM0) = true
+     if SIM = getIMsOfECOInTargetStates(SIM0,importer(IM),wired) .
 
 :goal { eq robust-lemmaM02(sIM, co, co', sCO0, sIM0) = true .}
 :def idCOctf = :ctf {
   eq id(co') = id(co) .
 }
-:def isFFCOctf = :ctf {
+:def isFCOctf = :ctf {
   eq isForced(co) = true .
 }
-:def isFFCO'ctf = :ctf {
+:def isFCO'ctf = :ctf {
   eq isForced(co') = true .
 }
-:apply (idCOctf isFFCOctf isFFCO'ctf rd-)
+:apply (idCOctf isFCOctf isFCO'ctf rd-)
 :init as robust-lemmaM02-IH-in [robust-lemmaM02-IH]
       by {SIM:SetOfImport <- SIM:SetOfImport;}
 :def sIMcsp = :csp {
@@ -262,18 +262,18 @@ open ROBUSTLEMMA .
 }
 :apply (sIMcsp)
 :apply (rd-)
-:def isFFIMctp = :ctf {
+:def isFIMctp = :ctf {
   eq isForced(im) = true .
 }
-:apply (isFFIMctp rd-)
+:apply (isFIMctp rd-)
 :def impIMctf = :ctf {
   eq id(co) = importer(im) .
 }
 :apply (impIMctf rd-)
-:def isFFimpCOctf = :ctf {
+:def isFimpCOctf = :ctf {
   eq isForced(getComponent(sCO0,importer(im))) = true .
 }
-:apply (isFFimpCOctf rd-)
+:apply (isFimpCOctf rd-)
 --> Proof of robust-lemmaM02 done.
 -->
 show proof
@@ -308,17 +308,17 @@ open ROBUSTLEMMA .
 :def idCOctf = :ctf {
   eq id(co') = id(co) .
 }
-:def isFFCOctf = :ctf {
+:def isFCOctf = :ctf {
   eq isForced(co) = true .
 }
-:def isFFCO'ctf = :ctf {
+:def isFCO'ctf = :ctf {
   eq isForced(co') = true .
 }
-:apply (idCOctf isFFCOctf isFFCO'ctf rd-)
-:def isFFCO0ctf = :ctf {
+:apply (idCOctf isFCOctf isFCO'ctf rd-)
+:def isFCO0ctf = :ctf {
   eq isForced(co0) = true .
 }
-:apply (isFFCO0ctf rd-)
+:apply (isFCO0ctf rd-)
 --> Proof of robust-lemmaM03 done.
 -->
 show proof
@@ -336,32 +336,32 @@ close
 
 open ROBUSTLEMMA .
   -- tuple of SetOfImport, Component, SetOfComponent, and SetOfImport
-  [SIMCOSCOSIM] op t : SetOfImport Component SetOfComponent SetOfImport -> SIMCOSCOSIM {constr} .
-  pred _<wf_ : SIMCOSCOSIM SIMCOSCOSIM .
+  [SIMSCOSIM] op t : SetOfImport SetOfComponent SetOfImport -> SIMSCOSIM {constr} .
+  pred _<wf_ : SIMSCOSIM SIMSCOSIM .
   -- Induction Hypothesis
   ceq [robust-lemmaM04-IH :nonexec]:
      robust-lemmaM04(SIM:SetOfImport,co,co',sCO0,sIM0) = true
-     if t(SIM,co,sCO0,sIM0) <wf t((im sIM'),co',sCO0,sIM0) .
+     if t(SIM,sCO0,sIM0) <wf t((im sIM'),sCO0,sIM0) .
 
   -- well-founded binary relation   
-  ceq t(SIM,CO,SCO0,SIM0) <wf t(SIM',CO',SCO0,SIM0) = true
+  ceq t(SIM,SCO0,SIM0) <wf t(SIM',SCO0,SIM0) = true
      if SIM <wf SIM' .
-  ceq t(SIM,CO,SCO0,SIM0) <wf t((IM SIM'),CO',SCO0,SIM0) = true
+  ceq t(SIM,SCO0,SIM0) <wf t((IM SIM'),SCO0,SIM0) = true
      if SIM = getIMsOfECOInTargetStates(SIM0,importer(IM),wired) .
-  ceq t(SIM,CO,SCO0,SIM0) <wf t((IM SIM'),CO',SCO0,SIM0) = true
-     if SIM = getIMsOfECOInTargetStates(SIM0,id(getComponent(SCO0,importer(IM))),wired) .
+  ceq t(SIM,SCO0,SIM0) <wf t((IM SIM'),SCO0,SIM0) = true
+     if SIM = getIMsOfECOInTargetStates(SIM0,importer(IM),wired) .
 
 :goal { eq robust-lemmaM04(sIM, co, co', sCO0, sIM0) = true .}
 :def idCOctf = :ctf {
   eq id(co') = id(co) .
 }
-:def isFFCOctf = :ctf {
+:def isFCOctf = :ctf {
   eq isForced(co) = true .
 }
-:def isFFCO'ctf = :ctf {
+:def isFCO'ctf = :ctf {
   eq isForced(co') = true .
 }
-:apply (idCOctf isFFCOctf isFFCO'ctf rd-)
+:apply (idCOctf isFCOctf isFCO'ctf rd-)
 :init as robust-lemmaM04-IH-in [robust-lemmaM04-IH]
       by {SIM:SetOfImport <- SIM:SetOfImport;}
 :def sIMcsp = :csp {
@@ -370,18 +370,18 @@ open ROBUSTLEMMA .
 }
 :apply (sIMcsp)
 :apply (rd-)
-:def isFFIMctp = :ctf {
+:def isFIMctp = :ctf {
   eq isForced(im) = true .
 }
-:apply (isFFIMctp rd-)
+:apply (isFIMctp rd-)
 :def impIMctf = :ctf {
   eq id(co) = importer(im) .
 }
 :apply (impIMctf rd-)
-:def isFFimpCOctf = :ctf {
+:def isFimpCOctf = :ctf {
   eq isForced(getComponent(sCO0,importer(im))) = true .
 }
-:apply (isFFimpCOctf rd-)
+:apply (isFimpCOctf rd-)
 --> Proof of robust-lemmaM04 done.
 -->
 show proof
@@ -416,17 +416,17 @@ open ROBUSTLEMMA .
 :def idCOctf = :ctf {
   eq id(co') = id(co) .
 }
-:def isFFCOctf = :ctf {
+:def isFCOctf = :ctf {
   eq isForced(co) = true .
 }
-:def isFFCO'ctf = :ctf {
+:def isFCO'ctf = :ctf {
   eq isForced(co') = true .
 }
-:apply (idCOctf isFFCOctf isFFCO'ctf rd-)
-:def isFFCO0ctf = :ctf {
+:apply (idCOctf isFCOctf isFCO'ctf rd-)
+:def isFCO0ctf = :ctf {
   eq isForced(co0) = true .
 }
-:apply (isFFCO0ctf rd-)
+:apply (isFCO0ctf rd-)
 --> Proof of robust-lemmaM05 done.
 -->
 show proof
@@ -462,10 +462,10 @@ open ROBUSTLEMMA .
    eq (id(co) = eidCO) = false .
 
 :goal { eq robust-lemmaM06(co, sCO, sIM) = true .}
-:def isFFCOctf = :ctf {
+:def isFCOctf = :ctf {
   eq isForced1(co) = true .
 }
-:apply (isFFCOctf rd-)
+:apply (isFCOctf rd-)
 :def allFFCOcsp = :csp {
   eq allFFCOHasFFIIM((co sCO), sIM) = false .
   eq sIM = (imp(mandatory,idIM,id(co),eidCO,wired,unwired,unused) sIM') .
@@ -515,7 +515,7 @@ open ROBUSTLEMMA .
   ceq t(SIM,SCO0,SIM0) <wf t(SIM',SCO0,SIM0) = true
      if SIM <wf SIM' .
   ceq t(SIM,SCO0,SIM0) <wf t((IM SIM'),SCO0,SIM0) = true
-     if SIM = getIMsOfECOInTargetStates(SIM0,id(getComponent(SCO0,importer(IM))),wired) .
+     if SIM = getIMsOfECOInTargetStates(SIM0,importer(IM),wired) .
 
 :goal { eq robust-lemmaM07(sIM, idCO, sCO0, sIM0) = true .}
 :def sIMcsp = :csp {
@@ -599,11 +599,11 @@ open ROBUSTLEMMA .
        subset(SIM,SIM0) .
 
 :goal { eq robust-lemmaM08(co, idCO, sCO0, sIM0) = true .}
-:def isFFCOctf = :ctf {
+:def isFCOctf = :ctf {
   eq isForced(co) = true .
 }
 
-:apply (isFFCOctf rd-)
+:apply (isFCOctf rd-)
 :def canStartctf = :ctf {
   eq allIMStablyWired(getIMsOfTypeOfICO(sIM0,mandatory,idCO),sCO0,sIM0) = true .
 }
@@ -658,13 +658,13 @@ open ROBUSTLEMMA .
 :def idCOctf = :ctf {
   eq id(co') = id(co) .
 }
-:def isFFCOctf = :ctf {
+:def isFCOctf = :ctf {
   eq isForced(co) = true .
 }
-:def isFFCO'ctf = :ctf {
+:def isFCO'ctf = :ctf {
   eq isForced(co') = true .
 }
-:apply (idCOctf isFFCOctf isFFCO'ctf rd-)
+:apply (idCOctf isFCOctf isFCO'ctf rd-)
 :init as robust-lemmaM10-IH-in [robust-lemmaM10-IH]
       by {SIM:SetOfImport <- SIM:SetOfImport;}
 :def sIMcsp = :csp {
@@ -672,10 +672,10 @@ open ROBUSTLEMMA .
   eq sIM = (im sIM') .
 }
 :apply (sIMcsp rd-)
-:def isFIMctp = :ctf {
+:def isForcingIMctp = :ctf {
   eq isForcing(im) = true .
 }
-:apply (isFIMctp rd-)
+:apply (isForcingIMctp rd-)
 :def impIMctf = :ctf {
   eq id(co) = importer(im) .
 }
@@ -730,13 +730,13 @@ open ROBUSTLEMMA .
 :def idCOctf = :ctf {
   eq id(co') = id(co) .
 }
-:def isFFCOctf = :ctf {
+:def isFCOctf = :ctf {
   eq isForced(co) = true .
 }
-:def isFFCO'ctf = :ctf {
+:def isFCO'ctf = :ctf {
   eq isForced(co') = true .
 }
-:apply (idCOctf isFFCOctf isFFCO'ctf rd-)
+:apply (idCOctf isFCOctf isFCO'ctf rd-)
 :init as robust-lemmaM11-IH-in [robust-lemmaM11-IH]
       by {SIM:SetOfImport <- SIM:SetOfImport;}
 :def sIMcsp = :csp {
@@ -744,10 +744,10 @@ open ROBUSTLEMMA .
   eq sIM = (im sIM') .
 }
 :apply (sIMcsp rd-)
-:def isFIMctp = :ctf {
+:def isForcingIMctp = :ctf {
   eq isForcing(im) = true .
 }
-:apply (isFIMctp rd-)
+:apply (isForcingIMctp rd-)
 :def impIMctf = :ctf {
   eq id(co) = importer(im) .
 }
@@ -822,10 +822,10 @@ open ROBUSTLEMMA .
        allFFIMHasFFECO(SIM,(CO SCO)) .
 
 :goal { eq robust-lemmaM13(sIM, co, sCO) = true .}
-:def isFFCOctf = :ctf {
+:def isFCOctf = :ctf {
   eq isForced1(co) = true .
 }
-:apply (isFFCOctf rd-)
+:apply (isFCOctf rd-)
 :def allFFCOctf = :ctf {
   eq allFFCOHasFFIIM((co sCO), sIM) = true .
 }  
