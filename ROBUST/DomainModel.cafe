@@ -635,12 +635,12 @@ module! STATERules {
 	 )) ListLG) > .
 
   ctrans [RD-start]:
-     < (cmp(IDCO, stopped, started, TSCO) SCO), SIM,
+     < (cmp(IDCO, stopped, started, started) SCO), SIM,
        ListLG >
-  => < (cmp(IDCO, started, started, TSCO) SCO), SIM,
-       (clog("RD-start:Do Start", cmp(IDCO, started, started, TSCO),
+  => < (cmp(IDCO, started, started, started) SCO), SIM,
+       (clog("RD-start:Do Start", cmp(IDCO, started, started, started),
 	  mlog(
-       (cmp(IDCO, stopped, started, TSCO) SCO), SIM
+       (cmp(IDCO, stopped, started, started) SCO), SIM
 	 )) ListLG) >
      if canStart(IDCO,SCO,SIM) .
 

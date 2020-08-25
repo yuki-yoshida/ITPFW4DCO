@@ -229,12 +229,12 @@ select
 
 --> ******************************************************************
 --> ctrans [RD-start]:
--->    < (cmp(IDCO, stopped, started, TSCO) SCO), SIM,
+-->    < (cmp(IDCO, stopped, started, started) SCO), SIM,
 -->      ListLG >
---> => < (cmp(IDCO, started, started, TSCO) SCO), SIM,
--->      (clog("RD-start:Do Start", cmp(IDCO, started, started, TSCO),
+--> => < (cmp(IDCO, started, started, started) SCO), SIM,
+-->      (clog("RD-start:Do Start", cmp(IDCO, started, started, started),
 -->	  mlog(
--->       (cmp(IDCO, stopped, started, TSCO) SCO), SIM
+-->       (cmp(IDCO, stopped, started, started) SCO), SIM
 -->	 )) ListLG) >
 -->     if canStart(IDCO,SCO,SIM) .
 --> ******************************************************************
@@ -248,11 +248,6 @@ select ProofMeasure .
 }
 :init as robust-lemmaM25-in [robust-lemmaM25] by
   {CO:Component  <- cmp(idCO,stopped,started,started);}
-:def tCOscsp = :csp {
-  eq tCOs = started .
-  eq tCOs = stopped .
-}
-:apply (tCOscsp rd-)
 :def canStartctf = :ctf  {
   eq canStart(idCO,sCO, sIM) = true .
 }
