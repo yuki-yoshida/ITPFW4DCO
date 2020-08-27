@@ -486,36 +486,43 @@ module! STATEfuns {
   eq allIMInBothStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM),StIM) 
      = (CSIM in StIM) and (NSIM in StIM) and allIMInBothStates(SIM,StIM) .
 
-  var CO0 : Component
-  var IM0 : Import
+  var CO : Component
+  var IM : Import
 
   pred canStart : COID SetOfComponent SetOfImport
   pred allIMStablyWired : SetOfImport SetOfComponent SetOfImport
   pred isIMStablyWired : Import SetOfComponent SetOfImport
-  pred allCOStablyStarted : SetOfComponent SetOfComponent SetOfImport
   pred isCOStablyStarted : Component SetOfComponent SetOfImport
 
   -- An import is stably wired if
   --  it is wired or unused,
   --  it should be in the current state finally, and
   --  its exporter is stably started.
-  eq isIMStablyWired(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM),SCO,SIM)
-     = (CSIM in (wired unused)) and
-       (CSIM == TSIM) and
-       isCOStablyStarted(getComponent(SCO,IDCO),SCO,SIM) .
+  eq isIMStablyWired(IM,SCO,SIM)
+     = (state(IM) == target(IM)) and
+       ((state(IM) = unused) or
+        (state(IM) = wired and isCOStablyStarted(getComponent(SCO,exporter(IM)),SCO,SIM))) .
+  -- eq isIMStablyWired(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM),SCO,SIM)
+  --    = (CSIM == TSIM) and
+  --      ((CSIM = unused) or
+  --       (CSIM = wired and isCOStablyStarted(getComponent(SCO,IDCO),SCO,SIM))) .
 
   eq allIMStablyWired(empIM,SCO0,SIM0) = true .
-  eq allIMStablyWired((IM0 SIM),SCO0,SIM0)
-     = isIMStablyWired(IM0,SCO0,SIM0) and allIMStablyWired(SIM,SCO0,SIM0) .
+  eq allIMStablyWired((IM SIM),SCO0,SIM0)
+     = isIMStablyWired(IM,SCO0,SIM0) and allIMStablyWired(SIM,SCO0,SIM0) .
 
   -- A component is stably started if
   --  it is started,
   --  it should be started finally, and
   --  all of its mandatory importings are stably wired.
-  eq isCOStablyStarted(cmp(IDCO,CSCO,NSCO,TSCO),SCO,SIM)
-     = (CSCO == started) and
-       (TSCO == started) and
-       allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,IDCO),SCO,SIM) .
+  eq isCOStablyStarted(CO,SCO,SIM)
+     = (state(CO) == started) and
+       (target(CO) == started) and
+       allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,id(CO)),SCO,SIM) .
+  -- eq isCOStablyStarted(cmp(IDCO,CSCO,NSCO,TSCO),SCO,SIM)
+  --    = (CSCO == started) and
+  --      (TSCO == started) and
+  --      allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,IDCO),SCO,SIM) .
 
   -- A component can start if
   --  all of its mandatory importings are stably wired .

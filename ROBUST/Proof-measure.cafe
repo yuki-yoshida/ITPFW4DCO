@@ -119,7 +119,7 @@ module ProofMeasure {
   -- eq robust-lemmaM26(BID,CO,SCO,SIM)
   --   = (fdis(BID,(CO  SCO),SIM) = fdis(BID,SCO,SIM))
   --   when not cid(id(CO)) in BID .
-  ceq fdis(BID,(CO  SCO),SIM) = fdis(BID,SCO,SIM)
+  ceq fdis(BID,(CO SCO),SIM) = fdis(BID,SCO,SIM)
     if not cid(id(CO)) in BID .
 
   -- eq robust-lemma20(SIM,CO,CO',SCO)
@@ -243,7 +243,7 @@ select ProofMeasure .
 --> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
-  eq mesmes(< (cmp(idCO, stopped, started, tCOs) sCO), sIM,
+  eq mesmes(< (cmp(idCO, stopped, started, started) sCO), sIM,
               lg >) = true .
 }
 :init as robust-lemmaM25-in [robust-lemmaM25] by

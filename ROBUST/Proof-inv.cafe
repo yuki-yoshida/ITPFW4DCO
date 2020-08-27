@@ -177,7 +177,7 @@ show proof
 --> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
-  eq invinv(< (cmp(idCO, stopped, started, tCOs) sCO), sIM, lg >) = true .
+  eq invinv(< (cmp(idCO, stopped, started, started) sCO), sIM, lg >) = true .
 }
 :apply (rd-)
 show proof
@@ -708,7 +708,7 @@ show proof
 --> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
-  eq invinv(< (cmp(idCO, stopped, started, tCOs) sCO), sIM, lg >) = true .
+  eq invinv(< (cmp(idCO, stopped, started, started) sCO), sIM, lg >) = true .
 }
 :apply (rd-)
 show proof
