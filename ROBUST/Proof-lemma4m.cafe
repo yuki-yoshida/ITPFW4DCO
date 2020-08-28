@@ -663,25 +663,19 @@ open ROBUSTLEMMA .
 
 :goal { eq robust-lemmaM11(co0, co, sCO0, sIM0) = true .}
 :csp {
-  eq co0 = cmp(idCO,cCOs,nCOs,tCOs) .
+  eq id(co0) = idCO .
 }
 :def idCOctf = :ctf {
   eq id(co) = idCO .
 }
-:def cCOscsp = :csp {
-  eq cCOs = started .
-  eq cCOs = stopped .
+:apply (idCOctf rd-)
+:def isForcedCO0csp = :csp {
+  eq isForced(co0) = false .
+  eq co0 = cmp(idCO,started,started,started) .
+  eq co0 = cmp(idCO,started,stopped,started) .
 }
-:def nCOscsp = :csp {
-  eq nCOs = started .
-  eq nCOs = stopped .
-}
-:def tCOscsp = :csp {
-  eq tCOs = started .
-  eq tCOs = stopped .
-}
-:apply (idCOctf cCOscsp nCOscsp tCOscsp rd-)
--- 1-2-1-1-1: nCOs=started
+:apply (isForcedCO0csp rd-)
+-- 1-2-2: next(co0)=started
 :def getIMscsp = :csp {
   eq getIMsOfECOInTargetStates(sIM0,idCO,wired) = empIM .
   eq sIM0 = (imp(tIM,idIM,iidCO,idCO,cIMs,nIMs,wired) sIM0') .
@@ -692,7 +686,7 @@ open ROBUSTLEMMA .
   eq tIM = mandatory .
 }
 :apply (tIMcsp)
--- 1-2-1-1-1-2-1: optional
+-- 1-2-2-2-1: optional
 :def canStartco0ctf1 = :ctf {
   eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,idCO),sCO0,(imp(optional,idIM,iidCO,idCO,cIMs,nIMs,wired) sIM0')) = true .
 }
@@ -701,7 +695,7 @@ open ROBUSTLEMMA .
   eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(co)),sCO0,(imp(optional,idIM,iidCO,idCO,cIMs,nIMs,wired) sIM0')) = true .
 }
 :apply (canStartcoctf1 rd-)
--- 1-2-1-1-1-2-2: mandatory
+-- 1-2-2-2-2: mandatory
 :def iidCOctf = :ctf {
   eq id(co) = iidCO .
 }
@@ -716,7 +710,7 @@ open ROBUSTLEMMA .
   eq nIMs = unused .
 }
 :apply (nIMscsp)
--- 1-2-1-1-1-2-2-2-1-1
+-- 1-2-2-2-2-2-1-1
 :def canStartco0ctf2-1 = :ctf {
   eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,idCO),sCO0,(imp(mandatory,idIM,iidCO,idCO,wired,wired,wired) sIM0')) = true .
 }
@@ -728,7 +722,7 @@ open ROBUSTLEMMA .
 :init as robust-lemmaM11-in [robust-lemmaM11-IH]
       by {CO':Component <- getComponent(sCO0,iidCO);}
 :apply (rd-)
--- 1-2-1-1-1-2-2-2-1-2
+-- 1-2-2-2-2-2-1-2
 :def canStartco0ctf2-2 = :ctf {
   eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,idCO),sCO0,(imp(mandatory,idIM,iidCO,idCO,wired,unwired,wired) sIM0')) = true .
 }
@@ -740,7 +734,7 @@ open ROBUSTLEMMA .
 :init as robust-lemmaM11-in [robust-lemmaM11-IH]
       by {CO':Component <- getComponent(sCO0,iidCO);}
 :apply (rd-)
--- 1-2-1-1-1-2-2-2-1-3
+-- 1-2-2-2-2-2-1-3
 :def canStartco0ctf2-3 = :ctf {
   eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,idCO),sCO0,(imp(mandatory,idIM,iidCO,idCO,wired,unused,wired) sIM0')) = true .
 }
@@ -749,7 +743,7 @@ open ROBUSTLEMMA .
   eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(co)),sCO0,(imp(mandatory,idIM,iidCO,idCO,wired,unused,wired) sIM0')) = true .
 }
 :apply (canStartcoctf2-3 rd-)
--- 1-2-1-1-1-2-2-2-2
+-- 1-2-2-2-2-2-2
 :def canStartco0ctf2-0 = :ctf {
   eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,idCO),sCO0,(imp(mandatory,idIM,iidCO,idCO,cIMs,nIMs,wired) sIM0')) = true .
 }
@@ -758,32 +752,32 @@ open ROBUSTLEMMA .
   eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(co)),sCO0,(imp(mandatory,idIM,iidCO,idCO,cIMs,nIMs,wired) sIM0')) = true .
 }
 :apply (canStartcoctf2 rd-)
--- 1-2-1-2-1: nCOs=stopped
+-- 1-2-3: next(co0)=stopped
 :apply (getIMscsp rd-)
 :apply (tIMcsp)
--- 1-2-1-2-1-2-1: optional
+-- 1-2-3-2-1: optional
 :apply (canStartco0ctf1 rd-)
 :apply (canStartcoctf1 rd-)
--- 1-2-1-2-1-2-2: mandatory
+-- 1-2-3-2-2: mandatory
 :apply (iidCOctf rd-)
 :apply (cIMsctf)
 :apply (nIMscsp)
--- 1-2-1-2-1-2-2-2-1-1
+-- 1-2-3-2-2-2-1-1
 :apply (canStartco0ctf2-1 rd-)
 :apply (canStartcoctf2-1 rd-)
 :init as robust-lemmaM11-in [robust-lemmaM11-IH]
       by {CO':Component <- getComponent(sCO0,iidCO);}
 :apply (rd-)
--- 1-2-1-2-1-2-2-2-1-2
+-- 1-2-3-2-2-2-1-2
 :apply (canStartco0ctf2-2 rd-)
 :apply (canStartcoctf2-2 rd-)
 :init as robust-lemmaM11-in [robust-lemmaM11-IH]
       by {CO':Component <- getComponent(sCO0,iidCO);}
 :apply (rd-)
--- 1-2-1-2-1-2-2-2-1-3
+-- 1-2-3-2-2-2-1-3
 :apply (canStartco0ctf2-3 rd-)
 :apply (canStartcoctf2-3 rd-)
--- 1-2-1-2-1-2-2-2-2
+-- 1-2-3-2-2-2-2
 :apply (canStartco0ctf2-0 rd-)
 :apply (canStartcoctf2 rd-)
 --> Proof of robust-lemmaM11 done.
