@@ -499,13 +499,9 @@ module! STATEfuns {
   --  it should be in the current state finally, and
   --  its exporter is stably started.
   eq isIMStablyWired(IM,SCO,SIM)
-     = (state(IM) == target(IM)) and
+     = (state(IM) = target(IM)) and
        ((state(IM) = unused) or
         (state(IM) = wired and isCOStablyStarted(getComponent(SCO,exporter(IM)),SCO,SIM))) .
-  -- eq isIMStablyWired(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM),SCO,SIM)
-  --    = (CSIM == TSIM) and
-  --      ((CSIM = unused) or
-  --       (CSIM = wired and isCOStablyStarted(getComponent(SCO,IDCO),SCO,SIM))) .
 
   eq allIMStablyWired(empIM,SCO0,SIM0) = true .
   eq allIMStablyWired((IM SIM),SCO0,SIM0)
@@ -516,13 +512,9 @@ module! STATEfuns {
   --  it should be started finally, and
   --  all of its mandatory importings are stably wired.
   eq isCOStablyStarted(CO,SCO,SIM)
-     = (state(CO) == started) and
-       (target(CO) == started) and
+     = (state(CO) = started) and
+       (target(CO) = started) and
        allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,id(CO)),SCO,SIM) .
-  -- eq isCOStablyStarted(cmp(IDCO,CSCO,NSCO,TSCO),SCO,SIM)
-  --    = (CSCO == started) and
-  --      (TSCO == started) and
-  --      allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,IDCO),SCO,SIM) .
 
   -- A component can start if
   --  all of its mandatory importings are stably wired .
