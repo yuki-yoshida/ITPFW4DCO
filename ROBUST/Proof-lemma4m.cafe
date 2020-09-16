@@ -151,23 +151,25 @@ module ROBUSTLEMMA {
        makeupIDBag(CO,(cmp(IDCO,stopped,started,started) SCO0),SIM0))
     when canStart(IDCO,SCO0,SIM0) .
 
-  pred robust-lemmaM09 : SetOfImport Component SetOfComponent SetOfImport
-  eq robust-lemmaM09(SIM,CO,SCO0,SIM0)
-    = not (cid(id(CO)) in makeupIDBag(SIM,(CO SCO0),SIM0))
-    when canStart(id(CO),SCO0,SIM0)
-     and allIMNotStablyWired(SIM,SCO0,SIM0) .
+  pred robust-lemmaM09 : SetOfImport COID Component SetOfComponent SetOfImport
+  eq robust-lemmaM09(SIM,IDCO,CO,SCO0,SIM0)
+    = allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),(CO SCO0),SIM0)
+    when not canStart(IDCO,(CO SCO0),SIM0)
+     and subset(SIM,SIM0)
+     and not (IDCO = id(CO)) .
 
-  pred robust-lemmaM10 : SetOfImport COID SetOfComponent SetOfImport
-  eq robust-lemmaM10(SIM,IDCO,SCO0,SIM0)
-    = allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),SCO0,SIM0)
-    when not canStart(IDCO,SCO0,SIM0)
-     and subset(SIM,SIM0) .
+  pred robust-lemmaM10 : SetOfImport Component SetOfComponent SetOfImport
+  eq robust-lemmaM10(SIM,CO,SCO0,SIM0)
+    = not (cid(id(CO)) in makeupIDBag(SIM,(CO SCO0),SIM0))
+    when canStart(id(CO),(CO SCO0),SIM0)
+     and subset(SIM,SIM0)
+     and allIMNotStablyWired(SIM,(CO SCO0),SIM0) .
 
   pred robust-lemmaM11 : Component Component SetOfComponent SetOfImport
   eq robust-lemmaM11(CO0,CO,SCO0,SIM0)
     = not (cid(id(CO)) in makeupIDBag(CO0,(CO SCO0),SIM0))
-    when canStart(id(CO),SCO0,SIM0)
-     and not canStart(id(CO0),SCO0,SIM0) .
+    when canStart(id(CO),(CO SCO0),SIM0)
+     and not canStart(id(CO0),(CO SCO0),SIM0) .
 
   pred robust-lemmaM20 : SetOfImport Component Component SetOfComponent SetOfImport
   eq robust-lemmaM20(SIM,CO,CO',SCO0,SIM0)
@@ -209,11 +211,16 @@ module ROBUSTLEMMA {
   pred robust-lemmaM25 : SetOfImport Component SetOfComponent SetOfImport
   eq robust-lemmaM25(SIM,CO,SCO0,SIM0)
     = not (cid(id(CO)) in makeIDBag(SIM,(CO SCO0),SIM0))
-    when canStart(id(CO),SCO0,SIM0)
+    when canStart(id(CO),(CO SCO0),SIM0)
      and subset(SIM,SIM0) .
 
-  pred robust-lemmaM26 : BagOfID Component SetOfComponent SetOfImport
-  eq robust-lemmaM26(BID,CO,SCO,SIM)
+  pred robust-lemmaM26 : SetOfImport Component SetOfComponent SetOfImport
+  eq robust-lemmaM26(SIM,CO,SCO0,SIM0)
+    = (canStart(IDCO,(CO SCO0),SIM0) = canStart(IDCO,SCO0,SIM0))
+    when IDCO = id(CO) .
+
+  pred robust-lemmaM27 : BagOfID Component SetOfComponent SetOfImport
+  eq robust-lemmaM27(BID,CO,SCO,SIM)
     = (fdis(BID,(CO  SCO),SIM) = fdis(BID,SCO,SIM))
     when not cid(id(CO)) in BID .
 
@@ -622,11 +629,140 @@ show proof
 close
 
 --> *********************************************************
+--> Proof of robust-lemmaM10.
+-->  eq robust-lemmaM10(SIM,CO,SCO0,SIM0)
+-->    = not (cid(id(CO)) in makeupIDBag(SIM,(CO SCO0),SIM0))
+-->    when canStart(id(CO),(CO SCO0),SIM0)
+-->     and subset(SIM,SIM0)
+-->     and allIMNotStablyWired(SIM,(CO SCO0),SIM0) .
+--> *********************************************************
+
+open ROBUSTLEMMA .
+  -- Induction Hypothesis
+  ceq [robust-lemmaM10-IH :nonexec]:
+     robust-lemmaM10(SIM:SetOfImport,co,sCO0,sIM0) = true
+     if t(SIM,sCO0,sIM0) <wf t((im sIM'),sCO0,sIM0) .
+
+  -- eq robust-lemmaM09(SIM,IDCO,CO,SCO0,SIM0)
+  --   = allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),(CO SCO0),SIM0)
+  --   when not canStart(IDCO,(CO SCO0),SIM0)
+  --    and subset(SIM,SIM0) 
+  --    and not (IDCO = id(CO)) .
+  ceq allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),(CO SCO0),SIM0) = true
+    if not canStart(IDCO,(CO SCO0),SIM0) and
+       subset(SIM,SIM0) and not (IDCO = id(CO)) .
+
+:goal { eq robust-lemmaM10(sIM, co, sCO0, sIM0) = true .}
+:def sIMcsp = :csp {
+  eq sIM = empIM .
+  eq sIM = (im sIM') .
+}
+:apply (sIMcsp rd-)
+:def iminSIM0csp = :csp {
+  eq (im in sIM0) = false .
+  eq sIM0 = (im sIM0') .
+}
+:apply (iminSIM0csp rd-)
+:def sIMsubsIM0csp = :csp {
+  eq subset(sIM',im sIM0') = false .
+  eq subset(sIM',sIM0') = true .
+}
+:apply (sIMsubsIM0csp rd-)
+:def isFimcsp = :csp {
+  eq isForced(im) = false .
+  eq im = imp(mandatory,idIM,iidCO,idCO,wired,wired,wired) .
+  eq im = imp(mandatory,idIM,iidCO,idCO,wired,unwired,wired) .
+}
+:apply (isFimcsp)
+-- 2-2-2-1
+-- allIMNotStablyWired(SIM,(CO SCO0),SIM0) .
+:def allIMNSctf1 = :ctf {
+  eq allIMNotStablyWired(sIM',(co sCO0),(im sIM0')) = true .
+}
+:apply (allIMNSctf1 rd-)
+-- canStart(id(co),(co sCO0),sIM0) .
+:def canStartcoctf1 = :ctf {
+  eq allIMStablyWired(
+        if ((id(co) = importer(im)) and (mandatory = type(im))) then 
+           (im getIMsOfTypeOfICO(sIM0',mandatory,id(co))) else 
+           getIMsOfTypeOfICO(sIM0',mandatory,id(co)) fi,
+        (co sCO0),(im sIM0')) = true .
+}
+:apply (canStartcoctf1 rd-)
+:init as robust-lemmaM10-IH-in [robust-lemmaM10-IH]
+      by {SIM:SetOfImport <- sIM';}
+:apply (rd-)
+-- 2-2-2-2
+-- allIMNotStablyWired(SIM,(CO SCO0),SIM0) .
+:def allIMNSctf2 = :ctf {
+  eq allIMNotStablyWired(sIM',(co sCO0),(imp(mandatory,idIM,iidCO,idCO,wired,wired,wired) sIM0')) = true .
+}
+:apply (allIMNSctf2 rd-)
+:def iidCOctf = :ctf {
+  eq id(co) = iidCO .
+}
+:apply (iidCOctf)
+-- canStart(id(co),(co sCO0),sIM0) .
+:def canStartcoctf2 = :ctf {
+  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,iidCO),(co sCO0),(imp(mandatory,idIM,iidCO,idCO,wired,wired,wired) sIM0')) = true .
+}
+:apply (canStartcoctf2 rd-)
+-- canStart(id(co),(co sCO0),sIM0) .
+:def canStartcoctf3 = :ctf {
+  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(co)),(co sCO0),(imp(mandatory,idIM,iidCO,idCO,wired,wired,wired) sIM0')) = true .
+}
+:apply (canStartcoctf3 rd-)
+:init as robust-lemmaM10-IH-in [robust-lemmaM10-IH]
+      by {SIM:SetOfImport <- sIM';}
+:apply (rd-)
+:def isFiidCOctf = :ctf {
+  eq isForced(getComponent(sCO0,iidCO)) = true .
+}
+:apply(isFiidCOctf rd-)
+-- isIMStablyWired(im,(co sCO0),sIM0) shoud not hold.
+:init ( eq isIMStablyWired(IM:Import,(co sCO0),sIM0) = false . )
+   by {IM:Import <- im;}
+:init as robust-lemmaM10-IH-in [robust-lemmaM10-IH]
+      by {SIM:SetOfImport <- getIMsOfECOInTargetStates(sIM0',iidCO,wired);}
+:apply (rd-)
+-- 2-2-2-3
+-- allIMNotStablyWired(SIM,(CO SCO0),SIM0) .
+:def allIMNSctf3 = :ctf {
+  eq allIMNotStablyWired(sIM',(co sCO0),(imp(mandatory,idIM,iidCO,idCO,wired,unwired,wired) sIM0')) = true .
+}
+:apply (allIMNSctf3 rd-)
+:apply (iidCOctf)
+-- canStart(id(co),(co sCO0),sIM0) .
+:def canStartcoctf4 = :ctf {
+  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,iidCO),(co sCO0),(imp(mandatory,idIM,iidCO,idCO,wired,unwired,wired) sIM0')) = true .
+}
+:apply (canStartcoctf4 rd-)
+-- canStart(id(co),(co sCO0),sIM0) .
+:def canStartcoctf5 = :ctf {
+  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(co)),(co sCO0),(imp(mandatory,idIM,iidCO,idCO,wired,unwired,wired) sIM0')) = true .
+}
+:apply (canStartcoctf5 rd-)
+:init as robust-lemmaM10-IH-in [robust-lemmaM10-IH]
+      by {SIM:SetOfImport <- sIM';}
+:apply (rd-)
+:apply(isFiidCOctf rd-)
+-- isIMStablyWired(im,(co sCO0),sIM0) shoud not hold.
+:init ( eq isIMStablyWired(IM:Import,(co sCO0),sIM0) = false . )
+   by {IM:Import <- im;}
+:init as robust-lemmaM10-IH-in [robust-lemmaM10-IH]
+      by {SIM:SetOfImport <- getIMsOfECOInTargetStates(sIM0',iidCO,wired);}
+:apply (rd-)
+--> Proof of robust-lemmaM10 done.
+-->
+show proof
+close
+
+--> *********************************************************
 --> Proof of robust-lemmaM11.
 -->  eq robust-lemmaM11(CO0,CO,SCO0,SIM0)
 -->    = not (cid(id(CO)) in makeupIDBag(CO0,(CO SCO0),SIM0))
--->    when canStart(id(CO),SCO0,SIM0)
--->     and not canStart(id(CO0),SCO0,SIM0) .
+-->    when canStart(id(CO),(CO SCO0),SIM0)
+-->     and not canStart(id(CO0),(CO SCO0),SIM0) .
 --> *********************************************************
 
 open ROBUSTLEMMA .
@@ -645,21 +781,24 @@ open ROBUSTLEMMA .
        exporter(IM) = id(CO) .
 
   -- Sublemmas
-  -- eq robust-lemmaM09(SIM,CO,SCO0,SIM0)
-  --   = not (cid(id(CO)) in makeupIDBag(SIM,(CO SCO0),SIM0))
-  --   when canStart(id(CO),SCO0,SIM0)
-  --    and allIMNotStablyWired(SIM,SCO0,SIM0)
-  ceq (cid(id(CO)) in makeupIDBag(SIM,(CO SCO0),SIM0)) = false
-    if canStart(id(CO),SCO0,SIM0) and
-       allIMNotStablyWired(SIM,SCO0,SIM0) .
+  -- eq robust-lemmaM09(SIM,IDCO,CO,SCO0,SIM0)
+  --   = allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),(CO SCO0),SIM0)
+  --   when not canStart(IDCO,(CO SCO0),SIM0)
+  --    and subset(SIM,SIM0) 
+  --    and not (IDCO = id(CO)) .
+  ceq allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),(CO SCO0),SIM0) = true
+    if not canStart(IDCO,(CO SCO0),SIM0) and
+       subset(SIM,SIM0) and not (IDCO = id(CO)) .
 
-  -- eq robust-lemmaM10(SIM,IDCO,SCO0,SIM0)
-  --   = allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),SCO0,SIM0)
-  --   when not canStart(IDCO,SCO0,SIM0)
-  --    and subset(SIM,SIM0) .
-  ceq allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),SCO0,SIM0) = true
-    if not canStart(IDCO,SCO0,SIM0) and
-       subset(SIM,SIM0) .
+  -- eq robust-lemmaM10(SIM,CO,SCO0,SIM0)
+  --   = not (cid(id(CO)) in makeupIDBag(SIM,(CO SCO0),SIM0))
+  --   when canStart(id(CO),(CO SCO0),SIM0)
+  --    and subset(SIM,SIM0)
+  --    and allIMNotStablyWired(SIM,(CO SCO0),SIM0) .
+  ceq (cid(id(CO)) in makeupIDBag(SIM,(CO SCO0),SIM0)) = false
+    if canStart(id(CO),(CO SCO0),SIM0) and
+     subset(SIM,SIM0) and
+     allIMNotStablyWired(SIM,(CO SCO0),SIM0) .
 
 :goal { eq robust-lemmaM11(co0, co, sCO0, sIM0) = true .}
 :csp {
@@ -674,112 +813,13 @@ open ROBUSTLEMMA .
   eq co0 = cmp(idCO,started,started,started) .
   eq co0 = cmp(idCO,started,stopped,started) .
 }
-:apply (isForcedCO0csp rd-)
--- 1-2-2: next(co0)=started
-:def getIMscsp = :csp {
-  eq getIMsOfECOInTargetStates(sIM0,idCO,wired) = empIM .
-  eq sIM0 = (imp(tIM,idIM,iidCO,idCO,cIMs,nIMs,wired) sIM0') .
+:def canStartco0ctf = :ctf {
+  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0,mandatory,idCO),(co sCO0),sIM0) = true . 
 }
-:apply (getIMscsp rd-)
-:def tIMcsp = :csp {
-  eq tIM = optional .
-  eq tIM = mandatory .
+:def canStartcoctf = :ctf {
+  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0,mandatory,id(co)),(co sCO0),sIM0) = true . 
 }
-:apply (tIMcsp)
--- 1-2-2-2-1: optional
-:def canStartco0ctf1 = :ctf {
-  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,idCO),sCO0,(imp(optional,idIM,iidCO,idCO,cIMs,nIMs,wired) sIM0')) = true .
-}
-:apply (canStartco0ctf1 rd-)
-:def canStartcoctf1 = :ctf {
-  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(co)),sCO0,(imp(optional,idIM,iidCO,idCO,cIMs,nIMs,wired) sIM0')) = true .
-}
-:apply (canStartcoctf1 rd-)
--- 1-2-2-2-2: mandatory
-:def iidCOctf = :ctf {
-  eq id(co) = iidCO .
-}
-:apply (iidCOctf rd-)
-:def cIMsctf = :ctf {
-  eq cIMs = wired .
-}
-:apply (cIMsctf)
-:def nIMscsp = :csp {
-  eq nIMs = wired .
-  eq nIMs = unwired .
-  eq nIMs = unused .
-}
-:apply (nIMscsp)
--- 1-2-2-2-2-2-1-1
-:def canStartco0ctf2-1 = :ctf {
-  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,idCO),sCO0,(imp(mandatory,idIM,iidCO,idCO,wired,wired,wired) sIM0')) = true .
-}
-:apply (canStartco0ctf2-1 rd-)
-:def canStartcoctf2-1 = :ctf {
-  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(co)),sCO0,(imp(mandatory,idIM,iidCO,idCO,wired,wired,wired) sIM0')) = true .
-}
-:apply (canStartcoctf2-1 rd-)
-:init as robust-lemmaM11-in [robust-lemmaM11-IH]
-      by {CO':Component <- getComponent(sCO0,iidCO);}
-:apply (rd-)
--- 1-2-2-2-2-2-1-2
-:def canStartco0ctf2-2 = :ctf {
-  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,idCO),sCO0,(imp(mandatory,idIM,iidCO,idCO,wired,unwired,wired) sIM0')) = true .
-}
-:apply (canStartco0ctf2-2 rd-)
-:def canStartcoctf2-2 = :ctf {
-  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(co)),sCO0,(imp(mandatory,idIM,iidCO,idCO,wired,unwired,wired) sIM0')) = true .
-}
-:apply (canStartcoctf2-2 rd-)
-:init as robust-lemmaM11-in [robust-lemmaM11-IH]
-      by {CO':Component <- getComponent(sCO0,iidCO);}
-:apply (rd-)
--- 1-2-2-2-2-2-1-3
-:def canStartco0ctf2-3 = :ctf {
-  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,idCO),sCO0,(imp(mandatory,idIM,iidCO,idCO,wired,unused,wired) sIM0')) = true .
-}
-:apply (canStartco0ctf2-3 rd-)
-:def canStartcoctf2-3 = :ctf {
-  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(co)),sCO0,(imp(mandatory,idIM,iidCO,idCO,wired,unused,wired) sIM0')) = true .
-}
-:apply (canStartcoctf2-3 rd-)
--- 1-2-2-2-2-2-2
-:def canStartco0ctf2-0 = :ctf {
-  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,idCO),sCO0,(imp(mandatory,idIM,iidCO,idCO,cIMs,nIMs,wired) sIM0')) = true .
-}
-:apply (canStartco0ctf2-0 rd-)
-:def canStartcoctf2 = :ctf {
-  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(co)),sCO0,(imp(mandatory,idIM,iidCO,idCO,cIMs,nIMs,wired) sIM0')) = true .
-}
-:apply (canStartcoctf2 rd-)
--- 1-2-3: next(co0)=stopped
-:apply (getIMscsp rd-)
-:apply (tIMcsp)
--- 1-2-3-2-1: optional
-:apply (canStartco0ctf1 rd-)
-:apply (canStartcoctf1 rd-)
--- 1-2-3-2-2: mandatory
-:apply (iidCOctf rd-)
-:apply (cIMsctf)
-:apply (nIMscsp)
--- 1-2-3-2-2-2-1-1
-:apply (canStartco0ctf2-1 rd-)
-:apply (canStartcoctf2-1 rd-)
-:init as robust-lemmaM11-in [robust-lemmaM11-IH]
-      by {CO':Component <- getComponent(sCO0,iidCO);}
-:apply (rd-)
--- 1-2-3-2-2-2-1-2
-:apply (canStartco0ctf2-2 rd-)
-:apply (canStartcoctf2-2 rd-)
-:init as robust-lemmaM11-in [robust-lemmaM11-IH]
-      by {CO':Component <- getComponent(sCO0,iidCO);}
-:apply (rd-)
--- 1-2-3-2-2-2-1-3
-:apply (canStartco0ctf2-3 rd-)
-:apply (canStartcoctf2-3 rd-)
--- 1-2-3-2-2-2-2
-:apply (canStartco0ctf2-0 rd-)
-:apply (canStartcoctf2 rd-)
+:apply (isForcedCO0csp canStartco0ctf canStartcoctf rd-)
 --> Proof of robust-lemmaM11 done.
 -->
 show proof
@@ -1104,7 +1144,7 @@ close
 --> Proof of robust-lemmaM25.
 -->  eq robust-lemmaM25(SIM,CO,SCO0,SIM0)
 -->    = not (cid(id(CO)) in makeIDBag(SIM,(CO SCO),SIM0))
--->    when canStart(id(CO),SCO0,SIM0)
+-->    when canStart(id(CO),(CO SCO0),SIM0)
 -->     and subset(SIM,SIM0) .
 --> ******************************************************
 
@@ -1117,11 +1157,11 @@ open ROBUSTLEMMA .
   -- Sublemmas
   -- eq robust-lemmaM11(CO0,CO,SCO0,SIM0)
   --   = not (cid(id(CO)) in makeupIDBag(CO0,(CO SCO0),SIM0))
-  --   when canStart(id(CO),SCO0,SIM0)
-  --    and not canStart(id(CO0),SCO0,SIM0) .
+  --   when canStart(id(CO),(CO SCO0),SIM0)
+  --    and not canStart(id(CO0),(CO SCO0),SIM0) .
   ceq (cid(id(CO)) in makeupIDBag(CO0,(CO SCO0),SIM0)) = false
-    if canStart(id(CO),SCO0,SIM0) and
-       not canStart(id(CO0),SCO0,SIM0) .
+    if canStart(id(CO),(CO SCO0),SIM0) and
+       not canStart(id(CO0),(CO SCO0),SIM0) .
 
 :goal { eq robust-lemmaM25(sIM, co, sCO0, sIM0) = true .}
 :def sIMcsp = :csp {
@@ -1147,7 +1187,7 @@ open ROBUSTLEMMA .
 :apply (isForcingimcsp)
 -- 2-2-2-1
 :def canStartctf1 = :ctf {
-  eq allIMStablyWired((if ((mandatory = type(im)) and (id(co) = importer(im))) then (im getIMsOfTypeOfICO(sIM0',mandatory,id(co))) else getIMsOfTypeOfICO(sIM0',mandatory,id(co)) fi),sCO0,(im sIM0')) = true .
+  eq allIMStablyWired((if ((mandatory = type(im)) and (id(co) = importer(im))) then (im getIMsOfTypeOfICO(sIM0',mandatory,id(co))) else getIMsOfTypeOfICO(sIM0',mandatory,id(co)) fi),(co sCO0),(im sIM0')) = true .
 }
 :apply (canStartctf1 rd-)
 :init as robust-lemmaM25-IH-in [robust-lemmaM25-IH]
@@ -1159,7 +1199,7 @@ open ROBUSTLEMMA .
 }
 :apply (idCOctf rd-)
 :def canStartctf2 = :ctf {
-  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(co)),sCO0,(imp(mandatory,idIM,iidCO,eidCO,wired,wired,unused) sIM0')) = true .
+  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(co)),(co sCO0),(imp(mandatory,idIM,iidCO,eidCO,wired,wired,unused) sIM0')) = true .
 }
 :apply (canStartctf2 rd-)
 :init as robust-lemmaM25-IH-in [robust-lemmaM25-IH]
@@ -1168,7 +1208,7 @@ open ROBUSTLEMMA .
 -- 2-2-2-3
 :apply (idCOctf rd-)
 :def canStartctf3 = :ctf {
-  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(co)),sCO0,(imp(mandatory,idIM,iidCO,eidCO,wired,unwired,unused) sIM0')) = true .
+  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(co)),(co sCO0),(imp(mandatory,idIM,iidCO,eidCO,wired,unwired,unused) sIM0')) = true .
 }
 :apply (canStartctf3 rd-)
 :init as robust-lemmaM25-IH-in [robust-lemmaM25-IH]
@@ -1180,8 +1220,8 @@ show proof
 close
 
 --> **************************************************
---> Proof of robust-lemmaM26.
--->  eq robust-lemmaM26(BID,CO,SCO,SIM)
+--> Proof of robust-lemmaM27.
+-->  eq robust-lemmaM27(BID,CO,SCO,SIM)
 -->    = (fdis(BID,(CO  SCO),SIM) = fdis(BID,SCO,SIM))
 -->    when not cid(id(CO)) in BID .
 --> **************************************************
@@ -1189,12 +1229,12 @@ close
 open ROBUSTLEMMA .
   -- Induction Hypothesis
   ops bID bID' : -> BagOfID .
-  ceq [robust-lemmaM26-IH :nonexec]:
-     robust-lemmaM26(BID:BagOfID,co,sCO,sIM) = true
+  ceq [robust-lemmaM27-IH :nonexec]:
+     robust-lemmaM27(BID:BagOfID,co,sCO,sIM) = true
      if BID <wf bID .
 
-:goal { eq robust-lemmaM26(bID, co, sCO, sIM) = true .}
-:init as robust-lemmaM26-IH-in [robust-lemmaM26-IH]
+:goal { eq robust-lemmaM27(bID, co, sCO, sIM) = true .}
+:init as robust-lemmaM27-IH-in [robust-lemmaM27-IH]
       by {BID:BagOfID <- BID:BagOfID;}
 :def bIDcsp = :csp {
   eq bID = empID .
@@ -1206,9 +1246,9 @@ open ROBUSTLEMMA .
   eq id(co) = idCO .
 }
 :apply (idCOidCOctf rd-)
---> Proof of robust-lemmaM26 done.
+--> Proof of robust-lemmaM27 done.
 -->
 show proof
 close
 
---> Totally 16 goals should be proved.
+--> Totally 17 goals should be proved.

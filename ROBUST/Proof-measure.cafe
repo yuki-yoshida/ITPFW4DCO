@@ -111,12 +111,19 @@ module ProofMeasure {
 
   -- eq robust-lemmaM25(SIM,CO,SCO)
   --   = not (cid(id(CO)) in makeIDBag(SIM,(CO SCO),SIM))
-  --   when canStart(id(CO),SCO,SIM) .
+  --  when canStart(id(CO),(CO SCO0),SIM0)
+  --   and subset(SIM,SIM0) .
   ceq [robust-lemmaM25 :nonexec]:
       (cid(id(CO)) in makeIDBag(SIM,(CO SCO),SIM)) = false
-    if canStart(id(CO),SCO,SIM) .
+    if canStart(id(CO),(CO SCO),SIM) .
 
-  -- eq robust-lemmaM26(BID,CO,SCO,SIM)
+  -- eq robust-lemmaM26(SIM,CO,SCO0,SIM0)
+  --   = (canStart(IDCO,(CO SCO0),SIM0) = canStart(IDCO,SCO0,SIM0))
+  --   when IDCO = id(CO) .
+  ceq canStart(IDCO,(CO SCO0),SIM0) = canStart(IDCO,SCO0,SIM0)
+    if IDCO = id(CO) .
+
+  -- eq robust-lemmaM27(BID,CO,SCO,SIM)
   --   = (fdis(BID,(CO  SCO),SIM) = fdis(BID,SCO,SIM))
   --   when not cid(id(CO)) in BID .
   ceq fdis(BID,(CO SCO),SIM) = fdis(BID,SCO,SIM)
@@ -249,7 +256,7 @@ select ProofMeasure .
 :init as robust-lemmaM25-in [robust-lemmaM25] by
   {CO:Component  <- cmp(idCO,stopped,started,started);}
 :def canStartctf = :ctf  {
-  eq canStart(idCO,sCO, sIM) = true .
+  eq canStart(idCO, sCO, sIM) = true .
 }
 :apply (canStartctf rd-)
 --> Proof of RD-start done.
