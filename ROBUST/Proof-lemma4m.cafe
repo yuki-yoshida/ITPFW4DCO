@@ -766,20 +766,6 @@ close
 --> *********************************************************
 
 open ROBUSTLEMMA .
-  -- tuple of CO and SetOfComponent and SetOfImport
-  [COSCOSIM] op t : Component SetOfComponent SetOfImport -> COSCOSIM {constr} .
-  pred _<wf_ : COSCOSIM COSCOSIM .
-
-  -- Induction Hypothesis
-  ceq [robust-lemmaM11-IH :nonexec]:
-     robust-lemmaM11(CO',co,sCO0,sIM0) = true
-     if t(CO',sCO0,sIM0) <wf t(co0,sCO0,sIM0) .
-
-  -- well-founded binary relation   
-  ceq ( t(CO',SCO0,(IM SIM0)) <wf t(CO,SCO0,(IM SIM0)) ) = true
-    if importer(IM) = id(CO') and
-       exporter(IM) = id(CO) .
-
   -- Sublemmas
   -- eq robust-lemmaM09(SIM,IDCO,CO,SCO0,SIM0)
   --   = allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),(CO SCO0),SIM0)
