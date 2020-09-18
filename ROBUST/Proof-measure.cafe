@@ -117,11 +117,10 @@ module ProofMeasure {
       (cid(id(CO)) in makeIDBag(SIM,(CO SCO),SIM)) = false
     if canStart(id(CO),(CO SCO),SIM) .
 
-  -- eq robust-lemmaM26(SIM,CO,SCO0,SIM0)
-  --   = (canStart(IDCO,(CO SCO0),SIM0) = canStart(IDCO,SCO0,SIM0))
-  --   when IDCO = id(CO) .
-  ceq canStart(IDCO,(CO SCO0),SIM0) = canStart(IDCO,SCO0,SIM0)
-    if IDCO = id(CO) .
+  -- eq robust-lemmaM26(CO,SCO0,SIM0)
+  --    = (canStart(id(CO),(CO SCO0),SIM0) = canStart(id(CO),SCO0,SIM0)) .
+  ceq canStart(idCO,(CO SCO0),SIM0) = canStart(idCO,SCO0,SIM0) 
+    if idCO = id(CO) .
 
   -- eq robust-lemmaM27(BID,CO,SCO,SIM)
   --   = (fdis(BID,(CO  SCO),SIM) = fdis(BID,SCO,SIM))

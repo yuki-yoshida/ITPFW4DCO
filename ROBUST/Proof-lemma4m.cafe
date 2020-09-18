@@ -171,6 +171,12 @@ module ROBUSTLEMMA {
     when canStart(id(CO),(CO SCO0),SIM0)
      and not canStart(id(CO0),(CO SCO0),SIM0) .
 
+  pred robust-lemmaM12 : SetOfImport Component SetOfComponent SetOfImport
+  eq robust-lemmaM12(SIM,CO,SCO0,SIM0)
+    = (allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,id(CO)),(CO SCO0),SIM0) 
+     = allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,id(CO)),SCO0,     SIM0))
+     when subset(SIM, SIM0) .
+
   pred robust-lemmaM20 : SetOfImport Component Component SetOfComponent SetOfImport
   eq robust-lemmaM20(SIM,CO,CO',SCO0,SIM0)
     = (makeIDBag(SIM,(CO  SCO0),SIM0) =
@@ -214,10 +220,9 @@ module ROBUSTLEMMA {
     when canStart(id(CO),(CO SCO0),SIM0)
      and subset(SIM,SIM0) .
 
-  pred robust-lemmaM26 : SetOfImport Component SetOfComponent SetOfImport
-  eq robust-lemmaM26(SIM,CO,SCO0,SIM0)
-    = (canStart(IDCO,(CO SCO0),SIM0) = canStart(IDCO,SCO0,SIM0))
-    when IDCO = id(CO) .
+  pred robust-lemmaM26 : Component SetOfComponent SetOfImport
+  eq robust-lemmaM26(CO,SCO0,SIM0)
+    = (canStart(id(CO),(CO SCO0),SIM0) = canStart(id(CO),SCO0,SIM0)) .
 
   pred robust-lemmaM27 : BagOfID Component SetOfComponent SetOfImport
   eq robust-lemmaM27(BID,CO,SCO,SIM)
@@ -811,6 +816,121 @@ open ROBUSTLEMMA .
 show proof
 close
 
+--> *******************************************************************************
+--> Proof of robust-lemmaM12.
+-->  eq robust-lemmaM12(SIM,CO,SCO0,SIM0)
+-->    = (allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,id(CO)),(CO SCO0),SIM0) 
+-->     = allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,id(CO)),SCO0,     SIM0))
+-->     when subset(SIM, SIM0) .
+--> *******************************************************************************
+
+open ROBUSTLEMMA .
+
+  -- Since there is no mandatory cycle, a Component is not its mandatory descendant.
+  -- descendant(CO,CO',SCO0,SIM0) : CO is a mandatory descendant of CO'.
+  pred descendant : Component Component SetOfComponent SetOfImport .
+  pred descendant : Component Component Component SetOfComponent SetOfImport .
+  -- importer(CO,CO',SCO0,SIM0) : CO is an mandatory importer of CO' .
+  pred importer : Component Component SetOfComponent SetOfImport .
+  eq descendant(CO,CO',SCO0,SIM0) 
+    = descendant(CO,CO,CO',SCO0,SIM0) .
+  ceq descendant(CO0,CO0,CO',SCO0,SIM0) = true
+     if importer(CO0,CO',SCO0,SIM0) .
+  ceq descendant(CO0,CO,CO',SCO0,SIM0) = true
+     if descendant(CO0,CO,SCO0,SIM0) and
+        importer(CO,CO',SCO0,SIM0) .
+  ceq importer(CO,CO',SCO0,SIM0) = true
+     if not getIMsOfECO(getIMsOfTypeOfICO(SIM0,mandatory,id(CO)),id(CO')) = empIM .
+  -- Assuming noCycle(S) holds.
+  ceq [descendant-inv :nonexec]:
+     (id(CO:Component) = id(CO':Component)) = false
+     if descendant(CO,CO',SCO:SetOfComponent,SIM:SetOfImport) .
+
+  -- Induction Hypothesis
+  --   robust-lemmaM12(SIM:SetOfImport,co,sCO0,sIM0) = true
+  ceq [robust-lemmaM12-IH :nonexec]:
+     allIMStablyWired(getIMsOfTypeOfICO(SIM:SetOfImport,mandatory,id(co)),(co sCO0),sIM0) 
+   = allIMStablyWired(getIMsOfTypeOfICO(SIM,            mandatory,id(co)),sCO0,     sIM0)
+     if subset(SIM, sIM0) and  SIM <wf (im sIM') .
+
+  ceq [robust-lemmaM12-IH2 :nonexec]:
+     allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(CO:Component)),(co sCO0),sIM0) 
+   = allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(CO)),          sCO0,     sIM0)
+     if descendant(co,CO,(co sCO0),sIM0) .
+
+:goal { eq robust-lemmaM12(sIM, co, sCO0, sIM0) = true .}
+:def sIMcsp = :csp {
+  eq sIM = empIM .
+  eq sIM = (im sIM') .
+}
+:apply (sIMcsp)
+:apply (rd-)
+:def iminSIM0csp = :csp {
+  eq (im in sIM0) = false .
+  eq sIM0 = (im sIM0') .
+}
+:apply (iminSIM0csp rd-)
+:def sIMsubsIM0csp = :csp {
+  eq subset(sIM',im sIM0') = false .
+  eq subset(sIM',sIM0') = true .
+}
+:apply (sIMsubsIM0csp rd-)
+:csp { eq im = imp(tIM,idIM,iidCO,eidCO,cIMs,nIMs,tIMs) . }
+:def impIMctf = :ctf {
+  eq iidCO = id(co) .
+}
+:apply (impIMctf)
+-- 2-2-2-1-1
+:def imMandatoryctf = :ctf {
+  eq tIM = mandatory .
+}
+:apply (imMandatoryctf)
+:init as descedant-inv-in [descendant-inv] by {
+  CO:Component <- co;
+  CO':Component <- getComponent(sCO0,eidCO);
+  SCO:SetOfComponent <- (co sCO0);
+  SIM:SetOfImport <- sIM0;
+}
+:def stimtgimctf = :ctf {
+  eq tIMs = cIMs .
+}
+:apply (stimtgimctf rd-)
+:def stimcsp = :csp {
+  eq cIMs = wired .
+  eq cIMs = unwired .
+  eq cIMs = unused .
+}     
+:apply (stimcsp rd-)
+:def stecoctf = :ctf {
+  eq state(getComponent(sCO0,eidCO)) = started .
+}
+:apply (stecoctf rd-)
+:def tgecoctf = :ctf {
+  eq target(getComponent(sCO0,eidCO)) = started .
+}
+:apply (tgecoctf rd-)
+:init as robust-lemmaM12-IH2-in [robust-lemmaM12-IH2]
+      by {CO:Component <- getComponent(sCO0,eidCO);}
+:init as robust-lemmaM12-IH-in [robust-lemmaM12-IH]
+      by {SIM:SetOfImport <- sIM';}
+:apply (rd-)
+-- 2-2-2-1-1-1-1-3
+:init as robust-lemmaM12-IH-in [robust-lemmaM12-IH]
+      by {SIM:SetOfImport <- sIM';}
+:apply (rd-)
+-- 2-2-2-1-1-2
+:init as robust-lemmaM12-IH-in [robust-lemmaM12-IH]
+      by {SIM:SetOfImport <- sIM';}
+:apply (rd-)
+-- 2-2-2-1-2
+:init as robust-lemmaM12-IH-in [robust-lemmaM12-IH]
+      by {SIM:SetOfImport <- sIM';}
+:apply (rd-)
+--> Proof of robust-lemmaM12 done.
+-->
+show proof
+close
+
 --> *****************************************
 --> Proof of robust-lemmaM20.
 -->  eq robust-lemmaM20(SIM,CO,CO',SCO0,SIM0)
@@ -1205,6 +1325,29 @@ open ROBUSTLEMMA .
 show proof
 close
 
+--> *********************************************************************
+--> Proof of robust-lemmaM26.
+-->  eq robust-lemmaM26(CO,SCO0,SIM0)
+-->    = (canStart(id(CO),(CO SCO0),SIM0) = canStart(id(CO),SCO0,SIM0)) .
+--> *********************************************************************
+
+open ROBUSTLEMMA .
+
+  -- Sublemmas
+  -- eq robust-lemmaM12(SIM,CO,SCO0,SIM0)
+  --   = (allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,id(CO)),(CO SCO0),SIM0) 
+  --    = allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,id(CO)),SCO0,     SIM0))
+  --    when subset(SIM, SIM0) .
+  eq allIMStablyWired(getIMsOfTypeOfICO(SIM0,mandatory,id(CO)),(CO SCO0),SIM0) 
+   = allIMStablyWired(getIMsOfTypeOfICO(SIM0,mandatory,id(CO)),SCO0,     SIM0) .
+
+:goal { eq robust-lemmaM26(co, sCO0, sIM0) = true .}
+:apply (rd-)
+--> Proof of robust-lemmaM26 done.
+-->
+show proof
+close
+
 --> **************************************************
 --> Proof of robust-lemmaM27.
 -->  eq robust-lemmaM27(BID,CO,SCO,SIM)
@@ -1237,4 +1380,4 @@ open ROBUSTLEMMA .
 show proof
 close
 
---> Totally 17 goals should be proved.
+--> Totally 19 goals should be proved.
