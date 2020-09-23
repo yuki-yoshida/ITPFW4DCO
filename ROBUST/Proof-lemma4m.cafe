@@ -633,6 +633,81 @@ open ROBUSTLEMMA .
 show proof
 close
 
+--> **********************************************************************************
+-->  pred robust-lemmaM09 : SetOfImport COID Component SetOfComponent SetOfImport
+-->  eq robust-lemmaM09(SIM,IDCO,CO,SCO0,SIM0)
+-->    = allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),(CO SCO0),SIM0)
+-->    when not canStart(IDCO,(CO SCO0),SIM0)
+-->     and subset(SIM,SIM0)
+-->     and not (IDCO = id(CO)) .
+--> **********************************************************************************
+
+open ROBUSTLEMMA .
+
+  -- Induction Hypothesis
+  ceq [robust-lemmaM09-IH :nonexec]:
+     robust-lemmaM09(SIM:SetOfImport,idCO,co,sCO0,sIM0) = true
+     if SIM <wf sIM .
+
+:goal { eq robust-lemmaM09(sIM, idCO, co, sCO0, sIM0) = true .}
+:def idCOctf = :ctf {
+  eq idCO = id(co) .
+}
+:apply (idCOctf rd-)
+:def sIMcsp = :csp {
+  eq sIM = empIM .
+  eq sIM = (im sIM') .
+}
+:apply (sIMcsp)
+:apply (rd-)
+:def iminSIM0csp = :csp {
+  eq (im in sIM0) = false .
+  eq sIM0 = (im sIM0') .
+}
+:apply (iminSIM0csp rd-)
+:def sIMsubsIM0csp = :csp {
+  eq subset(sIM',im sIM0') = false .
+  eq subset(sIM',sIM0') = true .
+}
+:apply (sIMsubsIM0csp rd-)
+:def expIMctf = :ctf {
+  eq exporter(im) = idCO .
+}
+:apply (expIMctf)
+-- Assuming not (importer(im) = exporter(im))
+:csp { eq (importer(im) = idCO) = false .}
+:def tgeimctf = :ctf {
+  eq target(im) = wired .
+}
+:apply (tgeimctf)
+-- 2-2-2-2-1-1-1
+-- canStart(idCO,(co sCO0),sIM0) .
+:def canStartctf = :ctf {
+  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,idCO),(co sCO0),(im sIM0')) = true .
+}
+:apply (canStartctf rd-)
+:init as robust-lemmaM09-IH-in [robust-lemmaM09-IH]
+      by {SIM:SetOfImport <- sIM';}
+:def imwiredctf = :ctf {
+  eq state(im) = wired .
+}
+:def imunusedctf = :ctf {
+  eq state(im) = unused .
+}
+:apply (imwiredctf imunusedctf rd-)
+-- 2-2-2-2-1-1-2
+:init as robust-lemmaM09-IH-in [robust-lemmaM09-IH]
+      by {SIM:SetOfImport <- sIM';}
+:apply (rd-)
+-- 2-2-2-2-2
+:init as robust-lemmaM09-IH-in [robust-lemmaM09-IH]
+      by {SIM:SetOfImport <- sIM';}
+:apply (rd-)
+--> Proof of robust-lemmaM09 done.
+-->
+show proof
+close
+
 --> *********************************************************
 --> Proof of robust-lemmaM10.
 -->  eq robust-lemmaM10(SIM,CO,SCO0,SIM0)
@@ -1380,4 +1455,4 @@ open ROBUSTLEMMA .
 show proof
 close
 
---> Totally 19 goals should be proved.
+--> Totally 20 goals should be proved.
