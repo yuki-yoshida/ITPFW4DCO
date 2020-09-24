@@ -231,12 +231,31 @@ module ROBUSTLEMMA {
   -- tuple of SetOfImport, SetOfComponent, and SetOfImport
   [SIMSCOSIM] op t : SetOfImport SetOfComponent SetOfImport -> SIMSCOSIM {constr} .
 
-  -- well-founded binary relation   
+  -- downward well-founded binary relation   
   pred _<wf_ : SIMSCOSIM SIMSCOSIM .
   ceq t(SIM,SCO0,SIM0) <wf t(SIM',SCO0,SIM0) = true
      if SIM <wf SIM' .
   ceq t(SIM,SCO0,SIM0) <wf t((IM SIM'),SCO0,SIM0) = true
      if SIM = getIMsOfECOInTargetStates(SIM0,importer(IM),wired) .
+
+  -- upward well-founded binary relation   
+  -- descendant(CO,CO',SIM) : CO is a mandatory descendant of CO'.
+  pred descendant : Component Component SetOfImport .
+  pred descendant : Component Component Component SetOfImport .
+  -- importer(CO,CO',SIM) : CO is an mandatory importer of CO' .
+  pred importer : Component Component SetOfImport .
+  eq descendant(CO0,CO,SIM) = descendant(CO0,CO0,CO,SIM) .
+  ceq descendant(CO0,CO0,CO,SIM) = true
+     if importer(CO0,CO,SIM) .
+  ceq descendant(CO0,CO,CO',SIM) = true
+     if descendant(CO0,CO0,CO,SIM) and importer(CO,CO',SIM) .
+  ceq importer(CO,CO',SIM) = true
+     if not getIMsOfECO(getIMsOfTypeOfICO(SIM,mandatory,id(CO)),id(CO')) = empIM .
+
+  [COSIM] op t : Component SetOfImport -> COSIM {constr} .
+  pred _<wf_ : COSIM COSIM .
+  ceq t(CO',SIM) <wf t(CO,SIM) = true
+    if descendant(CO,CO',SIM) .
 }
 
 --> *************************************
@@ -672,10 +691,7 @@ open ROBUSTLEMMA .
 :def imwiredctf = :ctf {
   eq state(im) = wired .
 }
-:def imunusedctf = :ctf {
-  eq state(im) = unused .
-}
-:apply (imwiredctf imunusedctf rd-)
+:apply (imwiredctf rd-)
 -- 2-2-2-1-1-2
 :init as robust-lemmaM09-IH-in [robust-lemmaM09-IH]
       by {SIM:SetOfImport <- sIM';}
@@ -891,24 +907,9 @@ close
 open ROBUSTLEMMA .
 
   -- Since there is no mandatory cycle, a Component is not its mandatory descendant.
-  -- descendant(CO,CO',SCO0,SIM0) : CO is a mandatory descendant of CO'.
-  pred descendant : Component Component SetOfComponent SetOfImport .
-  pred descendant : Component Component Component SetOfComponent SetOfImport .
-  -- importer(CO,CO',SCO0,SIM0) : CO is an mandatory importer of CO' .
-  pred importer : Component Component SetOfComponent SetOfImport .
-  eq descendant(CO,CO',SCO0,SIM0) 
-    = descendant(CO,CO,CO',SCO0,SIM0) .
-  ceq descendant(CO0,CO0,CO',SCO0,SIM0) = true
-     if importer(CO0,CO',SCO0,SIM0) .
-  ceq descendant(CO0,CO,CO',SCO0,SIM0) = true
-     if descendant(CO0,CO,SCO0,SIM0) and
-        importer(CO,CO',SCO0,SIM0) .
-  ceq importer(CO,CO',SCO0,SIM0) = true
-     if not getIMsOfECO(getIMsOfTypeOfICO(SIM0,mandatory,id(CO)),id(CO')) = empIM .
-  -- Assuming noCycle(S) holds.
   ceq [descendant-inv :nonexec]:
      (id(CO:Component) = id(CO':Component)) = false
-     if descendant(CO,CO',SCO:SetOfComponent,SIM:SetOfImport) .
+     if descendant(CO,CO',SIM:SetOfImport) .
 
   -- Induction Hypothesis
   --   robust-lemmaM12(SIM:SetOfImport,co,sCO0,sIM0) = true
@@ -920,7 +921,7 @@ open ROBUSTLEMMA .
   ceq [robust-lemmaM12-IH2 :nonexec]:
      allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(CO:Component)),(co sCO0),sIM0) 
    = allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,id(CO)),          sCO0,     sIM0)
-     if descendant(co,CO,(co sCO0),sIM0) .
+     if t(CO,sIM0) <wf t(co,sIM0) .
 
 :goal { eq robust-lemmaM12(sIM, co, sCO0, sIM0) = true .}
 :def sIMcsp = :csp {
@@ -949,10 +950,9 @@ open ROBUSTLEMMA .
   eq tIM = mandatory .
 }
 :apply (imMandatoryctf)
-:init as descedant-inv-in [descendant-inv] by {
+:init as descendant-inv-in [descendant-inv] by {
   CO:Component <- co;
   CO':Component <- getComponent(sCO0,eidCO);
-  SCO:SetOfComponent <- (co sCO0);
   SIM:SetOfImport <- sIM0;
 }
 :def stimtgimctf = :ctf {
