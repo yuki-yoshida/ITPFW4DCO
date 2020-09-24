@@ -348,7 +348,6 @@ close
 --> *****************************************
 
 open ROBUSTLEMMA .
-
   -- Sublemmas
   -- eq robust-lemmaM02(SIM,CO,CO',SCO0,SIM0)
   --   = (makeupIDBag(SIM,(CO  SCO0),SIM0) =
@@ -445,7 +444,6 @@ close
 --> *****************************************
 
 open ROBUSTLEMMA .
-
   -- Sublemmas
   -- eq robust-lemmaM04(SIM,CO,CO',SCO0,SIM0)
   --   = (makeupIDBag(SIM,(CO  SCO0),SIM0) =
@@ -611,7 +609,6 @@ close
 --> *********************************************************************
 
 open ROBUSTLEMMA .
-
   -- Sublemmas
   -- eq robust-lemmaM07(SIM,IDCO,SCO0,SIM0)
   --   = (makeupIDBag(SIM,(cmp(IDCO,started,started,started) SCO0),SIM0) =
@@ -647,7 +644,6 @@ close
 --> *****************************************************************************
 
 open ROBUSTLEMMA .
-
   -- Induction Hypothesis
   ceq [robust-lemmaM09-IH :nonexec]:
      robust-lemmaM09(SIM:SetOfImport,idCO,sCO0,sIM0) = true
@@ -715,11 +711,7 @@ close
 --> *********************************************************
 
 open ROBUSTLEMMA .
-  -- Induction Hypothesis
-  ceq [robust-lemmaM10-IH :nonexec]:
-     robust-lemmaM10(SIM:SetOfImport,co,sCO0,sIM0) = true
-     if t(SIM,sCO0,sIM0) <wf t((im sIM'),sCO0,sIM0) .
-
+  -- Sublemmas
   -- eq robust-lemmaM09(SIM,IDCO,CO,SCO0,SIM0)
   --   = allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),SCO0,SIM0)
   --   when not canStart(IDCO,SCO0,SIM0)
@@ -727,6 +719,11 @@ open ROBUSTLEMMA .
   ceq allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),SCO0,SIM0) = true
     if not canStart(IDCO,SCO0,SIM0) and
        subset(SIM,SIM0) .
+
+  -- Induction Hypothesis
+  ceq [robust-lemmaM10-IH :nonexec]:
+     robust-lemmaM10(SIM:SetOfImport,co,sCO0,sIM0) = true
+     if t(SIM,sCO0,sIM0) <wf t((im sIM'),sCO0,sIM0) .
 
 :goal { eq robust-lemmaM10(sIM, co, sCO0, sIM0) = true .}
 :def sIMcsp = :csp {
@@ -905,7 +902,6 @@ close
 --> *******************************************************************************
 
 open ROBUSTLEMMA .
-
   -- Since there is no mandatory cycle, a Component is not its mandatory descendant.
   ceq [descendant-inv :nonexec]:
      (id(CO:Component) = id(CO':Component)) = false
@@ -1006,11 +1002,6 @@ close
 --> *****************************************
 
 open ROBUSTLEMMA .
-  -- Induction Hypothesis
-  ceq [robust-lemmaM20-IH :nonexec]:
-     robust-lemmaM20(SIM:SetOfImport,co,co',sCO0,sIM0) = true
-     if SIM <wf (im sIM') .
-
   -- Sublemmas
   -- eq robust-lemmaM01(CO,CO',SCO0,SIM0)
   --   = (makeupIDBag(CO, SCO0,SIM0) =
@@ -1035,6 +1026,11 @@ open ROBUSTLEMMA .
     if id(CO) = id(CO') and
        not isForced(CO) and
        not isForced(CO') .
+
+  -- Induction Hypothesis
+  ceq [robust-lemmaM20-IH :nonexec]:
+     robust-lemmaM20(SIM:SetOfImport,co,co',sCO0,sIM0) = true
+     if SIM <wf (im sIM') .
 
 :goal { eq robust-lemmaM20(sIM, co, co', sCO0, sIM0) = true .}
 :def idCOctf = :ctf {
@@ -1078,11 +1074,6 @@ close
 --> *****************************************
 
 open ROBUSTLEMMA .
-  -- Induction Hypothesis
-  ceq [robust-lemmaM21-IH :nonexec]:
-     robust-lemmaM21(SIM:SetOfImport,co,co',sCO0,sIM0) = true
-     if SIM <wf (im sIM') .
-
   -- Sublemmas
   -- eq robust-lemmaM04(SIM,CO,CO',SCO0,SIM0)
   --   = (makeupIDBag(SIM,(CO  SCO0),SIM0) =
@@ -1107,6 +1098,11 @@ open ROBUSTLEMMA .
     if id(CO) = id(CO') and
        isForced(CO) and
        isForced(CO') .
+
+  -- Induction Hypothesis
+  ceq [robust-lemmaM21-IH :nonexec]:
+     robust-lemmaM21(SIM:SetOfImport,co,co',sCO0,sIM0) = true
+     if SIM <wf (im sIM') .
 
 :goal { eq robust-lemmaM21(sIM, co, co', sCO0, sIM0) = true .}
 :def idCOctf = :ctf {
@@ -1190,7 +1186,6 @@ close
 --> ***********************************************
 
 open ROBUSTLEMMA .
-
   -- Sublemmas
   -- eq robust-lemmaM06(CO,SCO,SIM)
   --   = subbag(makeupIDBag(CO,(CO SCO),SIM),makeIDBag(SIM,(CO SCO),SIM))
@@ -1240,11 +1235,6 @@ close
 --> *******************************************************************
 
 open ROBUSTLEMMA .
-  -- Induction Hypothesis
-  ceq [robust-lemmaM24-IH :nonexec]:
-     robust-lemmaM24(SIM:SetOfImport,idCO,sCO0,sIM0) = true
-     if SIM <wf (im sIM') .
-
   -- Sublemmas
   -- eq robust-lemmaM08(CO,IDCO,SCO0,SIM0)
   --   = (makeupIDBag(CO,(cmp(IDCO,started,started,started) SCO0),SIM0) =
@@ -1253,6 +1243,11 @@ open ROBUSTLEMMA .
   ceq makeupIDBag(CO,(cmp(IDCO,started,started,started) SCO0),SIM0) =
       makeupIDBag(CO,(cmp(IDCO,stopped,started,started) SCO0),SIM0)
     if canStart(IDCO,SCO0,SIM0) .
+
+  -- Induction Hypothesis
+  ceq [robust-lemmaM24-IH :nonexec]:
+     robust-lemmaM24(SIM:SetOfImport,idCO,sCO0,sIM0) = true
+     if SIM <wf (im sIM') .
 
 :goal { eq robust-lemmaM24(sIM, idCO, sCO0,sIM0) = true .}
 :def sIMcsp = :csp {
@@ -1315,11 +1310,6 @@ close
 --> ******************************************************
 
 open ROBUSTLEMMA .
-  -- Induction Hypothesis
-  ceq [robust-lemmaM25-IH :nonexec]:
-     robust-lemmaM25(SIM:SetOfImport,co,sCO0,sIM0) = true
-     if SIM <wf (im sIM') .
-
   -- Sublemmas
   -- eq robust-lemmaM11(CO0,CO,SCO0,SIM0)
   --   = not (cid(id(CO)) in makeupIDBag(CO0,(CO SCO0),SIM0))
@@ -1328,6 +1318,11 @@ open ROBUSTLEMMA .
   ceq (cid(id(CO)) in makeupIDBag(CO0,(CO SCO0),SIM0)) = false
     if canStart(id(CO),(CO SCO0),SIM0) and
        not canStart(id(CO0),(CO SCO0),SIM0) .
+
+  -- Induction Hypothesis
+  ceq [robust-lemmaM25-IH :nonexec]:
+     robust-lemmaM25(SIM:SetOfImport,co,sCO0,sIM0) = true
+     if SIM <wf (im sIM') .
 
 :goal { eq robust-lemmaM25(sIM, co, sCO0, sIM0) = true .}
 :def sIMcsp = :csp {
@@ -1388,7 +1383,6 @@ close
 --> *********************************************************************
 
 open ROBUSTLEMMA .
-
   -- Sublemmas
   -- eq robust-lemmaM12(SIM,CO,SCO0,SIM0)
   --   = (allIMStablyWired(getIMsOfTypeOfICO(SIM,mandatory,id(CO)),(CO SCO0),SIM0) 
