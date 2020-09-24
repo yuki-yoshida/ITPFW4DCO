@@ -151,12 +151,11 @@ module ROBUSTLEMMA {
        makeupIDBag(CO,(cmp(IDCO,stopped,started,started) SCO0),SIM0))
     when canStart(IDCO,SCO0,SIM0) .
 
-  pred robust-lemmaM09 : SetOfImport COID Component SetOfComponent SetOfImport
-  eq robust-lemmaM09(SIM,IDCO,CO,SCO0,SIM0)
-    = allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),(CO SCO0),SIM0)
-    when not canStart(IDCO,(CO SCO0),SIM0)
-     and subset(SIM,SIM0)
-     and not (IDCO = id(CO)) .
+  pred robust-lemmaM09 : SetOfImport COID SetOfComponent SetOfImport
+  eq robust-lemmaM09(SIM,IDCO,SCO0,SIM0)
+    = allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),SCO0,SIM0)
+    when not canStart(IDCO,SCO0,SIM0)
+     and subset(SIM,SIM0) .
 
   pred robust-lemmaM10 : SetOfImport Component SetOfComponent SetOfImport
   eq robust-lemmaM10(SIM,CO,SCO0,SIM0)
@@ -250,7 +249,7 @@ module ROBUSTLEMMA {
 -->     and not isForced(CO') .
 --> *************************************
 
-select ROBUSTLEMMA
+open ROBUSTLEMMA .
 :goal { eq robust-lemmaM01(co, co', sCO0, sIM0) = true .}
 :def idCOctf = :ctf {
   eq id(co') = id(co) .
@@ -265,7 +264,7 @@ select ROBUSTLEMMA
 --> Proof of robust-lemmaM01 done.
 -->
 show proof
-select
+close
 
 --> *****************************************
 --> Proof of robust-lemmaM02.
@@ -633,27 +632,22 @@ open ROBUSTLEMMA .
 show proof
 close
 
---> **********************************************************************************
--->  pred robust-lemmaM09 : SetOfImport COID Component SetOfComponent SetOfImport
--->  eq robust-lemmaM09(SIM,IDCO,CO,SCO0,SIM0)
--->    = allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),(CO SCO0),SIM0)
--->    when not canStart(IDCO,(CO SCO0),SIM0)
--->     and subset(SIM,SIM0)
--->     and not (IDCO = id(CO)) .
---> **********************************************************************************
+--> *****************************************************************************
+-->  pred robust-lemmaM09 : SetOfImport COID SetOfComponent SetOfImport
+-->  eq robust-lemmaM09(SIM,IDCO,SCO0,SIM0)
+-->    = allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),SCO0,SIM0)
+-->    when not canStart(IDCO,SCO0,SIM0)
+-->     and subset(SIM,SIM0) .
+--> *****************************************************************************
 
 open ROBUSTLEMMA .
 
   -- Induction Hypothesis
   ceq [robust-lemmaM09-IH :nonexec]:
-     robust-lemmaM09(SIM:SetOfImport,idCO,co,sCO0,sIM0) = true
+     robust-lemmaM09(SIM:SetOfImport,idCO,sCO0,sIM0) = true
      if SIM <wf sIM .
 
-:goal { eq robust-lemmaM09(sIM, idCO, co, sCO0, sIM0) = true .}
-:def idCOctf = :ctf {
-  eq idCO = id(co) .
-}
-:apply (idCOctf rd-)
+:goal { eq robust-lemmaM09(sIM, idCO, sCO0, sIM0) = true .}
 :def sIMcsp = :csp {
   eq sIM = empIM .
   eq sIM = (im sIM') .
@@ -680,10 +674,10 @@ open ROBUSTLEMMA .
   eq target(im) = wired .
 }
 :apply (tgeimctf)
--- 2-2-2-2-1-1-1
--- canStart(idCO,(co sCO0),sIM0) .
+-- 2-2-2-1-1-1
+-- canStart(idCO,sCO0,sIM0) .
 :def canStartctf = :ctf {
-  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,idCO),(co sCO0),(im sIM0')) = true .
+  eq allIMStablyWired(getIMsOfTypeOfICO(sIM0',mandatory,idCO),sCO0,(im sIM0')) = true .
 }
 :apply (canStartctf rd-)
 :init as robust-lemmaM09-IH-in [robust-lemmaM09-IH]
@@ -695,11 +689,11 @@ open ROBUSTLEMMA .
   eq state(im) = unused .
 }
 :apply (imwiredctf imunusedctf rd-)
--- 2-2-2-2-1-1-2
+-- 2-2-2-1-1-2
 :init as robust-lemmaM09-IH-in [robust-lemmaM09-IH]
       by {SIM:SetOfImport <- sIM';}
 :apply (rd-)
--- 2-2-2-2-2
+-- 2-2-2-2
 :init as robust-lemmaM09-IH-in [robust-lemmaM09-IH]
       by {SIM:SetOfImport <- sIM';}
 :apply (rd-)
@@ -724,13 +718,12 @@ open ROBUSTLEMMA .
      if t(SIM,sCO0,sIM0) <wf t((im sIM'),sCO0,sIM0) .
 
   -- eq robust-lemmaM09(SIM,IDCO,CO,SCO0,SIM0)
-  --   = allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),(CO SCO0),SIM0)
-  --   when not canStart(IDCO,(CO SCO0),SIM0)
-  --    and subset(SIM,SIM0) 
-  --    and not (IDCO = id(CO)) .
-  ceq allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),(CO SCO0),SIM0) = true
-    if not canStart(IDCO,(CO SCO0),SIM0) and
-       subset(SIM,SIM0) and not (IDCO = id(CO)) .
+  --   = allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),SCO0,SIM0)
+  --   when not canStart(IDCO,SCO0,SIM0)
+  --    and subset(SIM,SIM0) .
+  ceq allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),SCO0,SIM0) = true
+    if not canStart(IDCO,SCO0,SIM0) and
+       subset(SIM,SIM0) .
 
 :goal { eq robust-lemmaM10(sIM, co, sCO0, sIM0) = true .}
 :def sIMcsp = :csp {
@@ -848,13 +841,12 @@ close
 open ROBUSTLEMMA .
   -- Sublemmas
   -- eq robust-lemmaM09(SIM,IDCO,CO,SCO0,SIM0)
-  --   = allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),(CO SCO0),SIM0)
-  --   when not canStart(IDCO,(CO SCO0),SIM0)
-  --    and subset(SIM,SIM0) 
-  --    and not (IDCO = id(CO)) .
-  ceq allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),(CO SCO0),SIM0) = true
-    if not canStart(IDCO,(CO SCO0),SIM0) and
-       subset(SIM,SIM0) and not (IDCO = id(CO)) .
+  --   = allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),SCO0,SIM0)
+  --   when not canStart(IDCO,SCO0,SIM0)
+  --    and subset(SIM,SIM0) .
+  ceq allIMNotStablyWired(getIMsOfECOInTargetStates(SIM,IDCO,wired),SCO0,SIM0) = true
+    if not canStart(IDCO,SCO0,SIM0) and
+       subset(SIM,SIM0) .
 
   -- eq robust-lemmaM10(SIM,CO,SCO0,SIM0)
   --   = not (cid(id(CO)) in makeupIDBag(SIM,(CO SCO0),SIM0))
