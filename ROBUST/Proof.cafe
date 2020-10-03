@@ -42,70 +42,6 @@ module ProofBase {
   var L : ListOfLog
   vars S SS : State
 
-  var BG : BagOfID
-
-  -- isForcing(IM) means that IM is forcing its importer to be stopped temporally.
-  -- isForcing0(IM) means that IM is forcing but keeps stable.
-  -- isForcing1(IM) means that IM is forcing and is not yet stable.
-  pred isForcing : Import
-  pred isForcing0 : Import
-  pred isForcing1 : Import
-
-  -- isForced(IM) means that IM may be forced because its exporter is forced.
-  -- isForced0(IM) means that IM is forced but keeps stable.
-  -- isForced1(IM) means that IM is forced and is not yet stable.
-  pred isForced : Import
-  pred isForced0 : Import
-  pred isForced1 : Import
-
-  -- isForced(CO) means that CO may be forced to be stopped temporally
-  --               because its imporint IM is forced or forcing.
-  -- isForced0(CO) means that CO is forced but keeps stable.
-  -- isForced1(CO) means that CO is forced and is not yet stable.
-  pred isForced : Component
-  pred isForced0 : Component
-  pred isForced1 : Component
-
-  -- eq isForcing0(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired,unused)) = true . -- Case (A)
-  eq isForcing0(IM) =
-    (type(IM)   = mandatory) and
-    (state(IM)  = wired) and
-    (next(IM)   = wired) and
-    (target(IM) = unused) .
-  -- eq isForcing1(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired,unused)) = true . -- Case (A)
-  eq isForcing1(IM) =
-    (type(IM)   = mandatory) and
-    (state(IM)  = wired) and
-    (next(IM)   = unwired) and
-    (target(IM) = unused) .
-  eq isForcing(IM) = isForcing0(IM) or isForcing1(IM) .
-
-  -- eq isForced0(imp(mandatory,IDIM,IIDCO,IDCO,  wired,  wired, wired)) = true . -- case (B)
-  eq isForced0(IM) =
-    (type(IM)   = mandatory) and
-    (state(IM)  = wired) and
-    (next(IM)   = wired) and
-    (target(IM) = wired) .
-  -- eq isForced1(imp(mandatory,IDIM,IIDCO,IDCO,  wired,unwired, wired)) = true . -- case (B)
-  eq isForced1(IM) =
-    (type(IM)   = mandatory) and
-    (state(IM)  = wired) and
-    (next(IM)   = unwired) and
-    (target(IM) = wired) .
-  eq isForced(IM) = isForced0(IM) or isForced1(IM) .
-
-  -- eq isForced0(cmp(IDCO,started,started,started)) = true . -- case (C)
-  eq isForced0(CO) =
-    (state(CO)  = started) and
-    (next(CO)   = started) and
-    (target(CO) = started) .
-  -- eq isForced1(cmp(IDCO,started,stopped,started)) = true . -- case (C)
-  eq isForced1(CO) =
-    (state(CO)  = started) and
-    (next(CO)   = stopped) and
-    (target(CO) = started) .
-  eq isForced(CO) = isForced0(CO) or isForced1(CO) .
-
   -- The invariant should be defined as the conjunction of all inv-* and all wfs-*.
   -- But this definition causes costly computations.
 
@@ -117,31 +53,6 @@ module ProofBase {
   pred wfs-iidCOeidCODiffer : State
   eq wfs-iidCOeidCODiffer(< SCO,SIM,L >)
     = iidCOeidCODiffer(SIM) .
-
-  pred allFFIMHasFFECO : SetOfImport SetOfComponent
-  eq allFFIMHasFFECO(empIM, SCO) = true .
-  eq allFFIMHasFFECO(IM SIM,SCO)
-    = (isForced1(IM) implies isForced1(getComponent(SCO,exporter(IM)))) and
-      allFFIMHasFFECO(SIM,SCO) .
-
-  pred inv-allFFIMHasFFECO : State
-  eq inv-allFFIMHasFFECO(< SCO,SIM,L >)
-    = allFFIMHasFFECO(SIM,SCO) .
-
-  pred existFFIM : SetOfImport
-  eq existFFIM(empIM) = false .
-  eq existFFIM(IM SIM)
-    = isForced1(IM) or isForcing1(IM) or existFFIM(SIM) .
-
-  pred allFFCOHasFFIIM : SetOfComponent SetOfImport
-  eq allFFCOHasFFIIM(empCO,SIM) = true .
-  eq allFFCOHasFFIIM(CO SCO,SIM)
-    = (isForced1(CO) implies existFFIM(getIMsOfICO(SIM,CO))) and
-      allFFCOHasFFIIM(SCO,SIM) .
-
-  pred inv-allFFCOHasFFIIM : State
-  eq inv-allFFCOHasFFIIM(< SCO,SIM,L >)
-    = allFFCOHasFFIIM(SCO,SIM) .
 
 --> *************************
 --> Step 0-2: Define cont(S).
@@ -158,24 +69,19 @@ module ProofBase {
   op tdis : SetOfComponent -> Nat
   op tdis : SetOfImport    -> Nat
 
-  -- Forced Distance 
-  -- Forced to become stopped temporally
-  op fdis : Component -> Nat
-  -- Forced to become unwired temporally
-  op fdis : Import -> Nat
-  op fdis : BagOfID SetOfComponent SetOfImport -> Nat
-
   eq tdis(empCO) = 0 .
   eq tdis((CO SCO)) = tdis(CO) + tdis(SCO) .
 
-  eq tdis(cmp(IDCO,started,started,stopped)) = 2 .
-  eq tdis(cmp(IDCO,started,stopped,stopped)) = 1 .
-  eq tdis(cmp(IDCO,stopped,stopped,stopped)) = 0 .
-  eq tdis(cmp(IDCO,stopped,started,stopped)) = 100 . -- do not happen
-  eq tdis(cmp(IDCO,stopped,stopped,started)) = 2 .
-  eq tdis(cmp(IDCO,stopped,started,started)) = 1 .
-  eq tdis(cmp(IDCO,started,started,started)) = 0 .
-  eq tdis(cmp(IDCO,started,stopped,started)) = 0 .
+  eq tdis(cmp(IDCO, started, started, stopped)) = 2 .
+  eq tdis(cmp(IDCO, started, stopped, stopped)) = 1 .
+  eq tdis(cmp(IDCO, stopped, stopped, stopped)) = 0 .
+
+  eq tdis(cmp(IDCO, started, started,sstarted)) = 5 .
+  eq tdis(cmp(IDCO, started, stopped,sstarted)) = 4 .
+  eq tdis(cmp(IDCO, stopped, stopped,sstarted)) = 3 .
+  eq tdis(cmp(IDCO, stopped,sstarted,sstarted)) = 2 .
+  eq tdis(cmp(IDCO, started,sstarted,sstarted)) = 1 .
+  eq tdis(cmp(IDCO,sstarted,sstarted,sstarted)) = 0 .
 
   eq tdis(empIM) = 0 .
   eq tdis((IM SIM)) = tdis(IM) + tdis(SIM) .
@@ -183,82 +89,25 @@ module ProofBase {
   eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,  wired,unwired)) = 2 .
   eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,unwired,unwired)) = 1 .
   eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired,unwired)) = 0 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired,  wired,unwired)) = 100 .
 
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired, unused,unwired)) = 100 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired, unused,unwired)) = 100 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused, unused,unwired)) = 100 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused,unwired,unwired)) = 100 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused,  wired,unwired)) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,  wired, unused)) = 2 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired, unused, unused)) = 1 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused, unused, unused)) = 0 .
 
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused, unused,  wired)) = 4 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused,unwired,  wired)) = 3 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused,  wired,  wired)) = 100 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired, unused,  wired)) = 100 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired, unused,  wired)) = 100 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused, unused, swired)) = 5 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused,unwired, swired)) = 4 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired, swired)) = 3 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired, swired, swired)) = 2 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired, swired, swired)) = 1 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, swired, swired, swired)) = 0 .
 
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired,  wired)) = 2 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired,  wired,  wired)) = 1 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,  wired,  wired)) = 0 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,unwired,  wired)) = 0 .
-
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,  wired,unused)) = 4 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,unwired,unused)) = 3 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired, unused,unused)) = 100 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused,  wired,unused)) = 100 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired,  wired,unused)) = 100 .
-
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired,unused)) = 2 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired, unused,unused)) = 1 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused, unused,unused)) = 0 .
-  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused,unwired,unused)) = 100 .
-
-  ceq fdis(CO) = 0 if not isForced(CO) .
-  eq fdis(cmp(IDCO,started,started,started)) = 4 .
-  eq fdis(cmp(IDCO,started,stopped,started)) = 3 .
-
-  ceq fdis(imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,TSIM))
-     = 0 if not (CSIM = wired) or not (TSIM = wired) .
-  eq fdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,  wired,wired)) = 4 .
-  eq fdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,unwired,wired)) = 3 .
-
-  eq fdis(empID,SCO0,SIM0) = 0 .
-  eq fdis((cid(IDCO) BG),SCO0,SIM0)
-    = fdis(getComponent(SCO0,IDCO)) + fdis(BG,SCO0,SIM0) .
-  eq fdis((iid(IDIM) BG),SCO0,SIM0)
-    = fdis(getImport(SIM0,IDIM)) + fdis(BG,SCO0,SIM0) .
-
-  op makeIDBag : SetOfImport SetOfComponent SetOfImport -> BagOfID
-  op makeupIDBag : SetOfImport SetOfComponent SetOfImport -> BagOfID
-  op makeupIDBag : Component SetOfComponent SetOfImport -> BagOfID
-
-  eq makeIDBag(empIM,SCO0,SIM0) = empID .
-  ceq makeIDBag((IM SIM),SCO0,SIM0)
-    = makeIDBag(SIM,SCO0,SIM0) 
-    if not isForcing(IM) .
-  ceq makeIDBag((IM SIM),SCO0,SIM0)
-    = (makeupIDBag(getComponent(SCO0,importer(IM)),SCO0,SIM0) makeIDBag(SIM,SCO0,SIM0))
-    if isForcing(IM) .
-
-  eq makeupIDBag(empIM,SCO0,SIM0) = empID .
-  ceq makeupIDBag((IM SIM),SCO0,SIM0)
-    = (iid(id(IM)) makeupIDBag(SIM,SCO0,SIM0))
-    if not isForced(IM) .
-  ceq makeupIDBag((IM SIM),SCO0,SIM0)
-    = (iid(id(IM)) makeupIDBag(getComponent(SCO0,importer(IM)),SCO0,SIM0) makeupIDBag(SIM,SCO0,SIM0))
-    if isForced(IM) .
-
-  ceq makeupIDBag(CO,SCO0,SIM0)
-    = cid(id(CO))
-    if not isForced(CO) .
-  ceq makeupIDBag(CO,SCO0,SIM0)
-    = (cid(id(CO)) makeupIDBag(getIMsOfECOInTargetStates(SIM0,CO,wired),SCO0,SIM0))
-    if isForced(CO) .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,  wired, swired)) = 5 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,unwired, swired)) = 4 .
 
   eq m(< SCO,SIM,L >)
-    = tdis(SCO) + tdis(SIM) + fdis(makeIDBag(SIM,SCO,SIM), SCO, SIM) .
+    = tdis(SCO) + tdis(SIM) .
   eq mlog(SCO, SIM)
-    = tdis(SCO) + tdis(SIM) + fdis(makeIDBag(SIM,SCO,SIM), SCO, SIM) .
+    = tdis(SCO) + tdis(SIM) .
 
 --> ************************
 --> Step 0-4: Define inv(S).
@@ -275,8 +124,6 @@ module ProofBase {
   -- inv-*:
   ceq inv(S) = false if not wfs(S) .
   ceq inv(S) = false if not noCOCycle(S) .
-  ceq inv(S) = false if not inv-allFFCOHasFFIIM(S) .
-  ceq inv(S) = false if not inv-allFFIMHasFFECO(S) .
 
 --> **************************************
 --> Step 0-5: Prepare arbitrary constants.
@@ -326,59 +173,3 @@ module ProofBase {
 -- ***************************
 -- in Proof-inv.cafe
 
-eof
-**> Check Start <**
-open ProofBase . 
-
-ops COC COC1 COC2 COD : -> COIDLt .
-ops IMW IMV IMW1 IMW2 : -> IMIDLt .
-
-op components1 : -> SetOfComponent .
-eq components1 =
-  (cmp(COC,  started, started, started) 
-   cmp(COC1, started, started, started)) .
-
-op imports1 : -> SetOfImport .
-eq imports1 =
-  (imp(optional, IMW1, COC,  COC1,  wired,  wired, unused)) .
-
-red makeIDBag(imports1,components1,imports1) = empID .
-red tdis(components1) = 0 .
-red tdis(imports1) = 4 .
-red fdis(makeIDBag(imports1,components1,imports1),components1,imports1) = 0 .
-red m(< components1,imports1,lg >) = 4 .
-
-op components2 : -> SetOfComponent .
-eq components2 =
-  (cmp(COC,  started, started, started) 
-   cmp(COC2, started, started, started)) .
-
-op imports2 : -> SetOfImport .
-eq imports2 =
-  (imp(mandatory, IMW2, COC,  COC2, unused, unused,  wired)) .
-
-red makeIDBag(imports2,components2,imports2) = empID .
-red tdis(components2) = 0 .
-red tdis(imports2) = 4 .
-red fdis(makeIDBag(imports2,components2,imports2),components2,imports2) = 0 .
-red m(< components2,imports2,lg >) = 4 .
-
-op components : -> SetOfComponent .
-eq components =
-  (cmp(COD,  started, started, started) cmp(COC,  started, started, started) 
-   cmp(COC1, started, started, started) cmp(COC2, started, started, started)) .
-
-op imports : -> SetOfImport .
-eq imports =
-  (imp(mandatory, IMW,  COD,  COC,   wired,  wired,  wired)
-   imp(optional,  IMV,  COC1, COC,   wired,  wired,  wired)
-   imp(mandatory, IMW1, COC,  COC1,  wired,  wired, unused)
-   imp(mandatory, IMW2, COC,  COC2, unused, unused,  wired)) .
-
-red makeIDBag(imports,components,imports) = (cid(COC) iid(IMV) iid(IMW) cid(COD)) .
-red tdis(components) = 0 .
-red tdis(imports) = 8 .
-red fdis(makeIDBag(imports,components,imports),components,imports) = 16 .
-red m(< components,imports,lg >) = 24 .
-
-close

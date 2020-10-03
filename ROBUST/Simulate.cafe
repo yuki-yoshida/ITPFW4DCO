@@ -10,8 +10,8 @@ ops IMW IMV IMW1 IMW2 : -> IMIDLt .
 
 op components1 : -> SetOfComponent .
 eq components1 =
-  (cmp(COC,  started, started, started) 
-   cmp(COC1, started, started, started)) .
+  (cmp(COC,  started, started, sstarted) 
+   cmp(COC1, started, started, sstarted)) .
 
 op imports1 : -> SetOfImport .
 eq imports1 =
@@ -22,7 +22,7 @@ eq s1 =
   < components1, imports1, empLog > .
       
 red s1 .
-red m(s1) == 4 .
+red m(s1) == 12 .
 red not (wfs(s1) == false) .
 red init(s1) = wfs(s1) .
 red final(s1) == false .
@@ -35,19 +35,19 @@ exec final(s1) .
 
 op components2 : -> SetOfComponent .
 eq components2 =
-  (cmp(COC,  started, started, started) 
-   cmp(COC2, started, started, started)) .
+  (cmp(COC,  started, started, sstarted) 
+   cmp(COC2, started, started, sstarted)) .
 
 op imports2 : -> SetOfImport .
 eq imports2 =
-  (imp(mandatory, IMW2, COC,  COC2, unused, unused,  wired)) .
+  (imp(mandatory, IMW2, COC,  COC2, unused, unused,  swired)) .
 
 op s2 : -> State .
 eq s2 =
   < components2, imports2, empLog > .
       
 red s2 .
-red m(s2) == 4 .
+red m(s2) == 15 .
 red not (wfs(s2) == false) .
 red init(s2) = wfs(s2) .
 red final(s2) == false .
@@ -60,22 +60,22 @@ exec final(s2) .
 
 op components : -> SetOfComponent .
 eq components =
-  (cmp(COD,  started, started, started) cmp(COC,  started, started, started) 
-   cmp(COC1, started, started, started) cmp(COC2, started, started, started)) .
+  (cmp(COD,  started, started, sstarted) cmp(COC,  started, started, sstarted) 
+   cmp(COC1, started, started, sstarted) cmp(COC2, started, started, sstarted)) .
 
 op imports : -> SetOfImport .
 eq imports =
-  (imp(mandatory, IMW,  COD,  COC,   wired,  wired,  wired)
-   imp(optional,  IMV,  COC1, COC,   wired,  wired,  wired)
+  (imp(mandatory, IMW,  COD,  COC,   wired,  wired,  swired)
+   imp(optional,  IMV,  COC1, COC,   wired,  wired,  swired)
    imp(mandatory, IMW1, COC,  COC1,  wired,  wired, unused)
-   imp(mandatory, IMW2, COC,  COC2, unused, unused,  wired)) .
+   imp(mandatory, IMW2, COC,  COC2, unused, unused,  swired)) .
 
 op s0 : -> State .
 eq s0 =
   < components, imports, empLog > .
       
 red s0 .
-red m(s0) == 24 .
+red m(s0) == 37 .
 red not (wfs(s0) == false) .
 red init(s0) = wfs(s0) .
 red final(s0) == false .
@@ -90,17 +90,17 @@ op COC3 : -> COIDLt .
 op IMW3 : -> IMIDLt .
 
 op components3 : -> SetOfComponent .
-eq components3 = components cmp(COC3,  started, started, started) .
+eq components3 = components cmp(COC3,  started, started, sstarted) .
 
 op imports3 : -> SetOfImport .
-eq imports3 = imports imp(mandatory, IMW3,  COC2,  COC3,   wired,  wired,  wired) .
+eq imports3 = imports imp(mandatory, IMW3,  COC2,  COC3,   wired,  wired,  swired) .
 
 op s3 : -> State .
 eq s3 =
   < components3, imports3, empLog > .
       
 red s3 .
-red m(s3) == 24 .
+red m(s3) == 47 .
 red not (wfs(s3) == false) .
 red init(s3) = wfs(s3) .
 red final(s3) == false .
@@ -115,17 +115,17 @@ op COD1 : -> COIDLt .
 op IMW4 : -> IMIDLt .
 
 op components4 : -> SetOfComponent .
-eq components4 = components3 cmp(COD1,  started, started, started) .
+eq components4 = components3 cmp(COD1,  started, started, sstarted) .
 
 op imports4 : -> SetOfImport .
-eq imports4 = imports3 imp(mandatory, IMW4,  COD1,  COC,   wired,  wired,  wired) .
+eq imports4 = imports3 imp(mandatory, IMW4,  COD1,  COC,   wired,  wired,  swired) .
 
 op s4 : -> State .
 eq s4 =
   < components4, imports4, empLog > .
       
 red s4 .
-red m(s4) == 32 .
+red m(s4) == 57 .
 red not (wfs(s4) == false) .
 red init(s4) = wfs(s4) .
 red final(s4) == false .
@@ -140,18 +140,18 @@ op COD0 : -> COIDLt .
 ops IMW5 IMW5' : -> IMIDLt .
 
 op components5 : -> SetOfComponent .
-eq components5 = components4 cmp(COD0,  started, started, started) .
+eq components5 = components4 cmp(COD0,  started, started, sstarted) .
 
 op imports5 : -> SetOfImport .
 eq imports5 
-  = imports4 imp(mandatory,IMW5,COD0,COD,wired,wired,wired)  imp(mandatory,IMW5',COD0,COD1,wired,wired,wired) .
+  = imports4 imp(mandatory,IMW5,COD0,COD,wired,wired,swired)  imp(mandatory,IMW5',COD0,COD1,wired,wired,swired) .
 
 op s5 : -> State .
 eq s5 =
   < components5, imports5, empLog > .
       
 red s5 .
-red m(s5) == 48 .
+red m(s5) == 72 .
 red not (wfs(s5) == false) .
 red init(s5) = wfs(s5) .
 red final(s5) == false .
@@ -169,14 +169,14 @@ eq components6 = components5 .
 
 op imports6 : -> SetOfImport .
 eq imports6 
-  = imports5 imp(optional,IMW6,COD0,COC,wired,wired,wired) .
+  = imports5 imp(optional,IMW6,COD0,COC,wired,wired,swired) .
 
 op s6 : -> State .
 eq s6 =
   < components6, imports6, empLog > .
       
 red s6 .
-red m(s6) == 52 .
+red m(s6) == 77 .
 red not (wfs(s6) == false) .
 red init(s6) = wfs(s6) .
 red final(s6) == false .
