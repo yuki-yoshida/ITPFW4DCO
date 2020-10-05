@@ -94,6 +94,11 @@ module ProofBase {
   eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired, unused, unused)) = 1 .
   eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused, unused, unused)) = 0 .
 
+  -- following states never occur.
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,  wired,unwired, unused)) = 14 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired, unused)) = 13 .
+  eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired, unused, unused)) = 12 .
+
   eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused, unused, swired)) = 5 .
   eq tdis(imp(TIM,IDIM,IIDCO,EIDCO, unused,unwired, swired)) = 4 .
   eq tdis(imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired, swired)) = 3 .
