@@ -42,18 +42,6 @@ module ProofBase {
   var L : ListOfLog
   vars S SS : State
 
-  -- The invariant should be defined as the conjunction of all inv-* and all wfs-*.
-  -- But this definition causes costly computations.
-
-  pred iidCOeidCODiffer : SetOfImport
-  eq iidCOeidCODiffer(empIM) = true .
-  eq iidCOeidCODiffer(IM SIM)
-    = not (importer(IM) = exporter(IM)) and iidCOeidCODiffer(SIM) .
-
-  pred wfs-iidCOeidCODiffer : State
-  eq wfs-iidCOeidCODiffer(< SCO,SIM,L >)
-    = iidCOeidCODiffer(SIM) .
-
 --> *************************
 --> Step 0-2: Define cont(S).
 --> *************************
@@ -117,6 +105,9 @@ module ProofBase {
 --> ************************
 --> Step 0-4: Define inv(S).
 --> ************************
+  -- The invariant should be defined as the conjunction of all inv-* and all wfs-*.
+  -- But this definition causes costly computations.
+
   -- wfs-*:
   ceq wfs(S) = false if not wfs-uniqCO(S) .
   ceq wfs(S) = false if not wfs-uniqIM(S) .
@@ -127,8 +118,65 @@ module ProofBase {
   ceq wfs(S) = false if not wfs-iidCOeidCODiffer(S) .
 
   -- inv-*:
+  pred inv-allIMin14States : State
+  eq inv-allIMin14States(< SCO, SIM, L >) = allIMin14States(SIM) .
+
   ceq inv(S) = false if not wfs(S) .
   ceq inv(S) = false if not noCOCycle(S) .
+  ceq inv(S) = false if not inv-allIMin14States(S) .
+
+  pred isIMin14States : Import
+  eq allIMin14States(empIM) = true .
+  eq allIMin14States(IM SIM)
+    = isIMin14States(IM) and allIMin14States(SIM) .
+  -- There are 14 states to be transited.
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,  wired,  wired,unwired)) = true .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,  wired,unwired,unwired)) = true .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired,unwired)) = true .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,  wired,  wired, unused)) = true .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,  wired, unused, unused)) = true .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, unused, unused, unused)) = true .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, unused, unused, swired)) = true .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, unused,unwired, swired)) = true .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,unwired,unwired, swired)) = true .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,unwired, swired, swired)) = true .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,  wired,  wired, swired)) = true .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,  wired,unwired, swired)) = true .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,  wired, swired, swired)) = true .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, swired, swired, swired)) = true .
+  -- There are 24 states not to be transited which are generally defined.
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,   CSIM,   NSIM,  wired)) = false .
+  --   Trivial case unused->unwired is omitted .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, unused,   NSIM,unwired)) = false .
+  --   Trivial case unwired->unused is omitted .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,unwired,   NSIM, unused)) = false .
+  -- There are 26 states not to be transited which are concretely defined
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, unused,unwired, unused)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, unused,  wired, unused)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, unused,  wired, swired)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, unused, swired, unused)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, unused, swired, swired)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,unwired, unused,unwired)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,unwired, unused, swired)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,unwired,  wired,unwired)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,unwired,  wired, swired)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,unwired, swired,unwired)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,  wired, unused,unwired)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,  wired, unused, swired)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,  wired,unwired, unused)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,  wired, swired, unused)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO,  wired, swired,unwired)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, swired, unused, unused)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, swired, unused,unwired)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, swired, unused, swired)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, swired,unwired, unused)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, swired,unwired,unwired)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, swired,unwired, swired)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, swired,  wired, unused)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, swired,  wired,unwired)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, swired,  wired, swired)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, swired, swired, unused)) = false .
+  eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, swired, swired,unwired)) = false .
 
 --> **************************************
 --> Step 0-5: Prepare arbitrary constants.
