@@ -404,13 +404,19 @@ module! STATEfuns {
 
   pred stableCOSet : SetOfComponent
   eq stableCOSet(empCO) = true .
-  eq stableCOSet((cmp(IDCO,CSCO,NSCO,TSCO) SCO))
-     = not (CSCO = sstarted) and (CSCO = NSCO) and stableCOSet(SCO) .
+  eq stableCOSet((cmp(IDCO,sstarted,NSCO,TSCO) SCO))
+     = (NSCO = sstarted) and (TSCO = sstarted) and stableCOSet(SCO) .
+  ceq stableCOSet((cmp(IDCO,CSCO,NSCO,TSCO) SCO))
+     = (CSCO = NSCO) and stableCOSet(SCO)
+     if not (CSCO = sstarted) .
 
   pred stableIMSet : SetOfImport
   eq stableIMSet(empIM) = true .
-  eq stableIMSet((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM))
-     = not (CSIM = swired) and (CSIM = NSIM) and stableIMSet(SIM) .
+  eq stableIMSet((imp(TIM,IDIM,IIDCO,IDCO,swired,NSIM,TSIM) SIM))
+     = (NSIM = swired) and (TSIM = swired) and stableIMSet(SIM) .
+  ceq stableIMSet((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM))
+     = (CSIM = NSIM) and stableIMSet(SIM)
+     if not (CSIM = swired) .
 
   pred equivCOSet : SetOfComponent
   eq equivCOSet(empCO) = true .
