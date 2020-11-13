@@ -36,18 +36,14 @@ open ProofInitCont .
 
   -- Induction Hypothesis
   ceq [robust-lemmaC01-IH :nonexec]:
-     robust-lemmaC01(CO,SCO,SIM,lg) = true
-     if t(CO,(CO' SCO),SIM) <wf t(CO,sCO,sIM) .
+     robust-lemmaC01(CO,(CO' SCO'),SIM,lg) = true
+     if t(CO,(CO' SCO'),SIM) <wf t(CO,sCO,sIM) .
 
   -- well-founded binary relation   
   ceq ( t(CO,(CO' SCO'),(IM SIM')) <wf t(CO,SCO,SIM) ) = true
-    if SCO = (CO' SCO') and
-       SIM = (IM SIM') and
-       state(CO') = state(CO) and
-       next(CO') = next(CO) and
-       target(CO') = target(CO) and
-       importer(IM) = id(CO) and
-       exporter(IM) = id(CO') .
+    if SCO = (CO' SCO') and SIM = (IM SIM') and
+       state(CO') = state(CO) and next(CO') = next(CO) and target(CO') = target(CO) and
+       type(IM) = mandatory and importer(IM) = id(CO) and exporter(IM) = id(CO') .
 
 :goal { eq robust-lemmaC01(cmp(idCO,cCOs,nCOs,tCOs),sCO,sIM,lg) = true .}
 :def cCOsctf = :ctf { eq cCOs = started . } :apply(cCOsctf rd-)
@@ -111,7 +107,7 @@ open ProofInitCont .
 :init as robust-lemmaC01-IH-in [robust-lemmaC01-IH]
   by {CO:Component <- cmp(idCO,started,started,sstarted);
       CO':Component <- cmp(eidCO,started,started,sstarted);
-      SCO:SetOfComponent <- sCO;
+      SCO':SetOfComponent <- sCO';
       SIM:SetOfImport <- sIM; }
 :apply(rd-)
 --> Proof of robust-lemmaC01 done
