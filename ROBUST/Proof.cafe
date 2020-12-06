@@ -118,12 +118,19 @@ module ProofBase {
   ceq wfs(S) = false if not wfs-iidCOeidCODiffer(S) .
 
   -- inv-*:
+  -- This invariant should be proved.
   pred inv-allIMin14States : State
   eq inv-allIMin14States(< SCO, SIM, L >) = allIMin14States(SIM) .
+
+  -- This invariant should be proved.
+  pred noChangeSstarted : SetOfComponent
+  pred inv-noChangeSstarted : State
+  eq inv-noChangeSstarted(< SCO, SIM, L >) = noChangeSstarted(SCO) .
 
   ceq inv(S) = false if not wfs(S) .
   ceq inv(S) = false if not noCOCycle(S) .
   ceq inv(S) = false if not inv-allIMin14States(S) .
+  ceq inv(S) = false if not inv-noChangeSstarted(S) .
 
   pred isIMin14States : Import
   eq allIMin14States(empIM) = true .
@@ -177,6 +184,12 @@ module ProofBase {
   eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, swired,  wired, swired)) = false .
   eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, swired, swired, unused)) = false .
   eq isIMin14States(imp(TIM,IDIM,IIDCO,EIDCO, swired, swired,unwired)) = false .
+
+  eq noChangeSstarted(empCO) = true .
+  eq noChangeSstarted(CO SCO)
+    = (state(CO) = sstarted implies next(CO)   = sstarted) and
+      (next(CO)  = sstarted implies target(CO) = sstarted) and
+      noChangeSstarted(SCO) .
 
 --> **************************************
 --> Step 0-5: Prepare arbitrary constants.
