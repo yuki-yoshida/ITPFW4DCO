@@ -198,6 +198,28 @@ module ProofBase {
   eq allCONotInStates((CO SCO),LS)
     = not inStates(CO,LS) and allCONotInStates(SCO,LS) .
 
+  op DDSC : Component SetOfComponent SetOfImport -> SetOfComponent
+  -- Upward DDSC
+  op DDSCU : Component SetOfComponent SetOfImport -> SetOfComponent
+  eq DDSCU(CO,SCO,SIM)
+    = getECOsOfIMs(SCO,
+        getIMsOfICOInTargetStates(
+          getIMsOfTypeOfICOInStates(SIM,mandatory,CO,wired),CO,swired)) .
+  -- Downward DDSC
+  op DDSCD : Component SetOfComponent SetOfImport -> SetOfComponent
+  eq DDSCD(CO,SCO,SIM)
+    = getICOsOfIMs(SCO,
+        getIMsOfTypeOfECOInStates(SIM,mandatory,CO,wired)) .
+
+  pred isCONoCycle : Component SetOfComponent SetOfImport SetOfLS
+  eq isCONoCycle(CO,SCO,SIM,SLS)
+    = inStates(CO,SLS) and allCONotInStates(DDSC(CO,SCO,SIM),SLS) .
+ 
+  pred someCONoCycle : SetOfComponent SetOfImport SetOfLS
+  eq someCONoCycle(empCO,SIM,SLS) = false .
+  eq someCONoCycle((CO SCO),SIM,SLS)
+    = isCONoCycle(CO,SCO,SIM,SLS) or someCONoCycle(SCO,SIM,SLS) .
+
 --> **************************************
 --> Step 0-5: Prepare arbitrary constants.
 --> **************************************
@@ -206,7 +228,7 @@ module ProofBase {
   ops sCO sCO' sCO'' sCO0 sCO0' : -> SetOfComponent
   ops sIM sIM' sIM'' sIM0 sIM0' : -> SetOfImport
   ops tIM tIM' : -> IMType
-  ops cCOs cCOs' nCOs nCOs' tCOs tCOs' : -> COState
+  ops cCOs cCOs' cCOs'' nCOs nCOs' nCOs'' tCOs tCOs' tCOs'' : -> COState
   ops cIMs cIMs' nIMs nIMs' tIMs tIMs' : -> IMState
   op sCOs : -> SetOfCOState
   op sIMs : -> SetOfIMState
