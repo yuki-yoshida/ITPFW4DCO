@@ -1,860 +1,265 @@
 require Proof Proof.cafe
 
---> Common lemmas in this domain.
-
-module ROBUSTLEMMA {
+module ProofLemma {
   protecting(ProofBase)
 
-  pred (_when _) : Bool Bool { prec: 63 r-assoc }
-  eq (B1:Bool when B2:Bool)
-     = B2 implies B1 .
+  [COSCOSIM] op t : Component SetOfComponent SetOfImport -> COSCOSIM {constr} .
+  pred _<wf_ : COSCOSIM COSCOSIM .
 
-  -- Nat Axiom
-  vars X X1 X2 Y Y1 Y2 Z Z1 Z2 : Nat
-
-  ceq (X >= Y) = true
-    if (X > Y) .
-
-  eq ((X + Z) >= (Y + Z))
-    =  (X >= Y) .
-
-  ceq ((X + Z1) = (Y + Z2))
-    =  (Z1 = Z2)
-   if  (X = Y) .
-
-  ceq ((X + Z1) >= (Y + Z2))
-    =  (X >= Y) 
-    if (Z1 >= Z2) .
-
-  ceq ((X1 + Y1) > (X2 + Y2)) = true
-    if (X1 >= X2) and (Y1 > Y2) .
-  
-  ceq ((X1 + Y1) >= (X2 + Y2)) = true
-    if (X1 >= X2) and (Y1 >= Y2) .
-  
-  vars CO CO' CO0 : Component
-  vars SCO SCO' SCO0 : SetOfComponent
-  vars IDCO IIDCO EIDCO : COID 
-  vars CSCO NSCO TSCO : COState
-  vars CSCO' NSCO' TSCO' : COState
-  var StCO : SetOfCOState
-
-  vars IM IM' IM0 : Import
-  vars SIM SIM' SIM0 : SetOfImport
-  var IDIM : IMID
-  var TIM : IMType
-  vars CSIM NSIM TSIM : IMState
-  var StIM : SetOfIMState
-
-  var L : ListOfLog
-
-  pred robust-lemma10 : SetOfComponent Import SetOfImport
-  eq robust-lemma10(SCO,IM,SIM)
-     = (allFFCOHasFFIIM(SCO, IM SIM) = allFFCOHasFFIIM(SCO, SIM)) 
-   when (not existCO(SCO,importer(IM))) .
-
-  pred robust-lemma11 : SetOfComponent SetOfImport
-  eq robust-lemma11(SCO,SIM)
-     = (allFFCOHasFFIIM(SCO,SIM) = true)
-   when stableCOSet(SCO) .
-
-  pred robust-lemma12 : SetOfImport SetOfComponent
-  eq robust-lemma12(SIM,SCO)
-     = (allFFIMHasFFECO(SIM,SCO) = true)
-   when stableIMSet(SIM) .
-
-  pred robust-lemma13 : SetOfComponent Import Import SetOfImport
-  eq robust-lemma13(SCO,IM,IM',SIM)
-     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
-   when (importer(IM) = importer(IM'))
-    and not isForcing1(IM)
-    and not isForced1(IM)
-    and (tdis(IM) >= tdis(IM'))
-    and (fdis(IM) > fdis(IM')) .
-
-  pred robust-lemma14 : SetOfComponent Import Import SetOfImport
-  eq robust-lemma14(SCO,IM,IM',SIM)
-     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
-   when (importer(IM) = importer(IM')) and 
-        not isForcing1(IM) and not isForced1(IM) and
-        (tdis(IM) > tdis(IM')) and
-        (fdis(IM) >= fdis(IM')) .
-
-  pred robust-lemma15 : SetOfComponent Import Import SetOfImport
-  eq robust-lemma15(SCO,IM,IM',SIM)
-     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
-   when (importer(IM) = importer(IM')) and 
-        isForcing1(IM) and isForcing1(IM') and
-        (tdis(IM) > tdis(IM')) .
-
-  -- This lemma is not necessary.
-  pred robust-lemma16 : SetOfComponent Import Import SetOfImport
-  eq robust-lemma16(SCO,IM,IM',SIM)
-     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
-   when (importer(IM) = importer(IM')) and 
-        uniqCO(SCO) and allIMHaveICO(IM,SCO) and
-        not isForced1(getComponent(SCO,importer(IM))) and
-        (fdis(IM) > fdis(IM')) .
-
-  pred robust-lemma17 : SetOfComponent Import Import SetOfImport
-  eq robust-lemma17(SCO,IM,IM',SIM)
-     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
-   when (importer(IM) = importer(IM')) and 
-        (state(IM)   = unwired) and
-        (next(IM)    = wired) and
-        (target(IM)  = wired) and
-       (state(IM')  = wired) and
-       (next(IM')   = wired) and
-       (target(IM') = wired) .
-
-  pred robust-lemma18 : SetOfComponent Import Import SetOfImport
-  eq robust-lemma18(SCO,IM,IM',SIM)
-     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
-   when (importer(IM) = importer(IM')) and 
-        (type(IM)    = optional) and
-        (state(IM)   = wired) and
-        (next(IM)    = unwired) and
-        (target(IM)  = wired) and
-        (state(IM')  = unwired) and
-        (next(IM')   = unwired) and
-        (target(IM') = wired) .
-
-  pred robust-lemma19 : SetOfImport Component Component SetOfComponent
-  eq robust-lemma19(SIM,CO,CO',SCO)
-     = (allFFIMHasFFECO(SIM, CO SCO) implies allFFIMHasFFECO(SIM, CO' SCO))
-   when (id(CO) = id(CO')) and 
-        not isForced1(CO) and not isForced1(CO') and
-        (tdis(CO) > tdis(CO')) .
-
-  pred robust-lemma20 : SetOfImport Component Component SetOfComponent
-  eq robust-lemma20(SIM,CO,CO',SCO)
-     = (allFFIMHasFFECO(SIM, CO SCO) implies allFFIMHasFFECO(SIM, CO' SCO))
-   when (id(CO) = id(CO')) and 
-        not isForced1(CO) and isForced1(CO') and
-        (fdis(CO) > fdis(CO')) .
-
-  pred robust-lemma21 : SetOfImport Component SetOfComponent
-  eq robust-lemma21(SIM,CO,SCO)
-     = (allFFIMHasFFECO(SIM, CO SCO) = allFFIMHasFFECO(SIM, SCO))
-   when getIMsOfECOInStates(SIM,id(CO),wired) = empIM .
-
-}
-
---> **************************************************************************
---> Proof of robust-lemma10.
--->  eq robust-lemma10(SCO,IM,SIM)
--->     = (allFFCOHasFFIIM(SCO,IM SIM) = allFFCOHasFFIIM(SCO,SIM))
--->   when (not existCO(SCO,importer(IM))) .
---> **************************************************************************
-module ROBUSTLEMMA10 {
-  protecting(ROBUSTLEMMA)
-  -- Induction Hypothesis
-  ceq [robust-lemma10-IH :nonexec]:
-     robust-lemma10(SCO:SetOfComponent, im, sIM) = true
-     if SCO <wf (co sCO) .
-}
-
-select ROBUSTLEMMA10
-:goal { eq robust-lemma10(sCO0, im, sIM) = true .}
-:init as robust-lemma10-IH-in [robust-lemma10-IH]
-      by {SCO:SetOfComponent <- SCO:SetOfComponent;}
-:def sCO0 = :csp {
-  eq sCO0 = empCO .
-  eq sCO0 = (co sCO) .
-}
-:apply (sCO0)
-:apply (rd-)
-:def idcoctf = :ctf {
-  eq id(co) = importer(im) .
-}
-:apply (idcoctf)
-:apply (rd-)
-:def isFF1coctf = :ctf {
-  eq isForced1(co) = true .
-}
-:apply (isFF1coctf rd-)
-:def existFFctf = :ctf { 
-  eq existFFIM(getIMsOfICO(sIM,id(co))) = true .
-}
-:apply (existFFctf rd-)
---> Proof of robust-lemma10 done.
--->
-show proof
-select
-
---> **************************************************************************
---> Proof of robust-lemma11.
--->  ceq robust-lemma11(SCO,SIM)
--->     = (allFFCOHasFFIIM(SCO,SIM) = true)
--->   when stableCOSet(SCO) .
---> **************************************************************************
-module ROBUSTLEMMA11 {
-  protecting(ROBUSTLEMMA)
-  -- Induction Hypothesis
-  ceq [robust-lemma11-IH :nonexec]:
-     robust-lemma11(SCO:SetOfComponent, sIM) = true
-     if SCO <wf (cmp(idCO,cCOs,nCOs,tCOs) sCO) .
-}
-
-select ROBUSTLEMMA11
-:goal { eq robust-lemma11(sCO0, sIM) = true .}
-:init as robust-lemma11-IH-in [robust-lemma11-IH]
-      by {SCO:SetOfComponent <- SCO:SetOfComponent;}
-:def sCO0 = :csp {
-  eq sCO0 = empCO .
-  eq sCO0 = (cmp(idCO,cCOs,nCOs,tCOs) sCO) .
-}
-:def cCOs = :csp {
-  eq cCOs = started .
-  eq cCOs = stopped .
-}
-:def nCOs = :csp {
-  eq nCOs = started .
-  eq nCOs = stopped .
-}
-:def tCOs = :csp {
-  eq tCOs = started .
-  eq tCOs = stopped .
-}
-:apply (sCO0 cCOs nCOs tCOs rd-)
---> Proof of robust-lemma11 done.
--->
-show proof
-select
-
---> **************************************************************************
---> Proof of robust-lemma12.
--->  ceq robust-lemma12(SIM,SCO)
--->     = (allFFIMHasFFECO(SIM,SCO) = true)
--->   when stableIMSet(SIM) .
---> **************************************************************************
-module ROBUSTLEMMA12 {
-  protecting(ROBUSTLEMMA)
-  -- Induction Hypothesis
-  ceq [robust-lemma12-IH :nonexec]:
-     robust-lemma12(SIM:SetOfImport, sCO) = true
-     if SIM <wf (imp(tIM,idIM,iidCO,eidCO,cIMs,nIMs,tIMs) sIM) .
-}
-
-select ROBUSTLEMMA12
-:goal { eq robust-lemma12(sIM0, sCO) = true .}
-:init as robust-lemma12-IH-in [robust-lemma12-IH]
-      by {SIM:SetOfImport <- SIM:SetOfImport;}
-:def sIM0 = :csp {
-  eq sIM0 = empIM .
-  eq sIM0 = (imp(tIM,idIM,iidCO,eidCO,cIMs,nIMs,tIMs) sIM) .
-}
-:def cIMs = :csp {
-  eq cIMs = wired .
-  eq cIMs = unwired .
-  eq cIMs = unused .
-}
-:def nIMs = :csp {
-  eq nIMs = wired .
-  eq nIMs = unwired .
-  eq nIMs = unused .
-}
-:def tIMs = :csp {
-  eq tIMs = wired .
-  eq tIMs = unwired .
-  eq tIMs = unused .
-}
-:apply (sIM0 cIMs nIMs tIMs rd-)
---> Proof of robust-lemma12 done.
--->
-show proof
-select
-
---> **************************************************************************
---> Proof of robust-lemma13.
--->  ceq robust-lemma13(SCO,IM,IM',SIM)
--->     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
--->    if (importer(IM) = importer(IM') and 
--->       not isForcing1(IM) and not isForced1(IM) and
--->       (tdis(IM) >= tdis(IM')) and
--->       (fdis(IM) > fdis(IM')) .
---> **************************************************************************
-module ROBUSTLEMMA13 {
-  protecting(ROBUSTLEMMA)
-  -- Induction Hypothesis
-  ceq [robust-lemma13-IH :nonexec]:
-     robust-lemma13(SCO:SetOfComponent, im, im', sIM) = true
-     if SCO <wf (cmp(idCO,cCOs,nCOs,tCOs) sCO) .
-}
-
-select ROBUSTLEMMA13
-:goal { eq robust-lemma13(sCO0, im, im', sIM) = true .}
-:def importerimctf = :ctf {
-  eq importer(im') = importer(im) .
-}
-:def isF1imctf = :ctf {
-  eq isForcing1(im) = true .
-}
-:def isFF1imctf = :ctf {
-  eq isForced1(im) = true .
-}
-:apply (importerimctf isF1imctf isFF1imctf rd-)
-:init as robust-lemma13-IH-in [robust-lemma13-IH]
-      by {SCO:SetOfComponent <- SCO:SetOfComponent;}
-:def sCO0 = :csp {
-  eq sCO0 = empCO .
-  eq sCO0 = (cmp(idCO,cCOs,nCOs,tCOs) sCO) .
-}
-:apply (sCO0)
-:apply (rd-)
-:def cCOs = :csp {
-  eq cCOs = started .
-  eq cCOs = stopped .
-}
-:def nCOs = :csp {
-  eq nCOs = started .
-  eq nCOs = stopped .
-}
-:def tCOs = :csp {
-  eq tCOs = started .
-  eq tCOs = stopped .
-}
-:apply (cCOs nCOs tCOs rd-)
-:def idCOctf = :ctf {
-  eq idCO = importer(im) .
-}
--- Note that existFFctf differs for each case of idCOctf.
-:apply (idCOctf)
-:def existFFimctf = :ctf { 
-  eq existFFIM(getIMsOfICO(sIM,importer(im))) = true .
-}
-:apply (existFFimctf rd-)
-:def existFF2ctf = :ctf { 
-  eq existFFIM(getIMsOfICO(sIM,idCO)) = true .
-}
-:apply (existFF2ctf rd-)
---> Proof of robust-lemma13 done.
--->
-show proof
-select
-
---> **************************************************************************
---> Proof of robust-lemma14.
--->  ceq robust-lemma14(SCO,IM,IM',SIM)
--->     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
--->    if (importer(IM) = importer(IM') and 
--->       not isForcing1(IM) and not isForced1(IM) .
--->       (fdis(IM) > fdis(IM')) and (fdis(IM') > 0) .
---> **************************************************************************
-module ROBUSTLEMMA14 {
-  protecting(ROBUSTLEMMA)
-  -- Induction Hypothesis
-  ceq [robust-lemma14-IH :nonexec]:
-     robust-lemma14(SCO:SetOfComponent, im, im', sIM) = true
-     if SCO <wf (cmp(idCO,cCOs,nCOs,tCOs) sCO) .
-}
-
-select ROBUSTLEMMA14
-:goal { eq robust-lemma14(sCO0, im, im', sIM) = true .}
-:def importerimctf = :ctf {
-  eq importer(im') = importer(im) .
-}
-:def isF1imctf = :ctf {
-  eq isForcing1(im) = true .
-}
-:def isFF1imctf = :ctf {
-  eq isForced1(im) = true .
-}
-:apply (importerimctf isF1imctf isFF1imctf rd-)
-:init as robust-lemma14-IH-in [robust-lemma14-IH]
-      by {SCO:SetOfComponent <- SCO:SetOfComponent;}
-:def sCO0 = :csp {
-  eq sCO0 = empCO .
-  eq sCO0 = (cmp(idCO,cCOs,nCOs,tCOs) sCO) .
-}
-:apply (sCO0 rd-)
-:def cCOs = :csp {
-  eq cCOs = started .
-  eq cCOs = stopped .
-}
-:def nCOs = :csp {
-  eq nCOs = started .
-  eq nCOs = stopped .
-}
-:def tCOs = :csp {
-  eq tCOs = started .
-  eq tCOs = stopped .
-}
-:apply (cCOs nCOs tCOs rd-)
-:def idCOctf = :ctf {
-  eq idCO = importer(im) .
-}
--- Note that existFFctf differs for each case of idCOctf.
-:apply (idCOctf)
-:def existFFimctf = :ctf { 
-  eq existFFIM(getIMsOfICO(sIM,importer(im))) = true .
-}
-:apply (existFFimctf rd-)
-:def existFF2ctf = :ctf { 
-  eq existFFIM(getIMsOfICO(sIM,idCO)) = true .
-}
-:apply (existFF2ctf rd-)
---> Proof of robust-lemma14 done.
--->
-show proof
-select
-
---> **************************************************************************
---> Proof of robust-lemma15.
--->  ceq robust-lemma15(SCO,IM,IM',SIM)
--->     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
--->    if (importer(IM) = importer(IM') and 
--->       isForcing1(IM) and isForcing1(IM') .
--->       (tdis(IM) > tdis(IM')) .
---> **************************************************************************
-module ROBUSTLEMMA15 {
-  protecting(ROBUSTLEMMA)
-  -- Induction Hypothesis
-  ceq [robust-lemma15-IH :nonexec]:
-     robust-lemma15(SCO:SetOfComponent, im, im', sIM) = true
-     if SCO <wf (cmp(idCO,cCOs,nCOs,tCOs) sCO) .
-}
-
-select ROBUSTLEMMA15
-:goal { eq robust-lemma15(sCO0, im, im', sIM) = true .}
-:def importerimctf = :ctf {
-  eq importer(im') = importer(im) .
-}
-:def isF1imctf = :ctf {
-  eq isForcing1(im) = true .
-}
-:def isF1im'ctf = :ctf {
-  eq isForcing1(im') = true .
-}
-:apply (importerimctf isF1imctf isF1im'ctf rd-)
-:init as robust-lemma15-IH-in [robust-lemma15-IH]
-      by {SCO:SetOfComponent <- SCO:SetOfComponent;}
-:def sCO0 = :csp {
-  eq sCO0 = empCO .
-  eq sCO0 = (cmp(idCO,cCOs,nCOs,tCOs) sCO) .
-}
--- Proof for case 1-1-1
-:apply (sCO0 rd-)
-:def cCOs = :csp {
-  eq cCOs = started .
-  eq cCOs = stopped .
-}
-:def nCOs = :csp {
-  eq nCOs = started .
-  eq nCOs = stopped .
-}
-:def tCOs = :csp {
-  eq tCOs = started .
-  eq tCOs = stopped .
-}
-:apply (cCOs nCOs tCOs rd-)
-:def idCOctf = :ctf {
-  eq idCO = importer(im) .
-}
--- Note that existFFctf differs for each case of idCOctf.
-:def existFFimctf = :ctf { 
-  eq existFFIM(getIMsOfICO(sIM,importer(im))) = true .
-}
-:def existFF2ctf = :ctf { 
-  eq existFFIM(getIMsOfICO(sIM,idCO)) = true .
-}
-:apply (idCOctf)
-:apply (existFFimctf rd-)
-:apply (existFF2ctf rd-)
---> Proof of robust-lemma15 done.
--->
-show proof
-select
-
---> **************************************************************************
---> Proof of robust-lemma16.
--->  pred robust-lemma16 : SetOfComponent Import Import SetOfImport
--->  eq robust-lemma16(SCO,IM,IM',SIM)
--->     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
--->   when (importer(IM) = importer(IM')) and 
--->        uniqCO(SCO) and allIMHaveICO(IM,SCO) and
--->        not isForced1(getComponent(SCO,importer(IM))) and
--->        (fdis(IM) > fdis(IM')) .
---> **************************************************************************
-module ROBUSTLEMMA16 {
-  protecting(ROBUSTLEMMA)
-
-  var SCO : SetOfComponent
-  var SIM : SetOfImport
+  var S : State
+  vars CO CO' : Component
   var IM : Import
+  vars SCO SCO' : SetOfComponent
+  vars SIM SIM' : SetOfImport
+  var L : ListOfLog
+  var LS : LocalState
+  var SLS : SetOfLS
+  vars CSCO NSCO TSCO : COState
 
-  -- eq robust-lemma10(SCO,IM,SIM)
-  --    = (allFFCOHasFFIIM(SCO, IM SIM) = allFFCOHasFFIIM(SCO, SIM)) 
-  --  when (not existCO(SCO,importer(IM))) .
-  ceq allFFCOHasFFIIM(SCO, IM SIM) = allFFCOHasFFIIM(SCO, SIM)
-     if (not existCO(SCO,importer(IM))) .
+  op DDSC : Component SetOfComponent SetOfImport -> SetOfComponent
+  -- Upward DDSC
+  op DDSCU : Component SetOfComponent SetOfImport -> SetOfComponent
+  eq DDSCU(CO,SCO,SIM)
+    = getECOsOfIMs(SCO,
+        getIMsOfICOInTargetStates(
+          getIMsOfTypeOfICOInStates(SIM,mandatory,CO,wired),CO,swired)) .
+  -- Downward DDSC
+  op DDSCD : Component SetOfComponent SetOfImport -> SetOfComponent
+  eq DDSCD(CO,SCO,SIM)
+    = getICOsOfIMs(SCO,
+        getIMsOfTypeOfECOInStates(SIM,mandatory,CO,wired)) .
+
+  pred isCONoCycle : Component SetOfComponent SetOfImport SetOfLS
+  eq isCONoCycle(CO,SCO,SIM,SLS)
+    = inStates(CO,SLS) and allCONotInStates(DDSC(CO,SCO,SIM),SLS) .
+ 
+  pred someCONoCycle : SetOfComponent SetOfImport SetOfLS
+  eq someCONoCycle(empCO,SIM,SLS) = false .
+  eq someCONoCycle((CO SCO),SIM,SLS)
+    = isCONoCycle(CO,SCO,SIM,SLS) or someCONoCycle(SCO,SIM,SLS) .
+
+  -- NoCyclic Lemmas
+  pred robust-lemmaN01 : Component SetOfComponent SetOfImport ListOfLog
+  eq robust-lemmaN01(CO,SCO,SIM,L)
+    = wfs(< (CO SCO), SIM, L >) and inStates(CO,st(started,started,sstarted)) 
+      implies someCONoCycle((CO SCO),SIM,st(started,started,sstarted)) .
+
+  pred robust-lemmaN02 : Component SetOfComponent SetOfImport ListOfLog
+  eq robust-lemmaN02(CO,SCO,SIM,L)
+    = wfs(< (CO SCO), SIM, L >) and inStates(CO,st(started,stopped,stopped)) 
+      implies someCONoCycle((CO SCO),SIM,st(started,stopped,stopped)) .
+
+  -- Lemma for initcont
+  pred robust-lemmaIC : Component SetOfComponent SetOfImport ListOfLog
+  eq robust-lemmaIC(CO,SCO,SIM,L)
+    = init(< (CO SCO), SIM, L >) implies cont(< (CO SCO), SIM, L >)
+      when inStates(CO,st(started,started,sstarted)) .
 }
 
-select ROBUSTLEMMA16
-:goal { eq robust-lemma16(sCO, im, im', sIM) = true .}
-:def importerimctf = :ctf {
-  eq importer(im') = importer(im) .
+--> Proof of robust-lemmaN01
+-->  eq robust-lemmaN01(CO,SCO,SIM,L)
+-->    = wfs(< (CO SCO), SIM, L >) and inStates(CO,st(started,started,sstarted)) 
+-->      implies someCONoCycle((CO SCO),SIM,st(started,started,sstarted)) .
+open ProofLemma .
+  -- Define DDSC for robust-lemmaN01
+  eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
+
+  -- Induction Hypothesis
+  ceq [robust-lemmaN01-IH :nonexec]:
+    (wfs(< (CO SCO), SIM, lg >) and inStates(CO,st(started,started,sstarted))
+     implies someCONoCycle((CO' SCO'),SIM,st(started,started,sstarted))) = true
+    if t(CO',SCO',SIM) <wf t(CO,SCO,SIM) .
+
+  -- Define <wf for robust-lemmaN02
+  ceq ( t(CO',SCO',(IM SIM')) <wf t(CO,SCO,(IM SIM')) ) = true
+     if inStates(CO, st(started,started,sstarted)) and
+        inStates(CO',st(started,started,sstarted)) and
+        importer(IM) = id(CO) and exporter(IM) = id(CO') and
+        type(IM) = mandatory and state(IM) = wired and target(IM) = swired and 
+        SCO' <wf SCO .
+
+  eq co = cmp(idCO,cCOs,nCOs,tCOs) .
+  -- for debug
+  -- op lst : -> LocalState .
+  -- eq lst = st(started,started,sstarted) .
+
+:goal { eq robust-lemmaN01(co,sCO,sIM,lg) = true . }
+:def cCOsctf = :ctf { eq cCOs = started . } :apply(cCOsctf rd-)
+:def nCOsctf = :ctf { eq nCOs = started . } :apply(nCOsctf rd-)
+:def tCOsctf = :ctf { eq tCOs = sstarted . } :apply(tCOsctf rd-)
+-- Case 1-1-1: (started,stared,sstarted) 
+:def hasECOcsp = :csp {
+  eq allCONotInStates(
+        getECOsOfIMs(sCO,
+                     getIMsOfICOInTargetStates(
+                          getIMsOfTypeOfICOInStates(sIM,mandatory,idCO,wired),
+                          idCO,swired)),
+        st(started,started,sstarted)) = true .
+  eq sIM = (imp(mandatory,idIM,idCO,eidCO,wired,nIMs,swired) sIM') .
 }
-:apply (importerimctf rd-)
-:def IMHaveICOcsp = :csp {
-  eq allIMHaveICO(im,sCO) = false .
-  eq sCO = (cmp(importer(im),cCOs,nCOs,tCOs) sCO') .
+:apply(hasECOcsp rd-)
+-- 1-1-1-2: imp(mandatory,idIM,idCO,eidCO,wired,nIMs,swired)
+:csp {
+  eq sCO = (cmp(eidCO,started,started,sstarted) sCO') .
 }
-:apply (IMHaveICOcsp)
+:init as robust-lemmaN01-IH-in [robust-lemmaN01-IH]
+  by {CO:Component <- co;
+      SCO:SetOfComponent <- sCO;
+      SIM:SetOfImport <- sIM;
+      CO':Component <- cmp(eidCO,started,started,sstarted);
+      SCO':SetOfComponent <- sCO'; }
 :apply (rd-)
-:def existCOctf = :ctf {
-  eq existCO(sCO',importer(im)) = true .
+
+--> Proof of robust-lemmaN01 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaN02
+-->  eq robust-lemmaN02(CO,SCO,SIM,L)
+-->    = wfs(< (CO SCO), SIM, L >) and inStates(CO,st(started,stopped,stopped)) 
+-->      implies someCONoCycle((CO SCO),SIM,st(started,stopped,stopped)) .
+open ProofLemma .
+  -- Define DDSC for robust-lemmaN02
+  eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
+
+  -- Induction Hypothesis
+  ceq [robust-lemmaN02-IH :nonexec]:
+    (wfs(< (CO SCO), SIM, lg >) and inStates(CO,st(started,stopped,stopped))
+     implies someCONoCycle((CO' SCO'),SIM,st(started,stopped,stopped))) = true
+    if t(CO',SCO',SIM) <wf t(CO,SCO,SIM) .
+
+  -- Define <wf for robust-lemmaN02
+  ceq ( t(CO',SCO',(IM SIM')) <wf t(CO,SCO,(IM SIM')) ) = true
+     if inStates(CO, st(started,stopped,stopped)) and
+        inStates(CO',st(started,stopped,stopped)) and
+        exporter(IM) = id(CO) and importer(IM) = id(CO') and type(IM) = mandatory and
+        SCO' <wf SCO .
+
+  eq co = cmp(idCO,cCOs,nCOs,tCOs) .
+  -- for debug
+  -- op lst : -> LocalState .
+  -- eq lst = st(started,started,sstarted) .
+
+:goal { eq robust-lemmaN02(co,sCO,sIM,lg) = true . }
+:def cCOsctf = :ctf { eq cCOs = started . } :apply(cCOsctf rd-)
+:def nCOsctf = :ctf { eq nCOs = stopped . } :apply(nCOsctf rd-)
+:def tCOsctf = :ctf { eq tCOs = stopped . } :apply(tCOsctf rd-)
+-- Case 1-1-1: (started,stopped,stopped) 
+:def hasICOcsp = :csp {
+  eq allCONotInStates(
+       getICOsOfIMs(sCO,
+         getIMsOfTypeOfECOInStates(sIM,mandatory,idCO,wired)),
+       st(started,stopped,stopped)) = true .
+  eq sIM = (imp(mandatory,idIM,iidCO,idCO,wired,nIMs,tIMs) sIM') .
 }
-:apply (existCOctf)
-**> It takes 3 minutes. <**
+:apply(hasICOcsp rd-)
+-- 1-1-1-2: imp(mandatory,idIM,idCO,eidCO,wired,nIMs,tIMs)
+:csp {
+  eq sCO = (cmp(iidCO,started,stopped,stopped) sCO') .
+}
+:init as robust-lemmaN02-IH-in [robust-lemmaN02-IH]
+  by {CO:Component <- co;
+      SCO:SetOfComponent <- sCO;
+      SIM:SetOfImport <- sIM;
+      CO':Component <- cmp(iidCO,started,stopped,stopped);
+      SCO':SetOfComponent <- sCO'; }
 :apply (rd-)
-:def cCOs = :csp {
-  eq cCOs = started .
-  eq cCOs = stopped .
-}
-:def nCOs = :csp {
-  eq nCOs = started .
-  eq nCOs = stopped .
-}
-:def tCOs = :csp {
-  eq tCOs = started .
-  eq tCOs = stopped .
-}
-:apply (cCOs nCOs tCOs rd-)
---> Proof of robust-lemma16 done.
+
+--> Proof of robust-lemmaN02 done
 -->
 show proof
-select
+close
 
---> **************************************************************************
---> Proof of robust-lemma17.
--->  eq robust-lemma17(SCO,IM,IM',SIM)
--->     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
--->   when (importer(IM) = importer(IM')) and 
--->        (state(IM)   = unwired) and
--->        (next(IM)    = wired) and
--->        (target(IM)  = wired) and
--->        (state(IM')  = wired) and
--->        (next(IM')   = wired) and
--->        (target(IM') = wired) .
---> **************************************************************************
-module ROBUSTLEMMA17 {
-  protecting(ROBUSTLEMMA)
-  -- Induction Hypothesis
-  ceq [robust-lemma17-IH :nonexec]:
-     robust-lemma17(SCO:SetOfComponent, im, im', sIM) = true
-     if SCO <wf (cmp(idCO,cCOs,nCOs,tCOs) sCO) .
-}
+--> Proof of robust-lemmaIC
+-->  eq robust-lemmaIC(CO,SCO,SIM,L)
+-->    = init(< (CO SCO), SIM, L >) implies cont(< (CO SCO), SIM, L >)
+-->      when inStates(CO,st(started,started,sstarted)) .
+open ProofLemma .
 
-select ROBUSTLEMMA17
-:goal { eq robust-lemma17(sCO0, im, im', sIM) = true .}
-:def importerimctf = :ctf {
-  eq importer(im') = importer(im) .
+  -- robust-lemmaN01(CO,SCO,SIM,L)
+  --   = wfs(< (CO SCO), SIM, L >) and inStates(CO,st(started,started,sstarted)) 
+  --     implies someCONoCycle((CO SCO),SIM,st(started,started,sstarted)) .
+  -- this lemma assumes that DDSC = DDSCU
+
+  -- someCONoCycle((CO SCO),SIM,st(started,started,sstarted)) means that
+  --  there exists a CO' in (CO SCO) 
+  --    such that isCONoCycle(CO',(CO SCO),SIM,st(started,started,sstarted)) .
+
+  -- Since robust-lemmaIC can select an arbitrary CO, we can select CO as CO',
+  -- that is, we can assume as follows:
+  ceq [robust-lemmaN01]:
+    wfs(< (CO SCO), SIM, L >) = false
+    if inStates(CO,st(started,started,sstarted)) and
+       isCONoCycle(CO,(CO SCO),SIM,st(started,started,sstarted)) = false .
+  -- This lemma assumes that DDSC = DDSCU
+   eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
+
+  eq co = cmp(idCO,cCOs,nCOs,tCOs) .
+
+:goal { eq robust-lemmaIC(co,sCO,sIM,lg) = true .}
+:def cCOsctf = :ctf { eq cCOs = started . } :apply(cCOsctf rd-)
+:def nCOsctf = :ctf { eq nCOs = started . } :apply(nCOsctf rd-)
+:def tCOsctf = :ctf { eq tCOs = sstarted . } :apply(tCOsctf rd-)
+-- Case 1-1-1: (started,stared,sstarted) RS-sstart2 should be applied.
+-- RS-sstarted2 requires allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) .
+:def cansstartcsp = :csp {
+  eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
+  eq sIM = (imp(mandatory, idIM, idCO, eidCO, unwired, nIMs, tIMs) sIM') .
+  eq sIM = (imp(mandatory, idIM, idCO, eidCO,   wired, nIMs, tIMs) sIM') .
 }
-:apply (importerimctf rd-)
-:def stateim = :csp {
-  eq state(im) = wired .
-  eq state(im) = unwired .
-  eq state(im) = unused .
+:apply(cansstartcsp rd-)
+-- Case 1-1-1-1: RS-sstart2 is applied.
+-- Case 1-1-1-2: wfs-validCurrent is false (mandatry import of started component should be wired).
+-- Case 1-1-1-3: the import is wired.
+:def nIMscsp = :csp  { 
+  eq nIMs = unused .
+  eq nIMs = unwired .
+  eq nIMs = wired .
+  eq nIMs = swired .
 }
-:apply (stateim rd-)
-:def nextim = :csp {
-  eq next(im) = wired .
-  eq next(im) = unwired .
-  eq next(im) = unused .
+:apply(nIMscsp rd-)
+-- Case 1-1-1-3-1,2,4: stablyIMSet(S) = false beacuse nIMs is not wired.
+-- Case 1-1-1-3-3: the import is stable.
+:def tIMscsp = :csp  { 
+  eq tIMs = unused .
+  eq tIMs = unwired .
+  eq tIMs = wired .
+  eq tIMs = swired .
 }
-:apply (nextim rd-)
-:def targetim = :csp {
-  eq target(im) = wired .
-  eq target(im) = unwired .
-  eq target(im) = unused .
+:apply(tIMscsp rd-)
+-- Case 1-1-1-3-3-1: RS-unused is applied.
+-- Case 1-1-1-3-3-2: wfs-validTarget is false (mandatry import of started component should be wired).
+-- Case 1-1-1-3-3-3: target state of import should not be wired.
+-- Case 1-1-1-3-3-4: wired,wired,swired
+:def exECOcsp = :csp  { 
+  eq existCO(sCO,eidCO) = false .
+  eq sCO = (cmp(eidCO,cCOs',nCOs',tCOs') sCO') .
 }
-:apply (targetim rd-)
-:def stateim' = :csp {
-  eq state(im') = wired .
-  eq state(im') = unwired .
-  eq state(im') = unused .
+:apply(exECOcsp rd-)
+-- Case 1-1-1-3-3-4-1: wfs-allIMHaveECO is false.
+-- Case 1-1-1-3-3-4-2: 
+:def cCOs'csp = :csp  { 
+  eq cCOs' = stopped .
+  eq cCOs' = started .
+  eq cCOs' = sstarted .
 }
-:apply (stateim' rd-)
-:def nextim' = :csp {
-  eq next(im') = wired .
-  eq next(im') = unwired .
-  eq next(im') = unused .
+:def nCOs'csp = :csp  { 
+  eq nCOs' = stopped .
+  eq nCOs' = started .
+  eq nCOs' = sstarted .
 }
-:apply (nextim' rd-)
-:def targetim' = :csp {
-  eq target(im') = wired .
-  eq target(im') = unwired .
-  eq target(im') = unused .
+:def tCOs'csp = :csp  { 
+  eq tCOs' = stopped .
+  eq tCOs' = started .
+  eq tCOs' = sstarted .
 }
-:apply (targetim' rd-)
-:init as robust-lemma17-IH-in [robust-lemma17-IH]
-      by {SCO:SetOfComponent <- SCO:SetOfComponent;}
-:def sCO0 = :csp {
-  eq sCO0 = empCO .
-  eq sCO0 = (co sCO) .
-}
-:apply (sCO0 rd-)
-:def isFF1coctf = :ctf {
-  eq isForced1(co) = true .
-}
-:apply (isFF1coctf rd-)
-:def idcoctf = :ctf {
-  eq id(co) = importer(im) .
-}
-:apply (idcOctf)
-:def existFFimctf = :ctf { 
-  eq existFFIM(getIMsOfICO(sIM,importer(im))) = true .
-}
-:apply (existFFimctf rd-)
-:def existFF2ctf = :ctf { 
-  eq existFFIM(getIMsOfICO(sIM,id(co))) = true .
-}
-:apply (existFF2ctf rd-)
---> Proof of robust-lemma17 done.
+:apply (cCOs'csp nCOs'csp tCOs'csp rd-)
+-- Case 1-1-1-3-3-4-2-2-2-3: started,started,started 
+-- is discarged by robust-lemmaN01
+--> Proof of robust-lemmaIC done
 -->
 show proof
-select
+close
 
---> **************************************************************************
---> Proof of robust-lemma18.
--->  eq robust-lemma18(SCO,IM,IM',SIM)
--->     = (allFFCOHasFFIIM(SCO, IM SIM) implies allFFCOHasFFIIM(SCO, IM' SIM))
--->   when (importer(IM) = importer(IM')) and 
--->        (type(IM)    = optional) and
--->        (state(IM)   = wired) and
--->        (next(IM)    = unwired) and
--->        (target(IM)  = wired) and
--->        (state(IM')  = unwired) and
--->        (next(IM')   = unwired) and
--->        (target(IM') = wired) .
---> **************************************************************************
-module ROBUSTLEMMA18 {
-  protecting(ROBUSTLEMMA)
-  -- Induction Hypothesis
-  ceq [robust-lemma18-IH :nonexec]:
-     robust-lemma18(SCO:SetOfComponent, im, im', sIM) = true
-     if SCO <wf (cmp(idCO,cCOs,nCOs,tCOs) sCO) .
-}
-
-select ROBUSTLEMMA18
-:goal { eq robust-lemma18(sCO0, im, im', sIM) = true .}
-:def importerimctf = :ctf {
-  eq importer(im') = importer(im) .
-}
-:apply (importerimctf rd-)
-:def typeim = :csp {
-  eq type(im) = mandatory .
-  eq type(im) = optional .
-}
-:apply (typeim rd-)
-:def stateim = :csp {
-  eq state(im) = wired .
-  eq state(im) = unwired .
-  eq state(im) = unused .
-}
-:apply (stateim rd-)
-:def nextim = :csp {
-  eq next(im) = wired .
-  eq next(im) = unwired .
-  eq next(im) = unused .
-}
-:apply (nextim rd-)
-:def targetim = :csp {
-  eq target(im) = wired .
-  eq target(im) = unwired .
-  eq target(im) = unused .
-}
-:apply (targetim rd-)
-:def stateim' = :csp {
-  eq state(im') = wired .
-  eq state(im') = unwired .
-  eq state(im') = unused .
-}
-:apply (stateim' rd-)
-:def nextim' = :csp {
-  eq next(im') = wired .
-  eq next(im') = unwired .
-  eq next(im') = unused .
-}
-:apply (nextim' rd-)
-:def targetim' = :csp {
-  eq target(im') = wired .
-  eq target(im') = unwired .
-  eq target(im') = unused .
-}
-:apply (targetim' rd-)
-:init as robust-lemma18-IH-in [robust-lemma18-IH]
-      by {SCO:SetOfComponent <- SCO:SetOfComponent;}
-:def sCO0 = :csp {
-  eq sCO0 = empCO .
-  eq sCO0 = (co sCO) .
-}
-:apply (sCO0 rd-)
-:def isFF1coctf = :ctf {
-  eq isForced1(co) = true .
-}
-:apply (isFF1coctf rd-)
-:def idcoctf = :ctf {
-  eq id(co) = importer(im) .
-}
-:apply (idcOctf)
-:def existFFimctf = :ctf { 
-  eq existFFIM(getIMsOfICO(sIM,importer(im))) = true .
-}
-:apply (existFFimctf rd-)
-:def existFF2ctf = :ctf { 
-  eq existFFIM(getIMsOfICO(sIM,id(co))) = true .
-}
-:apply (existFF2ctf rd-)
---> Proof of robust-lemma18 done.
--->
-show proof
-select
-
---> **************************************************************************
---> Proof of robust-lemma19.
--->  eq robust-lemma19(SIM,CO,Co',SCO)
--->     = (allFFIMHasFFECO(SIM, CO SCO) implies allFFIMHasFFECO(SIM, CO' SCO))
--->   when (id(CO) = id(CO')) and 
--->        not isForced1(CO) and not isForced1(CO') and
--->        (tdis(IM) > tdis(IM')) .
---> **************************************************************************
-module ROBUSTLEMMA19 {
-  protecting(ROBUSTLEMMA)
-  -- Induction Hypothesis
-  ceq [robust-lemma19-IH :nonexec]:
-     robust-lemma19(SIM:SetOfImport, co, co', sCO) = true
-     if SIM <wf (imp(tIM,idIM,iidCO,eidCO,cIMs,nIMs,tIMs) sIM) .
-}
-
-select ROBUSTLEMMA19
-:goal { eq robust-lemma19(sIM0, co, co', sCO) = true .}
-:def idcoctf = :ctf {
-  eq id(co') = id(co) .
-}
-:def isFF1coctf = :ctf {
-  eq isForced1(co) = true .
-}
-:def isFF1co'ctf = :ctf {
-  eq isForced1(co') = true .
-}
-:apply (idcoctf isFF1coctf isFF1co'ctf rd-)
-:init as robust-lemma19-IH-in [robust-lemma19-IH]
-      by {SIM:SetOfImport <- SIM:SetOfImport;}
-:def sIM0 = :csp {
-  eq sIM0 = empIM .
-  eq sIM0 = (im sIM) .
-}
-:apply (sIM0 rd-)
-:def idcoisExporterctf = :ctf {
-  eq id(co) = exporter(im) .
-}
-:def isFFimctf = :ctf {
-  eq isForced1(im) = true .
-}
-:apply (idcoisExporterctf isFFimctf rd-)
-:def isFF1imcoctf = :ctf {
-  eq isForced1(getComponent(sCO,exporter(im))) = true .
-}
-:apply (isFF1imcoctf rd-)
---> Proof of robust-lemma19 done.
--->
-show proof
-select
-
---> **************************************************************************
---> Proof of robust-lemma20.
--->  eq robust-lemma20(SIM,CO,Co',SCO)
--->     = (allFFIMHasFFECO(SIM, CO SCO) implies allFFIMHasFFECO(SIM, CO' SCO))
--->   when (id(CO) = id(CO')) and 
--->        not isForced1(CO) and isForced1(CO') and
--->        (fdis(CO) > fdis(CO')) .
---> **************************************************************************
-module ROBUSTLEMMA20 {
-  protecting(ROBUSTLEMMA)
-  -- Induction Hypothesis
-  ceq [robust-lemma20-IH :nonexec]:
-     robust-lemma20(SIM:SetOfImport, co, co', sCO) = true
-     if SIM <wf (imp(tIM,idIM,iidCO,eidCO,cIMs,nIMs,tIMs) sIM) .
-}
-
-select ROBUSTLEMMA20
-:goal { eq robust-lemma20(sIM0, co, co', sCO) = true .}
-:def idcoctf = :ctf {
-  eq id(co') = id(co) .
-}
-:def isFF1coctf = :ctf {
-  eq isForced1(co) = true .
-}
-:def isFF1co'ctf = :ctf {
-  eq isForced1(co') = true .
-}
-:apply (idcoctf isFF1coctf isFF1co'ctf rd-)
-:init as robust-lemma20-IH-in [robust-lemma20-IH]
-      by {SIM:SetOfImport <- SIM:SetOfImport;}
-:def sIM0 = :csp {
-  eq sIM0 = empIM .
-  eq sIM0 = (im sIM) .
-}
-:apply (sIM0 rd-)
-:def idcoisExporterctf = :ctf {
-  eq id(co) = exporter(im) .
-}
-:def isFFimctf = :ctf {
-  eq isForced1(im) = true .
-}
-:apply (idcoisExporterctf isFFimctf rd-)
-:def isFF1imcoctf = :ctf {
-  eq isForced1(getComponent(sCO,exporter(im))) = true .
-}
-:apply (isFF1imcoctf rd-)
---> Proof of robust-lemma20 done.
--->
-show proof
-
---> **********************************************************************
---> Proof of robust-lemma21.
--->  eq robust-lemma21(SIM,CO,SCO)
--->     = (allFFIMHasFFECO(SIM, CO SCO) implies allFFIMHasFFECO(SIM, SCO))
--->   when getIMsOfECOInStates(SIM,id(CO),wired) = empIM .
---> **********************************************************************
-module ROBUSTLEMMA21 {
-  protecting(ROBUSTLEMMA)
-  -- Induction Hypothesis
-  ceq [robust-lemma21-IH :nonexec]:
-     robust-lemma21(SIM:SetOfImport, co, sCO) = true
-     if SIM <wf (im sIM) .
-}
-
-select ROBUSTLEMMA21
-:goal { eq robust-lemma21(sIM0, co, sCO) = true .}
-:init as robust-lemma21-IH-in [robust-lemma21-IH]
-      by {SIM:SetOfImport <- SIM:SetOfImport;}
-:def sIM0 = :csp {
-  eq sIM0 = empIM .
-  eq sIM0 = (im sIM) .
-}
-:apply (sIM0 rd-)
-:def idcoisExporterctf = :ctf {
-  eq exporter(im) = id(co) .
-}
-:def imWiredctf = :ctf {
-  eq state(im) = wired .
-}
-:apply (idcoisExporterctf imWiredctf rd-)
-:def isFF1imctf = :ctf {
-  eq isForced1(im) = true .
-}
-:apply (isFF1imctf rd-)
-:def isFF1ExpCoctf = :ctf {
-  eq isForced1(getComponent(sCO,exporter(im))) = true .
-}
-:apply (isFF1ExpCoctf rd-)
---> Proof of robust-lemma21 done.
--->
-show proof
-
-select
-
---> Totally 12 goals should be proved.
+--> Totally 3 goals should be proved.

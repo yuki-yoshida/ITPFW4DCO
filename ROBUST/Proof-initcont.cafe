@@ -1,124 +1,5 @@
 require Proof Proof.cafe
 
--- No Cycle Lemma -- To be proved:
--- for all global states S = < SCO, SIM, L >,
---   init(S) and someCOInStates(SCO,st(started,started,sstarted))
---   implies
---   there exists a Component CO in SCO such that
---     inStates(CO,st(started,started,sstarted)) and
---     not someCOInStates(DDSC(CO,SCO,SIM),st(started,started,sstarted))
-
-module LOCALSTATE {
-  protecting(ProofBase)
-  [LocalState] 
-  op st : COState COState COState -> LocalState {constr}
-}
-
-module ProofNoCycle {
-  including(-SET+NAT(LOCALSTATE {sort Elt -> LocalState})
-      * {sort Set -> SetOfLS,
-      	 op empty -> empLS})
-
-  var S : State
-  vars CO CO' : Component
-  var IM : Import
-  vars SCO SCO' : SetOfComponent
-  vars SIM SIM' : SetOfImport
-  var L : ListOfLog
-  var LS : LocalState
-  var SLS : SetOfLS
-  vars CSCO NSCO TSCO : COState
-
-  pred inStates : Component SetOfLS
-  eq inStates(CO,empLS) = false .
-  eq inStates(CO,(st(CSCO,NSCO,TSCO) SLS))
-    = (state(CO) = CSCO and next(CO) = NSCO and target(CO) = TSCO)
-      or inStates(CO,SLS) .
-
-  -- not someCOInStates == allCONotInStates
-  pred allCONotInStates : SetOfComponent SetOfLS
-  eq allCONotInStates(empCO,LS) = true .
-  eq allCONotInStates((CO SCO),LS)
-    = not inStates(CO,LS) and allCONotInStates(SCO,LS) .
-
-  op DDSC : Component SetOfComponent SetOfImport -> SetOfComponent
-  eq DDSC(CO,SCO,SIM)
-    = getECOsOfIMs(SCO,
-        getIMsOfICOInTargetStates(
-          getIMsOfTypeOfICOInStates(SIM,mandatory,CO,wired),CO,swired)) .
-
-  pred isCONoCycle : Component SetOfComponent SetOfImport SetOfLS
-  eq isCONoCycle(CO,SCO,SIM,SLS)
-    = inStates(CO,SLS) and allCONotInStates(DDSC(CO,SCO,SIM),SLS) .
- 
-  pred someCONoCycle : SetOfComponent SetOfImport SetOfLS
-  eq someCONoCycle(empCO,SIM,SLS) = false .
-  eq someCONoCycle((CO SCO),SIM,SLS)
-    = isCONoCycle(CO,SCO,SIM,SLS) or someCONoCycle(SCO,SIM,SLS) .
-
-  pred robust-lemmaC01 : Component SetOfComponent SetOfImport ListOfLog
-  eq robust-lemmaC01(CO,SCO,SIM,L)
-    = init(< (CO SCO), SIM, L >) and inStates(CO,st(started,started,sstarted)) 
-      implies someCONoCycle((CO SCO),SIM,st(started,started,sstarted)) .
-
-}
-
--- Proof of robust-lemmaC01
-open ProofNoCycle .
-  [COSCOSIM] op t : Component SetOfComponent SetOfImport -> COSCOSIM {constr} .
-  pred _<wf_ : COSCOSIM COSCOSIM .
-
-  -- Induction Hypothesis
-  ceq [robust-lemmaC01-IH :nonexec]:
-    (init(< (CO SCO), SIM, lg >) and inStates(CO,st(started,started,sstarted))
-     implies someCONoCycle((CO' SCO'),SIM,st(started,started,sstarted))) = true
-    if t(CO',SCO',SIM) <wf t(CO,SCO,SIM) .
-
-  -- well-founded binary relation   
-  ceq ( t(CO',SCO',(IM SIM')) <wf t(CO,SCO,(IM SIM')) ) = true
-     if inStates(CO,st(started,started,sstarted)) and
-        inStates(CO',st(started,started,sstarted)) and
-        importer(IM) = id(CO) and exporter(IM) = id(CO') and
-        type(IM) = mandatory and state(IM) = wired and target(IM) = swired and 
-        SCO' <wf SCO .
-
-  eq co = cmp(idCO,cCOs,nCOs,tCOs) .
-  -- for debug
-  -- op lst : -> LocalState .
-  -- eq lst = st(started,started,sstarted) .
-
-:goal { eq robust-lemmaC01(co,sCO,sIM,lg) = true . }
-:def cCOsctf = :ctf { eq cCOs = started . } :apply(cCOsctf rd-)
-:def nCOsctf = :ctf { eq nCOs = started . } :apply(nCOsctf rd-)
-:def tCOsctf = :ctf { eq tCOs = sstarted . } :apply(tCOsctf rd-)
--- Case 1-1-1: (started,stared,sstarted) 
-:def hasECOcsp = :csp {
-  eq allCONotInStates(
-        getECOsOfIMs(sCO,
-                     getIMsOfICOInTargetStates(
-                          getIMsOfTypeOfICOInStates(sIM,mandatory,idCO,wired),
-                          idCO,swired)),
-        st(started,started,sstarted)) = true .
-  eq sIM = (imp(mandatory,idIM,idCO,eidCO,wired,nIMs,swired) sIM') .
-}
-:apply(hasECOcsp rd-)
--- 1-1-1-2: imp(mandatory,idIM,idCO,eidCO,wired,nIMs,swired)
-:csp {
-  eq sCO = (cmp(eidCO,started,started,sstarted) sCO') .
-}
-:init as robust-lemmaC01-IH-in [robust-lemmaC01-IH]
-  by {CO:Component <- co;
-      SCO:SetOfComponent <- sCO;
-      SIM:SetOfImport <- sIM;
-      CO':Component <- cmp(eidCO,started,started,sstarted);
-      SCO':SetOfComponent <- sCO'; }
-:apply (rd-)
-
---> Proof of robust-lemmaC01 done
--->
-show proof
-close
-
 --> ****************************
 --> (1) init(S) implies cont(S).
 --> ****************************
@@ -126,121 +7,26 @@ close
 --> Step 1-0: Define a predicate to be proved.
 --> ******************************************
 module ProofInitCont {
-  protecting(ProofNoCycle)
-
-  pred (_when _) : Bool Bool { prec: 63 r-assoc }
-  eq (B1:Bool when B2:Bool)
-     = B2 implies B1 .
+  protecting(ProofBase)
 
   var S : State
   pred initcont : State .
   eq initcont(S) = init(S) implies cont(S) .
 
-  -- lemma
-  vars CO CO' : Component
-  var IM : Import
-  vars SCO SCO' : SetOfComponent
-  vars SIM SIM' : SetOfImport
-  var L : ListOfLog
-  pred robust-lemmaC02 : Component SetOfComponent SetOfImport ListOfLog
-  eq robust-lemmaC02(CO,SCO,SIM,L)
-    = initcont(< (CO SCO), SIM, L >)
-      when inStates(CO,st(started,started,sstarted)) .
 }
-
--- Proof of robust-lemmaC02
-open ProofInitCont .
-
-  -- robust-lemmaC01(CO,SCO,SIM,L)
-  --   = init(< (CO SCO), SIM, L >) and inStates(CO,st(started,started,sstarted)) 
-  --     implies someCONoCycle((CO SCO),SIM,st(started,started,sstarted)) .
-
-  -- someCONoCycle((CO SCO),SIM,st(started,started,sstarted)) means that
-  --  there exists a CO' in (CO SCO) 
-  --    such that isCONoCycle(CO',(CO SCO),SIM,st(started,started,sstarted)) .
-
-  -- Since robust-lemmaC02 can select an arbitrary CO, we can select CO as CO',
-  -- that is, we can assume as follows:
-  ceq [robust-lemmaC01]:
-    init(< (CO SCO), SIM, L >) = false
-    if inStates(CO,st(started,started,sstarted)) and
-       isCONoCycle(CO,(CO SCO),SIM,st(started,started,sstarted)) = false .
-
-  eq co = cmp(idCO,cCOs,nCOs,tCOs) .
-
-:goal { eq robust-lemmaC02(co,sCO,sIM,lg) = true .}
-:def cCOsctf = :ctf { eq cCOs = started . } :apply(cCOsctf rd-)
-:def nCOsctf = :ctf { eq nCOs = started . } :apply(nCOsctf rd-)
-:def tCOsctf = :ctf { eq tCOs = sstarted . } :apply(tCOsctf rd-)
--- Case 1-1-1: (started,stared,sstarted) RS-sstart2 should be applied.
--- RS-sstarted2 requires allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) .
-:def cansstartcsp = :csp {
-  eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
-  eq sIM = (imp(mandatory, idIM, idCO, eidCO, unwired, nIMs, tIMs) sIM') .
-  eq sIM = (imp(mandatory, idIM, idCO, eidCO,   wired, nIMs, tIMs) sIM') .
-}
-:apply(cansstartcsp rd-)
--- Case 1-1-1-1-1: RS-sstart2 is applied.
--- Case 1-1-1-1-2: wfs-validCurrent is false (mandatry import of started component should be wired).
--- Case 1-1-1-1-3: the import is wired.
-:def nIMscsp = :csp  { 
-  eq nIMs = unused .
-  eq nIMs = unwired .
-  eq nIMs = wired .
-  eq nIMs = swired .
-}
-:apply(nIMscsp rd-)
--- Case 1-1-1-1-3-1,2,4: stablyIMSet(S) = false beacuse nIMs is not wired.
--- Case 1-1-1-1-3-3: the import is stable.
-:def tIMscsp = :csp  { 
-  eq tIMs = unused .
-  eq tIMs = unwired .
-  eq tIMs = wired .
-  eq tIMs = swired .
-}
-:apply(tIMscsp rd-)
--- Case 1-1-1-1-3-3-1: RS-unused is applied.
--- Case 1-1-1-1-3-3-2: wfs-validTarget is false (mandatry import of started component should be wired).
--- Case 1-1-1-1-3-3-3: target state of import should not be wired.
--- Case 1-1-1-1-3-3-4: wired,wired,swired
-:def exECOcsp = :csp  { 
-  eq existCO(sCO,eidCO) = false .
-  eq sCO = (cmp(eidCO,cCOs',nCOs',tCOs') sCO') .
-}
-:apply(exECOcsp rd-)
--- Case 1-1-1-1-3-3-4-1: wfs-allIMHaveECO is false.
--- Case 1-1-1-1-3-3-4-2: 
-:def cCOs'csp = :csp  { 
-  eq cCOs' = stopped .
-  eq cCOs' = started .
-  eq cCOs' = sstarted .
-}
-:def nCOs'csp = :csp  { 
-  eq nCOs' = stopped .
-  eq nCOs' = started .
-  eq nCOs' = sstarted .
-}
-:def tCOs'csp = :csp  { 
-  eq tCOs' = stopped .
-  eq tCOs' = started .
-  eq tCOs' = sstarted .
-}
-:apply (cCOs'csp nCOs'csp tCOs'csp rd-)
--- Case 1-1-1-3-3-4-2-2-2-3: started,started,started 
--- is discarged by robust-lemmaC01
---> Proof of robust-lemmaC02 done
--->
-show proof
-close
 
 -- Proof of (1) init(S) implies cont(S).
 open ProofInitCont .
 
   -- lemma
-  -- eq robust-lemmaC02(CO,SCO,SIM,L)
-  --   = initcont(< (CO SCO), SIM, L >) .
-  --     when inStates(CO,st(started,started,sstarted)) .
-  ceq initcont(< (CO SCO), SIM, L >) = true
+  --  eq robust-lemmaIC(CO,SCO,SIM,L)
+  --    = init(< (CO SCO), SIM, L >) implies cont(< (CO SCO), SIM, L >)
+  --      when inStates(CO,st(started,started,sstarted)) .
+  var CO : Component
+  var SCO : SetOfComponent
+  var SIM : SetOfImport
+  var L : ListOfLog
+  ceq initcont(< (CO SCO), SIM, L >) = true 
     if inStates(CO,st(started,started,sstarted)) .
 
 --> *******************************************
@@ -318,7 +104,7 @@ open ProofInitCont .
 :apply (cCOscsp nCOscsp tCOs rd-)
 -- When not (cCOs = nCOs), it is discharged by init(S) imples stableCOSet(sCO) . 
 -- When (cCOs = tCOs), it is discharged by :init eq (cCOs = tCOs) = false .
--- Case 2-2-2-2-3: it is discharged by robust-lemmaC02 .
+-- Case 2-2-2-2-3: it is discharged by robust-lemmaIC .
 -- Case 3: equivIMSet(sIM) = false means that
 --          at least one import whose state is not target.
 -- :init eq equivIMSet(sIM) = false .
@@ -361,10 +147,10 @@ open ProofInitCont .
   eq tCOs' = sstarted .
 }
 :apply (cCOs'csp nCOs'csp tCOs'csp rd-)
--- Case 3-2-3-3-4-2-2-2-3: it is discharged by robust-lemmaC02 .
+-- Case 3-2-3-3-4-2-2-2-3: it is discharged by robust-lemmaIC .
 --> Proof of (1) init(S) implies cont(S) done
 -->
 show proof
 close
 
---> Totally 3 goals should be proved.
+--> Totally 1 goal should be proved.
