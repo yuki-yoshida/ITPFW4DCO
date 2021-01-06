@@ -1,0 +1,123 @@
+require ProofContCont Proof-contcont.cafe
+
+--> **********************************************************
+--> (2) inv(S) and not final(S) implies cont(SS) or final(SS).
+--> **********************************************************
+
+--> ************************************************************************
+--> trans [RS-stop1]:
+-->    < (cmp(IDCO, started, started, stopped) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, started, stopped, stopped) SCO), SIM,
+-->      (clog("RS-stop1:Should Stop", cmp(IDCO, started, stopped, stopped),
+-->  mlog(
+-->      (cmp(IDCO, started, started, stopped) SCO), SIM
+-->        )) ListLG) > .
+--> ************************************************************************
+
+open ProofContCont .
+
+  -- eq robust-lemmaN02(CO,SCO,SIM,L)
+  --    = wfs(< (CO SCO), SIM, L >) and inStates(CO,st(started,stopped,stopped)) 
+  --      implies someCONoCycle((CO SCO),SIM,st(started,stopped,stopped)) .
+
+  -- someCONoCycle((CO SCO),SIM,st(started,stopped,stopped)) means that
+  --  there exists a CO' in (CO SCO) 
+  --    such that isCONoCycle(CO',(CO SCO),SIM,st(started,stopped,stopped)) .
+
+  -- Since robust-lemmaCCRSstop1 can select an arbitrary CO, we can select CO as CO',
+  -- that is, we can assume as follows:
+  var CO : Component
+  var SCO : SetOfComponent
+  var SIM : SetOfImport
+  var L : ListOfLog
+  ceq [robust-lemmaN02]:
+    wfs(< (CO SCO), SIM, L >) = false
+    if inStates(CO,st(started,stopped,stopped)) and
+       isCONoCycle(CO,(CO SCO),SIM,st(started,stopped,stopped)) = false .
+  -- This lemma assumes that DDSC = DDSCD
+  eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
+
+  ceq [robust-lemmaN02']:
+    wfs(< (cmp(idCO,started,started,stopped) SCO), SIM, L >) = false
+    if wfs(< (cmp(idCO,started,stopped,stopped) SCO), SIM, L >) = false .
+
+--> *************************************************************************
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq contcont(< (cmp(idCO, started, started, stopped) sCO), sIM, lg >) = true .
+}
+--> ******************************************************
+--> Step 2-2: Split the current case for a rule into cases
+--> where the condition of the rule does or does not hold.
+--> ******************************************************
+-- RS-stop1 requires getIMsOfECOInStates(sIM,idCO,(wired swired)) = empIM .
+:def csp2-6RD-stop = :csp {
+  eq getIMsOfECOInStates(sIM,idCO,(wired swired)) = empIM .
+  eq sIM = (imp(tIM, idIM, iidCO, idCO, cIMs, nIMs, tIMs) sIM') .
+}
+:apply (csp2-6RD-stop rd-)
+--> *********************************************************
+--> Step 2-3: Split the current case into cases where
+-->  predicate final does or does not hold in the next state.
+--> *********************************************************
+:def cIMscsp = :csp  { 
+  eq cIMs = wired .
+  eq cIMs = swired .
+}
+:def nIMscsp = :csp  { 
+  eq nIMs = unused .
+  eq nIMs = unwired .
+  eq nIMs = wired .
+  eq nIMs = swired .
+}
+:def tIMscsp = :csp  { 
+  eq tIMs = unused .
+  eq tIMs = unwired .
+  eq tIMs = wired .
+  eq tIMs = swired .
+}
+:apply(cIMscsp nIMscsp tIMscsp rd-)
+--> ***************************************************************
+--> Step 2-4: Consider which rule can be applied to the next state.
+--> ***************************************************************
+-- The next rule should be RD-unwire1 or RD-unwire2.
+--> *************************************************************************************
+--> Step 2-5: Split the current case into cases which collectively cover the current case
+-->  and the next state of one of the split cases matches to LHS of the current rule.
+--> *************************************************************************************
+:def tIMcsp = :csp {
+  eq tIM = mandatory .
+  eq tIM = optional .
+}
+:apply(tIMcsp rd-)
+:def iidCOcsp = :csp {
+  eq existCO(sCO,iidCO) = false .
+  eq sCO = (cmp(iidCO, cCOs', nCOs', tCOs') sCO') .
+}
+:apply (iidCOcsp rd-)
+:def cCOs'csp = :csp  { 
+  eq cCOs' = stopped .
+  eq cCOs' = started .
+  eq cCOs' = sstarted .
+}
+:def nCOs'csp = :csp  { 
+  eq nCOs' = stopped .
+  eq nCOs' = started .
+  eq nCOs' = sstarted .
+}
+:def tCOs'csp = :csp  { 
+  eq tCOs' = stopped .
+  eq tCOs' = started .
+  eq tCOs' = sstarted .
+}
+:apply (cCOs'csp nCOs'csp tCOs'csp rd-)
+-- Case 2-1-2-2-1-2-2-1-1: (started,stopped,stopped)
+-- is discarged by robust-lemmaN02
+--> Proof of robust-lemmaCCRSstop1 done
+-->
+show proof
+close
+
+--> Totally 1 goal should be proved.
