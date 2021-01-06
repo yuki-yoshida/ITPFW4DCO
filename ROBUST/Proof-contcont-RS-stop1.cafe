@@ -38,10 +38,6 @@ open ProofContCont .
   -- This lemma assumes that DDSC = DDSCD
   eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
 
-  ceq [robust-lemmaN02']:
-    wfs(< (cmp(idCO,started,started,stopped) SCO), SIM, L >) = false
-    if wfs(< (cmp(idCO,started,stopped,stopped) SCO), SIM, L >) = false .
-
 --> *************************************************************************
 --> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -144,6 +140,10 @@ open ProofContCont .
 --> Step 2-9: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
 -- robust-lemmaN02 rejects this case.
+:init as Inv-lemma-in [Inv-lemma]
+  by {S:State  <- (< (cmp(idCO,started,started,stopped) sCO), sIM, lg >);
+      SS:State <- (< (cmp(idCO,started,stopped,stopped) sCO), sIM, lg >); }
+:apply (rd-)
 --> Proof of (2) inv(S) and not final(S) implies cont(SS) or final(SS).
 -->   for Rule RS-stop1 done
 -->

@@ -23,5 +23,8 @@ module ProofContCont {
      = not (S =(*,1)=>+ SS if CC suchThat
             not ((CC implies ccont(S,SS)) == true)
      	   { S => SS !! CC ! inv(S) ! final(S) ! cont(SS) ! final(SS) }) .
+
+  -- Assuming inv(S) implines inv(SS)
+  ceq [Inv-lemma :nonexec]: inv(S) = false if inv(SS) = false .
 }
 
