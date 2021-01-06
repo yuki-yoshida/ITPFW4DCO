@@ -140,11 +140,7 @@ open ProofContCont .
 --> Step 2-9: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
 -- robust-lemmaN02 rejects this case.
-:init as Inv-lemma-in [Inv-lemma]
-  by {S:State  <- (< (cmp(idCO,started,started,stopped) sCO), sIM, lg >);
-      SS:State <- (< (cmp(idCO,started,stopped,stopped) sCO), sIM, L:ListOfLog >); }
-:apply (rd-)
---> Proof of (2) inv(S) and not final(S) implies cont(SS) or final(SS).
+--> Proof of (2) inv(S) and not final(S) and inv(SS) implies cont(SS) or final(SS).
 -->   for Rule RS-stop1 done
 -->
 show proof
