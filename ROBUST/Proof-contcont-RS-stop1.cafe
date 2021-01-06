@@ -142,7 +142,7 @@ open ProofContCont .
 -- robust-lemmaN02 rejects this case.
 :init as Inv-lemma-in [Inv-lemma]
   by {S:State  <- (< (cmp(idCO,started,started,stopped) sCO), sIM, lg >);
-      SS:State <- (< (cmp(idCO,started,stopped,stopped) sCO), sIM, lg >); }
+      SS:State <- (< (cmp(idCO,started,stopped,stopped) sCO), sIM, L:ListOfLog >); }
 :apply (rd-)
 --> Proof of (2) inv(S) and not final(S) implies cont(SS) or final(SS).
 -->   for Rule RS-stop1 done

@@ -16,14 +16,14 @@ module ProofLemma {
   -- Cont Lemmas
   pred robust-lemmaC01 : SetOfComponent SetOfImport ListOfLog
   eq robust-lemmaC01(SCO,SIM,L)
-    = cont(< (SCO, SIM, L >) 
-      when wfs(< (SCO, SIM, L >) and
+    = cont(< SCO, SIM, L >) 
+      when inv(< (SCO, SIM, L >) and
            equivIMSet(SIM) = false .
 
   pred robust-lemmaC02 : SetOfComponent SetOfImport ListOfLog
   eq robust-lemmaC02(SCO,SIM,L)
-    = cont(< (SCO, SIM, L >) 
-      when wfs(< (SCO, SIM, L >) and
+    = cont(< SCO, SIM, L >) 
+      when inv(< (SCO, SIM, L >) and
            equivCOSet(SCO) = false .
 
   -- NoCyclic Lemmas
