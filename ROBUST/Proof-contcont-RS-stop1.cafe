@@ -144,7 +144,8 @@ open ProofContCont .
 --> Step 2-9: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
 -- robust-lemmaN02 rejects this case.
---> Proof of robust-lemmaCCRSstop1 done
+--> Proof of (2) inv(S) and not final(S) implies cont(SS) or final(SS).
+-->   for Rule RS-stop1 done
 -->
 show proof
 close
