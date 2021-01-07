@@ -113,7 +113,9 @@ module ProofBase {
   ceq wfs(S) = false if not wfs-iidCOeidCODiffer(S) .
 
   -- inv-*:
-  -- This invariant should be proved.
+  -- These invariants should be proved.
+  pred inv-allCOin9States : State
+  eq inv-allCOin9States(< SCO, SIM, L >) = allCOin9States(SCO) .
   pred inv-allIMin14States : State
   eq inv-allIMin14States(< SCO, SIM, L >) = allIMin14States(SIM) .
 
@@ -124,8 +126,43 @@ module ProofBase {
 
   ceq inv(S) = false if not wfs(S) .
   ceq inv(S) = false if not noCOCycle(S) .
+  ceq inv(S) = false if not inv-allCOin9States(S) .
   ceq inv(S) = false if not inv-allIMin14States(S) .
   ceq inv(S) = false if not inv-noChangeSstarted(S) .
+
+  pred isCOin9States : Component
+  eq allCOin9States(empCO) = true .
+  eq allCOin9States(CO SCO)
+    = isCOin9States(CO) and allCOin9States(SCO) .
+  -- There are 9 states to be transited.
+  eq isCOin9States(cmp(IDCO, started, started, stopped)) = true .
+  eq isCOin9States(cmp(IDCO, started, stopped, stopped)) = true .
+  eq isCOin9States(cmp(IDCO, stopped, stopped, stopped)) = true .
+  eq isCOin9States(cmp(IDCO, started, started,sstarted)) = true .
+  eq isCOin9States(cmp(IDCO, started, stopped,sstarted)) = true .
+  eq isCOin9States(cmp(IDCO, stopped, stopped,sstarted)) = true .
+  eq isCOin9States(cmp(IDCO, stopped,sstarted,sstarted)) = true .
+  eq isCOin9States(cmp(IDCO, started,sstarted,sstarted)) = true .
+  eq isCOin9States(cmp(IDCO,sstarted,sstarted,sstarted)) = true .
+  -- There are 18 states not to be transited which are concretely defined
+  eq isCOin9States(cmp(IDCO, stopped, stopped, started)) = false .
+  eq isCOin9States(cmp(IDCO, stopped, started, started)) = false .
+  eq isCOin9States(cmp(IDCO, stopped,sstarted, started)) = false .
+  eq isCOin9States(cmp(IDCO, started, stopped, started)) = false .
+  eq isCOin9States(cmp(IDCO, started, started, started)) = false .
+  eq isCOin9States(cmp(IDCO, started,sstarted, started)) = false .
+  eq isCOin9States(cmp(IDCO,sstarted, stopped, started)) = false .
+  eq isCOin9States(cmp(IDCO,sstarted, started, started)) = false .
+  eq isCOin9States(cmp(IDCO,sstarted,sstarted, started)) = false .
+  eq isCOin9States(cmp(IDCO, started,sstarted, stopped)) = false .
+  eq isCOin9States(cmp(IDCO, stopped, started, stopped)) = false .
+  eq isCOin9States(cmp(IDCO, stopped, started,sstarted)) = false .
+  eq isCOin9States(cmp(IDCO, stopped,sstarted, stopped)) = false .
+  eq isCOin9States(cmp(IDCO,sstarted, started, stopped)) = false .
+  eq isCOin9States(cmp(IDCO,sstarted, started,sstarted)) = false .
+  eq isCOin9States(cmp(IDCO,sstarted, stopped, stopped)) = false .
+  eq isCOin9States(cmp(IDCO,sstarted, stopped,sstarted)) = false .
+  eq isCOin9States(cmp(IDCO,sstarted,sstarted, stopped)) = false .
 
   pred isIMin14States : Import
   eq allIMin14States(empIM) = true .

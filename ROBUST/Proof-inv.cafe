@@ -25,6 +25,587 @@ module ProofInv {
 }
 
 --> **************************************
+--> Proof of inv-allCOin9States.
+-->  eq inv-allCOin9States(< SCO,SIM,L >)
+-->    = allCOin9States(SIM) .
+--> **************************************
+module Proofinv-allCOin9States {
+  protecting(ProofInv)
+  var S : State
+  eq invK(S) = inv-allCOin9States(S) .
+}
+
+--> Proof of init(S) implies inv(S)
+select Proofinv-allCOin9States
+--> ***************************
+--> (4) init(S) implies inv(S).
+--> ***************************
+--> *******************************************
+--> Step 4-1: Begin with the most general case. 
+--> *******************************************
+:goal {
+  eq initinv(< sCO, sIM, lg >) = true .
+}
+:def allCOin9ctf = :ctf {
+  eq allCOin9States(sCO) = true .
+}
+:apply (allCOin9ctf rd-)
+--> Proof of initinv for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> Proof of inv(S) implies inv(SS)
+--> ***************************
+--> (5) inv(S) implies inv(SS).
+--> ***************************
+--> ************************************************************************
+--> trans [RS-stop1]:
+-->    < (cmp(IDCO, started, started, stopped) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, started, stopped, stopped) SCO), SIM,
+-->      (clog("RS-stop1:Should Stop", cmp(IDCO, started, stopped, stopped),
+-->       mlog(
+-->      (cmp(IDCO, started, started, stopped) SCO), SIM
+-->      )) ListLG) > .
+--> ************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(idCO, started, started, stopped) sCO), sIM, 
+              lg >) = true .
+}
+:apply (rd-)
+--> Proof of RS-stop1 for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> ****************************************************************
+--> ctrans [RD-stop]:
+-->    < (cmp(IDCO, started, stopped, TSCO) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, stopped, stopped, TSCO) SCO), SIM,
+-->      (clog("RD-stop:Do Stop", cmp(IDCO, stopped, stopped, TSCO),
+-->       mlog(
+-->      (cmp(IDCO, started, stopped, TSCO) SCO), SIM
+-->      )) ListLG) >
+-->    if getIMsOfECOInStates(SIM,IDCO,(wired swired)) = empIM .
+--> ****************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(idCO, started, stopped, tCOs) sCO), sIM, 
+              lg >) = true .
+}
+:ctf {
+  eq getIMsOfECOInStates(sIM,idCO,(wired swired)) = empIM .
+}
+:def tCOscsp = :csp {
+  eq tCOs =  stopped .
+  eq tCOs =  started .
+  eq tCOs = sstarted .
+}
+:apply (tCOscsp rd-)
+:apply (rd-)
+--> Proof of RD-stop for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> *************************************************************************
+--> trans [RS-stop2]:
+-->    < (cmp(IDCO, started, started, sstarted) SCO),
+-->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
+-->       ListLG >
+--> => < (cmp(IDCO, started, stopped, sstarted) SCO),
+-->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
+-->      (clog("RS-stop2:Should Stop", cmp(IDCO, started, stopped, sstarted),
+-->       mlog(
+-->      (cmp(IDCO, started, started, sstarted) SCO),
+-->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM)
+-->      )) ListLG) > .
+--> *************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(idCO, started, started, sstarted) sCO), 
+              (imp(mandatory, idIM, idCO, eidCO, wired, unwired, tIMs) sIM),
+              lg >) = true .
+}
+:def tIMscsp = :csp {
+  eq tIMs = unused .
+  eq tIMs = wired .
+  eq tIMs = swired .
+  eq tIMs = unwired .
+}
+:apply (tIMscsp rd-)
+--> Proof of RS-stop2 for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> ************************************************************************************
+--> trans [RS-sstart1]:
+-->    < (cmp(IDCO, stopped,  stopped, sstarted) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, stopped, sstarted, sstarted) SCO), SIM,
+-->      (clog("RS-sstart1:Should Stably Start", cmp(IDCO, stopped, sstarted, sstarted),
+-->       mlog(
+-->      (cmp(IDCO, stopped,  stopped, sstarted) SCO), SIM
+-->      )) ListLG) > .
+--> ************************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(idCO, stopped, stopped, sstarted) sCO), sIM, 
+               lg >) = true .
+}
+:apply (rd-)
+--> Proof of RS-sstart1 for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> ************************************************************************************
+--> ctrans [RS-sstart2]:
+-->    < (cmp(IDCO, started,  started, sstarted) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, started, sstarted, sstarted) SCO), SIM,
+-->      (clog("RS-sstart2:Should Stably Start", cmp(IDCO, started, sstarted, sstarted),
+-->       mlog(
+-->      (cmp(IDCO, started,  started, sstarted) SCO), SIM
+-->      )) ListLG) >
+-->    if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) .
+--> ************************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(idCO, started, started, sstarted) sCO), sIM, 
+              lg >) = true .
+}
+:ctf {
+  eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
+}
+:apply (rd-)
+:apply (rd-)
+--> Proof of RS-sstart1 for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> ****************************************************************************
+--> ctrans [RD-start]:
+-->    < (cmp(IDCO, stopped, sstarted, sstarted) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, started, sstarted, sstarted) SCO), SIM,
+-->      (clog("RD-start:Do Start", cmp(IDCO, started, sstarted, sstarted),
+-->       mlog(
+-->      (cmp(IDCO, stopped, sstarted, sstarted) SCO), SIM
+-->      )) ListLG) >
+-->    if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) .
+--> ****************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(idCO, stopped, sstarted, sstarted) sCO), sIM,
+              lg >) = true .
+}
+:ctf {
+  eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
+}
+:apply (rd-)
+:apply (rd-)
+--> Proof of RD-start for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> ********************************************************************************
+--> trans [RD-sstart]:
+-->    < (cmp(IDCO,  started, sstarted, sstarted) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, sstarted, sstarted, sstarted) SCO), SIM,
+-->      (clog("RD-sstart:Do Stably Start", cmp(IDCO, sstarted, sstarted, sstarted),
+-->       mlog(
+-->      (cmp(IDCO, started, sstarted, sstarted) SCO), SIM
+-->      )) ListLG) > .
+--> ********************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(idCO, started, sstarted, started) sCO), sIM, 
+              lg >) = true .
+}
+:apply (rd-)
+--> Proof of RD-sstart for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> *********************************************************************************************
+--> trans [RS-unwire1]:
+-->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unwired) SIM),
+-->      ListLG >
+--> => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unwired) SIM),
+-->      (ilog("RS-unwire1:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unwired),
+-->       mlog(
+-->      SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unwired) SIM)
+-->      )) ListLG) > .
+--> *********************************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired, wired, unwired) sIM),
+              lg >) = true .
+}
+:apply (rd-)
+--> Proof of RS-unwire1 for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> ********************************************************************************************
+--> trans [RD-unwire1]:
+-->    < SCO,
+-->      (imp(optional, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM),
+-->      ListLG >
+--> => < SCO,
+-->      (imp(optional, IDIM, IDCO, EIDCO, unwired, unwired, TSIM) SIM),
+-->      (ilog("RD-unwire1:Do Unwire", imp(optional, IDIM, IDCO, EIDCO, unwired, unwired, TSIM),
+-->       mlog(
+-->      SCO,
+-->      (imp(optional, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM)
+-->      )) ListLG) > .
+--> ********************************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< sCO,
+              (imp(optional, idIM, idCO, eidCO,   wired, unwired, tIMs) sIM),
+              lg >) = true .
+}
+:def tIMscsp = :csp {
+  eq tIMs = unused .
+  eq tIMs = wired .
+  eq tIMs = swired .
+  eq tIMs = unwired .
+}
+:apply (tIMscsp rd-)
+--> Proof of RD-unwire1 for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> *********************************************************************************************
+--> trans [RD-unwire2]:
+-->    < (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
+-->      (imp(mandatory, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM),
+-->      ListLG >
+--> => < (cmp(IDCO, stopped, NSCO, TSCO) SCO),
+-->      (imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM) SIM),
+-->      (ilog("RD-unwire2:Do Unwire", imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM),
+-->       mlog(
+-->      (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
+-->      (imp(mandatory, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM)
+-->      )) ListLG) > .
+--> *********************************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(idCO, stopped, nCOs, tCOs) sCO), 
+              (imp(mandatory, idIM, idCO, eidCO,   wired, unwired, tIMs) sIM),
+              lg >) = true .
+}
+:def tIMscsp = :csp {
+  eq tIMs = unused .
+  eq tIMs = wired .
+  eq tIMs = swired .
+  eq tIMs = unwired .
+}
+:apply (tIMscsp rd-)
+--> Proof of RD-unwire2 for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> *********************************************************************************************
+--> trans [RS-unused]:
+-->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,  wired, unused) SIM),
+-->      ListLG >
+--> => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired, unused, unused) SIM),
+-->      (ilog("RS-unused:Should be Unused", imp(TIM, IDIM, IIDCO, EIDCO, wired, unused, unused),
+-->       mlog(
+-->      SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired, wired, unused) SIM)
+-->      )) ListLG) > .
+--> *********************************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired,  wired, unused) sIM),
+              lg >) = true .
+}
+:apply (rd-)
+--> Proof of RS-unused for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> **************************************************************************************
+--> trans [RD-unused]:
+-->    < SCO, (imp(TIM, IDIM, IDCO, EIDCO,  wired, unused, unused) SIM),
+-->      ListLG >
+--> => < SCO, (imp(TIM, IDIM, IDCO, EIDCO, unused, unused, unused) SIM),
+-->      (ilog("RD-unused:Do Unwire", imp(TIM, IDIM, IDCO, EIDCO, unused, unused, unused),
+-->       mlog(
+-->      SCO, (imp(TIM, IDIM, IDCO, EIDCO,  wired, unused, unused) SIM)
+-->      )) ListLG) > .
+--> **************************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, idCO, eidCO,  wired, unused, unused) sIM),
+              lg >) = true .
+}
+:apply (rd-)
+--> Proof of RD-unused for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> *********************************************************************************************
+--> trans [RS-unwire2]:
+-->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused,  unused, swired) SIM),
+-->      ListLG >
+--> => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused, unwired, swired) SIM),
+-->      (ilog("RS-unwire2:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, unused, unwired, swired),
+-->       mlog(
+-->      SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused,  unused, swired) SIM)
+-->      )) ListLG) > .
+--> *********************************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, unused,  unused, swired) sIM),
+              lg >) = true .
+}
+:apply (rd-)
+--> Proof of RS-unwire2 for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> ******************************************************************************************
+--> trans [RD-unwire3]:
+-->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused, unwired, swired) SIM),
+-->      ListLG >
+--> => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, swired) SIM),
+-->      (ilog("RD-unwire3:Do Unwire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, swired),
+-->       mlog(
+-->      SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused, unwired, swired) SIM)
+-->      )) ListLG) > .
+--> ******************************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO,  unused, unwired, swired) sIM),
+              lg >) = true .
+}
+:apply (rd-)
+--> Proof of RD-unwire3 for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> ******************************************************************************************
+--> trans [RS-swire1]:
+-->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, swired) SIM),
+-->      ListLG >
+--> => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired,  swired, swired) SIM),
+-->      (ilog("RS-swire1:Should Wire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired),
+-->       mlog(
+-->      SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, swired) SIM)
+-->      )) ListLG) > .
+--> ******************************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, unwired, unwired, swired) sIM),
+              lg >) = true .
+}
+:apply (rd-)
+--> Proof of RS-swire1 for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> ****************************************************************************************
+--> trans [RS-swire2]:
+-->    < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, wired,  wired, swired) SIM),
+-->      ListLG >
+--> => < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired) SIM),
+-->      (ilog("RS-swire2:Should Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
+-->       mlog(
+-->      (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, wired, wired, swired) SIM)
+-->       )) ListLG) > .
+--> ****************************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(eidCO, sstarted, sstarted, sstarted) sCO), 
+              (imp(tIM, idIM, iidCO, eidCO, wired,  wired, swired) sIM),
+              lg >) = true .
+}
+:apply (rd-)
+--> Proof of RS-swire2 for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> ********************************************************************************************
+--> trans [RS-unwire3]:
+-->    < (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, swired) SIM),
+-->      ListLG >
+--> => < (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, swired) SIM),
+-->      (ilog("RS-unwire3:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, swired),
+-->       mlog(
+-->      (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, swired) SIM)
+-->      )) ListLG) > .
+--> ********************************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(iidCO, started, nCOs, tCOs) cmp(eidCO, started, stopped, sstarted) sCO), 
+              (imp(tIM, idIM, iidCO, eidCO, wired, wired, swired) sIM),
+              lg >) = true .
+}
+:apply (rd-)
+--> Proof of RS-unwire3 for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> ***********************************************************************************
+--> trans [RD-wire1]:
+-->    < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM),
+-->      ListLG >
+--> => < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO,   wired, swired, swired) SIM),
+-->      (ilog("RD-wire1:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
+-->       mlog(
+-->      (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM)
+-->      )) ListLG) > .
+--> ***********************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(iidCO, stopped, stopped, tCOs) sCO), 
+              (imp(tIM, idIM, iidCO, eidCO, unwired, swired, swired) sIM),
+              lg >) = true .
+}
+:apply (rd-)
+--> Proof of RD-wire1 for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> ***********************************************************************************
+--> trans [RD-wire2]:
+-->    < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM),
+-->      ListLG >
+--> => < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO,   wired, swired, swired) SIM),
+-->      (ilog("RD-wire2:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
+-->       mlog(
+-->      (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM)
+-->      )) ListLG) > .
+--> ***********************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< (cmp(eidCO, sstarted, sstarted, sstarted) sCO), 
+              (imp(tIM, idIM, iidCO, eidCO, unwired, swired, swired) sIM),
+              lg >) = true .
+}
+:apply (rd-)
+--> Proof of RD-wire2 for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> *******************************************************************************************
+--> trans [RD-swire]:
+-->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  wired, swired, swired) SIM),
+-->      ListLG >
+--> => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, swired, swired, swired) SIM),
+-->      (ilog("RD-swire:Do Stably Wire", imp(TIM, IDIM, IIDCO, EIDCO, swired, swired, swired),
+-->       mlog(
+-->      SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  wired, swired, swired) SIM)
+-->      )) ListLG) > .
+--> *******************************************************************************************
+select Proofinv-allCOin9States
+--> *************************************************************************
+--> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired, swired, swired) sIM),
+              lg >) = true .
+}
+:apply (rd-)
+--> Proof of RD-swire for inv-allCOin9States done.
+-->
+show proof
+select
+
+--> **************************************
 --> Proof of inv-allIMin14States.
 -->  eq inv-allIMin14States(< SCO,SIM,L >)
 -->    = allIMin14States(SIM) .
@@ -605,4 +1186,4 @@ select Proofinv-allIMin14States
 show proof
 select
 
---> Totally 21 goals should be proved.
+--> Totally 42 goals should be proved.

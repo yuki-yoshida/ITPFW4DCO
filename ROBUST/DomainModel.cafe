@@ -489,6 +489,9 @@ module! STATEfuns {
   eq allIMInBothStates((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM),StIM) 
      = (CSIM in StIM) and (NSIM in StIM) and allIMInBothStates(SIM,StIM) .
 
+  pred allCOin9States : SetOfComponent
+  -- allCOin9States is defined in Proof.cafe
+
   pred allIMin14States : SetOfImport
   -- allIMin14States is defined in Proof.cafe
 
@@ -527,6 +530,7 @@ module! STATEfuns {
 
   eq init(< SCO,SIM,L >)
      = wfs(< SCO,SIM,L >) and
+       allCOin9States(SCO) and
        allIMin14States(SIM) and
        stableCOSet(SCO) and stableIMSet(SIM) and
        not final(< SCO,SIM,L >) and
