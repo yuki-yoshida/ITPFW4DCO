@@ -66,39 +66,37 @@ open ProofLemma .
     if t(CO',SCO',SIM) <wf t(CO,SCO,SIM) .
 
   -- Define <wf for robust-lemmaN03
-  ceq ( t(CO',SCO',(IM SIM')) <wf t(CO,SCO,(IM SIM')) ) = true
+  ceq ( t(CO',SCO',SIM) <wf t(CO,SCO,SIM) ) = true
      if inStates(CO, lst) and
         inStates(CO',lst) and
-        importer(IM) = id(CO) and 
-        exporter(IM) = id(CO') and
-        type(IM) = mandatory and 
-        subset((CO' SCO'),SCO) .
+        subset((CO' SCO'),SCO) and
+        CO' in DDSC(CO,SCO,SIM) .
 
   eq co =  cmp(idCO,cCOs,nCOs,tCOs) .
   eq co' = cmp(eidCO,cCOs',nCOs',tCOs') .
+
+  eq subset(DDSC(CO,SCO,SIM),SCO) = true .
 
 :goal { eq robust-lemmaN03(co,sCO,sIM,lg,lst) = true . }
 :def inStatesctf = :ctf {
   eq inStates(cmp(idCO,cCOs,nCOs,tCOs),lst) = true .
 }
 :apply(inStatesctf rd-)
-:def exIMcsp = :csp {
-  eq getIMsOfTypeOfICO(sIM,mandatory,idCO) = empIM .
+:def allCONotcsp = :csp {
+  eq allCONotInStates(getECOsOfIMs(sCO,getIMsOfTypeOfICO(sIM,mandatory,idCO)),lst) = true .
   eq sIM = (imp(mandatory,idIM,idCO,eidCO,cIMs,nIMs,tIMs) sIM') .
 }
-:apply(exIMcsp rd-)
-:def exECOcsp = :csp  { 
-  eq existCO(sCO,eidCO) = false .
-  eq sCO = (co' sCO') .
-}
-:apply(exECOcsp)
+:apply(allCONotcsp)
 :apply(rd-)
-:def inStates'ctf = :ctf {
+:csp {
+  eq sCO = (cmp(eidCO,cCOs',nCOs',tCOs') sCO') .
+}
+:csp {
   eq inStates(cmp(eidCO,cCOs',nCOs',tCOs'),lst) = true .
 }
-:apply(inStates'ctf)
 :ctf {
- eq inv((< (cmp(eidCO,cCOs',nCOs',tCOs') (cmp(idCO,cCOs,nCOs,tCOs) sCO')) , (imp(mandatory,idIM,idCO,eidCO,cIMs,nIMs,tIMs) sIM') , lg >)) = true . 
+  eq inv((< (cmp(eidCO,cCOs',nCOs',tCOs') (cmp(idCO,cCOs,nCOs,tCOs) sCO')), 
+            (imp(mandatory,idIM,idCO,eidCO,cIMs,nIMs,tIMs) sIM') , lg >)) = true . 
 }
 :init as robust-lemmaN03-IH-in [robust-lemmaN03-IH]
   by {CO:Component <- co;
@@ -108,8 +106,6 @@ open ProofLemma .
       SCO':SetOfComponent <- sCO'; }
 :apply(rd-)
 :apply(rd-)
-eof
-
 --> Proof of robust-lemmaN03 done
 -->
 show proof
