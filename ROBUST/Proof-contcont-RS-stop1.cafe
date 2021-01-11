@@ -17,24 +17,9 @@ require ProofContCont Proof-contcont.cafe
 
 open ProofContCont .
 
-  -- eq robust-lemmaN02(CO,SCO,SIM,L)
-  --    = wfs(< (CO SCO), SIM, L >) and inStates(CO,st(started,stopped,stopped)) 
-  --      implies someCONoCycle((CO SCO),SIM,st(started,stopped,stopped)) .
-
-  -- someCONoCycle((CO SCO),SIM,st(started,stopped,stopped)) means that
-  --  there exists a CO' in (CO SCO) 
-  --    such that isCONoCycle(CO',(CO SCO),SIM,st(started,stopped,stopped)) .
-
-  -- Since robust-lemmaCCRSstop1 can select an arbitrary CO, we can select CO as CO',
-  -- that is, we can assume as follows:
   var CO : Component
   var SCO : SetOfComponent
   var SIM : SetOfImport
-  var L : ListOfLog
-  ceq [robust-lemmaN02]:
-    wfs(< (CO SCO), SIM, L >) = false
-    if inStates(CO,st(started,stopped,stopped)) and
-       isCONoCycle(CO,(CO SCO),SIM,st(started,stopped,stopped)) = false .
   -- This lemma assumes that DDSC = DDSCD
   eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
 
@@ -139,7 +124,15 @@ open ProofContCont .
 --> ******************************************************************************
 --> Step 2-9: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
--- robust-lemmaN02 rejects this case.
+-- Exactly speaking, the component with idCO may not be the CO 
+-- which robust-lemmaNOC ensures someCONoCycle((CO SCO),SIM,SLS) .
+-- But we can select such CO in SS and prove "inv(SS) implies cont(SS) or final(SS)".
+:init as robust-lemmaNOC-in [robust-lemmaNOC]
+  by {CO:Component <- cmp(idCO,started,stopped,stopped);
+      SCO:SetOfComponent <- sCO;
+      SIM:SetOfImport <- sIM;
+      SLS:SetOfLS <- st(started,stopped,stopped); }
+:apply(rd-)
 --> Proof of (2) inv(S) and not final(S) and inv(SS) implies cont(SS) or final(SS).
 -->   for Rule RS-stop1 done
 -->

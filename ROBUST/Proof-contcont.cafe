@@ -22,6 +22,6 @@ module ProofContCont {
   eq contcont(S)
      = not (S =(*,1)=>+ SS if CC suchThat
             not ((CC implies ccont(S,SS)) == true)
-     	   { S => SS !! CC ! inv(S) ! final(S) ! cont(SS) ! final(SS) }) .
+     	   { S => SS !! CC ! inv(S) ! final(S) ! inv(SS) ! cont(SS) ! final(SS) }) .
 }
 
