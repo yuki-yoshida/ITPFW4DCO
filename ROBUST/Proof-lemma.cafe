@@ -17,7 +17,7 @@ module ProofLemma {
   var SLS : SetOfLS
   pred robust-lemmaNOC : Component SetOfComponent SetOfImport ListOfLog SetOfLS
   eq robust-lemmaNOC(CO,SCO,SIM,L,SLS)
-    = inv(< (CO SCO), SIM, L >) and inStates(CO,SLS) 
+    = noCOCycle(< (CO SCO), SIM, L >) and inStates(CO,SLS) 
       implies someCONoCycle((CO SCO),SIM,SLS) .
 
   -- Cont Lemmas
@@ -38,7 +38,7 @@ module ProofLemma {
 
 --> Proof of robust-lemmaNOC for DDSCU
 --> eq robust-lemmaNOC(CO,SCO,SIM,L,SLS)
--->   = inv(< (CO SCO), SIM, L >) and inStates(CO,SLS)
+-->   = noCOCycle(< (CO SCO), SIM, L >) and inStates(CO,SLS)
 -->     implies someCONoCycle((CO SCO),SIM,SLS) .
 open ProofLemma .
 
@@ -47,7 +47,7 @@ open ProofLemma .
 
   -- Induction Hypothesis
   ceq [robust-lemmaNOC-IH :nonexec]:
-    (inv(< (CO SCO), SIM, lg >) and inStates(CO,sls) 
+    (noCOCycle(< (CO SCO), SIM, lg >) and inStates(CO,sls) 
      implies someCONoCycle((CO' SCO'),SIM,sls)) = true
     if t(CO',SCO',SIM) <wf t(CO,SCO,SIM) .
 
@@ -82,8 +82,8 @@ open ProofLemma .
   eq inStates(cmp(eidCO,cCOs',nCOs',tCOs'),sls) = true .
 }
 :ctf {
-  eq inv((< (cmp(eidCO,cCOs',nCOs',tCOs') (cmp(idCO,cCOs,nCOs,tCOs) sCO')), 
-            (imp(mandatory,idIM,idCO,eidCO,cIMs,nIMs,tIMs) sIM') , lg >)) = true . 
+  eq noCOCycle((< (cmp(eidCO,cCOs',nCOs',tCOs') (cmp(idCO,cCOs,nCOs,tCOs) sCO')), 
+                  (imp(mandatory,idIM,idCO,eidCO,cIMs,nIMs,tIMs) sIM') , lg >)) = true . 
 }
 :init as robust-lemmaNOC-IH-in [robust-lemmaNOC-IH]
   by {CO:Component <- co;
@@ -100,7 +100,7 @@ close
 
 --> Proof of robust-lemmaNOC for DDSCD
 --> eq robust-lemmaNOC(CO,SCO,SIM,L,SLS)
--->   = inv(< (CO SCO), SIM, L >) and inStates(CO,SLS)
+-->   = noCOCycle(< (CO SCO), SIM, L >) and inStates(CO,SLS)
 -->     implies someCONoCycle((CO SCO),SIM,SLS) .
 open ProofLemma .
 
@@ -109,7 +109,7 @@ open ProofLemma .
 
   -- Induction Hypothesis
   ceq [robust-lemmaNOC-IH :nonexec]:
-    (inv(< (CO SCO), SIM, lg >) and inStates(CO,sls) 
+    (noCOCycle(< (CO SCO), SIM, lg >) and inStates(CO,sls) 
      implies someCONoCycle((CO' SCO'),SIM,sls)) = true
     if t(CO',SCO',SIM) <wf t(CO,SCO,SIM) .
 
@@ -144,8 +144,8 @@ open ProofLemma .
   eq inStates(cmp(iidCO,cCOs',nCOs',tCOs'),sls) = true .
 }
 :ctf {
-  eq inv((< (cmp(iidCO,cCOs',nCOs',tCOs') (cmp(idCO,cCOs,nCOs,tCOs) sCO')), 
-            (imp(mandatory,idIM,iidCO,idCO,cIMs,nIMs,tIMs) sIM') , lg >)) = true . 
+  eq noCOCycle((< (cmp(iidCO,cCOs',nCOs',tCOs') (cmp(idCO,cCOs,nCOs,tCOs) sCO')), 
+                  (imp(mandatory,idIM,iidCO,idCO,cIMs,nIMs,tIMs) sIM') , lg >)) = true . 
 }
 :init as robust-lemmaNOC-IH-in [robust-lemmaNOC-IH]
   by {CO:Component <- co;

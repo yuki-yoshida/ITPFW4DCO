@@ -236,6 +236,7 @@ module ProofBase {
     = not inStates(CO,SLS) and allCONotInStates(SCO,SLS) .
 
   op DDSC : Component SetOfComponent SetOfImport -> SetOfComponent
+  eq DDSCO(CO,< SCO,SIM,L >) = DDSC(CO,SCO,SIM) .
   -- Upward DDSC
   op DDSCU : Component SetOfComponent SetOfImport -> SetOfComponent
   eq DDSCU(CO,SCO,SIM)
@@ -256,7 +257,7 @@ module ProofBase {
 
   -- The NoCyclic Lemma
   -- eq robust-lemmaNOC(CO,SCO,SIM,L,SLS)
-  --   = inv(< (CO SCO), SIM, L >) and inStates(CO,SLS) 
+  --   = noCOCycle(< (CO SCO), SIM, L >) and inStates(CO,SLS) 
   --     implies someCONoCycle((CO SCO),SIM,SLS) .
   -- This lemma can be used with specifying DDSCU or DDSCD as DDSC.
   
@@ -265,7 +266,7 @@ module ProofBase {
   -- When we can select an arbitrary CO and therefor select the CO',
   -- we can assume as follows:
   ceq [robust-lemmaNOC :nonexec]:
-    inv(< (CO SCO), SIM, L >) = false
+    noCOCycle(< (CO SCO), SIM, L >) = false
     if inStates(CO,SLS) and
        isCONoCycle(CO,(CO SCO),SIM,SLS) = false .
 

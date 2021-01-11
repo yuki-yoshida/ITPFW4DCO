@@ -369,8 +369,6 @@ module! STATECyclefuns {
   eq getAllCOInState(< SetCO,SetIM,L >) = SetCO .
 
   op DDSCO : Component State -> SetOfComponent
-  eq DDSCO(CO,< SetCO,SetIM,L >)
-    = getECOsOfIMs(SetCO,getIMsOfTypeOfICO(SetIM,mandatory,id(CO))) .
 }
 
 module! STATEfuns {
