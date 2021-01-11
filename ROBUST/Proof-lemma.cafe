@@ -13,6 +13,13 @@ module ProofLemma {
   vars SIM SIM' : SetOfImport
   var L : ListOfLog
 
+  -- The NoCyclic Lemma
+  var SLS : SetOfLS
+  pred robust-lemmaNOC : Component SetOfComponent SetOfImport ListOfLog SetOfLS
+  eq robust-lemmaNOC(CO,SCO,SIM,L,SLS)
+    = inv(< (CO SCO), SIM, L >) and inStates(CO,SLS) 
+      implies someCONoCycle((CO SCO),SIM,SLS) .
+
   -- Cont Lemmas
   pred robust-lemmaC01 : SetOfComponent SetOfImport ListOfLog
   eq robust-lemmaC01(SCO,SIM,L)
@@ -26,49 +33,28 @@ module ProofLemma {
       when inv(< SCO, SIM, L >) and
            equivCOSet(SCO) = false .
 
-  -- NoCyclic Lemmas
-  pred robust-lemmaN01 : Component SetOfComponent SetOfImport ListOfLog
-  eq robust-lemmaN01(CO,SCO,SIM,L)
-    = inv(< (CO SCO), SIM, L >) and inStates(CO,st(started,started,sstarted)) 
-      implies someCONoCycle((CO SCO),SIM,st(started,started,sstarted)) .
-
-  pred robust-lemmaN02 : Component SetOfComponent SetOfImport ListOfLog
-  eq robust-lemmaN02(CO,SCO,SIM,L)
-    = inv(< (CO SCO), SIM, L >) and inStates(CO,st(started,stopped,stopped)) 
-      implies someCONoCycle((CO SCO),SIM,st(started,stopped,stopped)) .
-
-  var LST : LocalState
-  pred robust-lemmaN03 : Component SetOfComponent SetOfImport ListOfLog LocalState
-  eq robust-lemmaN03(CO,SCO,SIM,L,LST)
-    = inv(< (CO SCO), SIM, L >) and inStates(CO,LST) 
-      implies someCONoCycle((CO SCO),SIM,LST) .
-
-  op DDSCU0 : Component SetOfComponent SetOfImport -> SetOfComponent
-  eq DDSCU0(CO,SCO,SIM)
-    = getECOsOfIMs(SCO,getIMsOfTypeOfICO(SIM,mandatory,CO)) .
-
-  op lst : -> LocalState .
+  op sls : -> SetOfLS .
 }
 
---> Proof of robust-lemmaN03
---> eq robust-lemmaN03(CO,SCO,SIM,L,LST)
--->   = inv(< (CO SCO), SIM, L >) and inStates(CO,LST)
--->     implies someCONoCycle((CO SCO),SIM,LST) .
+--> Proof of robust-lemmaNOC for DDSCU
+--> eq robust-lemmaNOC(CO,SCO,SIM,L,SLS)
+-->   = inv(< (CO SCO), SIM, L >) and inStates(CO,SLS)
+-->     implies someCONoCycle((CO SCO),SIM,SLS) .
 open ProofLemma .
 
-  -- Define DDSC for robust-lemmaN03
-  eq DDSC(CO,SCO,SIM) = DDSCU0(CO,SCO,SIM) .
+  -- Define DDSC for robust-lemmaNOC
+  eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
 
   -- Induction Hypothesis
-  ceq [robust-lemmaN03-IH :nonexec]:
-    (inv(< (CO SCO), SIM, lg >) and inStates(CO,lst) 
-     implies someCONoCycle((CO' SCO'),SIM,lst)) = true
+  ceq [robust-lemmaNOC-IH :nonexec]:
+    (inv(< (CO SCO), SIM, lg >) and inStates(CO,sls) 
+     implies someCONoCycle((CO' SCO'),SIM,sls)) = true
     if t(CO',SCO',SIM) <wf t(CO,SCO,SIM) .
 
-  -- Define <wf for robust-lemmaN03
+  -- Define <wf for robust-lemmaNOC
   ceq ( t(CO',SCO',SIM) <wf t(CO,SCO,SIM) ) = true
-     if inStates(CO, lst) and
-        inStates(CO',lst) and
+     if inStates(CO, sls) and
+        inStates(CO',sls) and
         subset((CO' SCO'),SCO) and
         CO' in DDSC(CO,SCO,SIM) .
 
@@ -77,13 +63,14 @@ open ProofLemma .
 
   eq subset(DDSC(CO,SCO,SIM),SCO) = true .
 
-:goal { eq robust-lemmaN03(co,sCO,sIM,lg,lst) = true . }
+:goal { eq robust-lemmaNOC(co,sCO,sIM,lg,sls) = true . }
 :def inStatesctf = :ctf {
-  eq inStates(cmp(idCO,cCOs,nCOs,tCOs),lst) = true .
+  eq inStates(cmp(idCO,cCOs,nCOs,tCOs),sls) = true .
 }
 :apply(inStatesctf rd-)
 :def allCONotcsp = :csp {
-  eq allCONotInStates(getECOsOfIMs(sCO,getIMsOfTypeOfICO(sIM,mandatory,idCO)),lst) = true .
+  eq allCONotInStates(getECOsOfIMs(sCO,getIMsOfTypeOfICO(sIM,mandatory,idCO)),
+        sls) = true .
   eq sIM = (imp(mandatory,idIM,idCO,eidCO,cIMs,nIMs,tIMs) sIM') .
 }
 :apply(allCONotcsp)
@@ -92,13 +79,13 @@ open ProofLemma .
   eq sCO = (cmp(eidCO,cCOs',nCOs',tCOs') sCO') .
 }
 :csp {
-  eq inStates(cmp(eidCO,cCOs',nCOs',tCOs'),lst) = true .
+  eq inStates(cmp(eidCO,cCOs',nCOs',tCOs'),sls) = true .
 }
 :ctf {
   eq inv((< (cmp(eidCO,cCOs',nCOs',tCOs') (cmp(idCO,cCOs,nCOs,tCOs) sCO')), 
             (imp(mandatory,idIM,idCO,eidCO,cIMs,nIMs,tIMs) sIM') , lg >)) = true . 
 }
-:init as robust-lemmaN03-IH-in [robust-lemmaN03-IH]
+:init as robust-lemmaNOC-IH-in [robust-lemmaNOC-IH]
   by {CO:Component <- co;
       SCO:SetOfComponent <- sCO;
       SIM:SetOfImport <- sIM;
@@ -106,7 +93,69 @@ open ProofLemma .
       SCO':SetOfComponent <- sCO'; }
 :apply(rd-)
 :apply(rd-)
---> Proof of robust-lemmaN03 done
+--> Proof of robust-lemmaNOC done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaNOC for DDSCD
+--> eq robust-lemmaNOC(CO,SCO,SIM,L,SLS)
+-->   = inv(< (CO SCO), SIM, L >) and inStates(CO,SLS)
+-->     implies someCONoCycle((CO SCO),SIM,SLS) .
+open ProofLemma .
+
+  -- Define DDSC for robust-lemmaNOC
+  eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
+
+  -- Induction Hypothesis
+  ceq [robust-lemmaNOC-IH :nonexec]:
+    (inv(< (CO SCO), SIM, lg >) and inStates(CO,sls) 
+     implies someCONoCycle((CO' SCO'),SIM,sls)) = true
+    if t(CO',SCO',SIM) <wf t(CO,SCO,SIM) .
+
+  -- Define <wf for robust-lemmaNOC
+  ceq ( t(CO',SCO',SIM) <wf t(CO,SCO,SIM) ) = true
+     if inStates(CO, sls) and
+        inStates(CO',sls) and
+        subset((CO' SCO'),SCO) and
+        CO' in DDSC(CO,SCO,SIM) .
+
+  eq co =  cmp(idCO,cCOs,nCOs,tCOs) .
+  eq co' = cmp(eidCO,cCOs',nCOs',tCOs') .
+
+  eq subset(DDSC(CO,SCO,SIM),SCO) = true .
+
+:goal { eq robust-lemmaNOC(co,sCO,sIM,lg,sls) = true . }
+:def inStatesctf = :ctf {
+  eq inStates(cmp(idCO,cCOs,nCOs,tCOs),sls) = true .
+}
+:apply(inStatesctf rd-)
+:def allCONotcsp = :csp {
+  eq allCONotInStates(getICOsOfIMs(sCO,getIMsOfTypeOfECO(sIM,mandatory,idCO)),
+        sls) = true .
+  eq sIM = (imp(mandatory,idIM,iidCO,idCO,cIMs,nIMs,tIMs) sIM') .
+}
+:apply(allCONotcsp)
+:apply(rd-)
+:csp {
+  eq sCO = (cmp(iidCO,cCOs',nCOs',tCOs') sCO') .
+}
+:csp {
+  eq inStates(cmp(iidCO,cCOs',nCOs',tCOs'),sls) = true .
+}
+:ctf {
+  eq inv((< (cmp(iidCO,cCOs',nCOs',tCOs') (cmp(idCO,cCOs,nCOs,tCOs) sCO')), 
+            (imp(mandatory,idIM,iidCO,idCO,cIMs,nIMs,tIMs) sIM') , lg >)) = true . 
+}
+:init as robust-lemmaNOC-IH-in [robust-lemmaNOC-IH]
+  by {CO:Component <- co;
+      SCO:SetOfComponent <- sCO;
+      SIM:SetOfImport <- sIM;
+      CO':Component <- cmp(iidCO,cCOs',nCOs',tCOs');
+      SCO':SetOfComponent <- sCO'; }
+:apply(rd-)
+:apply(rd-)
+--> Proof of robust-lemmaNOC done
 -->
 show proof
 close
@@ -248,115 +297,6 @@ eof
 -->
 eof
 --> Proof of robust-lemmaC01 done
--->
-show proof
-close
-eof
---> Proof of robust-lemmaN01
--->  eq robust-lemmaN01(CO,SCO,SIM,L)
--->    = wfs(< (CO SCO), SIM, L >) and inStates(CO,st(started,started,sstarted)) 
--->      implies someCONoCycle((CO SCO),SIM,st(started,started,sstarted)) .
-open ProofLemma .
-  -- Define DDSC for robust-lemmaN01
-  eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
-
-  -- Induction Hypothesis
-  ceq [robust-lemmaN01-IH :nonexec]:
-    (wfs(< (CO SCO), SIM, lg >) and inStates(CO,st(started,started,sstarted))
-     implies someCONoCycle((CO' SCO'),SIM,st(started,started,sstarted))) = true
-    if t(CO',SCO',SIM) <wf t(CO,SCO,SIM) .
-
-  -- Define <wf for robust-lemmaN01
-  ceq ( t(CO',SCO',(IM SIM')) <wf t(CO,SCO,(IM SIM')) ) = true
-     if inStates(CO, st(started,started,sstarted)) and
-        inStates(CO',st(started,started,sstarted)) and
-        importer(IM) = id(CO) and exporter(IM) = id(CO') and
-        type(IM) = mandatory and state(IM) = wired and target(IM) = swired and 
-        SCO' <wf SCO .
-
-  eq co = cmp(idCO,cCOs,nCOs,tCOs) .
-
-:goal { eq robust-lemmaN01(co,sCO,sIM,lg) = true . }
-:def cCOsctf = :ctf { eq cCOs = started . } :apply(cCOsctf rd-)
-:def nCOsctf = :ctf { eq nCOs = started . } :apply(nCOsctf rd-)
-:def tCOsctf = :ctf { eq tCOs = sstarted . } :apply(tCOsctf rd-)
--- Case 1-1-1: (started,stared,sstarted) 
-:def hasECOcsp = :csp {
-  eq allCONotInStates(
-        getECOsOfIMs(sCO,
-                     getIMsOfICOInTargetStates(
-                          getIMsOfTypeOfICOInStates(sIM,mandatory,idCO,wired),
-                          idCO,swired)),
-        st(started,started,sstarted)) = true .
-  eq sIM = (imp(mandatory,idIM,idCO,eidCO,wired,nIMs,swired) sIM') .
-}
-:apply(hasECOcsp rd-)
--- 1-1-1-2: imp(mandatory,idIM,idCO,eidCO,wired,nIMs,swired)
-:csp {
-  eq sCO = (cmp(eidCO,started,started,sstarted) sCO') .
-}
-:init as robust-lemmaN01-IH-in [robust-lemmaN01-IH]
-  by {CO:Component <- co;
-      SCO:SetOfComponent <- sCO;
-      SIM:SetOfImport <- sIM;
-      CO':Component <- cmp(eidCO,started,started,sstarted);
-      SCO':SetOfComponent <- sCO'; }
-:apply(rd-)
-
---> Proof of robust-lemmaN01 done
--->
-show proof
-close
-
---> Proof of robust-lemmaN02
--->  eq robust-lemmaN02(CO,SCO,SIM,L)
--->    = wfs(< (CO SCO), SIM, L >) and inStates(CO,st(started,stopped,stopped)) 
--->      implies someCONoCycle((CO SCO),SIM,st(started,stopped,stopped)) .
-open ProofLemma .
-  -- Define DDSC for robust-lemmaN02
-  eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
-
-  -- Induction Hypothesis
-  ceq [robust-lemmaN02-IH :nonexec]:
-    (wfs(< (CO SCO), SIM, lg >) and inStates(CO,st(started,stopped,stopped))
-     implies someCONoCycle((CO' SCO'),SIM,st(started,stopped,stopped))) = true
-    if t(CO',SCO',SIM) <wf t(CO,SCO,SIM) .
-
-  -- Define <wf for robust-lemmaN02
-  ceq ( t(CO',SCO',(IM SIM')) <wf t(CO,SCO,(IM SIM')) ) = true
-     if inStates(CO, st(started,stopped,stopped)) and
-        inStates(CO',st(started,stopped,stopped)) and
-        exporter(IM) = id(CO) and importer(IM) = id(CO') and type(IM) = mandatory and
-        SCO' <wf SCO .
-
-  eq co = cmp(idCO,cCOs,nCOs,tCOs) .
-
-:goal { eq robust-lemmaN02(co,sCO,sIM,lg) = true . }
-:def cCOsctf = :ctf { eq cCOs = started . } :apply(cCOsctf rd-)
-:def nCOsctf = :ctf { eq nCOs = stopped . } :apply(nCOsctf rd-)
-:def tCOsctf = :ctf { eq tCOs = stopped . } :apply(tCOsctf rd-)
--- Case 1-1-1: (started,stopped,stopped) 
-:def hasICOcsp = :csp {
-  eq allCONotInStates(
-       getICOsOfIMs(sCO,
-         getIMsOfTypeOfECOInStates(sIM,mandatory,idCO,wired)),
-       st(started,stopped,stopped)) = true .
-  eq sIM = (imp(mandatory,idIM,iidCO,idCO,wired,nIMs,tIMs) sIM') .
-}
-:apply(hasICOcsp rd-)
--- 1-1-1-2: imp(mandatory,idIM,idCO,eidCO,wired,nIMs,tIMs)
-:csp {
-  eq sCO = (cmp(iidCO,started,stopped,stopped) sCO') .
-}
-:init as robust-lemmaN02-IH-in [robust-lemmaN02-IH]
-  by {CO:Component <- co;
-      SCO:SetOfComponent <- sCO;
-      SIM:SetOfImport <- sIM;
-      CO':Component <- cmp(iidCO,started,stopped,stopped);
-      SCO':SetOfComponent <- sCO'; }
-:apply(rd-)
-
---> Proof of robust-lemmaN02 done
 -->
 show proof
 close

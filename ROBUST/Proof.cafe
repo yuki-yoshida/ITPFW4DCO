@@ -34,7 +34,6 @@ module ProofBase {
 
   var L : ListOfLog
   vars S SS : State
-  var LS : LocalState
   var SLS : SetOfLS
 
 --> *************************
@@ -223,6 +222,7 @@ module ProofBase {
       (next(CO)  = sstarted implies target(CO) = sstarted) and
       noChangeSstarted(SCO) .
 
+  -- for NoCyclic Lemma
   pred inStates : Component SetOfLS
   eq inStates(CO,empLS) = false .
   eq inStates(CO,(st(CSCO,NSCO,TSCO) SLS))
@@ -231,22 +231,19 @@ module ProofBase {
 
   -- not someCOInStates == allCONotInStates
   pred allCONotInStates : SetOfComponent SetOfLS
-  eq allCONotInStates(empCO,LS) = true .
-  eq allCONotInStates((CO SCO),LS)
-    = not inStates(CO,LS) and allCONotInStates(SCO,LS) .
+  eq allCONotInStates(empCO,SLS) = true .
+  eq allCONotInStates((CO SCO),SLS)
+    = not inStates(CO,SLS) and allCONotInStates(SCO,SLS) .
 
   op DDSC : Component SetOfComponent SetOfImport -> SetOfComponent
   -- Upward DDSC
   op DDSCU : Component SetOfComponent SetOfImport -> SetOfComponent
   eq DDSCU(CO,SCO,SIM)
-    = getECOsOfIMs(SCO,
-        getIMsOfICOInTargetStates(
-          getIMsOfTypeOfICOInStates(SIM,mandatory,CO,wired),CO,swired)) .
+    = getECOsOfIMs(SCO,getIMsOfTypeOfICO(SIM,mandatory,CO)) .
   -- Downward DDSC
   op DDSCD : Component SetOfComponent SetOfImport -> SetOfComponent
   eq DDSCD(CO,SCO,SIM)
-    = getICOsOfIMs(SCO,
-        getIMsOfTypeOfECOInStates(SIM,mandatory,CO,wired)) .
+    = getICOsOfIMs(SCO,getIMsOfTypeOfECO(SIM,mandatory,CO)) .
 
   pred isCONoCycle : Component SetOfComponent SetOfImport SetOfLS
   eq isCONoCycle(CO,SCO,SIM,SLS)
@@ -256,6 +253,21 @@ module ProofBase {
   eq someCONoCycle(empCO,SIM,SLS) = false .
   eq someCONoCycle((CO SCO),SIM,SLS)
     = isCONoCycle(CO,SCO,SIM,SLS) or someCONoCycle(SCO,SIM,SLS) .
+
+  -- The NoCyclic Lemma
+  -- eq robust-lemmaNOC(CO,SCO,SIM,L,SLS)
+  --   = inv(< (CO SCO), SIM, L >) and inStates(CO,SLS) 
+  --     implies someCONoCycle((CO SCO),SIM,SLS) .
+  -- This lemma can be used with specifying DDSCU or DDSCD as DDSC.
+  
+  -- someCONoCycle((CO SCO),SIM,SLS) means that
+  --  there exists a CO' in (CO SCO) such that isCONoCycle(CO',(CO SCO),SIM,SLS) .
+  -- When we can select an arbitrary CO and therefor select the CO',
+  -- we can assume as follows:
+  ceq [robust-lemmaNOC :nonexec]:
+    inv(< (CO SCO), SIM, L >) = false
+    if inStates(CO,SLS) and
+       isCONoCycle(CO,(CO SCO),SIM,SLS) = false .
 
 --> **************************************
 --> Step 0-5: Prepare arbitrary constants.
