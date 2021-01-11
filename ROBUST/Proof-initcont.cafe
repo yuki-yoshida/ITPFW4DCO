@@ -33,9 +33,6 @@ open ProofInitCont .
   eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
   eq co = cmp(idCO,cCOs,nCOs,tCOs) .
 
-  -- Assuming "init(S) implies inv(S)" is proved.
-  ceq init(S) = false if not inv(S) .
-
 :goal { eq robust-lemmaIC(co,sCO,sIM,lg) = true .}
 :def cCOsctf = :ctf { eq cCOs = started . } :apply(cCOsctf rd-)
 :def nCOsctf = :ctf { eq nCOs = started . } :apply(nCOsctf rd-)
