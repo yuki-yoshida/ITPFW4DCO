@@ -29,25 +29,12 @@ module ProofInitCont {
 -->    = initcont(< (CO SCO), SIM, L >)
 -->      when inStates(CO,st(started,started,sstarted)) .
 open ProofInitCont .
-
-  -- robust-lemmaN01(CO,SCO,SIM,L)
-  --   = wfs(< (CO SCO), SIM, L >) and inStates(CO,st(started,started,sstarted)) 
-  --     implies someCONoCycle((CO SCO),SIM,st(started,started,sstarted)) .
-
-  -- someCONoCycle((CO SCO),SIM,st(started,started,sstarted)) means that
-  --  there exists a CO' in (CO SCO) 
-  --    such that isCONoCycle(CO',(CO SCO),SIM,st(started,started,sstarted)) .
-
-  -- Since robust-lemmaIC can select an arbitrary CO, we can select CO as CO',
-  -- that is, we can assume as follows:
-  ceq [robust-lemmaN01]:
-    wfs(< (CO SCO), SIM, L >) = false
-    if inStates(CO,st(started,started,sstarted)) and
-       isCONoCycle(CO,(CO SCO),SIM,st(started,started,sstarted)) = false .
   -- This lemma assumes that DDSC = DDSCU
-   eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
-
+  eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
   eq co = cmp(idCO,cCOs,nCOs,tCOs) .
+
+  -- Assuming "init(S) implies inv(S)" is proved.
+  ceq init(S) = false if not inv(S) .
 
 :goal { eq robust-lemmaIC(co,sCO,sIM,lg) = true .}
 :def cCOsctf = :ctf { eq cCOs = started . } :apply(cCOsctf rd-)
@@ -108,7 +95,13 @@ open ProofInitCont .
 }
 :apply (cCOs'csp nCOs'csp tCOs'csp rd-)
 -- Case 1-1-1-3-3-4-2-2-2-3: started,started,started 
--- is discarged by robust-lemmaN01
+:init as robust-lemmaNOC-in [robust-lemmaNOC]
+  by {CO:Component <- co;
+      SCO:SetOfComponent <- sCO;
+      SIM:SetOfImport <- sIM;
+      L:ListOfLog <- lg;
+      SLS:SetOfLS <- st(started,started,sstarted); }
+:apply(rd-)
 --> Proof of robust-lemmaIC done
 -->
 show proof
