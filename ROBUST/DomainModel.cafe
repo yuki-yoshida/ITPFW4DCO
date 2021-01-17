@@ -374,6 +374,7 @@ module! STATECyclefuns {
 module! STATEfuns {
   protecting(STATE)
 
+  var CO : Component
   var IM : Import
   vars SCO SCO0 : SetOfComponent
   vars SIM SIM0 : SetOfImport
@@ -472,6 +473,26 @@ module! STATEfuns {
   -- The no cycle invariant is assumed.
   -- ** and noCycleCurrent(SCO,SIM) .
 
+  pred validNextComponent : SetOfComponent SetOfImport
+  eq validNextComponent(SCO,SIM) = true .
+
+  pred validNextImport : SetOfImport SetOfComponent
+  eq validNextImport(empIM,SCO) = true .
+  eq validNextImport(SIM,(cmp(IDCO,sstarted,NSCO,TSCO) SCO))
+     = allIMInNextStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(wired swired unused)) and
+       validNextImport(SIM,SCO) .
+  ceq validNextImport(SIM,(CO SCO))
+     = validNextImport(SIM,SCO) 
+     if not (state(CO) in sstarted) .
+  eq validNextImport(SIM,empCO) = true .
+
+  pred validNext : SetOfComponent SetOfImport
+  eq validNext(SCO,SIM)
+     = validNextComponent(SCO,SIM) and validNextImport(SIM,SCO) .
+
+  -- The no cycle invariant is assumed.
+  -- ** and noCycleCurrent(SCO,SIM) .
+
   pred iidCOeidCODiffer : SetOfImport
   eq iidCOeidCODiffer(empIM) = true .
   eq iidCOeidCODiffer(IM SIM)
@@ -511,6 +532,9 @@ module! STATEfuns {
   pred wfs-validCurrent : State
   eq wfs-validCurrent(< SCO,SIM,L >) = validCurrent(SCO,SIM) .
 
+  pred wfs-validNext : State
+  eq wfs-validNext(< SCO,SIM,L >) = validNext(SCO,SIM) .
+
   pred wfs-iidCOeidCODiffer : State
   eq wfs-iidCOeidCODiffer(< SCO,SIM,L >)
     = iidCOeidCODiffer(SIM) .
@@ -523,8 +547,8 @@ module! STATEfuns {
   eq [:nonexec]: wfs(S)
      = wfs-uniqCO(S) and wfs-uniqIM(S) and 
        wfs-allIMHaveICO(S) and wfs-allIMHaveECO(S) and
-       wfs-validTarget(S) and wfs-validCurrent(S) and
-       wfs-iidCOeidCODiffer(S) .
+       wfs-validTarget(S) and wfs-validCurrent(S) and 
+       wfs-validNext(S) and wfs-iidCOeidCODiffer(S) .
 
   eq init(< SCO,SIM,L >)
      = wfs(< SCO,SIM,L >) and

@@ -109,6 +109,7 @@ module ProofBase {
   ceq wfs(S) = false if not wfs-allIMHaveECO(S) .
   ceq wfs(S) = false if not wfs-validTarget(S) .
   ceq wfs(S) = false if not wfs-validCurrent(S) .
+  ceq wfs(S) = false if not wfs-validNext(S) .
   ceq wfs(S) = false if not wfs-iidCOeidCODiffer(S) .
 
   -- inv-*:
