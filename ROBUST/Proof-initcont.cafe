@@ -111,10 +111,6 @@ open ProofInitCont .
   --  eq robust-lemmaIC(CO,SCO,SIM,L)
   --    = initcont(< (CO SCO), SIM, L >)
   --      when inStates(CO,st(started,started,sstarted)) .
-  var CO : Component
-  var SCO : SetOfComponent
-  var SIM : SetOfImport
-  var L : ListOfLog
   ceq initcont(< (CO SCO), SIM, L >) = true 
     if inStates(CO,st(started,started,sstarted)) .
 
