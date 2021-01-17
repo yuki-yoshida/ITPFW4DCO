@@ -61,7 +61,7 @@ select ProofMeasure .
 show proof
 select
 
---> ****************************************************************
+--> ************************************************************************
 --> ctrans [RD-stop]:
 -->    < (cmp(IDCO, started, stopped, TSCO) SCO), SIM,
 -->      ListLG >
@@ -70,8 +70,10 @@ select
 -->       mlog(
 -->      (cmp(IDCO, started, stopped, TSCO) SCO), SIM
 -->      )) ListLG) >
--->    if getIMsOfECOInStates(SIM,IDCO,(wired swired)) = empIM .
---> ****************************************************************
+-->    if getICOsOfIMsInStates(SCO,
+-->                            getIMsOfECOInStates(SIM,IDCO,(wired swired)),
+-->                            (started sstarted)) = empCO .
+--> ************************************************************************
 select ProofMeasure .
 --> *************************************************************************
 --> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
@@ -81,7 +83,9 @@ select ProofMeasure .
               lg >) = true .
 }
 :ctf {
-  eq getIMsOfECOInStates(sIM,idCO,(wired swired)) = empIM .
+  eq getICOsOfIMsInStates(sCO,
+                          getIMsOfECOInStates(sIM,idCO,(wired swired)),
+                         (started sstarted)) = empCO .
 }
 :def tCOscsp = :csp {
   eq tCOs =  stopped .
@@ -477,16 +481,16 @@ select
 
 --> ********************************************************************************************
 --> trans [RS-unwire3]:
--->    < (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, sstarted) SCO), 
+-->    < (cmp(EIDCO, started, stopped, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, swired) SIM),
 -->      ListLG >
---> => < (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, sstarted) SCO), 
+--> => < (cmp(EIDCO, started, stopped, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, swired) SIM),
 -->      (ilog("RS-unwire3:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, swired),
--->       mlog(
--->      (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, sstarted) SCO), 
+-->  mlog(
+-->      (cmp(EIDCO, started, stopped, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, swired) SIM)
--->      )) ListLG) > .
+--> )) ListLG) > .
 --> ********************************************************************************************
 select ProofMeasure .
 --> *************************************************************************

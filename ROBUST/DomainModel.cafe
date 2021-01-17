@@ -474,6 +474,9 @@ module! STATEfuns {
   -- ** and noCycleCurrent(SCO,SIM) .
 
   pred validNextComponent : SetOfComponent SetOfImport
+  -- ceq validNextComponent((CO SCO),SIM)
+  --   = not (next(C) in stopped)
+  --   if not (getIMsOfICOInStates(SIM,id(CO),swired) = empIM) .
   eq validNextComponent(SCO,SIM) = true .
 
   pred validNextImport : SetOfImport SetOfComponent
@@ -597,7 +600,7 @@ module! STATERules {
        (cmp(IDCO, started, started, stopped) SCO), SIM
 	 )) ListLG) > .
 
-  -- A started Component can be stopped if there is no wired import to it.
+  -- A started Component can be stopped if there is no wired import from a started component to it.
   ctrans [RD-stop]:
      < (cmp(IDCO, started, stopped, TSCO) SCO), SIM,
        ListLG >
@@ -606,7 +609,9 @@ module! STATERules {
 	  mlog(
        (cmp(IDCO, started, stopped, TSCO) SCO), SIM
 	 )) ListLG) >
-     if getIMsOfECOInStates(SIM,IDCO,(wired swired)) = empIM .
+     if getICOsOfIMsInStates(SCO,
+                             getIMsOfECOInStates(SIM,IDCO,(wired swired)),
+                             (started sstarted)) = empCO .
 
   -- A started Component should stop if its mandatory Import should be unwired.
   trans [RS-stop2]:
