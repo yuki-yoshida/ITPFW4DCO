@@ -474,10 +474,12 @@ module! STATEfuns {
   -- ** and noCycleCurrent(SCO,SIM) .
 
   pred validNextComponent : SetOfComponent SetOfImport
-  -- ceq validNextComponent((CO SCO),SIM)
-  --   = not (next(C) in stopped)
-  --   if not (getIMsOfICOInStates(SIM,id(CO),swired) = empIM) .
-  eq validNextComponent(SCO,SIM) = true .
+  ceq validNextComponent((CO SCO),SIM)
+    = not (next(CO) in stopped)
+    if not (getIMsOfECOInStates(SIM,id(CO),swired) = empIM) .
+  ceq validNextComponent(SCO,SIM)
+    = true
+    if getIMsOfECOInStates(SIM,id(CO),swired) = empIM .
 
   pred validNextImport : SetOfImport SetOfComponent
   eq validNextImport(empIM,SCO) = true .
