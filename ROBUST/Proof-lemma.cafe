@@ -149,12 +149,24 @@ eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
 :apply(rd-)
 -- Case 2-2-4-4-2-2-1-3: started stopped sstarted discharged by C04
 -- Case 2-2-4-4-2-2-2-3: started started sstarted discharged by C05
-eof
 -- Case 2-3: wired
+:apply(nIMscsp tIMscsp rd-)
+-- Case 2-3-3-4: wired wired swired
+:apply(exECOcsp rd-)
+:apply(cCOscsp nCOscsp tCOscsp rd-)
+-- Case 2-3-3-4-2-1-3-3: stopped sstarted sstarted
+:init as robust-lemmaNOC-in [robust-lemmaNOC]
+  by {CO:Component <- co;
+      SCO:SetOfComponent <- sCO;
+      SIM:SetOfImport <- sIM;
+      L:ListOfLog <- lg;
+      SLS:SetOfLS <- st(stopped,sstarted,sstarted); }
+:apply(rd-)
 --> Proof of robust-lemmaC03 done
 -->
 show proof
 close
+eof
 
 --> Proof of robust-lemmaC11
 -->  eq robust-lemmaC11(SCO,SIM,L)
@@ -624,11 +636,12 @@ DDSCD
 
 robust-lemmaC03 = cont when inv and inStates(CO,st(stopped,sstarted,sstarted)) .
 DDCSU
-2-2: mandatory unwired swired swired
+2-2-4-4: mandatory unwired swired swired
  2-2-4-4-2-1-3-3: stopped sstarted sstarted -> NOC
  2-2-4-4-2-2-1-3: started stopped sstarted  -> C04
  2-2-4-4-2-2-2-3: started started sstarted  -> C05
-2-3: mandatory wired * *
+2-3-3-4: mandatory wired wired swired
+ 2-3-3-4-2-1-3-3: stopped sstarted sstarted -> NOC
 
 robust-lemmaC04 = cont when inv and inStates(CO,st(started,stopped,sstarted)) .
 DDCSD
