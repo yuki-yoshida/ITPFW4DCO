@@ -672,7 +672,112 @@ open ProofLemma .
 show proof
 close
 
---> Totally 7 goals should be proved.
+--> Proof of robust-lemmaC12
+-->  eq robust-lemmaC12(SCO,SIM,L)
+-->    = cont(< SCO, SIM, L >) 
+-->      when inv(< (SCO, SIM, L >) and
+-->           equivCOSet(SCO) = false .
+open ProofLemma .
+  -- eq robust-lemmaC01(CO,SCO,SIM,L)
+  --   = cont(< (CO SCO), SIM, L >) 
+  --     when inv(< (CO SCO), SIM, L >) and
+  --          inStates(CO,st(started,stopped,stopped)) .
+  ceq inv(< (CO SCO), SIM, L >) = false 
+    if inStates(CO,st(started,stopped,stopped)) and
+       cont(< (CO SCO), SIM, L >) = false .
+
+  -- eq robust-lemmaC03(CO,SCO,SIM,L)
+  --   = cont(< (CO SCO), SIM, L >) 
+  --     when inv(< (CO SCO), SIM, L >) and
+  --          inStates(CO,st(stopped,sstarted,sstarted)) .
+  ceq inv(< (CO SCO), SIM, L >) = false 
+    if inStates(CO,st(stopped,sstarted,sstarted)) and
+       cont(< (CO SCO), SIM, L >) = false .
+
+  -- eq robust-lemmaC04(CO,SCO,SIM,L)
+  --   = cont(< (CO SCO), SIM, L >) 
+  --     when inv(< (CO SCO), SIM, L >) and
+  --          inStates(CO,st(started,stopped,sstarted)) .
+  ceq inv(< (CO SCO), SIM, L >) = false 
+    if inStates(CO,st(started,stopped,sstarted)) and
+       cont(< (CO SCO), SIM, L >) = false .
+
+  -- eq robust-lemmaC05(CO,SCO,SIM,L)
+  --   = cont(< (CO SCO), SIM, L >) 
+  --     when inv(< (CO SCO), SIM, L >) and
+  --          inStates(CO,st(started,started,sstarted)) .
+  ceq inv(< (CO SCO), SIM, L >) = false 
+    if inStates(CO,st(started,started,sstarted)) and
+       cont(< (CO SCO), SIM, L >) = false .
+
+:goal { eq robust-lemmaC12(sCO,sIM,lg) = true . }
+:def empCOcsp = :csp  { 
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:def cCOscsp = :csp  { 
+  eq cCOs = stopped .
+  eq cCOs = started .
+  eq cCOs = sstarted .
+}
+:def nCOscsp = :csp  { 
+  eq nCOs = stopped .
+  eq nCOs = started .
+  eq nCOs = sstarted .
+}
+:def tCOscsp = :csp  { 
+  eq tCOs = stopped .
+  eq tCOs = started .
+  eq tCOs = sstarted .
+}
+:def tIMcsp = :csp  { 
+  eq tIM = mandatory .
+  eq tIM = optional .
+}
+:def cIMscsp = :csp  { 
+  eq cIMs = unused .
+  eq cIMs = unwired .
+  eq cIMs = wired .
+  eq cIMs = swired .
+}
+:def nIMscsp = :csp  { 
+  eq nIMs = unused .
+  eq nIMs = unwired .
+  eq nIMs = wired .
+  eq nIMs = swired .
+}
+:def tIMscsp = :csp  { 
+  eq tIMs = unused .
+  eq tIMs = unwired .
+  eq tIMs = wired .
+  eq tIMs = swired .
+}
+:def equivCOctf = :ctf  { 
+  eq equivCOSet(sCO) = true .
+}
+:apply(equivCOctf rd-)
+-- Case 2: equivCOSet(sIM) = false means that
+--          at least one component whose state is not its target.
+-- :init eq equivIMSet(sIM) = false .
+:init (ceq true = false
+	if equivCOSet(SCO:SetOfComponent) . ) by {
+  SCO:SetOfComponent <- sCO;
+}
+:apply(empCOcsp rd-)
+-- Case 2-2:
+:init (ceq true = false
+	if CCOS:COState = TCOS:COState . ) by {
+  CCOS:COState <- cCOs;
+  TCOS:COState <- tCOs;
+}
+:apply(cCOscsp nCOscsp tCOscsp rd-)
+-- When (cCOs = tCOs), it is discharged by :init eq (cCOs = tCOs) = false .
+--> Proof of robust-lemmaC12 done
+-->
+show proof
+close
+
+--> Totally 8 goals should be proved.
 eof
 
 Memo: Dependency of Lemmas
