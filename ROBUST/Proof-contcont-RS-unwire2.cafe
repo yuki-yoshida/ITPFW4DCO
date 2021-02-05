@@ -5,13 +5,13 @@ require ProofContCont Proof-contcont.cafe
 --> **********************************************************
 
 --> *********************************************************************************************
---> trans [RS-unused]:
--->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,  wired, unused) SIM),
+--> trans [RS-unwire2]:
+-->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused,  unused, swired) SIM),
 -->      ListLG >
---> => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired, unused, unused) SIM),
--->      (ilog("RS-unused:Should be Unused", imp(TIM, IDIM, IIDCO, EIDCO, wired, unused, unused),
+--> => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused, unwired, swired) SIM),
+-->      (ilog("RS-unwire2:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, unused, unwired, swired),
 -->         mlog(
--->      SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired, wired, unused) SIM)
+-->      SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused,  unused, swired) SIM)
 -->        )) ListLG) > .
 --> *********************************************************************************************
 
@@ -20,11 +20,11 @@ open ProofContCont .
 --> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
-  eq contcont(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired, wired, unused) sIM), lg >) = true .
+  eq contcont(< sCO, (imp(tIM, idIM, iidCO, eidCO, unused, unused, swired) sIM), lg >) = true .
 }
-:apply(rd-)
+:apply (rd-)
 --> Proof of (2) inv(S) and not final(S) and inv(SS) implies cont(SS) or final(SS).
--->   for Rule RS-unused done
+-->   for Rule RS-unwire2 done
 -->
 show proof
 close
