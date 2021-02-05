@@ -10,7 +10,7 @@ in Proof-contcont-RS-stop2.cafe
 in Proof-contcont-RS-sstart1.cafe
 in Proof-contcont-RS-sstart2.cafe
 in Proof-contcont-RD-start.cafe
--- in Proof-contcont-RD-sstart.cafe
+in Proof-contcont-RD-sstart.cafe
 -- in Proof-contcont-RS-unwire1.cafe
 -- in Proof-contcont-RD-unwire1.cafe
 -- in Proof-contcont-RD-unwire2.cafe
@@ -26,4 +26,4 @@ in Proof-contcont-RD-start.cafe
 -- in Proof-contcont-RD-swire.cafe
 in Proof-measure.cafe
 in Proof-inv.cafe
---> Totally 77 goals should be proved.
+--> Totally 78 goals should be proved.
