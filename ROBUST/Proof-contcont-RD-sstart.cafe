@@ -1,0 +1,66 @@
+require ProofContCont Proof-contcont.cafe
+
+--> **********************************************************
+--> (2) inv(S) and not final(S) implies cont(SS) or final(SS).
+--> **********************************************************
+
+--> ********************************************************************************
+--> trans [RD-sstart]:
+-->    < (cmp(IDCO,  started, sstarted, sstarted) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, sstarted, sstarted, sstarted) SCO), SIM,
+-->      (clog("RD-sstart:Do Stably Start", cmp(IDCO, sstarted, sstarted, sstarted),
+-->         mlog(
+-->      (cmp(IDCO, started, sstarted, sstarted) SCO), SIM
+-->        )) ListLG) > .
+--> ********************************************************************************
+open ProofContCont .
+
+  -- Lemmas
+  var SCO : SetOfComponent
+  var SIM : SetOfImport
+  var L : ListOfLog
+  -- eq robust-lemmaC11(SCO,SIM,L)
+  --   = cont(< SCO, SIM, L >) 
+  --     when inv(< SCO, SIM, L >) and
+  --          equivIMSet(SIM) = false .
+  ceq cont(< SCO, SIM, L >) = true
+    if inv(< SCO, SIM, L >) and  equivIMSet(SIM) = false .
+
+  -- eq robust-lemmaC12(SCO,SIM,L)
+  --   = cont(< SCO, SIM, L >) 
+  --     when inv(< (CO, SIM, L >) and
+  --          equivCOSet(SCO) = false .
+  ceq cont(< SCO, SIM, L >) = true
+    if inv(< SCO, SIM, L >) and equivCOSet(SCO) = false .
+
+--> *************************************************************************
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq contcont(< (cmp(idCO, started, sstarted, sstarted) sCO), sIM, lg >) = true .
+}
+--> *********************************************************
+--> Step 2-3: Split the current case into cases where
+-->  predicate final does or does not hold in the next state.
+--> *********************************************************
+-- Set inv(SS) = true to use lemmas.
+:def invctf = :ctf {
+  eq inv(< (cmp(idCO,sstarted,sstarted,sstarted) sCO), sIM,
+     (clog("RD-sstart:Do Stably Start",cmp(idCO,sstarted,sstarted,sstarted),
+          (1 + (tdis(sIM) + tdis(sCO)))) lg) >) = true .
+}
+:apply(invctf rd-)
+:def finalcsp = :csp {
+  eq (equivIMSet(sIM) and equivCOSet(sCO)) = true .
+  eq equivIMSet(sIM) = false .
+  eq equivCOSet(sCO) = false .
+}
+:apply(finalcsp rd-)
+--> Proof of (2) inv(S) and not final(S) and inv(SS) implies cont(SS) or final(SS).
+-->   for Rule RD-sstart done
+-->
+show proof
+close
+
+--> Totally 1 goal should be proved.

@@ -1,0 +1,39 @@
+require ProofContCont Proof-contcont.cafe
+
+--> **********************************************************
+--> (2) inv(S) and not final(S) implies cont(SS) or final(SS).
+--> **********************************************************
+
+--> ****************************************************************************
+--> ctrans [RD-start]:
+-->    < (cmp(IDCO, stopped, sstarted, sstarted) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, started, sstarted, sstarted) SCO), SIM,
+-->      (clog("RD-start:Do Start", cmp(IDCO, started, sstarted, sstarted),
+-->         mlog(
+-->      (cmp(IDCO, stopped, sstarted, sstarted) SCO), SIM
+-->        )) ListLG) >
+-->    if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) .
+--> ****************************************************************************
+open ProofContCont .
+--> *************************************************************************
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq contcont(< (cmp(idCO, stopped, sstarted, sstarted) sCO), sIM, lg >) = true .
+}
+--> ******************************************************
+--> Step 2-2: Split the current case for a rule into cases
+--> where the condition of the rule does or does not hold.
+--> ******************************************************
+:def ctf2-2RD-start = :ctf {
+  eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
+}
+:apply (ctf2-2RD-start rd-)
+--> Proof of (2) inv(S) and not final(S) and inv(SS) implies cont(SS) or final(SS).
+-->   for Rule RD-start done
+-->
+show proof
+close
+
+--> Totally 1 goal should be proved.
