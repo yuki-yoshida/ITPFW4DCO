@@ -1,0 +1,45 @@
+require ProofContCont Proof-contcont.cafe
+
+--> **********************************************************
+--> (2) inv(S) and not final(S) implies cont(SS) or final(SS).
+--> **********************************************************
+
+--> *********************************************************************************************
+--> trans [RS-unused]:
+-->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,  wired, unused) SIM),
+-->      ListLG >
+--> => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired, unused, unused) SIM),
+-->      (ilog("RS-unused:Should be Unused", imp(TIM, IDIM, IIDCO, EIDCO, wired, unused, unused),
+-->         mlog(
+-->      SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired, wired, unused) SIM)
+-->        )) ListLG) > .
+--> *********************************************************************************************
+
+open ProofContCont .
+
+  var CO : Component
+  var SCO : SetOfComponent
+  var SIM : SetOfImport
+  var L : ListOfLog
+
+  -- eq robust-lemmaC01(CO,SCO,SIM,L)
+  --   = cont(< (CO SCO), SIM, L >) 
+  --     when inv(< (CO SCO), SIM, L >) and
+  --          inStates(CO,st(started,stopped,stopped)) .
+  -- ceq inv(< (CO SCO), SIM, L >) = false 
+  --   if inStates(CO,st(started,stopped,stopped)) and
+  --      cont(< (CO SCO), SIM, L >) = false .
+--> *************************************************************************
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+:goal {
+  eq contcont(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired, wired, unused) sIM), lg >) = true .
+}
+:apply(rd-)
+--> Proof of (2) inv(S) and not final(S) and inv(SS) implies cont(SS) or final(SS).
+-->   for Rule RS-unused done
+-->
+show proof
+close
+
+--> Totally 1 goal should be proved.
