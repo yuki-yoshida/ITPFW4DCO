@@ -51,13 +51,13 @@ open ProofContCont .
            (ilog("RD-unused:Do Unwire",imp(tIM,idIM,idCO,eidCO,unused,unused,unused), 
                  (1 + (tdis(sIM) + tdis(sCO)))) lg) >) = true .
 }
-:apply(invctf rd-)
+:apply (invctf rd-)
 :def finalcsp = :csp {
   eq (equivIMSet(sIM) and equivCOSet(sCO)) = true .
   eq equivIMSet(sIM) = false .
   eq equivCOSet(sCO) = false .
 }
-:apply(finalcsp rd-)
+:apply (finalcsp rd-)
 --> Proof of (2) inv(S) and not final(S) and inv(SS) implies cont(SS) or final(SS).
 -->   for Rule RD-unused done
 -->

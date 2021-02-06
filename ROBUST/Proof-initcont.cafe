@@ -130,7 +130,7 @@ open ProofInitCont .
   eq existCO(sCO,eidCO) = false .
   eq sCO = (cmp(eidCO,cCOs',nCOs',tCOs') sCO') .
 }
-:apply(exECOcsp rd-)
+:apply (exECOcsp rd-)
 -- Case 3-2-3-3-4-1: wfs-allIMHaveECO is false.
 -- Case 3-2-3-3-4-2:
 :def cCOs'csp = :csp  { 

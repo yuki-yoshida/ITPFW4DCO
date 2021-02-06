@@ -58,7 +58,7 @@ open ProofContCont .
   eq tCOs = started .
   eq tCOs = sstarted .
 }
-:apply(tIMcsp rd-)
+:apply (tIMcsp rd-)
 -- Case 1: mandatory
 --> ***************************************************************
 --> Step 2-4: Consider which rule can be applied to the next state.
@@ -68,8 +68,8 @@ open ProofContCont .
 --> Step 2-5: Split the current case into cases which collectively cover the current case
 -->  and the next state of one of the split cases matches to LHS of the current rule.
 --> *************************************************************************************
-:apply(exICOcsp rd-)
-:apply(cCOscsp nCOscsp tCOscsp rd-)
+:apply (exICOcsp rd-)
+:apply (cCOscsp nCOscsp tCOscsp rd-)
 -- Case 1-2-2-1-1: started stopped stopped discharged by C01.
 --> Proof of (2) inv(S) and not final(S) and inv(SS) implies cont(SS) or final(SS).
 -->   for Rule RS-unwire1 done

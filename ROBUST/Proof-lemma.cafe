@@ -91,14 +91,14 @@ open ProofLemma .
 :def inStatesctf = :ctf {
   eq inStates(cmp(idCO,cCOs,nCOs,tCOs),sls) = true .
 }
-:apply(inStatesctf rd-)
+:apply (inStatesctf rd-)
 :def allCONotcsp = :csp {
   eq allCONotInStates(getECOsOfIMs(sCO,getIMsOfTypeOfICO(sIM,mandatory,idCO)),
         sls) = true .
   eq sIM = (imp(mandatory,idIM,idCO,eidCO,cIMs,nIMs,tIMs) sIM') .
 }
-:apply(allCONotcsp)
-:apply(rd-)
+:apply (allCONotcsp)
+:apply (rd-)
 :csp {
   eq sCO = (cmp(eidCO,cCOs',nCOs',tCOs') sCO') .
 }
@@ -115,8 +115,8 @@ open ProofLemma .
       SIM:SetOfImport <- sIM;
       CO':Component <- cmp(eidCO,cCOs',nCOs',tCOs');
       SCO':SetOfComponent <- sCO'; }
-:apply(rd-)
-:apply(rd-)
+:apply (rd-)
+:apply (rd-)
 --> Proof of robust-lemmaNOC done
 -->
 show proof
@@ -153,14 +153,14 @@ open ProofLemma .
 :def inStatesctf = :ctf {
   eq inStates(cmp(idCO,cCOs,nCOs,tCOs),sls) = true .
 }
-:apply(inStatesctf rd-)
+:apply (inStatesctf rd-)
 :def allCONotcsp = :csp {
   eq allCONotInStates(getICOsOfIMs(sCO,getIMsOfTypeOfECO(sIM,mandatory,idCO)),
         sls) = true .
   eq sIM = (imp(mandatory,idIM,iidCO,idCO,cIMs,nIMs,tIMs) sIM') .
 }
-:apply(allCONotcsp)
-:apply(rd-)
+:apply (allCONotcsp)
+:apply (rd-)
 :csp {
   eq sCO = (cmp(iidCO,cCOs',nCOs',tCOs') sCO') .
 }
@@ -177,8 +177,8 @@ open ProofLemma .
       SIM:SetOfImport <- sIM;
       CO':Component <- cmp(iidCO,cCOs',nCOs',tCOs');
       SCO':SetOfComponent <- sCO'; }
-:apply(rd-)
-:apply(rd-)
+:apply (rd-)
+:apply (rd-)
 --> Proof of robust-lemmaNOC done
 -->
 show proof
@@ -231,20 +231,20 @@ eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
   eq inStates(co,st(started,stopped,stopped)) = false . 
   eq co = cmp(idCO,started,stopped,stopped) .
 }
-:apply(inStcsp rd-)
+:apply (inStcsp rd-)
 -- Case 2: RD-stop should be applied
 :def canstopcsp = :csp {
   eq getIMsOfECOInStates(sIM,idCO,(wired swired)) = empIM .
   eq sIM = (imp(tIM, idIM, iidCO, idCO,  wired, nIMs, tIMs) sIM') .
   eq sIM = (imp(tIM, idIM, iidCO, idCO, swired, nIMs, tIMs) sIM') .
 }
-:apply(canstopcsp rd-)
+:apply (canstopcsp rd-)
 -- Case 2-2: wired
-:apply(tIMcsp nIMscsp tIMscsp rd-)
+:apply (tIMcsp nIMscsp tIMscsp rd-)
 -- Case 2-2-1-2-2: mandatory wired unwired unwired
 -- RD-unwire2 should be applied
-:apply(exICOcsp rd-)
-:apply(cCOscsp nCOscsp tCOscsp rd-)
+:apply (exICOcsp rd-)
+:apply (cCOscsp nCOscsp tCOscsp rd-)
 -- Case 2-2-1-2-2-2-2-1-1: started stopped stopped
 :init as robust-lemmaNOC-in [robust-lemmaNOC]
   by {CO:Component <- co;
@@ -252,7 +252,7 @@ eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
       SIM:SetOfImport <- sIM;
       L:ListOfLog <- lg;
       SLS:SetOfLS <- st(started,stopped,stopped); }
-:apply(rd-)
+:apply (rd-)
 --> Proof of robust-lemmaC01 done
 -->
 show proof
@@ -304,7 +304,7 @@ eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
   eq inStates(co,st(started,stopped,sstarted)) = false . 
   eq co = cmp(idCO,started,stopped,sstarted) .
 }
-:apply(inStcsp rd-)
+:apply (inStcsp rd-)
 -- Case 2: RD-stop should be applied
 :def canstopcsp = :csp {
   eq getICOsOfIMsInStates(sCO,
@@ -312,7 +312,7 @@ eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
                          (started sstarted)) = empCO .
   eq sIM = (imp(tIM, idIM, iidCO, idCO,  cIMs, nIMs, tIMs) sIM') .
 }
-:apply(canstopcsp rd-)
+:apply (canstopcsp rd-)
 :csp {
   eq sCO = (cmp(iidCO,cCOs,nCOs,tCOs) sCO') .
 }
@@ -324,12 +324,12 @@ eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
   eq cCOs = started .
   eq cCOs = sstarted .
 }
-:apply(tIMcsp cIMscsp nIMscsp tIMscsp rd-)
+:apply (tIMcsp cIMscsp nIMscsp tIMscsp rd-)
 -- Case 2-2-1-1-1-2-2: mandatory wired unwired unwired
-:apply(cCOscsp nCOscsp tCOscsp rd-)
+:apply (cCOscsp nCOscsp tCOscsp rd-)
 -- Case 2-2-1-1-1-2-2-1-1-1 is discharged by C01
 -- Case 2-2-1-1-1-2-4: mandatory wired unwired swired
-:apply(cCOscsp nCOscsp tCOscsp rd-)
+:apply (cCOscsp nCOscsp tCOscsp rd-)
 -- Case 2-2-1-1-1-2-4-1-1-3: started stopped sstarted
 :init as robust-lemmaNOC-in [robust-lemmaNOC]
   by {CO:Component <- co;
@@ -337,7 +337,7 @@ eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
       SIM:SetOfImport <- sIM;
       L:ListOfLog <- lg;
       SLS:SetOfLS <- st(started,stopped,sstarted); }
-:apply(rd-)
+:apply (rd-)
 --> Proof of robust-lemmaC02 done
 -->
 show proof
@@ -386,19 +386,19 @@ eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
   eq inStates(co,st(started,started,sstarted)) = false . 
   eq co = cmp(idCO,started,started,sstarted) .
 }
-:apply(inStcsp rd-)
+:apply (inStcsp rd-)
 -- Case 2: RS-stop2 or RS-sstart2 should be applied
 :def cansstartcsp = :csp {
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
   eq sIM = (imp(mandatory, idIM, idCO, eidCO, unwired, nIMs, tIMs) sIM') .
   eq sIM = (imp(mandatory, idIM, idCO, eidCO,   wired, nIMs, tIMs) sIM') .
 }
-:apply(cansstartcsp rd-)
+:apply (cansstartcsp rd-)
 -- Case 2-3: wired
-:apply(nIMscsp tIMscsp rd-)
+:apply (nIMscsp tIMscsp rd-)
 -- Case 2-3-3-4: wired wired swired
-:apply(exECOcsp rd-)
-:apply(cCOscsp nCOscsp tCOscsp rd-)
+:apply (exECOcsp rd-)
+:apply (cCOscsp nCOscsp tCOscsp rd-)
 -- Case 2-3-3-4-2-2-2-3: started started sstarted
 :init as robust-lemmaNOC-in [robust-lemmaNOC]
   by {CO:Component <- co;
@@ -406,7 +406,7 @@ eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
       SIM:SetOfImport <- sIM;
       L:ListOfLog <- lg;
       SLS:SetOfLS <- st(started,started,sstarted); }
-:apply(rd-)
+:apply (rd-)
 --> Proof of robust-lemmaC03 done
 -->
 show proof
@@ -471,20 +471,20 @@ eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
   eq inStates(co,st(stopped,sstarted,sstarted)) = false . 
   eq co = cmp(idCO,stopped,sstarted,sstarted) .
 }
-:apply(inStcsp rd-)
+:apply (inStcsp rd-)
 -- Case 2: RD-start should be applied
 :def canstartcsp = :csp {
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
   eq sIM = (imp(mandatory, idIM, idCO, eidCO, unwired, nIMs, tIMs) sIM') .
   eq sIM = (imp(mandatory, idIM, idCO, eidCO,   wired, nIMs, tIMs) sIM') .
 }
-:apply(canstartcsp rd-)
+:apply (canstartcsp rd-)
 -- Case 2-2: unwired
-:apply(nIMscsp tIMscsp rd-)
+:apply (nIMscsp tIMscsp rd-)
 -- Case 2-2-4-4: unwired swired swired
 -- RD-wire2 should be applied
-:apply(exECOcsp rd-)
-:apply(cCOscsp nCOscsp tCOscsp rd-)
+:apply (exECOcsp rd-)
+:apply (cCOscsp nCOscsp tCOscsp rd-)
 -- Case 2-2-4-4-2-1-3-3: stopped sstarted sstarted
 :init as robust-lemmaNOC-in [robust-lemmaNOC]
   by {CO:Component <- co;
@@ -492,14 +492,14 @@ eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
       SIM:SetOfImport <- sIM;
       L:ListOfLog <- lg;
       SLS:SetOfLS <- st(stopped,sstarted,sstarted); }
-:apply(rd-)
+:apply (rd-)
 -- Case 2-2-4-4-2-2-1-3: started stopped sstarted discharged by C02
 -- Case 2-2-4-4-2-2-2-3: started started sstarted discharged by C03
 -- Case 2-3: wired
-:apply(nIMscsp tIMscsp rd-)
+:apply (nIMscsp tIMscsp rd-)
 -- Case 2-3-3-4: wired wired swired
-:apply(exECOcsp rd-)
-:apply(cCOscsp nCOscsp tCOscsp rd-)
+:apply (exECOcsp rd-)
+:apply (cCOscsp nCOscsp tCOscsp rd-)
 -- Case 2-3-3-4-2-1-3-3: stopped sstarted sstarted
 :init as robust-lemmaNOC-in [robust-lemmaNOC]
   by {CO:Component <- co;
@@ -507,7 +507,7 @@ eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
       SIM:SetOfImport <- sIM;
       L:ListOfLog <- lg;
       SLS:SetOfLS <- st(stopped,sstarted,sstarted); }
-:apply(rd-)
+:apply (rd-)
 --> Proof of robust-lemmaC04 done
 -->
 show proof
@@ -616,7 +616,7 @@ open ProofLemma .
 :def equivIMctf = :ctf  { 
   eq equivIMSet(sIM) = true .
 }
-:apply(equivIMctf rd-)
+:apply (equivIMctf rd-)
 -- Case 2: equivIMSet(sIM) = false means that
 --          at least one import whose state is not its target.
 -- :init eq equivIMSet(sIM) = false .
@@ -624,43 +624,43 @@ open ProofLemma .
 	if equivIMSet(SIM:SetOfImport) . ) by {
   SIM:SetOfImport <- sIM;
 }
-:apply(empIMcsp rd-)
+:apply (empIMcsp rd-)
 -- Case 2-2:
 :init (ceq true = false
 	if CIMS:IMState = TIMS:IMState . ) by {
   CIMS:IMState <- cIMs;
   TIMS:IMState <- tIMs;
 }
-:apply(tIMcsp cIMscsp nIMscsp tIMscsp rd-)
+:apply (tIMcsp cIMscsp nIMscsp tIMscsp rd-)
 -- When (cIMs = tIMs), it is discharged by :init eq (cIMs = tIMs) = false .
 -- Case 2-2-1-2-4-4: mandatory unwired swired swired
 -- RD-wire2 should be applied
-:apply(exECOcsp rd-)
-:apply(cCOscsp nCOscsp tCOscsp rd-)
+:apply (exECOcsp rd-)
+:apply (cCOscsp nCOscsp tCOscsp rd-)
 -- Case 2-2-1-2-4-4-2-1-3-3: stopped sstarted sstarted discharged by C04
 -- Case 2-2-1-2-4-4-2-2-1-3: started stopped sstated   discharged by C02
 -- Case 2-2-1-2-4-4-2-2-2-3: started started sstarted  discharged by C03
 -- Case 2-2-1-3-2-2: mandatory wired unwired unwired
 -- RD-unwire2 should be applied
-:apply(exICOcsp rd-)
-:apply(cCOscsp nCOscsp tCOscsp rd-)
+:apply (exICOcsp rd-)
+:apply (cCOscsp nCOscsp tCOscsp rd-)
 -- Case 2-2-1-3-2-2-2-2-1-1: started stopped stopped   discharged by C01
 -- Case 2-2-1-3-2-4: mandatory wired unwired swired
 -- RD-unwire2 should be applied
-:apply(exICOcsp rd-)
-:apply(cCOscsp nCOscsp tCOscsp rd-)
+:apply (exICOcsp rd-)
+:apply (cCOscsp nCOscsp tCOscsp rd-)
 -- Case 2-2-1-3-3-4: mandatory wired wired swired
 -- RS-unwire3 or RS-swire2 should be applied
-:apply(exECOcsp rd-)
-:apply(cCOscsp nCOscsp tCOscsp rd-)
+:apply (exECOcsp rd-)
+:apply (cCOscsp nCOscsp tCOscsp rd-)
 -- Case 2-2-2-2-4-4: optional unwired swired swired
 -- RD-wire1 or RD-wire2 should be applied
-:apply(exECOcsp rd-)
-:apply(cCOscsp nCOscsp tCOscsp rd-)
+:apply (exECOcsp rd-)
+:apply (cCOscsp nCOscsp tCOscsp rd-)
 -- Case 2-2-2-3-3-4: optional wired wired swired
 -- RS-unwire3 or RS-swire2 should be applied
-:apply(exECOcsp rd-)
-:apply(cCOscsp nCOscsp tCOscsp rd-)
+:apply (exECOcsp rd-)
+:apply (cCOscsp nCOscsp tCOscsp rd-)
 --> Proof of robust-lemmaC11 done
 -->
 show proof
@@ -749,7 +749,7 @@ open ProofLemma .
 :def equivCOctf = :ctf  { 
   eq equivCOSet(sCO) = true .
 }
-:apply(equivCOctf rd-)
+:apply (equivCOctf rd-)
 -- Case 2: equivCOSet(sIM) = false means that
 --          at least one component whose state is not its target.
 -- :init eq equivIMSet(sIM) = false .
@@ -757,14 +757,14 @@ open ProofLemma .
 	if equivCOSet(SCO:SetOfComponent) . ) by {
   SCO:SetOfComponent <- sCO;
 }
-:apply(empCOcsp rd-)
+:apply (empCOcsp rd-)
 -- Case 2-2:
 :init (ceq true = false
 	if CCOS:COState = TCOS:COState . ) by {
   CCOS:COState <- cCOs;
   TCOS:COState <- tCOs;
 }
-:apply(cCOscsp nCOscsp tCOscsp rd-)
+:apply (cCOscsp nCOscsp tCOscsp rd-)
 -- When (cCOs = tCOs), it is discharged by :init eq (cCOs = tCOs) = false .
 --> Proof of robust-lemmaC12 done
 -->

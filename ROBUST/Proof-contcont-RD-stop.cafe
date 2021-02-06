@@ -63,20 +63,20 @@ open ProofContCont .
   eq tCOs = started .
   eq tCOs = sstarted .
 }
-:apply(tCOscsp rd-)
+:apply (tCOscsp rd-)
 -- Case 1-1: cmp(idCO, stopped, stopped, stopped)
 -- Set inv(SS) = true to use lemmas.
 :def invctf = :ctf {
   eq inv(< (cmp(idCO,stopped,stopped,stopped) sCO),sIM,
      (clog("RD-stop:Do Stop",cmp(idCO,stopped,stopped,stopped),(1 + (tdis(sIM) + tdis(sCO)))) lg) >) = true .
 }
-:apply(invctf rd-)
+:apply (invctf rd-)
 :def finalcsp = :csp {
   eq (equivIMSet(sIM) and equivCOSet(sCO)) = true .
   eq equivIMSet(sIM) = false .
   eq equivCOSet(sCO) = false .
 }
-:apply(finalcsp rd-)
+:apply (finalcsp rd-)
 -- robust-lemmaC11 rejects 1-1-1-2.
 -- robust-lemmaC12 rejects 1-1-1-3.
 --> Proof of (2) inv(S) and not final(S) and inv(SS) implies cont(SS) or final(SS).

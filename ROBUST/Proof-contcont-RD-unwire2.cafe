@@ -64,7 +64,7 @@ open ProofContCont .
 }
 :apply (tIMscsp rd-)
 -- Case 2: mandatory unwired unwired unwired
-:apply(nCOscsp tCOscsp rd-)
+:apply (nCOscsp tCOscsp rd-)
 -- Case 2-1-1: stopped stopped stopped
 --> *********************************************************
 --> Step 2-3: Split the current case into cases where
@@ -77,13 +77,13 @@ open ProofContCont .
            (ilog("RD-unwire2:Do Unwire",imp(mandatory,idIM,idCO,eidCO,unwired,unwired,unwired),
                 (1 + (tdis(sIM) + tdis(sCO)))) lg) >) = true .
 }
-:apply(invctf rd-)
+:apply (invctf rd-)
 :def finalcsp = :csp {
   eq (equivIMSet(sIM) and equivCOSet(sCO)) = true .
   eq equivIMSet(sIM) = false .
   eq equivCOSet(sCO) = false .
 }
-:apply(finalcsp rd-)
+:apply (finalcsp rd-)
 --> Proof of (2) inv(S) and not final(S) and inv(SS) implies cont(SS) or final(SS).
 -->   for Rule RD-unwire2 done
 -->
