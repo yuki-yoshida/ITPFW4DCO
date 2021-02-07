@@ -3,27 +3,7 @@ in Simulate.cafe
 in Proof.cafe               -- Reload everytime!
 in Proof-lemma.cafe
 in Proof-initcont.cafe
-in Proof-contcont.cafe      -- Reload everytime!
-in Proof-contcont-RS-stop1.cafe
-in Proof-contcont-RD-stop.cafe
-in Proof-contcont-RS-stop2.cafe
-in Proof-contcont-RS-sstart1.cafe
-in Proof-contcont-RS-sstart2.cafe
-in Proof-contcont-RD-start.cafe
-in Proof-contcont-RD-sstart.cafe
-in Proof-contcont-RS-unwire1.cafe
-in Proof-contcont-RD-unwire1.cafe
-in Proof-contcont-RD-unwire2.cafe
-in Proof-contcont-RS-unused.cafe
-in Proof-contcont-RD-unused.cafe
-in Proof-contcont-RS-unwire2.cafe
-in Proof-contcont-RD-unwire3.cafe
-in Proof-contcont-RS-swire1.cafe
-in Proof-contcont-RS-swire2.cafe
-in Proof-contcont-RS-unwire3.cafe
-in Proof-contcont-RD-wire1.cafe
-in Proof-contcont-RD-wire2.cafe
-in Proof-contcont-RD-swire.cafe
+in Proof-contcont.cafe
 in Proof-measure.cafe
 in Proof-inv.cafe
 --> Totally 91 goals should be proved.

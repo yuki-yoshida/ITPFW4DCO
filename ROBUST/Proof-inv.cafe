@@ -484,7 +484,7 @@ select
 -->       mlog(
 -->      (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, wired, wired, swired) SIM)
--->       )) ListLG) > .
+-->      )) ListLG) > .
 --> ****************************************************************************************
 select Proofinv-allCOin9States
 --> *************************************************************************
@@ -509,17 +509,17 @@ select
 --> => < (cmp(EIDCO, started, stopped, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, swired) SIM),
 -->      (ilog("RS-unwire3:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, swired),
--->  mlog(
+-->       mlog(
 -->      (cmp(EIDCO, started, stopped, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, swired) SIM)
---> )) ListLG) > .
+-->      )) ListLG) > .
 --> ********************************************************************************************
 select Proofinv-allCOin9States
 --> *************************************************************************
 --> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
-  eq invinv(< (cmp(iidCO, started, nCOs, tCOs) cmp(eidCO, started, stopped, sstarted) sCO), 
+  eq invinv(< (cmp(eidCO, started, stopped, sstarted) sCO), 
               (imp(tIM, idIM, iidCO, eidCO, wired, wired, swired) sIM),
               lg >) = true .
 }
@@ -1069,7 +1069,7 @@ select
 -->       mlog(
 -->      (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, wired, wired, swired) SIM)
--->       )) ListLG) > .
+-->      )) ListLG) > .
 --> ****************************************************************************************
 select Proofinv-allIMin14States
 --> *************************************************************************
@@ -1088,14 +1088,14 @@ select
 
 --> ********************************************************************************************
 --> trans [RS-unwire3]:
--->    < (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, sstarted) SCO), 
+-->    < (cmp(EIDCO, started, stopped, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, swired) SIM),
 -->      ListLG >
---> => < (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, sstarted) SCO), 
+--> => < (cmp(EIDCO, started, stopped, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, swired) SIM),
 -->      (ilog("RS-unwire3:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, swired),
 -->       mlog(
--->      (cmp(IIDCO, started, NSCO, TSCO) cmp(EIDCO, started, stopped, sstarted) SCO), 
+-->      (cmp(EIDCO, started, stopped, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, swired) SIM)
 -->      )) ListLG) > .
 --> ********************************************************************************************
@@ -1104,7 +1104,7 @@ select Proofinv-allIMin14States
 --> Step 5-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
-  eq invinv(< (cmp(iidCO, started, nCOs, tCOs) cmp(eidCO, started, stopped, sstarted) sCO), 
+  eq invinv(< (cmp(eidCO, started, stopped, sstarted) sCO), 
               (imp(tIM, idIM, iidCO, eidCO, wired, wired, swired) sIM),
               lg >) = true .
 }

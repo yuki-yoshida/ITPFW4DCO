@@ -462,7 +462,7 @@ select
 -->       mlog(
 -->      (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, wired, wired, swired) SIM)
--->       )) ListLG) > .
+-->      )) ListLG) > .
 --> ****************************************************************************************
 select ProofMeasure .
 --> *************************************************************************
@@ -487,10 +487,10 @@ select
 --> => < (cmp(EIDCO, started, stopped, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, swired) SIM),
 -->      (ilog("RS-unwire3:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, swired),
--->  mlog(
+-->       mlog(
 -->      (cmp(EIDCO, started, stopped, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, swired) SIM)
---> )) ListLG) > .
+-->      )) ListLG) > .
 --> ********************************************************************************************
 select ProofMeasure .
 --> *************************************************************************
