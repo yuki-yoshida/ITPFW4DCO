@@ -72,7 +72,7 @@ open ProofContCont .
 --> *************************************************************************************
 :apply (exICOcsp rd-)
 :apply (cCOscsp nCOscsp tCOscsp rd-)
--- Case 1-2-2-1-1: started stopped stopped discharged by C01.
+-- Case 1-2-2-1-1: started stopped stopped is discharged by C01.
 --> Proof of (2) inv(S) and not final(S) and inv(SS) implies cont(SS) or final(SS).
 -->   for Rule RS-unwire1 done
 -->
