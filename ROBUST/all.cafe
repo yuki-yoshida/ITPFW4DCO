@@ -21,9 +21,9 @@ in Proof-contcont-RD-unwire3.cafe
 in Proof-contcont-RS-swire1.cafe
 in Proof-contcont-RS-swire2.cafe
 in Proof-contcont-RS-unwire3.cafe
--- in Proof-contcont-RD-wire1.cafe
+in Proof-contcont-RD-wire1.cafe
 -- in Proof-contcont-RD-wire2.cafe
 -- in Proof-contcont-RD-swire.cafe
 in Proof-measure.cafe
 in Proof-inv.cafe
---> Totally 88 goals should be proved.
+--> Totally 89 goals should be proved.
