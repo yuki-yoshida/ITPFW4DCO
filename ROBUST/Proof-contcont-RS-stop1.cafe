@@ -17,6 +17,8 @@ require ProofContCont Proof-contcont.cafe
 
 open ProofContCont .
 
+  -- Lemmas
+
   var CO : Component
   var SCO : SetOfComponent
   var SIM : SetOfImport

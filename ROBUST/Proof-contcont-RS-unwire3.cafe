@@ -5,13 +5,16 @@ require ProofContCont Proof-contcont.cafe
 --> **********************************************************
 
 --> *********************************************************************************************
---> trans [RS-unwire1]:
--->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unwired) SIM),
+--> trans [RS-unwire3]:
+-->    < (cmp(EIDCO, started, stopped, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, swired) SIM),
 -->      ListLG >
---> => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unwired) SIM),
--->      (ilog("RS-unwire1:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unwired),
--->        mlog(
--->      SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unwired) SIM)
+--> => < (cmp(EIDCO, started, stopped, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, swired) SIM),
+-->      (ilog("RS-unwire3:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, swired),
+-->         mlog(
+-->      (cmp(EIDCO, started, stopped, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, swired) SIM)
 -->        )) ListLG) > .
 --> *********************************************************************************************
 
@@ -24,57 +27,37 @@ open ProofContCont .
   var SIM : SetOfImport
   var L : ListOfLog
 
-  -- eq robust-lemmaC01(CO,SCO,SIM,L)
+  -- eq robust-lemmaC02(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
-  --          inStates(CO,st(started,stopped,stopped)) .
+  --          inStates(CO,st(started,stopped,sstarted)) .
   ceq inv(< (CO SCO), SIM, L >) = false 
-    if inStates(CO,st(started,stopped,stopped)) and
+    if inStates(CO,st(started,stopped,sstarted)) and
        cont(< (CO SCO), SIM, L >) = false .
 --> *************************************************************************
 --> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
-  eq contcont(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired, wired, unwired) sIM), lg >) = true .
+  eq contcont(< (cmp(eidCO, started, stopped, sstarted) sCO), 
+                (imp(tIM, idIM, iidCO, eidCO, wired, wired, swired) sIM),
+                lg >) = true .
 }
 :def tIMcsp = :csp  { 
   eq tIM = mandatory .
   eq tIM = optional .
 }
-:def exICOcsp = :csp  { 
-  eq existCO(sCO,iidCO) = false .
-  eq sCO = (cmp(iidCO,cCOs,nCOs,tCOs) sCO') .
-}
-:def cCOscsp = :csp  { 
-  eq cCOs = stopped .
-  eq cCOs = started .
-  eq cCOs = sstarted .
-}
-:def nCOscsp = :csp  { 
-  eq nCOs = stopped .
-  eq nCOs = started .
-  eq nCOs = sstarted .
-}
-:def tCOscsp = :csp  { 
-  eq tCOs = stopped .
-  eq tCOs = started .
-  eq tCOs = sstarted .
-}
-:apply (tIMcsp rd-)
--- Case 1: mandatory
 --> ***************************************************************
 --> Step 2-4: Consider which rule can be applied to the next state.
 --> ***************************************************************
--- The next rule should be RD-unwire2
+-- The next rule should be RD-unwire1
 --> *************************************************************************************
 --> Step 2-5: Split the current case into cases which collectively cover the current case
 -->  and the next state of one of the split cases matches to LHS of the current rule.
 --> *************************************************************************************
-:apply (exICOcsp rd-)
-:apply (cCOscsp nCOscsp tCOscsp rd-)
--- Case 1-2-2-1-1: started stopped stopped discharged by C01.
+:apply (tIMcsp rd-)
+-- Case 1: mandatory is discharged by C01.
 --> Proof of (2) inv(S) and not final(S) and inv(SS) implies cont(SS) or final(SS).
--->   for Rule RS-unwire1 done
+-->   for Rule RS-unwire3 done
 -->
 show proof
 close
