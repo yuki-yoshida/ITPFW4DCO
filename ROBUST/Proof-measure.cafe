@@ -497,7 +497,7 @@ select ProofMeasure .
 --> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
-  eq mesmes(< (cmp(iidCO, started, nCOs, tCOs) cmp(eidCO, started, stopped, sstarted) sCO), 
+  eq mesmes(< (cmp(eidCO, started, stopped, sstarted) sCO), 
               (imp(tIM, idIM, iidCO, eidCO, wired, wired, swired) sIM),
               lg >) = true .
 }
