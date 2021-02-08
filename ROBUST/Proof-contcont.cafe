@@ -30,38 +30,6 @@ module ProofContCont {
   var SIM : SetOfImport
   var L : ListOfLog
 
-  -- -- eq robust-lemmaC01(CO,SCO,SIM,L)
-  -- --   = cont(< (CO SCO), SIM, L >) 
-  -- --     when inv(< (CO SCO), SIM, L >) and
-  -- --          inStates(CO,st(started,stopped,stopped)) .
-  -- ceq inv(< (CO SCO), SIM, L >) = false 
-  --   if inStates(CO,st(started,stopped,stopped)) and
-  --      cont(< (CO SCO), SIM, L >) = false .
-
-  -- -- eq robust-lemmaC02(CO,SCO,SIM,L)
-  -- --   = cont(< (CO SCO), SIM, L >) 
-  -- --     when inv(< (CO SCO), SIM, L >) and
-  -- --          inStates(CO,st(started,stopped,sstarted)) .
-  -- ceq inv(< (CO SCO), SIM, L >) = false 
-  --   if inStates(CO,st(started,stopped,sstarted)) and
-  --      cont(< (CO SCO), SIM, L >) = false .
-
-  -- -- eq robust-lemmaC03(CO,SCO,SIM,L)
-  -- --   = cont(< (CO SCO), SIM, L >) 
-  -- --     when inv(< (CO SCO), SIM, L >) and
-  -- --          inStates(CO,st(started,started,sstarted)) .
-  -- ceq inv(< (CO SCO), SIM, L >) = false 
-  --   if inStates(CO,st(started,started,sstarted)) and
-  --      cont(< (CO SCO), SIM, L >) = false .
-
-  -- -- eq robust-lemmaC04(CO,SCO,SIM,L)
-  -- --   = cont(< (CO SCO), SIM, L >) 
-  -- --     when inv(< (CO SCO), SIM, L >) and
-  -- --          inStates(CO,st(stopped,sstarted,sstarted)) .
-  -- ceq inv(< (CO SCO), SIM, L >) = false 
-  --   if inStates(CO,st(stopped,sstarted,sstarted)) and
-  --      cont(< (CO SCO), SIM, L >) = false .
-
   -- eq robust-lemmaC11(SCO,SIM,L)
   --   = cont(< SCO, SIM, L >) 
   --     when inv(< SCO, SIM, L >) and
