@@ -5,32 +5,13 @@ require PROOF Proof.cafe
 --> (5) inv(S) implies inv(SS).
 --> ***************************
 
-module ProofInv {
-  protecting(PROOF)
-  pred invK : State
-
-  pred initinv : State
-  eq initinv(S:State)
-     = init(S) implies invK(S) .
-
-  pred iinv : State State .
-  eq iinv(S:State,SS:State)
-     = inv(S) and invK(S) implies invK(SS) .
-  pred invinv : State
-  eq invinv(S:State)
-     = not (S =(*,1)=>+ SS:State if CC:Bool suchThat
-            not ((CC implies iinv(S,SS)) == true)
-     	   { S => SS !! CC ! inv(S) ! invK(S) ! invK(SS) }) .
-
-}
-
 --> **************************************
 --> Proof of inv-allCOin9States.
 -->  eq inv-allCOin9States(< SCO,SIM,L >)
 -->    = allCOin9States(SIM) .
 --> **************************************
 module Proofinv-allCOin9States {
-  protecting(ProofInv)
+  protecting(PROOF)
   var S : State
   eq invK(S) = inv-allCOin9States(S) .
 }
@@ -615,7 +596,7 @@ select
 -->    = allIMin14States(SIM) .
 --> **************************************
 module Proofinv-allIMin14States {
-  protecting(ProofInv)
+  protecting(PROOF)
   var S : State
   eq invK(S) = inv-allIMin14States(S) .
 }

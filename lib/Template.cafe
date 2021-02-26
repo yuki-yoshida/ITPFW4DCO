@@ -1158,6 +1158,21 @@ module PROOFBASE {
      = not (S =(*,1)=>+ SS if CC suchThat
             not ((CC implies mmes(S,SS)) == true)
      	   { S => SS !! CC ! inv(S) ! final(S) ! (m(S) > m(SS)) }) .
+
+  pred invK : State
+
+  pred initinv : State
+  eq initinv(S:State)
+     = init(S) implies invK(S) .
+
+  pred iinv : State State .
+  eq iinv(S:State,SS:State)
+     = inv(S) and invK(S) implies invK(SS) .
+  pred invinv : State
+  eq invinv(S:State)
+     = not (S =(*,1)=>+ SS:State if CC:Bool suchThat
+            not ((CC implies iinv(S,SS)) == true)
+     	   { S => SS !! CC ! inv(S) ! invK(S) ! invK(SS) }) .
 }
 
 module PRMCYCLE {
