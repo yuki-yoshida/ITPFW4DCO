@@ -7,18 +7,7 @@ require PROOF Proof.cafe
 
 module ProofMeasure {
   protecting(PROOF)
-
---> *************************************
---> Step 3-0: Use natural number axioms.
---> *************************************
   protecting(NATAXIOM)
-
-  vars X Y Z1 Z2 : Nat
-
-  -- Nat Axioms
-  ceq ((X + Z1) > (Y + Z2)) =  (X > Y) 
-    if Z1 = Z2 .
-
 }
 
 --> ************************************************************************
