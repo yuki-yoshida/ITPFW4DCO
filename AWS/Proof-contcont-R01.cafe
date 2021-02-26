@@ -1,4 +1,4 @@
-require ProofContCont Proof-contcont.cafe
+require PROOF Proof.cafe
 
 --> **********************************************************
 --> (2) inv(S) and not final(S) implies cont(SS) or final(SS).
@@ -10,7 +10,7 @@ require ProofContCont Proof-contcont.cafe
 -->  => < (res(TRS,IDRS,started) SetRS), SetPR > 
 -->     if allPROfRSInStates(SetPR,IDRS,ready) .
 --> ********************************************
-select ProofContCont .
+select PROOF .
 -- When R01 can be applied to the state S:
 --> *************************************************************************
 --> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
