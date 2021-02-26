@@ -1,23 +1,11 @@
 require DomainModel DomainModel.cafe
-provide Proof
+provide PROOF
 
-module LOCALSTATE {
+module PROOF {
+  protecting(PROOFBASE)
   protecting(STATERules)
-  [LocalState] 
+
   op st : COState COState COState -> LocalState {constr}
-}
-
-module ProofBase {
-  including(-SET+NAT(LOCALSTATE {sort Elt -> LocalState})
-      * {sort Set -> SetOfLS,
-      	 op empty -> empLS})
-
-  op _!_ : Bool Bool -> Bool {constr assoc}
-  op _=>_!!_ : State State Bool -> Bool {constr}
-
-  pred (_when _) : Bool Bool { prec: 63 r-assoc }
-  eq (B1:Bool when B2:Bool)
-     = B2 implies B1 .
 
   var CO : Component
   vars SCO SCO0 : SetOfComponent
@@ -35,13 +23,6 @@ module ProofBase {
   var L : ListOfLog
   vars S SS : State
   var SLS : SetOfLS
-
---> *************************
---> Step 0-2: Define cont(S).
---> *************************
-  pred cont : State
-  eq cont(S)
-     = (S =(*,1)=>+ SS) .
 
 --> **********************
 --> Step 0-3: Define m(S).

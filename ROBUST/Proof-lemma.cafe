@@ -1,7 +1,7 @@
 require Proof Proof.cafe
 
 module ProofLemma {
-  protecting(ProofBase)
+  protecting(Proof)
 
   [COSCOSIM] op t : Component SetOfComponent SetOfImport -> COSCOSIM {constr} .
   pred _<wf_ : COSCOSIM COSCOSIM .

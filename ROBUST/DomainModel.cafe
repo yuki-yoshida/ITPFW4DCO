@@ -328,12 +328,12 @@ module! LOG {
 }
 
 module! STATE {
+  protecting(STATEBASE)
   protecting(LINKS)
   protecting(LIST(LOG {sort Elt -> Log})
       * {sort List -> ListOfLog,
       	 op empty -> empLog})
 
-  [State]
   -- A State consists of
   --  a set of current Components and a set of current Imports,
   --  a set of target Components and a set of target Imports,
@@ -351,10 +351,6 @@ module! STATE {
   eq cmps(< SCO,SIM,L >) = SCO .
   eq imps(< SCO,SIM,L >) = SIM .
 
-  pred wfs : State
-  pred init : State
-  pred final : State
-  pred inv : State
 }
 
 module! STATECyclefuns {
@@ -477,7 +473,7 @@ module! STATEfuns {
   ceq validNextComponent((CO SCO),SIM)
     = not (next(CO) in stopped)
     if not (getIMsOfECOInStates(SIM,id(CO),swired) = empIM) .
-  ceq validNextComponent(SCO,SIM)
+  ceq validNextComponent((CO SCO),SIM)
     = true
     if getIMsOfECOInStates(SIM,id(CO),swired) = empIM .
 
@@ -577,7 +573,6 @@ module! STATEfuns {
 module! STATERules {
   protecting(STATEfuns)
 
-  op m : State -> Nat
   op mlog : SetOfComponent SetOfImport -> Nat
 
   -- Variables

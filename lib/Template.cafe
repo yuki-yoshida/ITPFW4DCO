@@ -1098,6 +1098,49 @@ module OBJLINKONE2ONE3(LINK :: PRMOBJLINK3) {
 		op ifYInStatesThenXInStates0 -> ifYInStatesThenXInStates3})
 }
 
+module STATEBASE {
+    [State]
+  pred wfs : State
+  pred init : State
+  pred final : State
+  pred inv : State
+}
+
+module -PRMLOCALSTATE {
+  [LocalState] 
+}
+
+module PROOFBASE {
+  including(RWL)
+  including(STATEBASE)
+  including(-SET+NAT(-PRMLOCALSTATE {sort Elt -> LocalState})
+      * {sort Set -> SetOfLS,
+      	 op empty -> empLS})
+
+  op _!_ : Bool Bool -> Bool {constr assoc}
+  op _=>_!!_ : State State Bool -> Bool {constr}
+
+  pred (_when _) : Bool Bool { prec: 63 r-assoc }
+  eq (B1:Bool when B2:Bool)
+     = B2 implies B1 .
+
+--> *************************
+--> Step 0-2: Define cont(S).
+--> *************************
+  vars S SS : State
+  pred cont : State
+  eq cont(S)
+     = (S =(*,1)=>+ SS) .
+
+--> ******************************************
+--> Step 1-0: Define a predicate to be proved.
+--> ******************************************
+  pred initcont : State .
+  eq initcont(S) = init(S) implies cont(S) .
+
+  op m : State -> Nat
+}
+
 module PRMCYCLE {
   [Object < SetOfObject]
   op empObj : -> SetOfObject

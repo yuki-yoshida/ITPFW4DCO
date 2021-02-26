@@ -1,27 +1,11 @@
-require Proof Proof.cafe
+require PROOF Proof.cafe
 
 --> ****************************
 --> (1) init(S) implies cont(S).
 --> ****************************
---> ******************************************
---> Step 1-0: Define a predicate to be proved.
---> ******************************************
-module ProofInitCont {
-  protecting(ProofBase)
-
-  var S : State
-  pred initcont : State .
-  eq initcont(S) = init(S) implies cont(S) .
-
-}
-
 -- Proof of (1) init(S) implies cont(S).
-open ProofInitCont .
+open PROOF .
   -- lemma
-  var CO : Component
-  var SCO : SetOfComponent
-  var SIM : SetOfImport
-  var L : ListOfLog
   -- eq robust-lemmaC03(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and

@@ -3,7 +3,7 @@ require Proof Proof.cafe
 
 --> Sample Simulation
 -- open STATERules .
-open ProofBase .
+open Proof .
 
 eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
 

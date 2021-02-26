@@ -6,7 +6,7 @@ require Proof Proof.cafe
 --> *************************************************
 
 module ProofMeasure {
-  protecting(ProofBase)
+  protecting(Proof)
 
 --> *************************************
 --> Step 3-0: Use natural number axioms.

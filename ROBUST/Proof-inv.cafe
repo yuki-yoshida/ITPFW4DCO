@@ -6,7 +6,7 @@ require Proof Proof.cafe
 --> ***************************
 
 module ProofInv {
-  protecting(ProofBase)
+  protecting(Proof)
   pred invK : State
 
   pred initinv : State
