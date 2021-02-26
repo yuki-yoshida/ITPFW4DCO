@@ -1,4 +1,4 @@
-require Proof Proof.cafe
+require PROOF Proof.cafe
 
 --> ****************************
 --> (1) init(S) implies cont(S).
@@ -7,16 +7,9 @@ require Proof Proof.cafe
 --> ******************************************
 --> Step 1-0: Define a predicate to be proved.
 --> ******************************************
-module ProofInitCont {
-  protecting(ProofBase)
-
-  var S : State
-  pred initcont : State .
-  eq initcont(S) = init(S) implies cont(S) .
-}
 
 -- Proof of (1) init(S) implies cont(S).
-select ProofInitCont .
+open PROOF .
 
 --> *******************************************
 --> Step 1-1: Begin with the most general case. 
@@ -93,4 +86,4 @@ select ProofInitCont .
 :apply (rd-)
 show proof
 
-select
+close

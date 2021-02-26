@@ -1,12 +1,9 @@
 require DomainModel DomainModel.cafe
+provide PROOF
 
-provide Proof
-
-module ProofBase {
+module PROOF {
+  protecting(PROOFBASE)
   protecting(STATERules)
-
-  op _!_ : Bool Bool -> Bool {constr assoc}
-  op _=>_!!_ : State State Bool -> Bool {constr}
 
   var SetND : SetOfNode
   var SetCP : SetOfCapability
@@ -64,17 +61,9 @@ module ProofBase {
   eq inv-ifAvailableMsgThenCPAvailable(< SetND,SetCP,SetRQ,SetRL,MP >)
      = ifAvailableMsgThenCPInStates(MP,SetCP,available) .
 
---> *************************
---> Step 0-2: Define cont(S).
---> *************************
-  pred cont : State
-  eq cont(S:State)
-     = (S =(*,1)=>+ SS:State) .
-
 --> **********************
 --> Step 0-3: Define m(S).
 --> **********************
-  op m : State -> Nat
   eq m(< SetND,SetCP,SetRQ,SetRL,MP >)
      = (( (#NodeInStates(initial,SetND)        * 2) + #NodeInStates(created,SetND))
      +  ( (#CapabilityInStates(closed,SetCP)   * 2) + #CapabilityInStates(open,SetCP)))

@@ -7,8 +7,7 @@ require Proof Proof.cafe
 --> ******************************************
 --> Step 1-0: Define a predicate to be proved.
 --> ******************************************
-module ProofInitCont {
-  protecting(ProofBase)
+open PROOF .
 
   var S : State
   var T : NDType
@@ -19,17 +18,11 @@ module ProofInitCont {
   var SetRL : SetOfRelationship
   var M : PoolOfMsg
 
-  -- Predicate to be proved.
-  pred initcont : State .
-  eq initcont(S) = init(S) implies cont(S) .
-
   -- initial-cont lemma: 
   eq cont(< (node(T, I, initial) SetND), 
             SetCP, SetRQ, SetRL, M >) = true .
-}
 
 --> Proof of (1) init(S) implies cont(S).
-select ProofInitCont .
 
 --> *******************************************
 --> Step 1-1: Begin with the most general case. 
@@ -57,5 +50,5 @@ select ProofInitCont .
 }
 :apply (csp1-3R01a rd- csp1-3R01b rd-)
 show proof
-select
+close
 --> Totally 1 goal should be proved.

@@ -200,15 +200,9 @@ module! LINKS {
 }
 
 module! STATE {
+  protecting(STATEBASE)
   protecting(LINKS)
-
-  [State]
   op <_,_> : SetOfResource SetOfProperty -> State {constr}
-
-  pred wfs : State
-  pred init : State
-  pred final : State
-  pred inv : State
 }
 
 module! STATECyclefuns {

@@ -1,11 +1,9 @@
 require DomainModel DomainModel.cafe
-provide Proof
+provide PROOF
 
-module ProofBase {
+module PROOF {
+  protecting(PROOFBASE)
   protecting(STATERules)
-
-  op _!_ : Bool Bool -> Bool {constr assoc}
-  op _=>_!!_ : State State Bool -> Bool {constr}
 
   var RS : Resource
   var SetRS : SetOfResource
@@ -19,17 +17,9 @@ module ProofBase {
   eq inv-ifRSStartedThenPRReady(< SetRS,SetPR >)
      = ifRSInStatesThenPRInStates(SetRS,started,SetPR,ready) .
 
---> *************************
---> Step 0-2: Define cont(S).
---> *************************
-  pred cont : State
-  eq cont(S)
-     = (S =(*,1)=>+ SS) .
-
 --> **********************
 --> Step 0-3: Define m(S).
 --> **********************
-  op m : State -> Nat
   eq m(< SetRS,SetPR >)
      = #ResourceInStates(initial,SetRS) + #PropertyInStates(notready,SetPR) .
 

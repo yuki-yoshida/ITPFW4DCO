@@ -427,17 +427,11 @@ module! MSG {
 }    
 
 module! STATE {
+  protecting(STATEBASE)
   protecting(BAG(MSG {sort Elt -> Msg})
       * {sort Bag -> PoolOfMsg,
       	 op empty -> empMsg})
-
-  [State]
   op <_,_,_,_,_> : SetOfNode SetOfCapability SetOfRequirement SetOfRelationship PoolOfMsg -> State {constr}
-
-  pred wfs : State
-  pred init : State
-  pred final : State
-  pred inv : State
 }
 
 module! STATECyclefuns {
