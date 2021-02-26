@@ -1,12 +1,12 @@
 require NatAxiom ../lib/NatAxiom.cafe
-require Proof Proof.cafe
+require PROOF Proof.cafe
 
 --> *************************************************
 --> (3) inv(S) and not final(S) implies m(S) > m(SS).
 --> *************************************************
 
 module ProofMeasure {
-  protecting(ProofBase)
+  protecting(PROOF)
 
 --> *************************************
 --> Step 3-0: Use natural number axioms.

@@ -1,4 +1,4 @@
-require Proof Proof.cafe
+require PROOF Proof.cafe
 
 --> ***************************
 --> (4) init(S) implies inv(S).
@@ -6,7 +6,7 @@ require Proof Proof.cafe
 --> ***************************
 
 module ProofInv {
-  protecting(Proof)
+  protecting(PROOF)
   pred invK : State
 
   pred initinv : State

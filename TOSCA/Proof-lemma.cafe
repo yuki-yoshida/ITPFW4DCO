@@ -1,9 +1,9 @@
-require Proof Proof.cafe
+require PROOF Proof.cafe
 
 --> Common lemmas in this domain.
 
 module TOSCALEMMA {
-  protecting(ProofBase)
+  protecting(PROOF)
 
   pred (_when _) : Bool Bool { prec: 63 r-assoc }
   eq (B1:Bool when B2:Bool)

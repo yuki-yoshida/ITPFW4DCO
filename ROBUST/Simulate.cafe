@@ -1,9 +1,9 @@
 require DomainModel DomainModel.cafe
-require Proof Proof.cafe
+require PROOF Proof.cafe
 
 --> Sample Simulation
 -- open STATERules .
-open Proof .
+open PROOF .
 
 eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
 

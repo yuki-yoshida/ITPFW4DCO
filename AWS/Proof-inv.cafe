@@ -1,4 +1,4 @@
-require Proof Proof.cafe
+require PROOF Proof.cafe
 
 --> ***************************
 --> (4) init(S) implies inv(S).
@@ -9,7 +9,7 @@ require Proof Proof.cafe
 --> Step 4-0,5-0: Define a predicate to be proved.
 --> **********************************************
 module ProofInv {
-  protecting(ProofBase)
+  protecting(PROOF)
   protecting(STATERules)
 
   vars S SS : State

@@ -1,4 +1,4 @@
-require Proof Proof.cafe
+require PROOF Proof.cafe
 --> **********************************************************************************
 --> Initial Cont Lemma: If there is an initail node, then there is an applicable rule.
 --> **********************************************************************************
@@ -6,13 +6,7 @@ require Proof Proof.cafe
 --> Step 1-0: Define a predicate to be proved.
 --> ******************************************
 module ProofInitialCont {
-  protecting(ProofBase)
-
-  vars B1 B2 : Bool
-
-  pred (_when _) : Bool Bool { prec: 64 r-assoc }
-  eq (B1 when B2)
-     = B2 implies B1 .
+  protecting(PROOF)
 
   var SetND : SetOfNode
   var SetCP : SetOfCapability
