@@ -5,10 +5,6 @@ require PROOF Proof.cafe
 module TOSCALEMMA {
   protecting(PROOF)
 
-  pred (_when _) : Bool Bool { prec: 63 r-assoc }
-  eq (B1:Bool when B2:Bool)
-     = B2 implies B1 .
-
   vars IDCP IDCP1 IDCP2 : CPID
   var IDND : NDID
   var IDRL : RLID
