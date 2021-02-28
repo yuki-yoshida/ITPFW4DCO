@@ -20,6 +20,35 @@ module ProofLemma {
     = noCOCycle(< (CO SCO), SIM, L >) and inState(CO,LS) 
       implies someCONoCycle((CO SCO),SIM,LS) .
 
+  op ls : -> LocalState .
+}
+
+module ProofContLemma {
+  protecting(ProofLemma)
+
+  var S : State
+  vars CO CO' : Component
+  var IM : Import
+  vars SCO SCO' SCO0 : SetOfComponent
+  vars SIM SIM' : SetOfImport
+  var L : ListOfLog
+  var LS : LocalState
+
+  -- The NoCyclic Lemma
+  -- eq robust-lemmaNOC(CO,SCO,SIM,L,LS)
+  --   = noCOCycle(< (CO SCO), SIM, L >) and inState(CO,LS) 
+  --     implies someCONoCycle((CO SCO),SIM,LS) .
+  -- This lemma can be used with specifying DDSCU or DDSCD as DDSC.
+  
+  -- someCONoCycle((CO SCO),SIM,LS) means that
+  --  there exists a CO' in (CO SCO) such that isCONoCycle(CO',(CO SCO),SIM,LS) .
+  -- When we can select an arbitrary CO and therefor select the CO',
+  -- we can assume as follows:
+  ceq [robust-lemmaNOC :nonexec]:
+    noCOCycle(< (CO SCO), SIM, L >) = false
+    if inState(CO,LS) and
+       isCONoCycle(CO,(CO SCO),SIM,LS) = false .
+
   -- Cont Lemmas
   pred robust-lemmaC01 : Component SetOfComponent SetOfImport ListOfLog
   eq robust-lemmaC01(CO,SCO,SIM,L)
@@ -56,8 +85,6 @@ module ProofLemma {
     = cont(< SCO, SIM, L >) 
       when inv(< SCO, SIM, L >) and
            equivCOSet(SCO) = false .
-
-  op ls : -> LocalState .
 }
 
 --> Proof of robust-lemmaNOC for DDSCU
@@ -189,7 +216,7 @@ close
 -->    = cont(< (CO SCO), SIM, L >) 
 -->      when inv(< (CO SCO), SIM, L >) and
 -->        inState(CO,st(started,stopped,stopped)) .
-open ProofLemma .
+open ProofContLemma .
 eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
 :goal { eq robust-lemmaC01(co,sCO,sIM,lg) = true . }
 :def tIMcsp = :csp  { 
@@ -277,7 +304,7 @@ close
 -->    = cont(< (CO SCO), SIM, L >) 
 -->      when inv(< (CO SCO), SIM, L >) and
 -->        inState(CO,st(started,stopped,sstarted)) .
-open ProofLemma .
+open ProofContLemma .
 eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
   -- eq robust-lemmaC01(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
@@ -365,7 +392,7 @@ close
 -->    = cont(< (CO SCO), SIM, L >) 
 -->      when inv(< (CO SCO), SIM, L >) and
 -->        inState(CO,st(started,started,sstarted)) .
-open ProofLemma .
+open ProofContLemma .
 eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
 :goal { eq robust-lemmaC03(co,sCO,sIM,lg) = true . }
 :def nIMscsp = :csp  { 
@@ -434,7 +461,7 @@ close
 -->    = cont(< (CO SCO), SIM, L >) 
 -->      when inv(< (CO SCO), SIM, L >) and
 -->           inState(CO,st(stopped,sstarted,sstarted)) .
-open ProofLemma .
+open ProofContLemma .
 eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
   -- eq robust-lemmaC02(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
@@ -535,7 +562,7 @@ close
 -->    = cont(< SCO, SIM, L >) 
 -->      when inv(< (SCO, SIM, L >) and
 -->           equivIMSet(SIM) = false .
-open ProofLemma .
+open ProofContLemma .
   -- eq robust-lemmaC01(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
@@ -688,7 +715,7 @@ close
 -->    = cont(< SCO, SIM, L >) 
 -->      when inv(< (SCO, SIM, L >) and
 -->           equivCOSet(SCO) = false .
-open ProofLemma .
+open ProofContLemma .
   -- eq robust-lemmaC01(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and

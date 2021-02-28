@@ -234,21 +234,6 @@ module PROOF {
   eq someCONoCycle((CO SCO),SIM,LS)
     = isCONoCycle(CO,SCO,SIM,LS) or someCONoCycle(SCO,SIM,LS) .
 
-  -- The NoCyclic Lemma
-  -- eq robust-lemmaNOC(CO,SCO,SIM,L,LS)
-  --   = noCOCycle(< (CO SCO), SIM, L >) and inState(CO,LS) 
-  --     implies someCONoCycle((CO SCO),SIM,LS) .
-  -- This lemma can be used with specifying DDSCU or DDSCD as DDSC.
-  
-  -- someCONoCycle((CO SCO),SIM,LS) means that
-  --  there exists a CO' in (CO SCO) such that isCONoCycle(CO',(CO SCO),SIM,LS) .
-  -- When we can select an arbitrary CO and therefor select the CO',
-  -- we can assume as follows:
-  ceq [robust-lemmaNOC :nonexec]:
-    noCOCycle(< (CO SCO), SIM, L >) = false
-    if inState(CO,LS) and
-       isCONoCycle(CO,(CO SCO),SIM,LS) = false .
-
 --> **************************************
 --> Step 0-5: Prepare arbitrary constants.
 --> **************************************
