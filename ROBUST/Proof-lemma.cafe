@@ -12,38 +12,38 @@ module ProofLemma {
   vars SCO SCO' SCO0 : SetOfComponent
   vars SIM SIM' : SetOfImport
   var L : ListOfLog
+  var LS : LocalState
 
   -- The NoCyclic Lemma
-  var SLS : SetOfLS
-  pred robust-lemmaNOC : Component SetOfComponent SetOfImport ListOfLog SetOfLS
-  eq robust-lemmaNOC(CO,SCO,SIM,L,SLS)
-    = noCOCycle(< (CO SCO), SIM, L >) and inStates(CO,SLS) 
-      implies someCONoCycle((CO SCO),SIM,SLS) .
+  pred robust-lemmaNOC : Component SetOfComponent SetOfImport ListOfLog LocalState
+  eq robust-lemmaNOC(CO,SCO,SIM,L,LS)
+    = noCOCycle(< (CO SCO), SIM, L >) and inState(CO,LS) 
+      implies someCONoCycle((CO SCO),SIM,LS) .
 
   -- Cont Lemmas
   pred robust-lemmaC01 : Component SetOfComponent SetOfImport ListOfLog
   eq robust-lemmaC01(CO,SCO,SIM,L)
     = cont(< (CO SCO), SIM, L >) 
       when inv(< (CO SCO), SIM, L >) and
-           inStates(CO,st(started,stopped,stopped)) .
+           inState(CO,st(started,stopped,stopped)) .
 
   pred robust-lemmaC02 : Component SetOfComponent SetOfImport ListOfLog
   eq robust-lemmaC02(CO,SCO,SIM,L)
     = cont(< (CO SCO), SIM, L >) 
       when inv(< (CO SCO), SIM, L >) and
-           inStates(CO,st(started,stopped,sstarted)) .
+           inState(CO,st(started,stopped,sstarted)) .
 
   pred robust-lemmaC03 : Component SetOfComponent SetOfImport ListOfLog
   eq robust-lemmaC03(CO,SCO,SIM,L)
     = cont(< (CO SCO), SIM, L >) 
       when inv(< (CO SCO), SIM, L >) and
-           inStates(CO,st(started,started,sstarted)) .
+           inState(CO,st(started,started,sstarted)) .
 
   pred robust-lemmaC04 : Component SetOfComponent SetOfImport ListOfLog
   eq robust-lemmaC04(CO,SCO,SIM,L)
     = cont(< (CO SCO), SIM, L >) 
       when inv(< (CO SCO), SIM, L >) and
-           inStates(CO,st(stopped,sstarted,sstarted)) .
+           inState(CO,st(stopped,sstarted,sstarted)) .
 
   pred robust-lemmaC11 : SetOfComponent SetOfImport ListOfLog
   eq robust-lemmaC11(SCO,SIM,L)
@@ -57,13 +57,13 @@ module ProofLemma {
       when inv(< SCO, SIM, L >) and
            equivCOSet(SCO) = false .
 
-  op sls : -> SetOfLS .
+  op ls : -> LocalState .
 }
 
 --> Proof of robust-lemmaNOC for DDSCU
---> eq robust-lemmaNOC(CO,SCO,SIM,L,SLS)
--->   = noCOCycle(< (CO SCO), SIM, L >) and inStates(CO,SLS)
--->     implies someCONoCycle((CO SCO),SIM,SLS) .
+--> eq robust-lemmaNOC(CO,SCO,SIM,L,LS)
+-->   = noCOCycle(< (CO SCO), SIM, L >) and inState(CO,LS)
+-->     implies someCONoCycle((CO SCO),SIM,LS) .
 open ProofLemma .
 
   -- Define DDSC for robust-lemmaNOC
@@ -71,14 +71,14 @@ open ProofLemma .
 
   -- Induction Hypothesis
   ceq [robust-lemmaNOC-IH :nonexec]:
-    (noCOCycle(< (CO SCO), SIM, lg >) and inStates(CO,sls) 
-     implies someCONoCycle((CO' SCO'),SIM,sls)) = true
+    (noCOCycle(< (CO SCO), SIM, lg >) and inState(CO,ls) 
+     implies someCONoCycle((CO' SCO'),SIM,ls)) = true
     if t(CO',SCO',SIM) <wf t(CO,SCO,SIM) .
 
   -- Define <wf for robust-lemmaNOC
   ceq ( t(CO',SCO',SIM) <wf t(CO,SCO,SIM) ) = true
-     if inStates(CO, sls) and
-        inStates(CO',sls) and
+     if inState(CO, ls) and
+        inState(CO',ls) and
         subset((CO' SCO'),SCO) and
         CO' in DDSC(CO,SCO,SIM) .
 
@@ -87,14 +87,14 @@ open ProofLemma .
 
   eq subset(DDSC(CO,SCO,SIM),SCO) = true .
 
-:goal { eq robust-lemmaNOC(co,sCO,sIM,lg,sls) = true . }
-:def inStatesctf = :ctf {
-  eq inStates(cmp(idCO,cCOs,nCOs,tCOs),sls) = true .
+:goal { eq robust-lemmaNOC(co,sCO,sIM,lg,ls) = true . }
+:def inStatectf = :ctf {
+  eq inState(cmp(idCO,cCOs,nCOs,tCOs),ls) = true .
 }
-:apply (inStatesctf rd-)
+:apply (inStatectf rd-)
 :def allCONotcsp = :csp {
-  eq allCONotInStates(getECOsOfIMs(sCO,getIMsOfTypeOfICO(sIM,mandatory,idCO)),
-        sls) = true .
+  eq allCONotInState(getECOsOfIMs(sCO,getIMsOfTypeOfICO(sIM,mandatory,idCO)),
+        ls) = true .
   eq sIM = (imp(mandatory,idIM,idCO,eidCO,cIMs,nIMs,tIMs) sIM') .
 }
 :apply (allCONotcsp)
@@ -103,7 +103,7 @@ open ProofLemma .
   eq sCO = (cmp(eidCO,cCOs',nCOs',tCOs') sCO') .
 }
 :csp {
-  eq inStates(cmp(eidCO,cCOs',nCOs',tCOs'),sls) = true .
+  eq inState(cmp(eidCO,cCOs',nCOs',tCOs'),ls) = true .
 }
 :ctf {
   eq noCOCycle((< (cmp(eidCO,cCOs',nCOs',tCOs') (cmp(idCO,cCOs,nCOs,tCOs) sCO')), 
@@ -123,9 +123,9 @@ show proof
 close
 
 --> Proof of robust-lemmaNOC for DDSCD
---> eq robust-lemmaNOC(CO,SCO,SIM,L,SLS)
--->   = noCOCycle(< (CO SCO), SIM, L >) and inStates(CO,SLS)
--->     implies someCONoCycle((CO SCO),SIM,SLS) .
+--> eq robust-lemmaNOC(CO,SCO,SIM,L,LS)
+-->   = noCOCycle(< (CO SCO), SIM, L >) and inState(CO,LS)
+-->     implies someCONoCycle((CO SCO),SIM,LS) .
 open ProofLemma .
 
   -- Define DDSC for robust-lemmaNOC
@@ -133,14 +133,14 @@ open ProofLemma .
 
   -- Induction Hypothesis
   ceq [robust-lemmaNOC-IH :nonexec]:
-    (noCOCycle(< (CO SCO), SIM, lg >) and inStates(CO,sls) 
-     implies someCONoCycle((CO' SCO'),SIM,sls)) = true
+    (noCOCycle(< (CO SCO), SIM, lg >) and inState(CO,ls) 
+     implies someCONoCycle((CO' SCO'),SIM,ls)) = true
     if t(CO',SCO',SIM) <wf t(CO,SCO,SIM) .
 
   -- Define <wf for robust-lemmaNOC
   ceq ( t(CO',SCO',SIM) <wf t(CO,SCO,SIM) ) = true
-     if inStates(CO, sls) and
-        inStates(CO',sls) and
+     if inState(CO, ls) and
+        inState(CO',ls) and
         subset((CO' SCO'),SCO) and
         CO' in DDSC(CO,SCO,SIM) .
 
@@ -149,14 +149,14 @@ open ProofLemma .
 
   eq subset(DDSC(CO,SCO,SIM),SCO) = true .
 
-:goal { eq robust-lemmaNOC(co,sCO,sIM,lg,sls) = true . }
-:def inStatesctf = :ctf {
-  eq inStates(cmp(idCO,cCOs,nCOs,tCOs),sls) = true .
+:goal { eq robust-lemmaNOC(co,sCO,sIM,lg,ls) = true . }
+:def inStatectf = :ctf {
+  eq inState(cmp(idCO,cCOs,nCOs,tCOs),ls) = true .
 }
-:apply (inStatesctf rd-)
+:apply (inStatectf rd-)
 :def allCONotcsp = :csp {
-  eq allCONotInStates(getICOsOfIMs(sCO,getIMsOfTypeOfECO(sIM,mandatory,idCO)),
-        sls) = true .
+  eq allCONotInState(getICOsOfIMs(sCO,getIMsOfTypeOfECO(sIM,mandatory,idCO)),
+        ls) = true .
   eq sIM = (imp(mandatory,idIM,iidCO,idCO,cIMs,nIMs,tIMs) sIM') .
 }
 :apply (allCONotcsp)
@@ -165,7 +165,7 @@ open ProofLemma .
   eq sCO = (cmp(iidCO,cCOs',nCOs',tCOs') sCO') .
 }
 :csp {
-  eq inStates(cmp(iidCO,cCOs',nCOs',tCOs'),sls) = true .
+  eq inState(cmp(iidCO,cCOs',nCOs',tCOs'),ls) = true .
 }
 :ctf {
   eq noCOCycle((< (cmp(iidCO,cCOs',nCOs',tCOs') (cmp(idCO,cCOs,nCOs,tCOs) sCO')), 
@@ -188,7 +188,7 @@ close
 -->  eq robust-lemmaC01(CO,SCO,SIM,L)
 -->    = cont(< (CO SCO), SIM, L >) 
 -->      when inv(< (CO SCO), SIM, L >) and
--->        inStates(CO,st(started,stopped,stopped)) .
+-->        inState(CO,st(started,stopped,stopped)) .
 open ProofLemma .
 eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
 :goal { eq robust-lemmaC01(co,sCO,sIM,lg) = true . }
@@ -228,7 +228,7 @@ eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
   eq tCOs = sstarted .
 }
 :def inStcsp = :csp {
-  eq inStates(co,st(started,stopped,stopped)) = false . 
+  eq inState(co,st(started,stopped,stopped)) = false . 
   eq co = cmp(idCO,started,stopped,stopped) .
 }
 :apply (inStcsp rd-)
@@ -264,7 +264,7 @@ eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
       SCO:SetOfComponent <- sCO;
       SIM:SetOfImport <- sIM;
       L:ListOfLog <- lg;
-      SLS:SetOfLS <- st(started,stopped,stopped); }
+      LS:LocalState <- st(started,stopped,stopped); }
 :apply (rd-)
 --> Proof of robust-lemmaC01 done
 -->
@@ -276,15 +276,15 @@ close
 -->  eq robust-lemmaC02(CO,SCO,SIM,L)
 -->    = cont(< (CO SCO), SIM, L >) 
 -->      when inv(< (CO SCO), SIM, L >) and
--->        inStates(CO,st(started,stopped,sstarted)) .
+-->        inState(CO,st(started,stopped,sstarted)) .
 open ProofLemma .
 eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
   -- eq robust-lemmaC01(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
-  --          inStates(CO,st(started,stopped,stopped)) .
+  --          inState(CO,st(started,stopped,stopped)) .
   ceq inv(< (CO SCO), SIM, L >) = false 
-    if inStates(CO,st(started,stopped,stopped)) and
+    if inState(CO,st(started,stopped,stopped)) and
        cont(< (CO SCO), SIM, L >) = false .
 :goal { eq robust-lemmaC02(co,sCO,sIM,lg) = true . }
 :def tIMcsp = :csp  { 
@@ -314,7 +314,7 @@ eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
   eq tCOs = sstarted .
 }
 :def inStcsp = :csp {
-  eq inStates(co,st(started,stopped,sstarted)) = false . 
+  eq inState(co,st(started,stopped,sstarted)) = false . 
   eq co = cmp(idCO,started,stopped,sstarted) .
 }
 :apply (inStcsp rd-)
@@ -353,7 +353,7 @@ eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
       SCO:SetOfComponent <- sCO;
       SIM:SetOfImport <- sIM;
       L:ListOfLog <- lg;
-      SLS:SetOfLS <- st(started,stopped,sstarted); }
+      LS:LocalState <- st(started,stopped,sstarted); }
 :apply (rd-)
 --> Proof of robust-lemmaC02 done
 -->
@@ -364,7 +364,7 @@ close
 -->  eq robust-lemmaC03(CO,SCO,SIM,L)
 -->    = cont(< (CO SCO), SIM, L >) 
 -->      when inv(< (CO SCO), SIM, L >) and
--->        inStates(CO,st(started,started,sstarted)) .
+-->        inState(CO,st(started,started,sstarted)) .
 open ProofLemma .
 eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
 :goal { eq robust-lemmaC03(co,sCO,sIM,lg) = true . }
@@ -400,7 +400,7 @@ eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
   eq tCOs = sstarted .
 }
 :def inStcsp = :csp {
-  eq inStates(co,st(started,started,sstarted)) = false . 
+  eq inState(co,st(started,started,sstarted)) = false . 
   eq co = cmp(idCO,started,started,sstarted) .
 }
 :apply (inStcsp rd-)
@@ -422,7 +422,7 @@ eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
       SCO:SetOfComponent <- sCO;
       SIM:SetOfImport <- sIM;
       L:ListOfLog <- lg;
-      SLS:SetOfLS <- st(started,started,sstarted); }
+      LS:LocalState <- st(started,started,sstarted); }
 :apply (rd-)
 --> Proof of robust-lemmaC03 done
 -->
@@ -433,23 +433,23 @@ close
 -->  eq robust-lemmaC04(CO,SCO,SIM,L)
 -->    = cont(< (CO SCO), SIM, L >) 
 -->      when inv(< (CO SCO), SIM, L >) and
--->           inStates(CO,st(stopped,sstarted,sstarted)) .
+-->           inState(CO,st(stopped,sstarted,sstarted)) .
 open ProofLemma .
 eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
   -- eq robust-lemmaC02(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
-  --          inStates(CO,st(started,stopped,sstarted)) .
+  --          inState(CO,st(started,stopped,sstarted)) .
   ceq inv(< (CO SCO), SIM, L >) = false 
-    if inStates(CO,st(started,stopped,sstarted)) and
+    if inState(CO,st(started,stopped,sstarted)) and
        cont(< (CO SCO), SIM, L >) = false .
 
   -- eq robust-lemmaC03(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
-  --          inStates(CO,st(started,started,sstarted)) .
+  --          inState(CO,st(started,started,sstarted)) .
   ceq inv(< (CO SCO), SIM, L >) = false 
-    if inStates(CO,st(started,started,sstarted)) and
+    if inState(CO,st(started,started,sstarted)) and
        cont(< (CO SCO), SIM, L >) = false .
 
 :goal { eq robust-lemmaC04(co,sCO,sIM,lg) = true . }
@@ -485,7 +485,7 @@ eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
   eq tCOs = sstarted .
 }
 :def inStcsp = :csp {
-  eq inStates(co,st(stopped,sstarted,sstarted)) = false . 
+  eq inState(co,st(stopped,sstarted,sstarted)) = false . 
   eq co = cmp(idCO,stopped,sstarted,sstarted) .
 }
 :apply (inStcsp rd-)
@@ -508,7 +508,7 @@ eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
       SCO:SetOfComponent <- sCO;
       SIM:SetOfImport <- sIM;
       L:ListOfLog <- lg;
-      SLS:SetOfLS <- st(stopped,sstarted,sstarted); }
+      LS:LocalState <- st(stopped,sstarted,sstarted); }
 :apply (rd-)
 -- Case 2-2-4-4-2-2-1-3: started stopped sstarted is discharged by C02
 -- Case 2-2-4-4-2-2-2-3: started started sstarted is discharged by C03
@@ -523,7 +523,7 @@ eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
       SCO:SetOfComponent <- sCO;
       SIM:SetOfImport <- sIM;
       L:ListOfLog <- lg;
-      SLS:SetOfLS <- st(stopped,sstarted,sstarted); }
+      LS:LocalState <- st(stopped,sstarted,sstarted); }
 :apply (rd-)
 --> Proof of robust-lemmaC04 done
 -->
@@ -539,33 +539,33 @@ open ProofLemma .
   -- eq robust-lemmaC01(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
-  --          inStates(CO,st(started,stopped,stopped)) .
+  --          inState(CO,st(started,stopped,stopped)) .
   ceq inv(< (CO SCO), SIM, L >) = false 
-    if inStates(CO,st(started,stopped,stopped)) and
+    if inState(CO,st(started,stopped,stopped)) and
        cont(< (CO SCO), SIM, L >) = false .
 
   -- eq robust-lemmaC02(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
-  --          inStates(CO,st(started,stopped,sstarted)) .
+  --          inState(CO,st(started,stopped,sstarted)) .
   ceq inv(< (CO SCO), SIM, L >) = false 
-    if inStates(CO,st(started,stopped,sstarted)) and
+    if inState(CO,st(started,stopped,sstarted)) and
        cont(< (CO SCO), SIM, L >) = false .
 
   -- eq robust-lemmaC03(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
-  --          inStates(CO,st(started,started,sstarted)) .
+  --          inState(CO,st(started,started,sstarted)) .
   ceq inv(< (CO SCO), SIM, L >) = false 
-    if inStates(CO,st(started,started,sstarted)) and
+    if inState(CO,st(started,started,sstarted)) and
        cont(< (CO SCO), SIM, L >) = false .
 
   -- eq robust-lemmaC04(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
-  --          inStates(CO,st(stopped,sstarted,sstarted)) .
+  --          inState(CO,st(stopped,sstarted,sstarted)) .
   ceq inv(< (CO SCO), SIM, L >) = false 
-    if inStates(CO,st(stopped,sstarted,sstarted)) and
+    if inState(CO,st(stopped,sstarted,sstarted)) and
        cont(< (CO SCO), SIM, L >) = false .
 
 :goal { eq robust-lemmaC11(sCO,sIM,lg) = true . }
@@ -692,33 +692,33 @@ open ProofLemma .
   -- eq robust-lemmaC01(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
-  --          inStates(CO,st(started,stopped,stopped)) .
+  --          inState(CO,st(started,stopped,stopped)) .
   ceq inv(< (CO SCO), SIM, L >) = false 
-    if inStates(CO,st(started,stopped,stopped)) and
+    if inState(CO,st(started,stopped,stopped)) and
        cont(< (CO SCO), SIM, L >) = false .
 
   -- eq robust-lemmaC02(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
-  --          inStates(CO,st(started,stopped,sstarted)) .
+  --          inState(CO,st(started,stopped,sstarted)) .
   ceq inv(< (CO SCO), SIM, L >) = false 
-    if inStates(CO,st(started,stopped,sstarted)) and
+    if inState(CO,st(started,stopped,sstarted)) and
        cont(< (CO SCO), SIM, L >) = false .
 
   -- eq robust-lemmaC03(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
-  --          inStates(CO,st(started,started,sstarted)) .
+  --          inState(CO,st(started,started,sstarted)) .
   ceq inv(< (CO SCO), SIM, L >) = false 
-    if inStates(CO,st(started,started,sstarted)) and
+    if inState(CO,st(started,started,sstarted)) and
        cont(< (CO SCO), SIM, L >) = false .
 
   -- eq robust-lemmaC04(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
-  --          inStates(CO,st(stopped,sstarted,sstarted)) .
+  --          inState(CO,st(stopped,sstarted,sstarted)) .
   ceq inv(< (CO SCO), SIM, L >) = false 
-    if inStates(CO,st(stopped,sstarted,sstarted)) and
+    if inState(CO,st(stopped,sstarted,sstarted)) and
        cont(< (CO SCO), SIM, L >) = false .
 
 :goal { eq robust-lemmaC12(sCO,sIM,lg) = true . }
@@ -792,11 +792,11 @@ close
 eof
 
 Memo: Dependency of Lemmas
-robust-lemmaC01 = cont when inv and inStates(CO,st(started,stopped,stopped)) .
+robust-lemmaC01 = cont when inv and inState(CO,st(started,stopped,stopped)) .
 DDSCD
 2-2-1-2-2-2-2-1-1: started stopped stopped  -> NOC
 
-robust-lemmaC02 = cont when inv and inStates(CO,st(started,stopped,sstarted)) .
+robust-lemmaC02 = cont when inv and inState(CO,st(started,stopped,sstarted)) .
 DDCSD
 2-2-1-1-1-2-2: mandatory wired unwired unwired
  2-2-1-1-1-2-2-1-1-1: stated stopped stopped -> C01
@@ -804,7 +804,7 @@ DDCSD
  2-2-1-1-1-2-4-1-1-1: stated stopped stopped -> C01
  2-2-1-1-1-2-4-1-1-3: started stopped sstarted -> NOC
 
-robust-lemmaC03 = cont when inv and inStates(CO,st(started,started,sstarted)) .
+robust-lemmaC03 = cont when inv and inState(CO,st(started,started,sstarted)) .
 DDCSU
 2-3-3-4-2-2-2-3: started started sstarted -> NOC
 
@@ -819,7 +819,7 @@ robust-lemmaC11 = cont when inv and equivIMSet = false .
 2-2-2-2-4-4: optional unwired swired swired
 2-2-2-3-3-4: optional wired wired swired
 
-robust-lemmaC04 = cont when inv and inStates(CO,st(stopped,sstarted,sstarted)) .
+robust-lemmaC04 = cont when inv and inState(CO,st(stopped,sstarted,sstarted)) .
 DDCSU
 2-2-4-4: mandatory unwired swired swired
  2-2-4-4-2-1-3-3: stopped sstarted sstarted -> NOC
