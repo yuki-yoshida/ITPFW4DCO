@@ -6,4 +6,5 @@ in Proof-initcont.cafe
 in Proof-contcont.cafe
 in Proof-measure.cafe
 in Proof-inv.cafe
---> Totally 91 goals should be proved.
+in Proof-invcont.cafe
+--> Totally 92 goals should be proved.
