@@ -1162,17 +1162,21 @@ module PROOFBASE {
   pred invK : State
 
   pred initinv : State
-  eq initinv(S:State)
+  eq initinv(S)
      = init(S) implies invK(S) .
 
   pred iinv : State State .
-  eq iinv(S:State,SS:State)
+  eq iinv(S,SS)
      = inv(S) and invK(S) implies invK(SS) .
   pred invinv : State
-  eq invinv(S:State)
-     = not (S =(*,1)=>+ SS:State if CC:Bool suchThat
+  eq invinv(S)
+     = not (S =(*,1)=>+ SS if CC:Bool suchThat
             not ((CC implies iinv(S,SS)) == true)
      	   { S => SS !! CC ! inv(S) ! invK(S) ! invK(SS) }) .
+
+  pred invcont : State
+  eq invcont(S)
+     = (inv(S) and not final(S)) implies cont(S) .
 }
 
 module PRMCYCLE {

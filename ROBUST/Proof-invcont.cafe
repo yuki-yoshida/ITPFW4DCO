@@ -1,0 +1,40 @@
+require PROOF Proof.cafe
+
+--> **********************************************
+--> (6) (inv(S) and not final(S)) implies cont(S).
+--> **********************************************
+-- Proof of (6) (inv(S) and not final(S)) implies cont(S).
+open PROOF .
+  -- Lemmas
+  -- eq robust-lemmaC11(SCO,SIM,L)
+  --   = cont(< SCO, SIM, L >) 
+  --     when inv(< SCO, SIM, L >) and
+  --          equivIMSet(SIM) = false .
+  ceq inv(< SCO, SIM, L >) = false
+    if equivIMSet(SIM) = false and
+       cont(< SCO, SIM, L >) = false .
+
+  -- eq robust-lemmaC12(SCO,SIM,L)
+  --   = cont(< SCO, SIM, L >) 
+  --     when inv(< (CO, SIM, L >) and
+  --          equivCOSet(SCO) = false .
+  ceq inv(< SCO, SIM, L >) = false
+    if equivCOSet(SCO) = false and
+       cont(< SCO, SIM, L >) = false .
+
+--> *******************************************
+--> Step6-1: Begin with the most general case. 
+--> *******************************************
+:goal {eq invcont(< sCO, sIM, lg >) = true .}
+-- Define common csp's.
+-- final(S) = equivCOSet() and equivIMSet().
+:def finalcsp = :csp  { 
+  eq final(< sCO, sIM, lg >) = true .
+  eq equivCOSet(sCO) = false .
+  eq equivIMSet(sIM) = false .
+}
+:apply (finalcsp rd-)
+show proof
+close
+
+--> Totally 1 goal should be proved.
