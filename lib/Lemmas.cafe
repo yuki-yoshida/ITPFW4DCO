@@ -2,6 +2,47 @@ require Template Template.cafe
 
 provide Lemmas
 
+module CONVLEMMAS {
+  protecting(PROOFBASE)
+  
+  -- If init(S) implies final(S) = false and
+  -- both of initinv(S) and invcont(S) holds for any state S,
+  -- then initcont(S) and contcont(S) also hold for any S.
+
+  var S : State
+  -- Assuming init(S) implies final(S) = false:
+  ceq init(S) = false if final(S) .
+  -- Assuming initinv(S):
+  ceq init(S) = false if inv(S) = false .
+  -- Assuming invcont(S):
+  ceq cont(S) = true if inv(S) and final(S) = false .
+
+  op s : -> State .
+
+}
+
+select CONVLEMMAS .
+:goal { eq initcont(s) = true . }
+:def invctf = :ctf {
+  eq inv(s) = true .
+}
+:def finalctf = :ctf {
+  eq final(s) = true .
+}
+:apply (invctf finalctf rd-)
+show proof
+
+select CONVLEMMAS .
+:goal { eq contcont(s) = true . }
+:def invctf = :ctf {
+  eq inv(s) = true .
+}
+:def finalctf = :ctf {
+  eq final(s) = true .
+}
+:apply (invctf finalctf rd-)
+show proof
+
 module BOOLLEMMAS {
   pred bool-lemma1 : Bool Bool .
   -- (X implies Y) can be written as an equation, eq (X and Y) = X .
@@ -1626,5 +1667,5 @@ select O2O-LEMMAS
 show proof
 
 select
---> Totally 53 goals should be proved
---> including 15 bool&set-lemmas, 4 base-lemmas(+1), 28 m2o-lemmas, and 6 o2o-lemmas.
+--> Totally 55 goals should be proved
+--> including 2 cont-lemmas, 15 bool&set-lemmas, 4 base-lemmas(+1), 28 m2o-lemmas, and 6 o2o-lemmas.

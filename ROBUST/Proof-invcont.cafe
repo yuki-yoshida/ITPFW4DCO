@@ -4,6 +4,12 @@ require PROOF Proof.cafe
 --> (6) (inv(S) and not final(S)) implies cont(S).
 --> **********************************************
 -- Proof of (6) (inv(S) and not final(S)) implies cont(S).
+-- Assuming 
+--   init(S) implies final(S) = false,
+--   initinv(S) is proved, and
+--   invcont(S) is prove, 
+-- then both initcont(S) and contcont(S) holds.
+
 open PROOF .
   -- Lemmas
   -- eq robust-lemmaC11(SCO,SIM,L)
