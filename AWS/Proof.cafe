@@ -39,9 +39,9 @@ module PROOF {
 --> **************************************
 --> Step 0-5: Prepare arbitrary constants.
 --> **************************************
-  ops idRS idRS' : -> RSID
-  ops idRRS idRRS' : -> RSID
-  ops idPR idPR' : -> PRID
+  ops idRS idRS' : -> RSIDLt
+  ops idRRS idRRS' : -> RSIDLt
+  ops idPR idPR' : -> PRIDLt
   ops sRS sRS' sRS'' sRS''' : -> SetOfResource
   ops sPR sPR' sPR'' sPR''' : -> SetOfProperty
   ops trs trs' trs'' trs''' : -> RSType

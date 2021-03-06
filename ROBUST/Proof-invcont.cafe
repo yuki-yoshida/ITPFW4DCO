@@ -130,7 +130,6 @@ open PROOF .
 :apply (finalcsp rd-)
 --> *************************************************************************************
 --> Step 6-3: Split the current case into cases which collectively cover the current case
--->  and predicate final does not hold in each case .
 --> *************************************************************************************
 -- Case 2: equivIMSet(sIM) = false means that
 --          at least one import whose state is not its target.

@@ -113,10 +113,10 @@ module PROOF {
 --> **************************************
 --> Step 0-5: Prepare arbitrary constants.
 --> **************************************
-  ops idND idND' : -> NDID
-  ops idCP idCP' : -> CPID
-  ops idRQ idRQ' : -> RQID
-  ops idRL idRL' : -> RLID
+  ops idND idND' : -> NDIDLt
+  ops idCP idCP' : -> CPIDLt
+  ops idRQ idRQ' : -> RQIDLt
+  ops idRL idRL' : -> RLIDLt
   ops sND sND' sND'' sND''' : -> SetOfNode
   ops sCP sCP' sCP'' sCP''' : -> SetOfCapability
   ops sRQ sRQ' sRQ'' sRQ''' : -> SetOfRequirement

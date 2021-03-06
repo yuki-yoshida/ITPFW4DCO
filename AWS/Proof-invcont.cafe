@@ -1,0 +1,75 @@
+require PROOF Proof.cafe
+
+--> **********************************************
+--> (6) (inv(S) and not final(S)) implies cont(S).
+--> **********************************************
+-- Proof of (6) (inv(S) and not final(S)) implies cont(S).
+-- Assuming 
+--   init(S) implies final(S) = false,
+--   initinv(S) is proved, and
+--   invcont(S) is prove, 
+-- then both initcont(S) and contcont(S) holds.
+
+open PROOF .
+
+--> *******************************************
+--> Step 6-1: Begin with the most general case. 
+--> *******************************************
+:goal {eq invcont(< sRS, sPR >) = true .}
+--> *********************************************
+--> Step 6-2: Split the current case into cases 
+-->  where predicate final does or does not hold.
+--> *********************************************
+-- eq final(< SetRS,SetPR >) = allRSInStates(SetRS,started) .
+:def finalcsp = :csp  { 
+  eq final(< sRS, sPR >) = true .
+  eq sRS = (res(trs,idRS,initial) sRS') .
+}
+:apply (finalcsp rd-)
+-- Case 2: sRS = (res(trs,idRS,started) sRS') .
+--> ******************************************************************
+--> Step 6-4: Consider which rule can be applied to the current case. 
+--> ******************************************************************
+-- rule R01 should be applied
+--> *********************************************************
+--> Step 6-6: Split the current case into cases where
+-->  the condition of the current rule does or does not hold. 
+--> *********************************************************
+-- The condition of R01 is allPROfRSInStates(sPR,idRS,ready) .
+:def sPRcsp = :csp { 
+  eq allPROfRSInStates(sPR,idRS,ready) = true .
+  eq sPR = (prop(tpr,idPR,notready,idRS,idRRS) sPR') .
+}
+:apply (sPRcsp rd-)
+--> ******************************************************************
+--> Step 6-4: Consider which rule can be applied to the current case. 
+--> ******************************************************************
+-- rule R02 should be applied
+--> **********************************************************************
+--> Step 6-5: Split the current case into cases which collectively cover
+-->  the current case and one of which matches to LHS of the current rule.
+--> **********************************************************************
+-- LHS of R02 requires that the refering resource is started.
+:def exRRScsp = :csp {
+  eq existRS(sRS',idRRS) = false .
+  eq sRS' = (res(trs',idRRS,srs') sRS'') .
+}
+:apply (exRRScsp rd-)
+:def srs'csp = :csp {
+  eq srs' = initial .
+  eq srs' = started .
+}
+:apply (srs'csp rd-)
+--> ******************************************************************************
+--> Step 6-7: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
+--> ******************************************************************************
+-- The Cyclic Dependency Lemma rejects this case.
+:init [noCycle] by {
+  O:Resource <- res(trs,idRS,initial);
+  S:State <- < sRS, sPR >;
+  SS:SetOfRSState <- initial;
+}
+:apply (rd-)
+show proof
+
+close
