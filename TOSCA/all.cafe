@@ -19,4 +19,5 @@ in Proof-contcont-R11.cafe
 in Proof-contcont-R12.cafe
 in Proof-measure.cafe
 in Proof-inv.cafe
---> Totally 228 goals should be proved.
+in Proof-invcont.cafe
+--> Totally 229 goals should be proved.
