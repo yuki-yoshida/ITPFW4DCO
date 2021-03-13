@@ -1108,16 +1108,9 @@ module STATEBASE {
   op m : State -> Nat
 }
 
-module -PRMLOCALSTATE {
-  [LocalState] 
-}
-
 module PROOFBASE {
   including(RWL)
   including(STATEBASE)
-  including(-SET+NAT(-PRMLOCALSTATE {sort Elt -> LocalState})
-      * {sort Set -> SetOfLS,
-      	 op empty -> empLS})
 
   op _!_ : Bool Bool -> Bool {constr assoc}
   op _=>_!!_ : State State Bool -> Bool {constr}
@@ -1180,22 +1173,15 @@ module PROOFBASE {
 }
 
 module PRMCYCLE {
+  [State]
   [Object < SetOfObject]
   op empObj : -> SetOfObject
   op _ _ : SetOfObject SetOfObject -> SetOfObject
   pred _in_ : Object SetOfObject
 
-  [ObjState]
-  op state : Object -> ObjState
+  op getAllObjC : State -> SetOfObject
 
-  [SetOfObjState]
-  pred someObjInStates : SetOfObject SetOfObjState
-  pred _in_ : ObjState SetOfObjState
-
-  [State]
-  op getAllObjInState : State -> SetOfObject
-  pred inv : State
-  pred init : State
+  [LocalState]
 
   -- DDSC means get Direct Depending Set of the same Class.
   op DDSC : Object State -> SetOfObject
@@ -1205,18 +1191,15 @@ module CYCLEPRED(P :: PRMCYCLE) {
 
   var O  : Object
   vars V OS : SetOfObject
+  var LS : LocalState
   var S : State
-  var SS : SetOfObjState
 
+  pred _in_ : Object LocalState
   pred noCycleC : State
-  pred noCycleC : Object State
   pred noCycleC : SetOfObject SetOfObject State
 
   eq noCycleC(S)
-     = noCycleC(getAllObjInState(S),empObj,S) .
-
-  eq noCycleC(O,S)
-     = noCycleC(O,empObj,S) .
+     = noCycleC(getAllObjC(S),empObj,S) .
 
   eq noCycleC(empObj,V,S)
      = true .
@@ -1225,16 +1208,29 @@ module CYCLEPRED(P :: PRMCYCLE) {
        and noCycleC(OS,V,S) .
 
   -- Cyclic Dependency Lemma
-  ceq [noCycle :nonexec]: 
-     noCycleC(S) = false if someObjInStates(DDSC(O,S),SS) and state(O) in SS .
-  ceq [CycleInit :nonexec]: 
-     init(S) = false if someObjInStates(DDSC(O,S),SS) and state(O) in SS .
-  -- Note that equations above may depend on the order of processing `noCycleC` or `init`.
-  -- Equations below does not so.
-  ceq [CycleInv :nonexec]: 
-     inv(S) = false if someObjInStates(DDSC(O,S),SS) and state(O) in SS .
-  -- ceq [noCycle :nonexec]: 
-  --    true = false if someObjInStates(DDSC(O,S),SS) and state(O) in SS .
+  pred noCycleLemma : Object State LocalState
+  pred someNoDependObj : SetOfObject LocalState State
+  pred isNoDepend : Object LocalState State
+  pred allObjNotInState : SetOfObject LocalState
 
+  eq noCycleLemma(O,S,LS)
+    = (noCycleC(S) and O in getAllObjC(S) and O in LS) implies someNoDependObj(getAllObjC(S), LS, S) .
+
+  eq someNoDependObj(empObj,LS,S) = true . 
+  eq someNoDependObj((O OS),LS,S)
+    = isNoDepend(O,LS,S) and someNoDependObj(OS,LS,S) . 
+
+  eq isNoDepend(O,LS,S)
+    = O in LS and allObjNotInState(DDSC(O,S),LS) . 
+
+  eq allObjNotInState(empObj,LS) = true .
+  eq allObjNotInState((O OS),LS)
+    = not (O in LS) and allObjNotInState(OS,LS) .
+
+  ceq [noCycleLemma :nonexec]:
+    noCycleC(S) = false
+    if O in getAllObjC(S) and 
+       O in LS and 
+       isNoDepend(O,LS,S) = false .
 }
 

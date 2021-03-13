@@ -356,19 +356,26 @@ module! STATE {
 module! STATECyclefuns {
   protecting(STATE)
 
+  [LocalState]
   var CO : Component
   var SetCO : SetOfComponent
   var SetIM : SetOfImport
   var L : ListOfLog
 
-  op getAllCOInState : State -> SetOfComponent
-  eq getAllCOInState(< SetCO,SetIM,L >) = SetCO .
+  op getAllCO : State -> SetOfComponent
+  eq getAllCO(< SetCO,SetIM,L >) = SetCO .
 
   op DDSCO : Component State -> SetOfComponent
 }
 
 module! STATEfuns {
-  protecting(STATE)
+  extending(CYCLEPRED(
+	STATECyclefuns {sort Object -> Component,
+			sort SetOfObject -> SetOfComponent,
+			op empObj -> empCO,
+			op DDSC -> DDSCO,
+			op getAllObjC -> getAllCO})
+	* {op noCycleC -> noCOCycle})
 
   var CO : Component
   var IM : Import
@@ -385,17 +392,17 @@ module! STATEfuns {
   var StIM : SetOfIMState
   var S : State
 
-  extending(CYCLEPRED(
-  	STATECyclefuns {sort Object -> Component,
-  	       		sort SetOfObject -> SetOfComponent,
-			sort ObjState -> COState,
-			sort SetOfObjState -> SetOfCOState,
-			op DDSC -> DDSCO,
-  	       		op empObj -> empCO,
-			op someObjInStates -> someCOInStates,
-  	       		op getAllObjInState -> getAllCOInState})
-  	* {op noCycleC -> noCOCycle}
-  	)
+  -- extending(CYCLEPRED(
+  -- 	STATECyclefuns {sort Object -> Component,
+  -- 	       		sort SetOfObject -> SetOfComponent,
+  -- 			sort ObjState -> COState,
+  -- 			sort SetOfObjState -> SetOfCOState,
+  -- 			op DDSC -> DDSCO,
+  -- 	       		op empObj -> empCO,
+  -- 			op someObjInStates -> someCOInStates,
+  -- 	       		op getAllObjInState -> getAllCOInState})
+  -- 	* {op noCycleC -> noCOCycle}
+  -- 	)
 
   pred stableCOSet : SetOfComponent
   eq stableCOSet(empCO) = true .

@@ -209,11 +209,6 @@ module PROOF {
   eq inState(CO,st(CSCO,NSCO,TSCO))
     = (state(CO) = CSCO and next(CO) = NSCO and target(CO) = TSCO) .
 
-  -- not someCOInState == allCONotInState
-  pred allCONotInState : SetOfComponent LocalState
-  eq allCONotInState((CO SCO),LS)
-    = not inState(CO,LS) and allCONotInState(SCO,LS) .
-
   op DDSC : Component SetOfComponent SetOfImport -> SetOfComponent
   eq DDSCO(CO,< SCO,SIM,L >) = DDSC(CO,SCO,SIM) .
   -- Upward DDSC
@@ -224,15 +219,6 @@ module PROOF {
   op DDSCD : Component SetOfComponent SetOfImport -> SetOfComponent
   eq DDSCD(CO,SCO,SIM)
     = getICOsOfIMs(SCO,getIMsOfTypeOfECO(SIM,mandatory,CO)) .
-
-  pred isCONoCycle : Component SetOfComponent SetOfImport LocalState
-  eq isCONoCycle(CO,SCO,SIM,LS)
-    = inState(CO,LS) and allCONotInState(DDSC(CO,SCO,SIM),LS) .
- 
-  pred someCONoCycle : SetOfComponent SetOfImport LocalState
-  eq someCONoCycle(empCO,SIM,LS) = false .
-  eq someCONoCycle((CO SCO),SIM,LS)
-    = isCONoCycle(CO,SCO,SIM,LS) or someCONoCycle(SCO,SIM,LS) .
 
 --> **************************************
 --> Step 0-5: Prepare arbitrary constants.
