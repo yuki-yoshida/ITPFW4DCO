@@ -1173,11 +1173,10 @@ module PROOFBASE {
 }
 
 module PRMCYCLE {
+  including(SET(OBJECT {sort Elt -> Object})
+      * {sort Set -> SetOfObject,
+      	 op empty -> empObj})
   [State]
-  [Object < SetOfObject]
-  op empObj : -> SetOfObject
-  op _ _ : SetOfObject SetOfObject -> SetOfObject
-  pred _in_ : Object SetOfObject
 
   op getAllObjC : State -> SetOfObject
 
@@ -1208,17 +1207,13 @@ module CYCLEPRED(P :: PRMCYCLE) {
        and noCycleC(OS,V,S) .
 
   -- Cyclic Dependency Lemma
-  pred noCycleLemma : Object State LocalState
   pred someNoDependObj : SetOfObject LocalState State
   pred isNoDepend : Object LocalState State
   pred allObjNotInState : SetOfObject LocalState
 
-  eq noCycleLemma(O,S,LS)
-    = (noCycleC(S) and O in getAllObjC(S) and O in LS) implies someNoDependObj(getAllObjC(S), LS, S) .
-
-  eq someNoDependObj(empObj,LS,S) = true . 
+  eq someNoDependObj(empObj,LS,S) = false . 
   eq someNoDependObj((O OS),LS,S)
-    = isNoDepend(O,LS,S) and someNoDependObj(OS,LS,S) . 
+    = isNoDepend(O,LS,S) or someNoDependObj(OS,LS,S) . 
 
   eq isNoDepend(O,LS,S)
     = O in LS and allObjNotInState(DDSC(O,S),LS) . 
@@ -1227,6 +1222,14 @@ module CYCLEPRED(P :: PRMCYCLE) {
   eq allObjNotInState((O OS),LS)
     = not (O in LS) and allObjNotInState(OS,LS) .
 
+  -- No Cycle Lemma:
+  -- if noCycleC(S) and some object O in S is in a local state LS
+  -- then there is some object X in S that is also in LS
+  --      but does not depend on any other objects in LS.
+  -- Since O can be any object in S which is in LS, we can assume O is the X itself.
+  -- eq noCycleLemma(O,S,LS)
+  --   = (noCycleC(S) and O in getAllObjC(S) and O in LS) 
+  --     implies someNoDependObj(getAllObjC(S), LS, S) .
   ceq [noCycleLemma :nonexec]:
     noCycleC(S) = false
     if O in getAllObjC(S) and 
