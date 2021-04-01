@@ -1,9 +1,14 @@
 require SET ../lib/SET.cafe
 provide Template
 
+module -OBJECT {
+  [Object]
+}
+
 module OBJECT {
+  including(-OBJECT)
   -- Sorts
-  [Object] [ObjID] [ObjType] [ObjState]
+  [ObjID] [ObjType] [ObjState]
 
   -- Selectors
   op id : Object -> ObjID
@@ -1173,7 +1178,7 @@ module PROOFBASE {
 }
 
 module PRMCYCLE {
-  including(SET(OBJECT {sort Elt -> Object})
+  including(SET(-OBJECT {sort Elt -> Object})
       * {sort Set -> SetOfObject,
       	 op empty -> empObj})
   [State]
@@ -1188,7 +1193,7 @@ module PRMCYCLE {
 
 module CYCLEPRED(P :: PRMCYCLE) {
 
-  var O  : Object
+  vars O X : Object
   vars V OS : SetOfObject
   var LS : LocalState
   var S : State
@@ -1226,7 +1231,6 @@ module CYCLEPRED(P :: PRMCYCLE) {
   -- if noCycleC(S) and some object O in S is in a local state LS
   -- then there is some object X in S that is also in LS
   --      but does not depend on any other objects in LS.
-  -- Since O can be any object in S which is in LS, we can assume O is the X itself.
   -- eq noCycleLemma(O,S,LS)
   --   = (noCycleC(S) and O in getAllObjC(S) and O in LS) 
   --     implies someNoDependObj(getAllObjC(S), LS, S) .
@@ -1234,6 +1238,6 @@ module CYCLEPRED(P :: PRMCYCLE) {
     noCycleC(S) = false
     if O in getAllObjC(S) and 
        O in LS and 
-       isNoDepend(O,LS,S) = false .
+       isNoDepend(X,LS,S) = false .
 }
 

@@ -71,11 +71,6 @@ eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
   eq existCO(sCO,iidCO) = false .
   eq sCO = (cmp(iidCO,cCOs,nCOs,tCOs) sCO') .
 }
-:def cCOscsp = :csp  { 
-  eq cCOs = stopped .
-  eq cCOs = started .
-  eq cCOs = sstarted .
-}
 :def nCOscsp = :csp  { 
   eq nCOs = stopped .
   eq nCOs = started .
@@ -120,6 +115,7 @@ eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
 -- Case 2-2-1-1-1-2-2-2-1-1 started stopped stopped
 :init as noCycleLemma-in [noCycleLemma]
   by {O:Component <- co;
+      X:Component <- co;
       S:State <- < (co sCO), sIM, lg >;
       LS:LocalState <- st(started,stopped,stopped); }
 :apply (rd-)
@@ -207,6 +203,7 @@ eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
 -- Case 2-2-1-1-1-2-4-1-1-3: started stopped sstarted
 :init as noCycleLemma-in [noCycleLemma]
   by {O:Component <- co;
+      X:Component <- co;
       S:State <- < (co sCO), sIM, lg >;
       LS:LocalState <- st(started,stopped,sstarted); }
 :apply (rd-)
@@ -274,6 +271,7 @@ eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
 -- Case 2-3-3-4-2-2-2-3: started started sstarted
 :init as noCycleLemma-in [noCycleLemma]
   by {O:Component <- co;
+      X:Component <- co;
       S:State <- < (co sCO), sIM, lg >;
       LS:LocalState <- st(started,started,sstarted); }
 :apply (rd-)
@@ -358,6 +356,7 @@ eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
 -- Case 2-2-4-4-2-1-3-3: stopped sstarted sstarted
 :init as noCycleLemma-in [noCycleLemma]
   by {O:Component <- co;
+      X:Component <- co;
       S:State <- < (co sCO), sIM, lg >;
       LS:LocalState <- st(stopped,sstarted,sstarted); }
 :apply (rd-)
@@ -371,6 +370,7 @@ eq DDSC(CO,SCO,SIM) = DDSCU(CO,SCO,SIM) .
 -- Case 2-3-3-4-2-1-3-3: stopped sstarted sstarted
 :init as noCycleLemma-in [noCycleLemma]
   by {O:Component <- co;
+      X:Component <- co;
       S:State <- < (co sCO), sIM, lg >;
       LS:LocalState <- st(stopped,sstarted,sstarted); }
 :apply (rd-)
