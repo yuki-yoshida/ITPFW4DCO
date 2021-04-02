@@ -113,9 +113,8 @@ show proof
 close
 
 --> Proof of cycle-lemma2
--->  eq cycle-lemma2(O,LS,S)
--->    = O in getAllObjC(S) and 
--->      someNoDependObjDS(O,LS,S) 
+-->  eq cycle-lemma2(OS,LS,S)
+-->    = subset(OS,getAllObjC(S)) and someNoDependObjDS(OS,LS,S) 
 -->     implies someNoDependObj(getAllObjC(S), LS, S) .
 open CYCLELEMMA .
 
