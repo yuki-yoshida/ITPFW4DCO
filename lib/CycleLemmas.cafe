@@ -154,7 +154,6 @@ open CYCLELEMMA .
 :init as DDSCinS-in [DDSCinS]
   by {O:Object <- o;
       S:State <- s; }
-:apply(rd-)
 :init as cycle-lemma2-IH-in [cycle-lemma2-IH]
   by {OS:SetOfObject <- DDSC(o,s); 
       LS:LocalState <- ls; 
