@@ -1185,13 +1185,13 @@ module PRMCYCLE {
 
   op getAllObjC : State -> SetOfObject
 
-  [LocalState]
-
   -- DDSC means get Direct Depending Set of the same Class.
   op DDSC : Object State -> SetOfObject
 }
 
 module CYCLEPRED(P :: PRMCYCLE) {
+
+  [LocalState]
 
   vars O X : Object
   vars V OS : SetOfObject

@@ -12,7 +12,9 @@ provide DomainModel
 module! COMPONENT {
   -- Sorts
   [Component COID COType COState]
-  -- Constructor
+  -- Note: COType is requied by Template but is not used in this model
+
+  -- Constructor of Component
   -- cmp(ID, CState, NState, TState) is a Component where the identifier is ID,
   --    the current local state is CState, the possible next local state is NState, and
   --    the target local state is TState
@@ -76,8 +78,9 @@ module! IMPORT {
   protecting(COMPONENT)
   -- Sorts
   [Import IMID IMType IMState]
-  -- Constructor
-  -- imp(Type, ID, IID, EID, CState, NState, TState) is an Imports where the identifier is ID,
+
+  -- Constructor of Import
+  -- imp(Type, ID, IID, EID, CState, NState, TState) is an Import where the identifier is ID,
   --    the importer Component is IID, the exporter Component is EID,
   --    the current local state is CState, the next local state is NState, and
   --    the target local state is TState
@@ -294,37 +297,15 @@ module! LINKS {
 	   op ifXInStatesThenZInStates2 -> ifECOInNextStatesThenIMInStates,
 	   op ifXInStatesThenZInStates3 -> ifECOInTargetStatesThenIMInStates}
 	)
-
-  var IM : Import
-  var SCO0 : SetOfComponent
-  vars SIM SIM0 : SetOfImport
-  var tIM : IMType
-
-  -- Note that this op should be defined by Template.
-  op getIMsOfType : SetOfImport IMType -> SetOfImport
-  eq getIMsOfType(empIM,tIM) = empIM .
-  eq getIMsOfType(IM SIM,tIM) 
-   = if (type(IM) = tIM) then 
-       (IM getIMsOfType(SIM,tIM)) 
-     else 
-       getIMsOfType(SIM,tIM) fi .
-    
-  pred isMandatoryClientOf : Import SetOfImport SetOfComponent SetOfImport 
-  ceq [:nonexec]: isMandatoryClientOf(IM,SIM,SCO0,SIM0) = true
-    if IM in getIMsOfType(SIM,mandatory) .
-  ceq [:nonexec]: isMandatoryClientOf(IM,SIM,SCO0,SIM0) = true
-    if isMandatoryClientOf(IM,getIMsOfECOs(SIM0,getICOsOfIMs(SCO0,SIM)),SCO0,SIM0) .
-
 }
 
 module! LOG {
   protecting(IMPORT)
   protecting(STRING)
+  -- transiton log for debugging, where Nat is m(S) .
   [Log]
   op clog : String Component Nat -> Log {constr}
-  op clog : String Component -> Log {constr}
   op ilog : String Import Nat -> Log {constr}
-  op ilog : String Import -> Log {constr}
 }
 
 module! STATE {
@@ -337,27 +318,13 @@ module! STATE {
   -- A State consists of
   --  a set of current Components and a set of current Imports,
   --  a set of target Components and a set of target Imports,
-  --  and set of logs
-  op <_,_,_> :
-    SetOfComponent SetOfImport
-	ListOfLog
-      -> State {constr}
-
-  var SCO : SetOfComponent
-  var SIM : SetOfImport
-  var L : ListOfLog
-  op cmps : State -> SetOfComponent
-  op imps : State -> SetOfImport
-  eq cmps(< SCO,SIM,L >) = SCO .
-  eq imps(< SCO,SIM,L >) = SIM .
-
+  --  and a list of logs
+  op <_,_,_> : SetOfComponent SetOfImport ListOfLog -> State {constr}
 }
 
 module! STATECyclefuns {
   protecting(STATE)
 
-  [LocalState]
-  var CO : Component
   var SetCO : SetOfComponent
   var SetIM : SetOfImport
   var L : ListOfLog
@@ -391,18 +358,6 @@ module! STATEfuns {
   var StCO : SetOfCOState
   var StIM : SetOfIMState
   var S : State
-
-  -- extending(CYCLEPRED(
-  -- 	STATECyclefuns {sort Object -> Component,
-  -- 	       		sort SetOfObject -> SetOfComponent,
-  -- 			sort ObjState -> COState,
-  -- 			sort SetOfObjState -> SetOfCOState,
-  -- 			op DDSC -> DDSCO,
-  -- 	       		op empObj -> empCO,
-  -- 			op someObjInStates -> someCOInStates,
-  -- 	       		op getAllObjInState -> getAllCOInState})
-  -- 	* {op noCycleC -> noCOCycle}
-  -- 	)
 
   pred stableCOSet : SetOfComponent
   eq stableCOSet(empCO) = true .
@@ -454,7 +409,7 @@ module! STATEfuns {
   eq validTarget(SCO,SIM)
      = validTargetComponent(SCO,SCO,SIM) and validTargetImport(SIM,SCO) .
   -- The no cycle invariant is assumed.
-  -- ** and noCycleTraget(SCO,SIM) .
+  -- ** and noCycleTarget(SCO,SIM) .
 
   pred validCurrentComponent : SetOfComponent SetOfComponent SetOfImport
   eq validCurrentComponent(empCO,SCO0,SIM0) = true .
@@ -497,9 +452,8 @@ module! STATEfuns {
   pred validNext : SetOfComponent SetOfImport
   eq validNext(SCO,SIM)
      = validNextComponent(SCO,SIM) and validNextImport(SIM,SCO) .
-
   -- The no cycle invariant is assumed.
-  -- ** and noCycleCurrent(SCO,SIM) .
+  -- ** and noCycleNext(SCO,SIM) .
 
   pred iidCOeidCODiffer : SetOfImport
   eq iidCOeidCODiffer(empIM) = true .
@@ -568,7 +522,6 @@ module! STATEfuns {
 
   eq final(< SCO,SIM,L >)
      = equivCOSet(SCO) and equivIMSet(SIM) .
-
 }
 
 -- Architecture Invariants

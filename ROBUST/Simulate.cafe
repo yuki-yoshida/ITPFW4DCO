@@ -5,7 +5,7 @@ require PROOF Proof.cafe
 -- open STATERules .
 open PROOF .
 
-eq DDSC(CO,SCO,SIM) = DDSCD(CO,SCO,SIM) .
+eq DDSCO(CO,< SCO,SIM,L >) = DDSCD(CO,SCO,SIM) .
 
 ops COC COC1 COC2 COD : -> COIDLt .
 ops IMW IMV IMW1 IMW2 : -> IMIDLt .

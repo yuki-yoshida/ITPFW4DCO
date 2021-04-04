@@ -209,8 +209,6 @@ module PROOF {
   eq inState(CO,st(CSCO,NSCO,TSCO))
     = (state(CO) = CSCO and next(CO) = NSCO and target(CO) = TSCO) .
 
-  op DDSC : Component SetOfComponent SetOfImport -> SetOfComponent
-  eq DDSCO(CO,< SCO,SIM,L >) = DDSC(CO,SCO,SIM) .
   -- Upward DDSC
   op DDSCU : Component SetOfComponent SetOfImport -> SetOfComponent
   eq DDSCU(CO,SCO,SIM)
