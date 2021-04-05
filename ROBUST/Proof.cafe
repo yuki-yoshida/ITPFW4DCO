@@ -205,8 +205,7 @@ module PROOF {
       noChangeSstarted(SCO) .
 
   -- for NoCyclic Lemma
-  pred inState : Component LocalState
-  eq inState(CO,st(CSCO,NSCO,TSCO))
+  eq (CO in st(CSCO,NSCO,TSCO))
     = (state(CO) = CSCO and next(CO) = NSCO and target(CO) = TSCO) .
 
   -- Upward DDSC

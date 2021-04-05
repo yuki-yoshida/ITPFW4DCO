@@ -9,10 +9,10 @@ open PROOF .
   -- eq robust-lemmaC03(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
-  --          inState(CO,st(started,started,sstarted)) .
+  --          CO in st(started,started,sstarted) .
   -- Assuming that init implies inv
   ceq init(< (CO SCO), SIM, L >) = false 
-    if inState(CO,st(started,started,sstarted)) and
+    if CO in st(started,started,sstarted) and
        cont(< (CO SCO), SIM, L >) = false .
 
 --> *******************************************

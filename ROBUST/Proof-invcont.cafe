@@ -17,33 +17,33 @@ open PROOF .
   -- eq robust-lemmaC01(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
-  --          inState(CO,st(started,stopped,stopped)) .
+  --          CO in st(started,stopped,stopped) .
   ceq inv(< (CO SCO), SIM, L >) = false 
-    if inState(CO,st(started,stopped,stopped)) and
+    if CO in st(started,stopped,stopped) and
        cont(< (CO SCO), SIM, L >) = false .
 
   -- eq robust-lemmaC02(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
-  --          inState(CO,st(started,stopped,sstarted)) .
+  --          CO in st(started,stopped,sstarted) .
   ceq inv(< (CO SCO), SIM, L >) = false 
-    if inState(CO,st(started,stopped,sstarted)) and
+    if CO in st(started,stopped,sstarted) and
        cont(< (CO SCO), SIM, L >) = false .
 
   -- eq robust-lemmaC03(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
-  --          inState(CO,st(started,started,sstarted)) .
+  --          CO in st(started,started,sstarted) .
   ceq inv(< (CO SCO), SIM, L >) = false 
-    if inState(CO,st(started,started,sstarted)) and
+    if CO in st(started,started,sstarted) and
        cont(< (CO SCO), SIM, L >) = false .
 
   -- eq robust-lemmaC04(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
-  --          inState(CO,st(stopped,sstarted,sstarted)) .
+  --          CO in st(stopped,sstarted,sstarted) .
   ceq inv(< (CO SCO), SIM, L >) = false 
-    if inState(CO,st(stopped,sstarted,sstarted)) and
+    if CO in st(stopped,sstarted,sstarted) and
        cont(< (CO SCO), SIM, L >) = false .
 
 --> *******************************************
