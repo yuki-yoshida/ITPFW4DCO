@@ -230,17 +230,10 @@ open CYCLELEMMA .
 :apply (allNSctf rd-)
 :def getNDisOcsp = :csp {
   eq getNoDependObj(DDSC(o, s), ls, s) in (o os) = false .
-  eq os = (getNoDependObj(DDSC(o,s),ls,s) os') .
+  eq (o os) = (o getNoDependObj(DDSC(o,s),ls,s) os') .
 }
--- Note that 
--- if getNoDependObj(DDSC(o,s),ls,s) os') = o then
---   (o os) = (getNoDependObj(DDSC(o,s),ls,s) os') 
---     and so getNoDependObj(DDSC(o,s),ls,s) in (o os)
--- else
---   (o os) = (o getNoDependObj(DDSC(o,s),ls,s) os')
---     and so getNoDependObj(DDSC(o,s),ls,s) in (o os)
 :apply (getNDisOcsp)
--- 1-2-1-2-2
+-- 1-2-1-2-1
 :init as cycle-lemma2-in [cycle-lemma2]
   by {O:Object <- o;
       LS:LocalState <- ls;
