@@ -45,7 +45,6 @@ module ProofLemma {
 -->      when inv(< (CO SCO), SIM, L >) and
 -->        CO in st(started,stopped,stopped) .
 open ProofLemma .
-eq DDSCO(CO,< SCO,SIM,L >) = DDSCD(CO,SCO,SIM) .
 :goal { eq robust-lemmaC01(co,sCO,sIM,lg) = true . }
 :def tIMcsp = :csp  { 
   eq tIM = mandatory .
@@ -127,7 +126,6 @@ close
 -->      when inv(< (CO SCO), SIM, L >) and
 -->        CO in st(started,stopped,sstarted) .
 open ProofLemma .
-eq DDSCO(CO,< SCO,SIM,L >) = DDSCD(CO,SCO,SIM) .
   -- eq robust-lemmaC01(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
@@ -214,7 +212,6 @@ close
 -->      when inv(< (CO SCO), SIM, L >) and
 -->        CO in st(started,started,sstarted) .
 open ProofLemma .
-eq DDSCO(CO,< SCO,SIM,L >) = DDSCU(CO,SCO,SIM) .
 :goal { eq robust-lemmaC03(co,sCO,sIM,lg) = true . }
 :def nIMscsp = :csp  { 
   eq nIMs = unused .
@@ -282,7 +279,6 @@ close
 -->      when inv(< (CO SCO), SIM, L >) and
 -->           CO in st(stopped,sstarted,sstarted) .
 open ProofLemma .
-eq DDSCO(CO,< SCO,SIM,L >) = DDSCU(CO,SCO,SIM) .
   -- eq robust-lemmaC02(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and

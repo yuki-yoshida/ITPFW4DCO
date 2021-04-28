@@ -106,7 +106,8 @@ module PROOF {
   eq inv-noChangeSstarted(< SCO, SIM, L >) = noChangeSstarted(SCO) .
 
   ceq inv(S) = false if not wfs(S) .
-  ceq inv(S) = false if not noCOCycle(S) .
+  ceq inv(S) = false if not noCOCycleU(S) .
+  ceq inv(S) = false if not noCOCycleD(S) .
   ceq inv(S) = false if not inv-allCOin9States(S) .
   ceq inv(S) = false if not inv-allIMin14States(S) .
   ceq inv(S) = false if not inv-noChangeSstarted(S) .
@@ -209,12 +210,10 @@ module PROOF {
     = (state(CO) = CSCO and next(CO) = NSCO and target(CO) = TSCO) .
 
   -- Upward DDSC
-  op DDSCU : Component SetOfComponent SetOfImport -> SetOfComponent
-  eq DDSCU(CO,SCO,SIM)
+  eq DDSCOU(CO,< SCO,SIM,L >)
     = getECOsOfIMs(SCO,getIMsOfTypeOfICO(SIM,mandatory,CO)) .
   -- Downward DDSC
-  op DDSCD : Component SetOfComponent SetOfImport -> SetOfComponent
-  eq DDSCD(CO,SCO,SIM)
+  eq DDSCOD(CO,< SCO,SIM,L >)
     = getICOsOfIMs(SCO,getIMsOfTypeOfECO(SIM,mandatory,CO)) .
 
 --> **************************************

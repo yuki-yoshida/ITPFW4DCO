@@ -1,0 +1,49 @@
+require PROOF Proof.cafe
+
+--> **********************************************
+--> (6) (inv(S) and not final(S)) implies cont(S).
+--> **********************************************
+-- Proof of (6) (inv(S) and not final(S)) implies cont(S).
+-- Assuming 
+--   init(S) implies final(S) = false,
+--   initinv(S) is proved, and
+--   invcont(S) is prove, 
+-- then both initcont(S) and contcont(S) holds.
+
+open PROOF .
+
+  var S : State
+  var T : NDType
+  var I : NDID
+  var SetND : SetOfNode
+  var SetCP : SetOfCapability
+  var SetRQ : SetOfRequirement
+  var SetRL : SetOfRelationship
+  var M : PoolOfMsg
+
+  -- initial-cont lemma: 
+  eq cont(< (node(T, I, initial) SetND), 
+            SetCP, SetRQ, SetRL, M >) = true .
+
+  -- created-cont lemma: 
+  eq cont(< (node(T, I, created) SetND), 
+            SetCP, SetRQ, SetRL, M >) = true .
+
+--> *******************************************
+--> Step 6-1: Begin with the most general case. 
+--> *******************************************
+:goal {eq invcont(< sND, sCP, sRQ, sRL, mp >) = true .}
+--> *********************************************
+--> Step 6-2: Split the current case into cases 
+-->  where predicate final does or does not hold.
+--> *********************************************
+-- eq final(< SetND,SetCP,SetRQ,SetRL,MP >) = allNDInStates(SetND,started) .
+:def finalcsp = :csp  { 
+  eq final(< sND, sCP, sRQ, sRL, mp >) = true .
+  eq sND = (node(tnd,idND,initial) sND') .
+  eq sND = (node(tnd,idND,created) sND') .
+}
+:apply (finalcsp rd-)
+show proof
+close
+--> Totally 1 goal should be proved.

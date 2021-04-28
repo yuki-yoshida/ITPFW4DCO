@@ -1182,6 +1182,7 @@ module PRMCYCLE {
       * {sort Set -> SetOfObject,
       	 op empty -> empObj})
   [State]
+  [LocalState]
 
   op getAllObjC : State -> SetOfObject
 
@@ -1190,8 +1191,6 @@ module PRMCYCLE {
 }
 
 module CYCLEPRED(P :: PRMCYCLE) {
-
-  [LocalState]
 
   vars O X : Object
   vars V OS : SetOfObject
