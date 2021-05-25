@@ -49,6 +49,18 @@ module CYCLELEMMA {
        O in LS) implies 
       getNoDependObj(O,LS,S) in getAllObjC(S) .
 
+  -- Set Axiom
+  ceq [OinOS :nonexec]:
+      (O in OS) = true
+   if subset((O OS'),OS) .
+
+  [OLSS] op t : Object LocalState State -> OLSS {constr} .
+  pred _<wf_ : OLSS OLSS .
+
+  -- Define <wf for cycle-lemma1
+  ceq ( t(O',LS,S) <wf t(O,LS,S) ) = true
+     if O' in DDSC(O,S) .
+
   ops o o' : -> Object .
   ops os0 os os' : -> SetOfObject .
   op ls : -> LocalState .
@@ -63,22 +75,10 @@ module CYCLELEMMA {
 -->      isNoDepend(getNoDependObj(O,LS,S),LS,S) .
 open CYCLELEMMA .
 
-  -- Set Axiom
-  ceq [OinOS :nonexec]:
-      (O in OS) = true
-   if subset((O OS'),OS) .
-
-  [OLSS] op t : Object LocalState State -> OLSS {constr} .
-  pred _<wf_ : OLSS OLSS .
-
   -- Induction Hypothesis
   ceq [cycle-lemma1-IH :nonexec]:
     cycle-lemma1(O,LS,S) = true
     if t(O,LS,S) <wf t(o,ls,s) .
-
-  -- Define <wf for cycle-lemma1
-  ceq ( t(O',LS,S) <wf t(O,LS,S) ) = true
-     if O' in DDSC(O,S) .
 
 :goal { eq cycle-lemma1(o,ls,s) = true . }
 :def OinScsp = :csp {
@@ -127,22 +127,10 @@ close
 -->      getNoDependObj(O,LS,S) in getAllObjC(S) .
 open CYCLELEMMA .
 
-  -- Set Axiom
-  ceq [OinOS :nonexec]:
-      (O in OS) = true
-   if subset((O OS'),OS) .
-
-  [OLSS] op t : Object LocalState State -> OLSS {constr} .
-  pred _<wf_ : OLSS OLSS .
-
   -- Induction Hypothesis
   ceq [cycle-lemma2-IH :nonexec]:
     cycle-lemma2(O,LS,S) = true
     if t(O,LS,S) <wf t(o,ls,s) .
-
-  -- Define <wf for cycle-lemma2
-  ceq ( t(O',LS,S) <wf t(O,LS,S) ) = true
-     if O' in DDSC(O,S) .
 
 :goal { eq cycle-lemma2(o,ls,s) = true . }
 :def OinScsp = :csp {
