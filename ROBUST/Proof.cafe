@@ -106,8 +106,7 @@ module PROOF {
   eq inv-noChangeSstarted(< SCO, SIM, L >) = noChangeSstarted(SCO) .
 
   ceq inv(S) = false if not wfs(S) .
-  ceq inv(S) = false if not noCOCycleU(S) .
-  ceq inv(S) = false if not noCOCycleD(S) .
+  ceq inv(S) = false if not noCOCycle(S) .
   ceq inv(S) = false if not inv-allCOin9States(S) .
   ceq inv(S) = false if not inv-allIMin14States(S) .
   ceq inv(S) = false if not inv-noChangeSstarted(S) .
@@ -206,6 +205,9 @@ module PROOF {
       noChangeSstarted(SCO) .
 
   -- for NoCyclic Lemma
+  op DDSCOU : Component State -> SetOfComponent
+  op DDSCOD : Component State -> SetOfComponent
+
   eq (CO in st(CSCO,NSCO,TSCO))
     = (state(CO) = CSCO and next(CO) = NSCO and target(CO) = TSCO) .
 

@@ -334,8 +334,7 @@ module! STATECyclefuns {
   op getAllCO : State -> SetOfComponent
   eq getAllCO(< SetCO,SetIM,L >) = SetCO .
 
-  op DDSCOU : Component State -> SetOfComponent
-  op DDSCOD : Component State -> SetOfComponent
+  op DDSCO : Component State -> SetOfComponent
 }
 
 module! STATEfuns {
@@ -343,17 +342,9 @@ module! STATEfuns {
 	STATECyclefuns {sort Object -> Component,
 			sort SetOfObject -> SetOfComponent,
 			op empObj -> empCO,
-			op DDSC -> DDSCOU,
+			op DDSC -> DDSCO,
 			op getAllObjC -> getAllCO})
-	* {op noCycleC -> noCOCycleU})
-
-  extending(CYCLEPRED(
-	STATECyclefuns {sort Object -> Component,
-			sort SetOfObject -> SetOfComponent,
-			op empObj -> empCO,
-			op DDSC -> DDSCOD,
-			op getAllObjC -> getAllCO})
-	* {op noCycleC -> noCOCycleD})
+	* {op noCycleC -> noCOCycle})
 
   var CO : Component
   var IM : Import
@@ -529,8 +520,7 @@ module! STATEfuns {
        allIMin14States(SIM) and
        stableCOSet(SCO) and stableIMSet(SIM) and
        not final(< SCO,SIM,L >) and
-       noCOCycleU(< SCO,SIM,L >) and
-       noCOCycleD(< SCO,SIM,L >) .
+       noCOCycle(< SCO,SIM,L >) .
 
   eq final(< SCO,SIM,L >)
      = equivCOSet(SCO) and equivIMSet(SIM) .
