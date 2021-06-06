@@ -1,3 +1,6 @@
+-- the order of RSState and PRState omitted
+-- noCycle used RSState as LocalState
+-- :set(normalize-init,off/on)s are deleted
 require Template ../lib/Template.cafe
 provide DomainModel
 
@@ -14,8 +17,9 @@ provide DomainModel
 module! RESOURCE {
   -- Sorts
   [Resource RSID RSType RSState]
-  -- Constructor
-  -- res(RSType, RSID, RSState) is a Resource.
+  -- Constructor of Resource
+  -- res(RSType, RSID, RSState) is a Resource where the type is RSType,
+  --    the identifier is RSID, and the local state ist RSState
   op res : RSType RSID RSState -> Resource {constr}
 
   -- Selectors
@@ -29,7 +33,7 @@ module! RESOURCE {
   eq type(res(TRS,IDRS,SRS)) = TRS .
   eq state(res(TRS,IDRS,SRS)) = SRS .
 }
-  
+ 
 module! RESOURCEfuns {
   -- Instantiation of Template
   extending(OBJECTBASE(
@@ -62,8 +66,10 @@ module! PROPERTY {
   protecting(RESOURCE)
   -- Sorts
   [Property PRID PRType PRState]
-  -- Constructor
-  -- prop(PRType, PRID, PRState, RSID, RSID) is a Property of a Resource.
+  -- Constructor of Property
+  -- prop(PRType, PRID, PRState, RSID, RRSID) is a Property of a Resource
+  -- where the type is PRType, the identifier is PRID, the local state is PRState,
+  -- the parent Resourece is RSID, and the referer Resourece is RRSID.
   op prop : PRType PRID PRState RSID RSID -> Property {constr}
 
   -- Selectors
@@ -111,6 +117,7 @@ module! PROPERTYfuns {
   -- Local States
   ops notready ready : -> PRStateLt {constr}
   eq (notready > ready) = true .
+
 }
 
 module! LINKS {
@@ -202,6 +209,7 @@ module! LINKS {
 module! STATE {
   protecting(STATEBASE)
   protecting(LINKS)
+  -- A State consists of a set of Resources and a set of Properties.
   op <_,_> : SetOfResource SetOfProperty -> State {constr}
 }
 
@@ -223,23 +231,25 @@ module! STATECyclefuns {
 }
 
 module! STATEfuns {
-  protecting(STATE)
+  extending(CYCLEPRED(
+  	STATECyclefuns {sort Object -> Resource,
+  	       		sort SetOfObject -> SetOfResource,
+			sort LocalState -> RSState,
+			op DDSC -> DDSRS,
+  	       		op empObj -> empRS,
+  	       		op getAllObjC -> getAllRSInState})
+  	* {op noCycleC -> noRSCycle}
+  	)
 
   var SetRS : SetOfResource
   var SetPR : SetOfProperty
   var S : State
 
-  extending(CYCLEPRED(
-  	STATECyclefuns {sort Object -> Resource,
-  	       		sort SetOfObject -> SetOfResource,
-			sort ObjState -> RSState,
-			sort SetOfObjState -> SetOfRSState,
-			op DDSC -> DDSRS,
-  	       		op empObj -> empRS,
-			op someObjInStates -> someRSInStates,
-  	       		op getAllObjInState -> getAllRSInState})
-  	* {op noCycleC -> noRSCycle}
-  	)
+  var TRS : RSType
+  var IDRS : RSID
+  vars SRS SRS' : RSState
+
+  eq (res(TRS,IDRS,SRS) in SRS') = (SRS = SRS') .
 
   pred wfs-atLeastOneRS : State
   eq wfs-atLeastOneRS(< SetRS,SetPR >) = not (SetRS = empRS) .

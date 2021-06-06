@@ -76,13 +76,11 @@ open PROOF .
 --> Step 1-7: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
 -- The Cyclic Dependency Lemma rejects this case.
-:set(normalize-init,on)
-:init [noCycle] by {
-  O:Resource <- res(trs,idRS,initial);
-  S:State <- < sRS, sPR >;
-  SS:SetOfRSState <- initial;
-}
-:set(normalize-init,off)
+:init as noCycleLemma-in [noCycleLemma]
+  by {O:Resource <- res(trs,idRS,initial);
+      X:Resource <- res(trs,idRS,initial);
+      S:State <- < sRS, sPR >;
+      LS:RSState <- initial; }
 :apply (rd-)
 show proof
 

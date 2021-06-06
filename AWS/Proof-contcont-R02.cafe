@@ -97,14 +97,12 @@ select PROOF .
 --> Step 2-9: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
 -- The Cyclic Dependency Lemma rejects this case.
-:set(normalize-init,on)
-:init [noCycle] by {
-  O:Resource <- res(trs'',idRS1,initial);
-  S:State <- < (res(trs, idRRS, started) sRS),
-               (prop(tpr,idPR,notready,idRS,idRRS) sPR) >;
-  SS:SetOfRSState <- initial;
-}
-:set(normalize-init,off)
+:init as noCycleLemma-in [noCycleLemma]
+  by {O:Resource <- res(trs'',idRS1,initial);
+      X:Resource <- res(trs'',idRS1,initial);
+      S:State <- < (res(trs, idRRS, started) sRS),
+                   (prop(tpr,idPR,notready,idRS,idRRS) sPR) >;
+      LS:RSState <- initial; }
 :apply (rd-)
 -- When idRS' and idRS are not the same:
 --> *********************************************************************
@@ -146,14 +144,12 @@ select PROOF .
 --> Step 2-9: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
 -- The Cyclic Dependency Lemma rejects this case.
-:set(normalize-init,on)
-:init [noCycle] by {
-  O:Resource <- res(trs'',idRS1,initial);
-  S:State <- < (res(trs, idRRS, started) sRS),
-               (prop(tpr,idPR,notready,idRS,idRRS) sPR) >;
-  SS:SetOfRSState <- initial;
-}
-:set(normalize-init,off)
+:init as noCycleLemma-in [noCycleLemma]
+  by {O:Resource <- res(trs'',idRS1,initial);
+      X:Resource <- res(trs'',idRS1,initial);
+      S:State <- < (res(trs, idRRS, started) sRS),
+                   (prop(tpr,idPR,notready,idRS,idRRS) sPR) >;
+      LS:RSState <- initial; }
 :apply (rd-)
 show proof
 

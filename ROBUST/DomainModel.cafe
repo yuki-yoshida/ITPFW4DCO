@@ -80,7 +80,8 @@ module! IMPORT {
   [Import IMID IMType IMState]
 
   -- Constructor of Import
-  -- imp(Type, ID, IID, EID, CState, NState, TState) is an Import where the identifier is ID,
+  -- imp(IMType, ID, IID, EID, CState, NState, TState) is an Import
+  --    where the type is IMType, the identifier is ID,
   --    the importer Component is IID, the exporter Component is EID,
   --    the current local state is CState, the next local state is NState, and
   --    the target local state is TState
@@ -316,9 +317,7 @@ module! STATE {
       	 op empty -> empLog})
 
   -- A State consists of
-  --  a set of current Components and a set of current Imports,
-  --  a set of target Components and a set of target Imports,
-  --  and a list of logs
+  --  a set of Components, a set of Imports, and a list of logs
   op <_,_,_> : SetOfComponent SetOfImport ListOfLog -> State {constr}
 }
 

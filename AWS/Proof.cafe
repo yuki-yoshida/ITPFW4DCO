@@ -10,13 +10,6 @@ module PROOF {
   var SetPR : SetOfProperty
   vars S SS : State
 
-  -- The invariant should be defined as the conjunction of all inv-* and all wfs-*.
-  -- But this definition causes costly computations.
-
-  pred inv-ifRSStartedThenPRReady : State
-  eq inv-ifRSStartedThenPRReady(< SetRS,SetPR >)
-     = ifRSInStatesThenPRInStates(SetRS,started,SetPR,ready) .
-
 --> **********************
 --> Step 0-3: Define m(S).
 --> **********************
@@ -26,6 +19,13 @@ module PROOF {
 --> ************************
 --> Step 0-4: Define inv(S).
 --> ************************
+  -- The invariant should be defined as the conjunction of all inv-* and all wfs-*.
+  -- But this definition causes costly computations.
+
+  pred inv-ifRSStartedThenPRReady : State
+  eq inv-ifRSStartedThenPRReady(< SetRS,SetPR >)
+     = ifRSInStatesThenPRInStates(SetRS,started,SetPR,ready) .
+
   -- wfs-*:
   ceq wfs(S) = false if not wfs-atLeastOneRS(S) .
   ceq wfs(S) = false if not wfs-allPRHaveRS(S) .

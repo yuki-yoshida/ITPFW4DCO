@@ -83,12 +83,10 @@ select PROOF .
 :apply (ctf2-7idRRSb rd-)
 -- When at least one of properties of the resource idRS' is not-ready.
 -- Because sPR is redefined, allPROfRSInStates(sPR,idRS,ready) should be claimed again.
-:set(normalize-init,on)
 :init ( ceq B1:Bool = true if not B2:Bool . ) by {
   B1:Bool <- allPROfRSInStates(sPR,idRS,ready) ;
   B2:Bool <- allPROfRSInStates(sPR,idRS,ready) == true ;
 }
-:set(normalize-init,off)
 --> ***************************************************************
 --> Step 2-8: When there is a dangling link, split the current case
 -->  into cases where the linked object does or does not exist.
@@ -108,13 +106,11 @@ select PROOF .
 --> Step 2-9: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
 -- The Cyclic Dependency Lemma rejects this case.
-:set(normalize-init,on)
-:init [noCycle] by {
-  O:Resource <- res(trs',idRS',initial);
-  S:State <- < (res(trs,idRS,initial) sRS), sPR >;
-  SS:SetOfRSState <- initial;
-}
-:set(normalize-init,off)
+:init as noCycleLemma-in [noCycleLemma]
+  by {O:Resource <- res(trs',idRS',initial);
+      X:Resource <- res(trs',idRS',initial);
+      S:State <- < (res(trs,idRS,initial) sRS), sPR >;
+      LS:RSState <- initial; }
 :apply (rd-)
 show proof
 
