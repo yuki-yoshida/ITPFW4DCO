@@ -28,4 +28,3 @@ module ProofContCont {
 	    SetCP, SetRQ, SetRL, M >)
      = true .
 }
---> Totally 12 goals should be proved.

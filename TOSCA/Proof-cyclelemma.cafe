@@ -29,9 +29,9 @@ select ProofInitialCont .
 --> Proof of the initialcont lemma
 --> When there is an initial node in state S
 --> Cyclic Dependency Theorem ensures there is an initial node N
---> where DDSC(N,S) does not include any initial nodes.
+--> where DDSND(N,S) does not include any initial nodes.
 --> So, we can assume that S = < (node(tnd, idND, initial) sND), sCP, sRQ, sRL, mp >
---> and someNDInStates(DDSC(node(tnd, idND, initial),S),initial) = false .
+--> and someNDInStates(DDSND(node(tnd, idND, initial),S),initial) = false .
 --> *******************************************
 --> Step 1-1: Begin with the most general case. 
 --> *******************************************
@@ -147,13 +147,11 @@ select ProofInitialCont .
 --> Step 1-7: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
 -- The Cyclic Dependency Lemma rejects this case.
-:set(normalize-init,on)
-:init [noCycle] by {
-  O:Node <- node(tnd,idND,initial);
-  SS:SetOfNDState <- initial;
-  S:State  <- < sND , sCP , sRQ , sRL , mp >;
-}
-:set(normalize-init,off)
+:init as noCycleLemma-in [noCycleLemma]
+  by {O:Node <- node(tnd,idND,initial);
+      X:Node <- node(tnd,idND,initial);
+      S:State  <- < sND , sCP , sRQ , sRL , mp >;
+      LS:NDState <- initial; }
 :apply (rd-)
 show proof
 select
@@ -165,7 +163,7 @@ select
 --> Step 1-0: Define a predicate to be proved.
 --> ******************************************
 module ProofCreatedCont {
-  protecting(ProofBase)
+  protecting(PROOF)
 
   var T : NDType
   var I : NDID
@@ -195,9 +193,9 @@ select ProofCreatedCont .
 --> Proof of the createdcont lemma
 --> When there is a created node in state S
 --> Cyclic Dependency Theorem ensures there is a created node N
---> where DDSC(N,S) does not include any created nodes.
+--> where DDSND(N,S) does not include any created nodes.
 --> So, we can assume that S = < (node(tnd, idND, created) sND), sCP, sRQ, sRL, mp >
---> and someNDInStates(DDSC(node(tnd, idND, created),S),created) = false .
+--> and someNDInStates(DDSND(node(tnd, idND, created),S),created) = false .
 --> *******************************************
 --> Step 1-1: Begin with the most general case. 
 --> *******************************************
@@ -415,13 +413,11 @@ select ProofCreatedCont .
 --> ******************************************************************************
 --> Step 1-7: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
-:set(normalize-init,on)
-:init [noCycle] by {
-  O:Node <- node(tnd,idND,created);
-  SS:SetOfNDState <- created;
-  S:State  <- < sND , sCP , sRQ , sRL , mp >;
-}
-:set(normalize-init,off)
+:init as noCycleLemma-in [noCycleLemma]
+  by {O:Node <- node(tnd,idND,created);
+      X:Node <- node(tnd,idND,created);
+      S:State  <- < sND , sCP , sRQ , sRL , mp >;
+      LS:NDState <- created; }
 :apply (rd-)
 -- When the type of the requirement of idRQ is connectsTo:
 --> *************************************************************************************
@@ -469,13 +465,11 @@ select ProofCreatedCont .
 --> ******************************************************************************
 --> Step 1-7: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
-:set(normalize-init,on)
-:init [noCycle] by {
-  O:Node <- node(tnd,idND,created);
-  SS:SetOfNDState <- created;
-  S:State  <- < sND , sCP , sRQ , sRL , mp >;
-}
-:set(normalize-init,off)
+:init as noCycleLemma-in [noCycleLemma]
+  by {O:Node <- node(tnd,idND,created);
+      X:Node <- node(tnd,idND,created);
+      S:State  <- < sND , sCP , sRQ , sRL , mp >;
+      LS:NDState <- created; }
 :apply (rd-)
 show proof
 select

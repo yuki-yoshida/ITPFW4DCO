@@ -1,6 +1,3 @@
--- the order of RSState and PRState omitted
--- noCycle used RSState as LocalState
--- :set(normalize-init,off/on)s are deleted
 require Template ../lib/Template.cafe
 provide DomainModel
 
@@ -248,8 +245,6 @@ module! STATEfuns {
   var TRS : RSType
   var IDRS : RSID
   vars SRS SRS' : RSState
-
-  eq (res(TRS,IDRS,SRS) in SRS') = (SRS = SRS') .
 
   pred wfs-atLeastOneRS : State
   eq wfs-atLeastOneRS(< SetRS,SetPR >) = not (SetRS = empRS) .

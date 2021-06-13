@@ -285,7 +285,7 @@ module TOSCALEMMA+03 {
 select TOSCALEMMA
 :goal { eq tosca-lemma01(idRQ,idCP,idCP',sRQ,sRL) = true .}
 :def ctfidCP' = :ctf {
-  eq (idCP' = idCP) = true .
+  eq idCP' = idCP .
 }  
 :def cspidCP = :csp { 
   eq existCP(sRL,idCP) = false .
@@ -298,6 +298,7 @@ select TOSCALEMMA
 }
 :apply (cspidCP' rd-)
 show proof
+select
 
 --> *********************************************************************************************
 --> Proof of tosca-lemma02.
@@ -367,6 +368,8 @@ show proof
 }
 :apply (ctfidRQ' rd-)
 show proof
+select
+
 --> Proof of tosca-lemma03.
 --> *******************************************************************************
 -->  eq tosca-lemma03(SetRL,TRL,IDCP,SCP,IDND,SetCP,SetRQ)
@@ -389,6 +392,7 @@ show proof
 }
 :apply (ctfidCP' rd-)
 show proof
+select
 
 --> Proof of tosca-lemma04.
 --> ***************************************************************************************************
@@ -411,6 +415,7 @@ show proof
 }
 :apply (ctfidCP' rd-)
 show proof
+select
 
 --> Proof of tosca-lemma05.
 --> ***************************************************************************************************
@@ -433,6 +438,7 @@ show proof
 }
 :apply (ctfidCP' rd-)
 show proof
+select
 
 --> Proof of tosca-lemma06.
 --> **************************************************************************
@@ -458,7 +464,10 @@ show proof
 :def ctftrl = :ctf {
   eq trl = connectsTo .
 }
-:apply (ctftrl rd-)
+:def ctfidCP' = :ctf {
+  eq idCP' = idCP .
+}
+:apply (ctfidCP' ctftrl rd-)
 :def ctfscp = :ctf {
   eq (scp in stCP) = true .
 }
@@ -467,15 +476,12 @@ show proof
   eq req(getRLOfCP(sRL,idCP)) = idRQ .
 }
 :apply (ctfidRQ rd-)
-:def ctfidCP' = :ctf {
-  eq idCP' = idCP .
-}
-:apply (ctfidCP' rd-)
 :def ctfidRQ' = :ctf {
   eq req(getRLOfCP(sRL,idCP')) = idRQ .
 }
 :apply (ctfidRQ' rd-)
 show proof
+select
 
 --> Proof of tosca-lemma07.
 --> *****************************************************************************
@@ -550,6 +556,7 @@ show proof
 }
 :apply (ctftrl'' ctfidRQ' rd-)
 show proof
+select
 
 --> Proof of tosca-lemma08.
 --> **************************************************************************
@@ -585,6 +592,7 @@ show proof
 }
 :apply (ctfidCP' rd-)
 show proof
+select
 
 --> Proof of tosca-lemma09.
 --> *******************************************************************************************
@@ -616,6 +624,7 @@ show proof
 }
 :apply (ctfscp' rd-)
 show proof
+select
 
 --> Proof of tosca-lemma10.
 --> ********************************************************************************************************
@@ -638,6 +647,7 @@ show proof
 }
 :apply (ctftrl rd-)
 show proof
+select
 
 --> Proof of tosca-lemma11.
 --> ********************************************************************************************************
@@ -655,15 +665,15 @@ show proof
   eq (tosca-lemma11(sCP,scp,sRQ,srq,sRL,mp,idCP) implies
       tosca-lemma11((cap(trl,idCP',scp,idND') sCP),scp,sRQ,srq,sRL,mp,idCP)) = true .
 }  
+:def ctfidCP' = :ctf {
+  eq idCP' = idCP .
+}  
 :def ctftrl = :ctf {
   eq trl = connectsTo .
 }
-:apply (ctftrl rd-)
-:def ctfidCP' = :ctf {
-  eq idCP' = idCP .
-}
-:apply (ctfidCP' rd-)
+:apply (ctfidCP' ctftrl rd-)
 show proof
+select
 
 --> Proof of tosca-lemma12.
 --> **************************************************************************
@@ -695,6 +705,7 @@ show proof
 }
 :apply (ctfidRQ rd-)
 show proof
+select
 
 --> Proof of tosca-lemma13.
 --> *****************************************************************************
@@ -764,6 +775,7 @@ show proof
 }
 :apply (ctftrl'' ctfidRQ' rd-)
 show proof
+select
 
 --> Proof of tosca-lemma14.
 --> ************************************************************************************************
@@ -787,6 +799,7 @@ show proof
 }
 :apply (ctfscp rd-)
 show proof
+select
 
 --> Proof of tosca-lemma15.
 --> **************************************************************************
@@ -815,7 +828,10 @@ show proof
 :def ctftrl = :ctf {
   eq trl = connectsTo .
 }
-:apply (ctftrl rd-)
+:def ctfidCP' = :ctf {
+  eq idCP' = idCP .
+}
+:apply (ctfidCP' ctftrl rd-)
 :def ctfscp = :ctf {
   eq (scp in stCP) = true .
 }
@@ -824,15 +840,12 @@ show proof
   eq req(getRLOfCP(sRL,idCP)) = idRQ .
 }
 :apply (ctfidRQ rd-)
-:def ctfidCP' = :ctf {
-  eq idCP' = idCP .
-}
-:apply (ctfidCP' rd-)
 :def ctfidRQ' = :ctf {
   eq req(getRLOfCP(sRL,idCP')) = idRQ .
 }
 :apply (ctfidRQ' rd-)
 show proof
+select
 
 --> Proof of tosca-lemma16.
 --> ******************************************************************************
@@ -855,12 +868,12 @@ show proof
   eq msg = opMsg(idCP') .
   eq msg = avMsg(idCP') .
 }
-:apply (cspmsg rd-)
 :def ctfidCP' = :ctf {
   eq idCP' = idCP .
 }
-:apply (ctfidCP' rd-)
+:apply (ctfidCP' cspmsg rd-)
 show proof
+select
 
 --> Proof of tosca-lemma17.
 --> ******************************************************************************
@@ -883,12 +896,12 @@ show proof
   eq msg = opMsg(idCP') .
   eq msg = avMsg(idCP') .
 }
-:apply (cspmsg rd-)
 :def ctfidCP' = :ctf {
   eq idCP' = idCP .
 }
-:apply (ctfidCP' rd-)
+:apply (ctfidCP' cspmsg rd-)
 show proof
+select
 
 --> Proof of tosca-lemma18.
 --> ***********************************************************************************
@@ -916,6 +929,7 @@ show proof
 }
 :apply (cspmsg ctfidCP' rd-)
 show proof
+select
 
 --> Proof of tosca-lemma19.
 --> ***********************************************************************************
@@ -943,6 +957,7 @@ show proof
 }
 :apply (cspmsg ctfidCP' rd-)
 show proof
+select
 
 --> Proof of tosca-lemma20.
 --> ***************************************************************************************
@@ -1011,6 +1026,7 @@ show proof
 }
 :apply (ctfidRQ' rd-)
 show proof
+select
 
 --> Proof of tosca-lemma21.
 --> ***************************************************************************
@@ -1038,6 +1054,7 @@ show proof
 }
 :apply (ctfidRQ rd-)
 show proof
+select
 
 --> Proof of tosca-lemma22.
 --> ***************************************************************************
@@ -1069,6 +1086,7 @@ show proof
 }
 :apply (ctfidRQ rd-)
 show proof
+select
 
 --> Proof of tosca-lemma23.
 --> *********************************************************************
@@ -1107,5 +1125,5 @@ show proof
 }  
 :apply (ctfsrq' rd-)
 show proof
-
+select
 --> Totally 45 goals should be proved.

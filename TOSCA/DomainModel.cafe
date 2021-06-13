@@ -447,8 +447,8 @@ module! STATECyclefuns {
   op getAllNDInState : State -> SetOfNode
   eq getAllNDInState(< SetND,SetCP,SetRQ,SetRL,MP >) = SetND .
 
-  op DDSC : Node State -> SetOfNode
-  eq DDSC(ND,< SetND,SetCP,SetRQ,SetRL,MP >)
+  op DDSND : Node State -> SetOfNode
+  eq DDSND(ND,< SetND,SetCP,SetRQ,SetRL,MP >)
     = getNDsOfCPs(SetND,
                   getCPsOfRLs(SetCP,
      		              getRLsOfRQs(SetRL,
@@ -461,11 +461,10 @@ module! STATEfuns {
   extending(CYCLEPRED(
 	STATECyclefuns {sort Object -> Node,
 	       		sort SetOfObject -> SetOfNode,
-			sort ObjState -> NDState,
-			sort SetOfObjState -> SetOfNDState,
+			sort LocalState -> NDState,
+			op DDSC -> DDSND,
 	       		op empObj -> empND,
-			op someObjInStates -> someNDInStates,
-	       		op getAllObjInState -> getAllNDInState})
+	       		op getAllObjC -> getAllNDInState})
 	* {op noCycleC -> noNDCycle}
 	)
 

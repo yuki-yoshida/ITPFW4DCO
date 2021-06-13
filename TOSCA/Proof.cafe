@@ -18,6 +18,18 @@ module PROOF {
   var MP : PoolOfMsg
   var S : State
 
+--> **********************
+--> Step 0-3: Define m(S).
+--> **********************
+  eq m(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = (( (#NodeInStates(initial,SetND)        * 2) + #NodeInStates(created,SetND))
+     +  ( (#CapabilityInStates(closed,SetCP)   * 2) + #CapabilityInStates(open,SetCP)))
+     +  ( (#RequirementInStates(unbound,SetRQ) * 2) + #RequirementInStates(waiting,SetRQ)) .
+
+
+--> *************************
+--> Step 0-4: Define inv(S).
+--> *************************
   -- The invariant should be defined as the conjunction of all inv-* and all wfs-*.
   -- But this definition causes costly computations.
 
@@ -61,18 +73,6 @@ module PROOF {
   eq inv-ifAvailableMsgThenCPAvailable(< SetND,SetCP,SetRQ,SetRL,MP >)
      = ifAvailableMsgThenCPInStates(MP,SetCP,available) .
 
---> **********************
---> Step 0-3: Define m(S).
---> **********************
-  eq m(< SetND,SetCP,SetRQ,SetRL,MP >)
-     = (( (#NodeInStates(initial,SetND)        * 2) + #NodeInStates(created,SetND))
-     +  ( (#CapabilityInStates(closed,SetCP)   * 2) + #CapabilityInStates(open,SetCP)))
-     +  ( (#RequirementInStates(unbound,SetRQ) * 2) + #RequirementInStates(waiting,SetRQ)) .
-
-
---> *************************
---> Step 0-4: Define inv(S).
---> *************************
   -- wfs-*:
   ceq wfs(S) = false if not wfs-uniqND(S) .
   ceq wfs(S) = false if not wfs-uniqCP(S) .
@@ -109,6 +109,11 @@ module PROOF {
   -- Problem specific invariants for proving other invariants.
   ceq inv(S) = false if not inv-ifOpenMsgThenCPActivated(S) .
   ceq inv(S) = false if not inv-ifAvailableMsgThenCPAvailable(S).
+
+  -- for NoCyclic Lemma
+  var ND : Node
+  var SND : NDState
+  eq (ND in SND) = (state(ND) = SND) .
 
 --> **************************************
 --> Step 0-5: Prepare arbitrary constants.
