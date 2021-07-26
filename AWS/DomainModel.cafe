@@ -1,25 +1,8 @@
 require Template ../lib/Template.cafe
 provide DomainModel
-
--- An abstract model for AWS CloudFormation
-
--- There are two kinds of objects:
--- Resource(RS): a resource of which a cloud system composes.
--- Property(PR): a property of a resource.
-
--- There are typical types of resources, 
---   EC2(Elastic Compute), EIP(Elastic IP), ...
--- There are typical types of properties.
-
 module! RESOURCE {
-  -- Sorts
   [Resource RSID RSType RSState]
-  -- Constructor of Resource
-  -- res(RSType, RSID, RSState) is a Resource where the type is RSType,
-  --    the identifier is RSID, and the local state ist RSState
   op res : RSType RSID RSState -> Resource {constr}
-
-  -- Selectors
   op id : Resource -> RSID
   op type : Resource -> RSType
   op state : Resource -> RSState
@@ -30,9 +13,7 @@ module! RESOURCE {
   eq type(res(TRS,IDRS,SRS)) = TRS .
   eq state(res(TRS,IDRS,SRS)) = SRS .
 }
- 
 module! RESOURCEfuns {
-  -- Instantiation of Template
   extending(OBJECTBASE(
 	RESOURCE {sort Object -> Resource,
 		  sort ObjID -> RSID,
@@ -53,23 +34,13 @@ module! RESOURCEfuns {
 	   op allObjInStates -> allRSInStates,
 	   op allObjNotInStates -> allRSNotInStates,
 	   op someObjInStates -> someRSInStates})
-
-  -- Local States
   ops initial started : -> RSStateLt {constr}
   eq (initial > started) = true .
 }
-
 module! PROPERTY {
   protecting(RESOURCE)
-  -- Sorts
   [Property PRID PRType PRState]
-  -- Constructor of Property
-  -- prop(PRType, PRID, PRState, RSID, RRSID) is a Property of a Resource
-  -- where the type is PRType, the identifier is PRID, the local state is PRState,
-  -- the parent Resourece is RSID, and the referer Resourece is RRSID.
   op prop : PRType PRID PRState RSID RSID -> Property {constr}
-
-  -- Selectors
   op id : Property -> PRID
   op type : Property -> PRType
   op state : Property -> PRState
@@ -85,11 +56,8 @@ module! PROPERTY {
   eq parent(prop(TPR,IDPR,SPR,IDRS1,IDRS2)) = IDRS1 .
   eq refer(prop(TPR,IDPR,SPR,IDRS1,IDRS2)) = IDRS2 .
 }
-
 module! PROPERTYfuns {
   protecting(RESOURCEfuns)
-
-  -- Instantiation of Template
   extending(OBJECTBASE(
 	PROPERTY {sort Object -> Property,
 		  sort ObjID -> PRID,
@@ -110,13 +78,9 @@ module! PROPERTYfuns {
 	   op allObjInStates -> allPRInStates,
 	   op allObjNotInStates -> allPRNotInStates,
 	   op someObjInStates -> somePRInStates})
-
-  -- Local States
   ops notready ready : -> PRStateLt {constr}
   eq (notready > ready) = true .
-
 }
-
 module! LINKS {
   extending(OBJLINKMANY2ONE(
 	PROPERTYfuns {sort Object -> Property,
@@ -159,7 +123,6 @@ module! LINKS {
 	   op ifOfXThenInStates -> ifOfRSThenInStates,
 	   op ifXInStatesThenZInStates -> ifRSInStatesThenPRInStates}
 	)
-
   extending(OBJLINKMANY2ONE(
 	PROPERTYfuns {sort Object -> Property,
 		      sort ObjID -> PRID,
@@ -202,31 +165,24 @@ module! LINKS {
   	   op ifXInStatesThenZInStates -> ifRRSInStatesThenPRInStates}
   	)
 }
-
 module! STATE {
   protecting(STATEBASE)
   protecting(LINKS)
-  -- A State consists of a set of Resources and a set of Properties.
   op <_,_> : SetOfResource SetOfProperty -> State {constr}
 }
-
 module! STATECyclefuns {
   protecting(STATE)
-
   var RS : Resource
   var SetRS : SetOfResource
   var SetPR : SetOfProperty
-
   op getAllRSInState : State -> SetOfResource
   eq getAllRSInState(< SetRS,SetPR >) = SetRS .
-
   op DDSRS : Resource State -> SetOfResource
   eq DDSRS(RS,< SetRS,SetPR >)
     = if state(RS) = initial then
          getRRSsOfPRsInStates(SetRS,getPRsOfRSInStates(SetPR,RS,notready),initial)
       else empRS fi .
 }
-
 module! STATEfuns {
   extending(CYCLEPRED(
   	STATECyclefuns {sort Object -> Resource,
@@ -237,15 +193,12 @@ module! STATEfuns {
   	       		op getAllObjC -> getAllRSInState})
   	* {op noCycleC -> noRSCycle}
   	)
-
   var SetRS : SetOfResource
   var SetPR : SetOfProperty
   var S : State
-
   var TRS : RSType
   var IDRS : RSID
   vars SRS SRS' : RSState
-
   pred wfs-atLeastOneRS : State
   eq wfs-atLeastOneRS(< SetRS,SetPR >) = not (SetRS = empRS) .
   pred wfs-uniqRS : State
@@ -256,45 +209,30 @@ module! STATEfuns {
   eq wfs-allPRHaveRS(< SetRS,SetPR >) = allPRHaveRS(SetPR,SetRS) .
   pred wfs-allPRHaveRRS : State
   eq wfs-allPRHaveRRS(< SetRS,SetPR >) = allPRHaveRRS(SetPR,SetRS) .
-  
---> **************************************
---> Step 0-1: Define init(S) and final(S).
---> **************************************
-  -- wfs is a conjunction of invariants which are intentionally imposed by the init condition.
-  -- Since too long wfs causes a large evalutaion cost, define wfs minimally for each use case.
   eq [:nonexec]: wfs(S)
      = wfs-atLeastOneRS(S) and
        wfs-uniqRS(S) and wfs-uniqPR(S) and 
        wfs-allPRHaveRS(S) and wfs-allPRHaveRRS(S) .
-
   eq init(< SetRS,SetPR >)
      = wfs(< SetRS,SetPR >) and
        noRSCycle(< SetRS,SetPR >) and
        allRSInStates(SetRS,initial) and 
        allPRInStates(SetPR,notready) .
-
   eq final(< SetRS,SetPR >)
      = allRSInStates(SetRS,started) .
 }
-
 module! STATERules {
   protecting(STATEfuns)
-
-  -- Variables
   vars IDRS IDRRS : RSID 
   var IDPR : PRID
   var TRS : RSType
   var TPR : PRType
   var SetRS : SetOfResource
   var SetPR : SetOfProperty
-
-  -- Start an initial resource if all of its properties are ready.
   ctrans [R01]:
      < (res(TRS,IDRS,initial) SetRS), SetPR >
   => < (res(TRS,IDRS,started) SetRS), SetPR > 
      if allPROfRSInStates(SetPR,IDRS,ready) .
-
-  -- Let a not-ready property be ready if its referring resource is started.
   trans [R02]:
      < (res(TRS,IDRRS,started) SetRS), 
        (prop(TPR,IDPR,notready,IDRS,IDRRS) SetPR) >

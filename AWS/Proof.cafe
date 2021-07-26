@@ -43,7 +43,7 @@ module PROOF {
 --> **************************************
 --> Step 0-5: Prepare arbitrary constants.
 --> **************************************
-  ops idRS idRS' : -> RSIDLt
+  ops idRS idRS' idRS1 : -> RSIDLt
   ops idRRS idRRS' : -> RSIDLt
   ops idPR idPR' : -> PRIDLt
   ops sRS sRS' sRS'' sRS''' : -> SetOfResource
@@ -55,10 +55,6 @@ module PROOF {
   op stRS : -> SetOfRSState
   op stPR : -> SetOfPRState
   op x : -> Resource
-
-  -- idRS1 is a RSID different from idRS.
-  op idRS1 : -> RSID
-  eq (idRS1 = idRS) = false .
 }
 
 -- *************************************************************************
