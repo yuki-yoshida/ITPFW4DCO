@@ -109,7 +109,7 @@ select PROOF .
 :init as noCycleLemma-in [noCycleLemma]
   by {O:Resource <- res(trs',idRS',initial);
       X:Resource <- res(trs',idRS',initial);
-      S:State <- < (res(trs,idRS,initial) sRS), sPR >;
+      S:State <- (< (res(trs,idRS,initial) sRS), sPR >);
       LS:RSState <- initial; }
 :apply (rd-)
 show proof

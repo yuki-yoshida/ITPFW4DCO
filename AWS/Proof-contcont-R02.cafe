@@ -100,8 +100,8 @@ select PROOF .
 :init as noCycleLemma-in [noCycleLemma]
   by {O:Resource <- res(trs'',idRS1,initial);
       X:Resource <- res(trs'',idRS1,initial);
-      S:State <- < (res(trs, idRRS, started) sRS),
-                   (prop(tpr,idPR,notready,idRS,idRRS) sPR) >;
+      S:State <- (< (res(trs, idRRS, started) sRS),
+                    (prop(tpr,idPR,notready,idRS,idRRS) sPR) >);
       LS:RSState <- initial; }
 :apply (rd-)
 -- When idRS' and idRS are not the same:
@@ -147,8 +147,8 @@ select PROOF .
 :init as noCycleLemma-in [noCycleLemma]
   by {O:Resource <- res(trs'',idRS1,initial);
       X:Resource <- res(trs'',idRS1,initial);
-      S:State <- < (res(trs, idRRS, started) sRS),
-                   (prop(tpr,idPR,notready,idRS,idRRS) sPR) >;
+      S:State <- (< (res(trs, idRRS, started) sRS),
+                    (prop(tpr,idPR,notready,idRS,idRRS) sPR) >);
       LS:RSState <- initial; }
 :apply (rd-)
 show proof
