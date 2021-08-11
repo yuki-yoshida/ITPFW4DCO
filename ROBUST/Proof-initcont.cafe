@@ -34,7 +34,7 @@ open PROOF .
   eq nCOs = started .
   eq nCOs = sstarted .
 }
-:def tCOs = :csp  { 
+:def tCOscsp = :csp  { 
   eq tCOs = stopped .
   eq tCOs = started .
   eq tCOs = sstarted .
@@ -74,41 +74,48 @@ open PROOF .
 -- Case 1: final(S) = true implies init(S) = false.
 -- Case 2: equivCOSet(sCO) = false means that
 --          at least one component whose state is not target.
--- :init eq equivCOSet(sCO) = false .
-:init (ceq true = false
+:apply (empCOcsp)
+-- Case 2-1: equivCOSet(empCO) = true .
+:def empCOinit = :init (ceq true = false
 	if equivCOSet(SCO:SetOfComponent) . ) by {
   SCO:SetOfComponent <- sCO;
 }
-:apply (empCOcsp rd-)
--- Case 2-1: equivCOSet(empCO) = true .
+:apply (empCOinit rd-)
 -- Case 2-2:
-:init (ceq true = false
+:apply (cCOscsp nCOscsp tCOscsp rd-)
+-- When not (cCOs = nCOs), it is discharged by init(S) imples stableCOSet(sCO) . 
+-- Case 2-2-2-2-3: it is discharged by robust-lemmaC03 .
+-- When (cCOs = tCOs), 
+-- Case 2-2-1-1-1: it is discharged by :init eq (cCOs = tCOs) = false .
+:def ctCOsinit = :init (ceq true = false
 	if CCOS:COState = TCOS:COState . ) by {
   CCOS:COState <- cCOs;
   TCOS:COState <- tCOs;
 }
-:apply (cCOscsp nCOscsp tCOs rd-)
--- When not (cCOs = nCOs), it is discharged by init(S) imples stableCOSet(sCO) . 
--- When (cCOs = tCOs), it is discharged by :init eq (cCOs = tCOs) = false .
--- Case 2-2-2-2-3: it is discharged by robust-lemmaC03 .
+:apply(ctCOsinit rd-)
+-- Case 2-2-3-3-3: it is discharged by :init eq (cCOs = tCOs) = false .
+:apply(ctCOsinit rd-)
 -- Case 3: equivIMSet(sIM) = false means that
 --          at least one import whose state is not target.
--- :init eq equivIMSet(sIM) = false .
-:init (ceq true = false
+:apply (empIMcsp)
+-- Case 3-1: equivIMSet(empIM) = true .
+:def empIMinit = :init (ceq true = false
 	if equivIMSet(SIM:SetOfImport) . ) by {
   SIM:SetOfImport <- sIM;
 }
-:apply (empIMcsp rd-)
--- Case 3-1: equivIMSet(empIM) = true .
+:apply (empIMinit rd-)
 -- Case 3-2:
-:init (ceq true = false
+:apply (cIMscsp nIMscsp tIMscsp rd-)
+-- When not (cIMs = nIMs), it is discharged by init(S) imples stableIMSet(sIM) . 
+-- Case 3-2-1-1-1: it is discharged by :init eq (cIMs = tIMs) = false .
+:def ctIMsinit = :init (ceq true = false
 	if CIMS:IMState = TIMS:IMState . ) by {
   CIMS:IMState <- cIMs;
   TIMS:IMState <- tIMs;
 }
-:apply (cIMscsp nIMscsp tIMscsp rd-)
--- When not (cIMs = nIMs), it is discharged by init(S) imples stableIMSet(sIM) . 
--- When (cIMs = tIMs), it is discharged by :init eq (cIMs = tIMs) = false .
+:apply (ctIMsinit rd-)
+-- Case 3-2-2-2-2: it is discharged by :init eq (cIMs = tIMs) = false .
+:apply (ctIMsinit rd-)
 -- Case 3-2-3-3-4:wired,wired,swired
 :def exECOcsp = :csp  { 
   eq existCO(sCO,eidCO) = false .
@@ -134,6 +141,8 @@ open PROOF .
 }
 :apply (cCOs'csp nCOs'csp tCOs'csp rd-)
 -- Case 3-2-3-3-4-2-2-2-3: it is discharged by robust-lemmaC03 .
+-- Case 3-2-4-4-4: it is discharged by :init eq (cIMs = tIMs) = false .
+:apply (ctIMsinit rd-)
 --> Proof of (1) init(S) implies cont(S) done
 -->
 show proof

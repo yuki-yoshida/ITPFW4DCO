@@ -133,19 +133,25 @@ open PROOF .
 --> *************************************************************************************
 -- Case 2: equivIMSet(sIM) = false means that
 --          at least one import whose state is not its target.
--- :init eq equivIMSet(sIM) = false .
-:init (ceq true = false
+:apply (empIMcsp)
+-- Case 2-1: equivIMSet(empIM) = true .
+:def empIMinit = :init (ceq true = false
 	if equivIMSet(SIM:SetOfImport) . ) by {
   SIM:SetOfImport <- sIM;
 }
-:apply (empIMcsp rd-)
+:apply (empIMinit rd-)
 -- Case 2-2:
-:init (ceq true = false
+:apply (tIMcsp cIMscsp nIMscsp tIMscsp rd-)
+-- Case 2-2-1-1-1-1: it is discharged by :init eq (cIMs = tIMs) = false .
+:def ctIMsinit = :init (ceq true = false
 	if CIMS:IMState = TIMS:IMState . ) by {
   CIMS:IMState <- cIMs;
   TIMS:IMState <- tIMs;
 }
-:apply (tIMcsp cIMscsp nIMscsp tIMscsp rd-)
+:apply (ctIMsinit rd-)
+
+-- Case 2-2-1-2-2-2: it is discharged by :init eq (cIMs = tIMs) = false .
+:apply (ctIMsinit rd-)
 
 -- Case 2-2-1-2-4-4: mandatory unwired  swired  swired
 :apply (exECOcsp rd-)
@@ -167,6 +173,15 @@ open PROOF .
 :apply (exECOcsp rd-)
 :apply (cCOscsp nCOscsp tCOscsp rd-)
 
+-- Case 2-2-1-4-4-4: it is discharged by :init eq (cIMs = tIMs) = false .
+:apply (ctIMsinit rd-)
+
+-- Case 2-2-2-1-1-1: it is discharged by :init eq (cIMs = tIMs) = false .
+:apply (ctIMsinit rd-)
+
+-- Case 2-2-2-2-2-2: it is discharged by :init eq (cIMs = tIMs) = false .
+:apply (ctIMsinit rd-)
+
 -- Case 2-2-2-2-4-4:  optional unwired  swired  swired
 :apply (exECOcsp rd-)
 :apply (cCOscsp nCOscsp tCOscsp rd-)
@@ -175,21 +190,29 @@ open PROOF .
 :apply (exECOcsp rd-)
 :apply (cCOscsp nCOscsp tCOscsp rd-)
 
+-- Case 2-2-2-4-4-4: it is discharged by :init eq (cIMs = tIMs) = false .
+:apply (ctIMsinit rd-)
+
 -- Case 3: equivCOSet(sIM) = false means that
 --          at least one component whose state is not its target.
--- :init eq equivIMSet(sIM) = false .
-:init (ceq true = false
+:apply (empCOcsp)
+-- Case 3-1: equivCOSet(empCO) = true .
+:def empCOinit = :init (ceq true = false
 	if equivCOSet(SCO:SetOfComponent) . ) by {
   SCO:SetOfComponent <- sCO;
 }
-:apply (empCOcsp rd-)
+:apply (empCOinit rd-)
 -- Case 3-2:
-:init (ceq true = false
+:apply (cCOscsp nCOscsp tCOscsp rd-)
+-- Case 3-2-1-1-1: it is discharged by :init eq (cCOs = tCOs) = false .
+:def ctCOsinit = :init (ceq true = false
 	if CCOS:COState = TCOS:COState . ) by {
   CCOS:COState <- cCOs;
   TCOS:COState <- tCOs;
 }
-:apply (cCOscsp nCOscsp tCOscsp rd-)
+:apply(ctCOsinit rd-)
+-- Case 3-2-3-3-3: it is discharged by :init eq (cCOs = tCOs) = false .
+:apply(ctCOsinit rd-)
 show proof
 close
 

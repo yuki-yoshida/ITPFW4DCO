@@ -128,20 +128,25 @@ open ProofLemma .
 :apply (equivIMctf rd-)
 -- Case 2: equivIMSet(sIM) = false means that
 --          at least one import whose state is not its target.
--- :init eq equivIMSet(sIM) = false .
-:init (ceq true = false
+:apply (empIMcsp)
+-- Case 2-1: equivIMSet(empIM) = true .
+:def empIMinit = :init (ceq true = false
 	if equivIMSet(SIM:SetOfImport) . ) by {
   SIM:SetOfImport <- sIM;
 }
-:apply (empIMcsp rd-)
+:apply (empIMinit rd-)
 -- Case 2-2:
-:init (ceq true = false
+:apply (tIMcsp cIMscsp nIMscsp tIMscsp rd-)
+-- When (cIMs = tIMs), it is discharged by :init eq (cIMs = tIMs) = false .
+-- Case 2-2-1-1-1-1: it is discharged by :init eq (cIMs = tIMs) = false .
+:def ctIMsinit = :init (ceq true = false
 	if CIMS:IMState = TIMS:IMState . ) by {
   CIMS:IMState <- cIMs;
   TIMS:IMState <- tIMs;
 }
-:apply (tIMcsp cIMscsp nIMscsp tIMscsp rd-)
--- When (cIMs = tIMs), it is discharged by :init eq (cIMs = tIMs) = false .
+:apply (ctIMsinit rd-)
+-- Case 2-2-1-2-2-2: it is discharged by :init eq (cIMs = tIMs) = false .
+:apply (ctIMsinit rd-)
 -- Case 2-2-1-2-4-4: mandatory unwired swired swired
 -- RD-wire2 should be applied
 :apply (exECOcsp rd-)
@@ -162,6 +167,12 @@ open ProofLemma .
 -- RS-unwire3 or RS-swire2 should be applied
 :apply (exECOcsp rd-)
 :apply (cCOscsp nCOscsp tCOscsp rd-)
+-- Case 2-2-1-4-4-4: it is discharged by :init eq (cIMs = tIMs) = false .
+:apply (ctIMsinit rd-)
+-- Case 2-2-2-1-1-1: it is discharged by :init eq (cIMs = tIMs) = false .
+:apply (ctIMsinit rd-)
+-- Case 2-2-2-2-2-2: it is discharged by :init eq (cIMs = tIMs) = false .
+:apply (ctIMsinit rd-)
 -- Case 2-2-2-2-4-4: optional unwired swired swired
 -- RD-wire1 or RD-wire2 should be applied
 :apply (exECOcsp rd-)
@@ -170,6 +181,8 @@ open ProofLemma .
 -- RS-unwire3 or RS-swire2 should be applied
 :apply (exECOcsp rd-)
 :apply (cCOscsp nCOscsp tCOscsp rd-)
+-- Case 2-2-2-4-4-4: it is discharged by :init eq (cIMs = tIMs) = false .
+:apply (ctIMsinit rd-)
 --> Proof of robust-lemmaC11 done
 -->
 show proof
@@ -261,20 +274,25 @@ open ProofLemma .
 :apply (equivCOctf rd-)
 -- Case 2: equivCOSet(sIM) = false means that
 --          at least one component whose state is not its target.
--- :init eq equivIMSet(sIM) = false .
-:init (ceq true = false
+:apply (empCOcsp)
+-- Case 2-1: equivCOSet(empCO) = true .
+:def empCOinit = :init (ceq true = false
 	if equivCOSet(SCO:SetOfComponent) . ) by {
   SCO:SetOfComponent <- sCO;
 }
-:apply (empCOcsp rd-)
+:apply (empCOinit rd-)
 -- Case 2-2:
-:init (ceq true = false
+:apply (cCOscsp nCOscsp tCOscsp rd-)
+-- When (cCOs = tCOs), it is discharged by :init eq (cCOs = tCOs) = false .
+-- Case 2-2-1-1-1: it is discharged by :init eq (cCOs = tCOs) = false .
+:def ctCOsinit = :init (ceq true = false
 	if CCOS:COState = TCOS:COState . ) by {
   CCOS:COState <- cCOs;
   TCOS:COState <- tCOs;
 }
-:apply (cCOscsp nCOscsp tCOscsp rd-)
--- When (cCOs = tCOs), it is discharged by :init eq (cCOs = tCOs) = false .
+:apply(ctCOsinit rd-)
+-- Case 2-2-3-3-3: it is discharged by :init eq (cCOs = tCOs) = false .
+:apply(ctCOsinit rd-)
 --> Proof of robust-lemmaC12 done
 -->
 show proof
