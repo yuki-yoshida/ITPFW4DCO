@@ -147,12 +147,12 @@ select ProofInitialCont .
 --> Step 1-7: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
 -- The Cyclic Dependency Lemma rejects this case.
-:init as noCycleLemma-in [noCycleLemma]
+:def noCycleinit = :init as noCycleLemma-in [noCycleLemma]
   by {O:Node <- node(tnd,idND,initial);
       X:Node <- node(tnd,idND,initial);
       S:State  <- (< sND , sCP , sRQ , sRL , mp >);
       LS:NDState <- initial; }
-:apply (rd-)
+:apply (noCycleinit rd-)
 show proof
 select
 
@@ -413,12 +413,12 @@ select ProofCreatedCont .
 --> ******************************************************************************
 --> Step 1-7: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
-:init as noCycleLemma-in [noCycleLemma]
+:def noCycleinit = :init as noCycleLemma-in [noCycleLemma]
   by {O:Node <- node(tnd,idND,created);
       X:Node <- node(tnd,idND,created);
       S:State  <- (< sND , sCP , sRQ , sRL , mp >);
       LS:NDState <- created; }
-:apply (rd-)
+:apply (noCycleinit rd-)
 -- When the type of the requirement of idRQ is connectsTo:
 --> *************************************************************************************
 --> Step 1-2: Consider which rule can be applied to the global state in the current case. 
@@ -465,12 +465,7 @@ select ProofCreatedCont .
 --> ******************************************************************************
 --> Step 1-7: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
-:init as noCycleLemma-in [noCycleLemma]
-  by {O:Node <- node(tnd,idND,created);
-      X:Node <- node(tnd,idND,created);
-      S:State  <- (< sND , sCP , sRQ , sRL , mp >);
-      LS:NDState <- created; }
-:apply (rd-)
+:apply (noCycleinit rd-)
 show proof
 select
 --> Totally 2 goals should be proved.

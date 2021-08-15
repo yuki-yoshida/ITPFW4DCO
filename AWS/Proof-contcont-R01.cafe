@@ -106,12 +106,12 @@ select PROOF .
 --> Step 2-9: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
 -- The Cyclic Dependency Lemma rejects this case.
-:init as noCycleLemma-in [noCycleLemma]
+:def noCycleinit = :init as noCycleLemma-in [noCycleLemma]
   by {O:Resource <- res(trs',idRS',initial);
       X:Resource <- res(trs',idRS',initial);
       S:State <- (< (res(trs,idRS,initial) sRS), sPR >);
       LS:RSState <- initial; }
-:apply (rd-)
+:apply (noCycleinit rd-)
 show proof
 
 select

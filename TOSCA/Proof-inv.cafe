@@ -25,29 +25,17 @@ module ProofInv {
   var TRL : RLType
   var MP : PoolOfMsg
 
-  -- ceq [base-lemma04-1]:
-  --     (allCPInStates(SetCP,SCP) and
-  --      allCPOfTypeInStates(SetCP,TCP,STCP))
-  --    = allCPInStates(SetCP,SCP) 
-  --    if SCP in STCP .
-
-  -- ceq [base-lemma04-2]:
-  --     (allRQInStates(SetRQ,SRQ) and
-  --      allRQOfTypeInStates(SetRQ,TRQ,STRQ))
-  --    = allRQInStates(SetRQ,SRQ)
-  --    if SRQ in STRQ .
-
-  eq [tosca-lemma04]:
+  eq [tosca-lemma03]:
       (ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) and
        ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,(opMsg(IDCP) MP)) )
      = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) .
 
-  eq [tosca-lemma05]:
+  eq [tosca-lemma04]:
       (ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) and
        ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,(avMsg(IDCP) MP)) )
      = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) .
 
-  ceq [tosca-lemma06]:
+  ceq [tosca-lemma05]:
       (ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 		SetCP,STCP,(req(connectsTo,IDRQ,SRQ1,IDND) SetRQ),STRQ,
 		SetRL,(opMsg(IDCP) MP)) and
@@ -59,7 +47,7 @@ module ProofInv {
 		SetRL,(opMsg(IDCP) MP)) 
      if (SRQ2 in STRQ) and (IDRQ = req(getRLOfCP(SetRL, IDCP))) .
 
-  ceq [tosca-lemma07]:
+  ceq [tosca-lemma06]:
       (ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 		SetCP,STCP,(req(TRQ,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL,MP) and
        ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
@@ -68,7 +56,7 @@ module ProofInv {
 		SetCP,STCP,(req(TRQ,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL,MP) 
      if not (TRQ = connectsTo) and SRQ1 > SRQ2 .
 
-  ceq [tosca-lemma08]:
+  ceq [tosca-lemma07]:
       (ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 		SetCP,STCP,(req(connectsTo,IDRQ,SRQ1,IDND) SetRQ),STRQ,
 		SetRL,(avMsg(IDCP) MP)) and
@@ -80,7 +68,7 @@ module ProofInv {
 		SetRL,(avMsg(IDCP) MP)) 
      if SRQ2 in STRQ .
 
-  ceq [tosca-lemma0802]:
+  ceq [tosca-lemma0701]:
       (ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 		SetCP,STCP,(req(connectsTo,IDRQ,SRQ1,IDND) SetRQ),STRQ,
 		(rel(connectsTo,IDRL,IDCP,IDRQ) SetRL),(avMsg(IDCP) MP)) and
@@ -92,23 +80,23 @@ module ProofInv {
 		(rel(connectsTo,IDRL,IDCP,IDRQ) SetRL),(avMsg(IDCP) MP)) 
      if not existCP(SetCP,IDCP) .
 
-  ceq [tosca-lemma09]:
+  ceq [tosca-lemma08]:
       (allCPInStates(SetCP,SCP) and
        ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) )
      = allCPInStates(SetCP,SCP) 
      if not (SCP in STCP) .
 
-  eq [tosca-lemma10]:
+  eq [tosca-lemma09]:
       (ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) and
        ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg(SetCP,STCP,SetRQ,STRQ,SetRL,(opMsg(IDCP) MP)) )
      = ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) .
 
-  eq [tosca-lemma11]:
+  eq [tosca-lemma10]:
       (ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) and
        ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg(SetCP,STCP,SetRQ,STRQ,SetRL,(avMsg(IDCP) MP)) )
      = ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) .
 
-  ceq [tosca-lemma12]:
+  ceq [tosca-lemma11]:
       (ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg(
 		SetCP,STCP,(req(connectsTo,IDRQ,SRQ1,IDND) SetRQ),STRQ,
 		SetRL,(opMsg(IDCP) MP)) and
@@ -120,7 +108,7 @@ module ProofInv {
 		SetRL,(opMsg(IDCP) MP))
      if not (SRQ1 in STRQ) .
 
-  ceq [tosca-lemma13]:
+  ceq [tosca-lemma12]:
       (ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg(
 		SetCP,STCP,(req(TRQ,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL,MP) and
        ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg(
@@ -129,13 +117,13 @@ module ProofInv {
 		SetCP,STCP,(req(TRQ,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL,MP)
      if (TRQ = connectsTo) = false and SRQ1 > SRQ2 .
 
-  ceq [tosca-lemma14]:
+  ceq [tosca-lemma13]:
       (allCPInStates(SetCP,SCP) and
        ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP))
      = allCPInStates(SetCP,SCP) 
      if not (SCP in STCP) .
 
-  ceq [tosca-lemma15]:
+  ceq [tosca-lemma14]:
       (ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg(
 		SetCP,STCP,(req(connectsTo,IDRQ,SRQ1,IDND) SetRQ),STRQ,
 		SetRL,(avMsg(IDCP) MP)) and
@@ -149,13 +137,13 @@ module ProofInv {
 
   -- If (SCP2 in STCP) or not (SCP1 in STCP),
   -- then ifOpenMsgThenCPInStates keeps to hold.
-  ceq [tosca-lemma16]:
+  ceq [tosca-lemma15]:
       (ifOpenMsgThenCPInStates(MP,(cap(TCP,IDCP,SCP1,IDND) SetCP),STCP) and
        ifOpenMsgThenCPInStates(MP,(cap(TCP,IDCP,SCP2,IDND) SetCP),STCP))
      = ifOpenMsgThenCPInStates(MP,(cap(TCP,IDCP,SCP1,IDND) SetCP),STCP)
      if (SCP2 in STCP) and SCP1 > SCP2 .
 
-  ceq [tosca-lemma17]:
+  ceq [tosca-lemma16]:
       (ifOpenMsgThenCPInStates(MP,(cap(TCP,IDCP,SCP1,IDND) SetCP),STCP) and
        ifOpenMsgThenCPInStates(MP,(cap(TCP,IDCP,SCP2,IDND) SetCP),STCP))
      = ifOpenMsgThenCPInStates(MP,(cap(TCP,IDCP,SCP1,IDND) SetCP),STCP)
@@ -163,7 +151,7 @@ module ProofInv {
 
   -- ifAvailableMsgThenCPInStates keeps to hold
   -- after changing the state of a capability to the target state. 
-  ceq [tosca-lemma18]:
+  ceq [tosca-lemma17]:
       (ifAvailableMsgThenCPInStates(MP,(cap(TCP,IDCP,SCP1,IDND) SetCP),STCP) and
        ifAvailableMsgThenCPInStates(MP,(cap(TCP,IDCP,SCP2,IDND) SetCP),STCP))
      = ifAvailableMsgThenCPInStates(MP,(cap(TCP,IDCP,SCP1,IDND) SetCP),STCP)
@@ -171,7 +159,7 @@ module ProofInv {
 
   -- ifAvailableMsgThenCPInStates keeps to hold
   -- after changing the state of a capability whose current state is not the target state. 
-  ceq [tosca-lemma19]:
+  ceq [tosca-lemma18]:
       (ifAvailableMsgThenCPInStates(MP,(cap(TCP,IDCP,SCP1,IDND) SetCP),STCP) and
        ifAvailableMsgThenCPInStates(MP,(cap(TCP,IDCP,SCP2,IDND) SetCP),STCP))
      = ifAvailableMsgThenCPInStates(MP,(cap(TCP,IDCP,SCP1,IDND) SetCP),STCP)
@@ -179,7 +167,7 @@ module ProofInv {
 
   -- ifCPClosedThenRQUnbound keeps to hold 
   -- even if a requirement, whose capability is not concerned, changes its state.
-  ceq [tosca-lemma20]:
+  ceq [tosca-lemma19]:
       (ifCPInStatesThenRQInStates(SetCP,STCP,(req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,
 		                  (rel(TRL,IDRL,IDCP,IDRQ) SetRL)) and
        ifCPInStatesThenRQInStates(SetCP,STCP,(req(TRL,IDRQ,SRQ2,IDND) SetRQ),STRQ,
@@ -193,7 +181,7 @@ module ProofInv {
 
   -- ifCPClosedThenRQUnbound keeps to hold 
   -- even if a requirement, whose current state is not concerned, changes its state.
-  ceq [tosca-lemma21]:
+  ceq [tosca-lemma20]:
       (ifCPInStatesThenRQInStates(
 		SetCP,STCP,(req(TRQ,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL) and
        ifCPInStatesThenRQInStates(
@@ -202,7 +190,7 @@ module ProofInv {
 		SetCP,STCP,(req(TRQ,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL)
      if not (SRQ1 in STRQ) and SRQ1 > SRQ2 .
 
-  ceq [tosca-lemma22]:
+  ceq [tosca-lemma21]:
       (ifCPInStatesThenRQInStates(
 		SetCP,STCP,(req(TRQ,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL) and
        ifCPInStatesThenRQInStates(
@@ -213,7 +201,7 @@ module ProofInv {
 
   -- Since wfs-allCPHaveRL and wfs-allRLHaveRQ(SetRL,SetRQ) always hold
   -- they are omitted from the antecedent.
-  ceq [tosca-lemma23]:
+  ceq [tosca-lemma22]:
       (allRQInStates(SetRQ,SRQ) and 
        ifCPInStatesThenRQInStates(SetCP,STCP,SetRQ,STRQ,SetRL))
     = allRQInStates(SetRQ,SRQ)

@@ -97,13 +97,13 @@ select PROOF .
 --> Step 2-9: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
 -- The Cyclic Dependency Lemma rejects this case.
-:init as noCycleLemma-in [noCycleLemma]
+:def noCycleinit = :init as noCycleLemma-in [noCycleLemma]
   by {O:Resource <- res(trs'',idRS1,initial);
       X:Resource <- res(trs'',idRS1,initial);
       S:State <- (< (res(trs, idRRS, started) sRS),
                     (prop(tpr,idPR,notready,idRS,idRRS) sPR) >);
       LS:RSState <- initial; }
-:apply (rd-)
+:apply (noCycleinit rd-)
 -- When idRS' and idRS are not the same:
 --> *********************************************************************
 --> Step 2-7: When there are two identifier constants of the same sort,
@@ -144,13 +144,7 @@ select PROOF .
 --> Step 2-9: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
 -- The Cyclic Dependency Lemma rejects this case.
-:init as noCycleLemma-in [noCycleLemma]
-  by {O:Resource <- res(trs'',idRS1,initial);
-      X:Resource <- res(trs'',idRS1,initial);
-      S:State <- (< (res(trs, idRRS, started) sRS),
-                    (prop(tpr,idPR,notready,idRS,idRRS) sPR) >);
-      LS:RSState <- initial; }
-:apply (rd-)
+:apply (noCycleinit rd-)
 show proof
 
 select
