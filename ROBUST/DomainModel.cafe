@@ -326,14 +326,23 @@ module! STATECyclefuns {
 
   [LocalState]
 
-  var SetCO : SetOfComponent
-  var SetIM : SetOfImport
+  var CO : Component
+  var SCO : SetOfComponent
+  var SIM : SetOfImport
   var L : ListOfLog
 
   op getAllCO : State -> SetOfComponent
-  eq getAllCO(< SetCO,SetIM,L >) = SetCO .
+  eq getAllCO(< SCO,SIM,L >) = SCO .
 
-  op DDSCO : Component State -> SetOfComponent
+  -- Upward DDSC
+  op DDSCOU : Component State -> SetOfComponent
+  eq DDSCOU(CO,< SCO,SIM,L >)
+    = getECOsOfIMs(SCO,getIMsOfTypeOfICO(SIM,mandatory,CO)) .
+
+  -- Downward DDSC
+  op DDSCOD : Component State -> SetOfComponent
+  eq DDSCOD(CO,< SCO,SIM,L >)
+    = getICOsOfIMs(SCO,getIMsOfTypeOfECO(SIM,mandatory,CO)) .
 }
 
 module! STATEfuns {
@@ -341,9 +350,19 @@ module! STATEfuns {
 	STATECyclefuns {sort Object -> Component,
 			sort SetOfObject -> SetOfComponent,
 			op empObj -> empCO,
-			op DDSC -> DDSCO,
+			op DDSC -> DDSCOU,
 			op getAllObjC -> getAllCO})
-	* {op noCycleC -> noCOCycle})
+	* {op noCycleC -> noCOCycleU,
+           op noCycleLemma -> noCycleLemmaU})
+
+  extending(CYCLEPRED(
+	STATECyclefuns {sort Object -> Component,
+			sort SetOfObject -> SetOfComponent,
+			op empObj -> empCO,
+			op DDSC -> DDSCOD,
+			op getAllObjC -> getAllCO})
+	* {op noCycleC -> noCOCycleD,
+           op noCycleLemma -> noCycleLemmaD})
 
   var CO : Component
   var IM : Import
@@ -519,7 +538,8 @@ module! STATEfuns {
        allIMin14States(SIM) and
        stableCOSet(SCO) and stableIMSet(SIM) and
        not final(< SCO,SIM,L >) and
-       noCOCycle(< SCO,SIM,L >) .
+       noCOCycleU(< SCO,SIM,L >) and
+       noCOCycleD(< SCO,SIM,L >) .
 
   eq final(< SCO,SIM,L >)
      = equivCOSet(SCO) and equivIMSet(SIM) .

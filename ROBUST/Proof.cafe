@@ -106,7 +106,8 @@ module PROOF {
   eq inv-noChangeSstarted(< SCO, SIM, L >) = noChangeSstarted(SCO) .
 
   ceq inv(S) = false if not wfs(S) .
-  ceq inv(S) = false if not noCOCycle(S) .
+  ceq inv(S) = false if (true xor noCOCycleU(S)) .
+  ceq inv(S) = false if (true xor noCOCycleD(S)) .
   ceq inv(S) = false if not inv-allCOin9States(S) .
   ceq inv(S) = false if not inv-allIMin14States(S) .
   ceq inv(S) = false if not inv-noChangeSstarted(S) .
@@ -205,18 +206,15 @@ module PROOF {
       noChangeSstarted(SCO) .
 
   -- for NoCyclic Lemma
-  op DDSCOU : Component State -> SetOfComponent
-  op DDSCOD : Component State -> SetOfComponent
-
   eq (CO in st(CSCO,NSCO,TSCO))
     = (state(CO) = CSCO and next(CO) = NSCO and target(CO) = TSCO) .
 
-  -- Upward DDSC
-  eq DDSCOU(CO,< SCO,SIM,L >)
-    = getECOsOfIMs(SCO,getIMsOfTypeOfICO(SIM,mandatory,CO)) .
-  -- Downward DDSC
-  eq DDSCOD(CO,< SCO,SIM,L >)
-    = getICOsOfIMs(SCO,getIMsOfTypeOfECO(SIM,mandatory,CO)) .
+  var X : Component
+  eq [noCycleU :nonexec]:
+    noCycleLemmaU(CO,X,LS,S) = true .
+
+  eq [noCycleD :nonexec]:
+    noCycleLemmaD(CO,X,LS,S) = true .
 
 --> **************************************
 --> Step 0-5: Prepare arbitrary constants.

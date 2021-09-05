@@ -1233,6 +1233,13 @@ module CYCLEPRED(P :: PRMCYCLE) {
   -- eq noCycleLemma(O,S,LS)
   --   = (noCycleC(S) and O in getAllObjC(S) and O in LS) 
   --     implies someNoDependObj(getAllObjC(S), LS, S) .
+  pred noCycleLemma : Object Object LocalState State
+  eq noCycleLemma(O,X,LS,S)
+    = (O in getAllObjC(S)) and 
+      (O in LS) and 
+      noCycleC(S) implies
+        isNoDepend(X,LS,S) .
+
   ceq [noCycleLemma :nonexec]:
     noCycleC(S) = false
     if O in getAllObjC(S) and 
