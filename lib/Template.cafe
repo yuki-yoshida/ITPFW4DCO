@@ -412,7 +412,6 @@ module PRMOBJLINK {
   pred existObj : SetOfLObject LObjID
   op getObject : SetOfLObject LObjID -> LObject
   [LObjState < SetOfLObjState]
-  op empState : -> SetOfLObjState {constr}
   pred allObjInStates : SetOfLObject SetOfLObjState
   pred existObjInStates : SetOfLObject LObjID SetOfLObjState
 
@@ -421,7 +420,7 @@ module PRMOBJLINK {
 
   -- The followings are usually not renamed.
   op _ _ : SetOfLObject SetOfLObject -> SetOfLObject {constr assoc comm}
-  op _ _ : SetOfLObjState SetOfLObjState -> SetOfLObjState {constr assoc comm id: empState}
+  op _ _ : SetOfLObjState SetOfLObjState -> SetOfLObjState {constr assoc comm}
   op id : LObject -> LObjID
   op state : LObject -> LObjState
   pred _>_ : LObjState LObjState
@@ -1101,6 +1100,132 @@ module OBJLINKONE2ONE3(LINK :: PRMOBJLINK3) {
 		op YOfXInStates0 -> YOfXInStates3,
 		op ifXInStatesThenYInStates0 -> ifXInStatesThenYInStates3,
 		op ifYInStatesThenXInStates0 -> ifYInStatesThenXInStates3})
+}
+
+module PRMOBJLINKLINK {
+
+  including(PRMOBJLINK)
+  pred uniqX : SetOfObject
+
+  -- Second Target Object 
+  [L'Object < SetOfL'Object]
+  [L'ObjID]
+  [L'ObjState < SetOfL'ObjState]
+  -- op name link cannot be resolved by specifying signatures ... why??
+  op link' : Object -> L'ObjID
+  op null : -> L'Object
+  pred uniqX' : SetOfObject
+
+  -- The followings are usually not renamed.
+  op _ _ : SetOfL'Object SetOfL'Object -> SetOfL'Object {constr assoc comm}
+  op id : L'Object -> L'ObjID
+  op state : L'Object -> L'ObjState
+  pred _in_ : L'ObjState SetOfL'ObjState
+  pred _>_ : L'ObjState L'ObjState
+
+  op getXOfY : SetOfLObject Object -> LObject
+  op getX'OfY : SetOfL'Object Object -> L'Object
+  op getYOfX : SetOfObject LObjID -> Object
+  op getYOfX' : SetOfObject L'ObjID -> Object
+
+}
+
+module -OBJLINKONE2ONE2ONE-lemma(LINK :: PRMOBJLINKLINK) {
+  -- one X has exactly one coressponding Y
+  -- one X' has exactly one coressponding Y
+  -- Y has links to X and X'
+
+  including(-PRMOBJLINKPRED(LINK))
+
+  var X : LObject
+  vars X' X'1 X'2 : L'Object
+  var Y : Object
+  var IDX : LObjID
+  var IDX' : L'ObjID
+  var SetX : SetOfLObject
+  var SetX' : SetOfL'Object
+  var SetY : SetOfObject
+  var St_X : SetOfLObjState
+  var St_X' : SetOfL'ObjState
+
+  ceq (Y = null ) = false
+    if not (Y == null) .
+  ceq (X' = null ) = false
+    if not (X' == null) .
+  pred changeObjState0 : L'Object L'Object
+  eq changeObjState0(X'1,X'2)
+     = (id(X'1) = id(X'2)) and 
+       (state(X'1) > state(X'2)) .
+
+  op getXOfX' : SetOfLObject SetOfObject L'ObjID -> LObject
+  op getXOfX' : SetOfLObject SetOfObject L'Object -> LObject
+  eq getXOfX'(SetX,SetY,X')
+     = getXOfX'(SetX,SetY,id(X')) .
+  eq getXOfX'(SetX,SetY,IDX')
+     = getXOfY(SetX,getYOfX'(SetY,IDX')) .
+
+  op getX'OfX : SetOfL'Object SetOfObject LObjID -> L'Object
+  op getX'OfX : SetOfL'Object SetOfObject LObject -> L'Object
+  eq getX'OfX(SetX',SetY,X)
+     = getX'OfX(SetX',SetY,id(X)) .
+  ceq getX'OfX(SetX',SetY,IDX)
+     = null if getYOfX(SetY,IDX) = null .
+  ceq getX'OfX(SetX',SetY,IDX)
+     = getX'OfY(SetX',getYOfX(SetY,IDX))
+     if not getYOfX(SetY,IDX) = null .
+
+  pred ifXInStatesThenX'InStates : 
+       SetOfLObject SetOfLObjState SetOfL'Object SetOfL'ObjState SetOfObject
+  eq ifXInStatesThenX'InStates(empLObj,St_X,SetX',St_X',SetY)
+     = true .
+  ceq ifXInStatesThenX'InStates((X SetX),St_X,SetX',St_X',SetY)
+     = ifXInStatesThenX'InStates(SetX,St_X,SetX',St_X',SetY)
+     if getX'OfX(SetX',SetY,X) = null .
+  ceq ifXInStatesThenX'InStates((X SetX),St_X,SetX',St_X',SetY)
+     = (state(X) in St_X implies state(getX'OfX(SetX',SetY,X)) in St_X') and
+       ifXInStatesThenX'InStates(SetX,St_X,SetX',St_X',SetY)
+     if not getX'OfX(SetX',SetY,X) = null .
+
+}
+
+module OBJLINKONE2ONE2ONE {
+  including(-OBJLINKONE2ONE2ONE-lemma)
+
+  var IDX : LObjID 
+  var IDX' : L'ObjID 
+  var IDY : ObjID 
+  vars X X1 : LObject
+  vars X' X'1 : L'Object
+  vars Y Y2 : Object
+  vars S_X S_X1 : SetOfLObject
+  vars S_X' S_X'1 : SetOfL'Object
+  vars S_Y S_Y1 : SetOfObject
+  vars SX SX1 SX2 : LObjState
+  vars SX' SX'1 SX'2 : L'ObjState
+  vars SY SY1 SY2 : ObjState
+  var St_X : SetOfLObjState
+  var St_X' : SetOfL'ObjState
+  var St_Y : SetOfObjState
+
+  ceq [o2o2o-lemma01]:
+      (ifXInStatesThenX'InStates(S_X,St_X,(X'  S_X'),St_X',(Y S_Y)) and
+       ifXInStatesThenX'InStates(S_X,St_X,(X'1 S_X'),St_X',(Y S_Y)))
+     = ifXInStatesThenX'InStates(S_X,St_X,(X'  S_X'),St_X',(Y S_Y)) 
+     if not existObj(S_X,link(Y)) and uniqX(Y S_Y) and uniqX'(Y S_Y) and 
+        link'(Y) = id(X') and changeObjState0(X',X'1) .
+
+  ceq [o2o2o-lemma02]:
+      (ifXInStatesThenX'InStates(S_X,St_X,(X'  S_X'),St_X',S_Y) and
+       ifXInStatesThenX'InStates(S_X,St_X,(X'1 S_X'),St_X',S_Y))
+     = ifXInStatesThenX'InStates(S_X,St_X,(X'  S_X'),St_X',S_Y) 
+     if not (state(X') in St_X') and changeObjState0(X',X'1) .
+
+  ceq [o2o2o-lemma03]:
+      (ifXInStatesThenX'InStates(S_X,St_X,(X'  S_X'),St_X',S_Y) and
+       ifXInStatesThenX'InStates(S_X,St_X,(X'1 S_X'),St_X',S_Y))
+     = ifXInStatesThenX'InStates(S_X,St_X,(X'  S_X'),St_X',S_Y) 
+     if (state(X'1) in St_X') and changeObjState0(X',X'1) .
+
 }
 
 module STATEBASE {

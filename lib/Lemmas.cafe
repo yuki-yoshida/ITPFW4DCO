@@ -580,10 +580,11 @@ module M2O-LEMMAS {
   ceq Z in (Z' S_Z) = Z in S_Z if not(Z = Z') .
   eq ((Z S_Z) = empObj) = false .
 
-  eq SX in empState = false .
+  -- eq SX in empState = false .
+  eq SX in SX1 = (SX = SX1) .
   eq SX in (SX St_X) = true .
   ceq SX in (SX1 St_X) = SX in St_X if not(SX = SX1) .
-  eq ((SX St_X) = empState) = false .
+  -- eq ((SX St_X) = empState) = false .
 
   eq SZ in empState = false .
   eq SZ in (SZ St_Z) = true .
@@ -1451,10 +1452,11 @@ module O2O-LEMMAS {
   ceq Y in (Y' S_Y) = Y in S_Y if not(Y = Y') .
   eq ((Y S_Y) = empObj) = false .
 
-  eq SX in empState = false .
+  -- eq SX in empState = false .
+  eq SX in SX1 = (SX = SX1) .
   eq SX in (SX St_X) = true .
   ceq SX in (SX1 St_X) = SX in St_X if not(SX = SX1) .
-  eq ((SX St_X) = empState) = false .
+  -- eq ((SX St_X) = empState) = false .
 
   eq SY in empState = false .
   eq SY in (SY St_Y) = true .
@@ -1667,5 +1669,273 @@ select O2O-LEMMAS
 show proof
 
 select
---> Totally 55 goals should be proved
---> including 2 cont-lemmas, 15 bool&set-lemmas, 4 base-lemmas(+1), 28 m2o-lemmas, and 6 o2o-lemmas.
+
+module O2O2O-LEMMAS {
+  including(-OBJLINKONE2ONE2ONE-lemma)
+
+  pred (_when _) : Bool Bool { prec: 64 r-assoc }
+  eq (B1:Bool when B2:Bool)
+     = B2 implies B1 .
+
+  var IDX : LObjID 
+  var IDX' : L'ObjID 
+  var IDY : ObjID 
+  vars X X1 : LObject
+  vars X' X'1 : L'Object
+  vars Y Y2 : Object
+  vars S_X S_X1 : SetOfLObject
+  vars S_X' S_X'1 : SetOfL'Object
+  vars S_Y S_Y1 : SetOfObject
+  vars SX SX1 SX2 : LObjState
+  vars SX' SX'1 SX'2 : L'ObjState
+  vars SY SY1 SY2 : ObjState
+  var St_X : SetOfLObjState
+  var St_X' : SetOfL'ObjState
+  var St_Y : SetOfObjState
+
+  -- Axiom
+  -- O2O2O Lemmas are valid only when instantiating with the following properties.
+
+  pred existX : SetOfObject LObjID
+  eq existX(empObj,IDX) = false .
+  eq existX((Y S_Y),IDX) = (link(Y) = IDX or existX(S_Y,IDX)) .
+
+  eq uniqX(empObj)
+     = true .
+  eq uniqX((Y S_Y))
+     = not existX(S_Y,link(Y)) and uniqX(S_Y) .
+
+  pred existX' : SetOfObject L'ObjID
+  eq existX'(empObj,IDX') = false .
+  eq existX'((Y S_Y),IDX') = (link'(Y) = IDX' or existX'(S_Y,IDX')) .
+
+  eq uniqX'(empObj)
+     = true .
+  eq uniqX'((Y S_Y))
+     = not existX'(S_Y,link'(Y)) and uniqX'(S_Y) .
+
+  eq getX'OfY(X' S_X',Y)
+     = if (id(X') = link'(Y)) then X' else getX'OfY(S_X',Y) fi .
+
+  eq getYOfX(empObj,IDX)
+     = null .
+  eq getYOfX((Y S_Y),IDX)
+     = if (IDX = link(Y)) then Y else getYOfX(S_Y,IDX) fi .
+
+  eq existObj(empLObj,IDX) = false .
+  eq existObj((X S_X),IDX)
+     = id(X) = IDX or existObj(S_X,IDX) .
+
+  pred o2o2o-lemma01 : SetOfLObject SetOfLObjState L'Object L'Object SetOfL'Object
+       		       SetOfL'ObjState Object SetOfObject
+  eq o2o2o-lemma01(S_X,St_X,X',X'1,S_X',St_X',Y,S_Y)
+     = ifXInStatesThenX'InStates(S_X,St_X,(X'  S_X'),St_X',(Y S_Y)) implies
+       ifXInStatesThenX'InStates(S_X,St_X,(X'1 S_X'),St_X',(Y S_Y)) 
+     when not existObj(S_X,link(Y)) and uniqX(Y S_Y) and uniqX'(Y S_Y) and
+          link'(Y) = id(X') and changeObjState0(X',X'1) .
+
+  pred o2o2o-lemma02 : SetOfLObject SetOfLObjState L'Object L'Object SetOfL'Object
+       		       SetOfL'ObjState SetOfObject
+  eq o2o2o-lemma02(S_X,St_X,X',X'1,S_X',St_X',S_Y)
+     = ifXInStatesThenX'InStates(S_X,St_X,(X'  S_X'),St_X',S_Y) implies
+       ifXInStatesThenX'InStates(S_X,St_X,(X'1 S_X'),St_X',S_Y) 
+     when not (state(X') in St_X') and changeObjState0(X',X'1) .
+
+  pred o2o2o-lemma03 : SetOfLObject SetOfLObjState L'Object L'Object SetOfL'Object
+       		       SetOfL'ObjState SetOfObject
+  eq o2o2o-lemma03(S_X,St_X,X',X'1,S_X',St_X',S_Y)
+     = ifXInStatesThenX'InStates(S_X,St_X,(X'  S_X'),St_X',S_Y) implies
+       ifXInStatesThenX'InStates(S_X,St_X,(X'1 S_X'),St_X',S_Y) 
+     when (state(X'1) in St_X') and changeObjState0(X',X'1) .
+
+  -- Constants for Proofs.
+  ops x x1 x2 : -> LObject .
+  ops x' x'1 x'2 : -> L'Object .
+  ops y y1 y2 : -> Object .
+  ops o o1 o2 : -> Object .
+  op idX : -> LObjID
+  op idX' : -> L'ObjID
+  op idY : -> ObjID
+  ops setX setX1 : -> SetOfLObject
+  ops setX' setX'1 : -> SetOfL'Object
+  ops setY setY1 : -> SetOfObject
+  op ot : -> ObjType
+  op sx : -> LObjState
+  op sy : -> ObjState
+  op setSX : -> SetOfLObjState
+  op setSX' : -> SetOfL'ObjState
+  op setSY : -> SetOfObjState
+}
+
+--> **************************************************************************
+--> Prove o2o2o-lemma01(S_X,St_X,X',X'1,S_X',St_X',Y,S_Y)
+-->     = ifXInStatesThenX'InStates(S_X,St_X,(X'  S_X'),St_X',(Y S_Y)) implies
+-->       ifXInStatesThenX'InStates(S_X,St_X,(X'1 S_X'),St_X',(Y S_Y)) 
+-->     when not existObj(S_X,link(Y)) and uniqX(Y S_Y) and uniqX'(Y S_Y) and
+-->          link'(Y) = id(X') and changeObjState0(X',X'1) .
+--> **************************************************************************
+select O2O2O-LEMMAS
+:goal {
+  eq o2o2o-lemma01(empLObj,setSX,x',x'1,setX',setSX',y,setY) = true .
+}
+:apply (rd-)
+show proof
+:goal {
+  eq o2o2o-lemma01(setX,setSX,x',x'1,setX',setSX',y,setY) implies
+     o2o2o-lemma01((x setX),setSX,x',x'1,setX',setSX',y,setY) = true .
+}
+:def ctfidx' = :ctf {
+  eq id(x') = id(x'1) .
+}
+:apply(ctfidx')
+:def ctfstatex' = :ctf {
+  eq state(x') > state(x'1) = true .
+}
+:apply(ctfstatex')
+:def ctfidx = :ctf {
+  eq id(x) = link(y) .
+}
+:apply(ctfidx)
+:apply(rd-)
+:def ctfexistObj = :ctf {
+  eq existObj(setX,link(y)) = true .
+}
+:apply(ctfexistObj rd-)
+:def ctflink' = :ctf {
+  eq link'(y) = id(x'1) .
+}
+:apply(ctflink')
+:def ctfexistX = :ctf {
+  eq existX(setY,link(y)) = true . 
+}
+:apply(ctfexistX rd-)
+:def ctfuniqX = :ctf {
+ eq uniqX(setY) = true . 
+}
+:apply(ctfuniqX rd-)
+:def ctfexistX' = :ctf {
+  eq existX'(setY,id(x'1)) = true . 
+}
+:apply(ctfexistX' rd-)
+:def ctfuniqX' = :ctf {
+ eq uniqX'(setY) = true . 
+}
+:apply(ctfuniqX' rd-)
+:def cspgetY = :csp {
+  eq getYOfX(y setY,id(x)) = null .
+  eq setY = (y1 setY1) .
+}
+:apply(cspgetY)
+:apply(rd-)
+:csp { eq link(y1) = id(x) . }
+:def ctfy1 = :ctf {
+  eq link'(y1) = id(x'1) .
+}
+:apply(ctfy1)
+:apply(rd-)
+:def ctfgetX' = :ctf {
+  eq getX'OfY(setX',y1) = null .
+}
+:apply(ctfgetX')
+:apply(rd-)
+:def ctfstatex = :ctf {
+  eq (state(x) in setSX) = true .
+}
+:apply(ctfstatex)
+:ctf { eq uniqX(setY1) = true . }
+:ctf { eq uniqX'(setY1) = true . }
+:ctf { eq existX(setY1,link(y)) = true . }
+:apply(rd-)
+:apply(rd-)
+:apply(rd-)
+:apply(rd-)
+:apply(rd-)
+:apply(rd-)
+:apply(rd-)
+:apply(rd-)
+show proof
+
+select
+
+--> **********************************************************************
+--> Prove o2o2o-lemma02(S_X,St_X,X',X'1,S_X',St_X',S_Y)
+-->     = ifXInStatesThenX'InStates(S_X,St_X,(X'  S_X'),St_X',S_Y) implies
+-->       ifXInStatesThenX'InStates(S_X,St_X,(X'1 S_X'),St_X',S_Y) 
+-->     when not (state(X') in St_X') and changeObjState0(X',X'1) .
+--> **********************************************************************
+select O2O2O-LEMMAS
+:goal {
+  eq o2o2o-lemma02(empLObj,setSX,x',x'1,setX',setSX',setY) = true .
+  eq o2o2o-lemma02(setX,setSX,x',x'1,setX',setSX',setY) implies
+     o2o2o-lemma02((x setX),setSX,x',x'1,setX',setSX',setY) = true .
+}
+:apply (rd-)
+:def ctfidx' = :ctf {
+  eq id(x') = id(x'1) .
+}
+:apply(ctfidx' rd-)
+:def ctfstatex' = :ctf {
+  eq state(x') > state(x'1) = true .
+}
+:apply(ctfstatex' rd-)
+:def ctfstatex'in = :ctf {
+  eq (state(x') in setSX') = true .
+}
+:apply(ctfstatex'in rd-)
+:def cspgetY = :csp {
+  eq getYOfX(setY,id(x)) = null .
+  eq setY = (y1 setY1) .
+}
+:apply(cspgetY)
+:apply(rd-)
+:csp { eq link(y1) = id(x) . }
+:def ctfy1 = :ctf {
+  eq link'(y1) = id(x'1) .
+}
+:apply(ctfy1 rd-)
+show proof
+
+select
+
+--> **********************************************************************
+--> Prove o2o2o-lemma03(S_X,St_X,X',X'1,S_X',St_X',S_Y)
+-->     = ifXInStatesThenX'InStates(S_X,St_X,(X'  S_X'),St_X',S_Y) implies
+-->       ifXInStatesThenX'InStates(S_X,St_X,(X'1 S_X'),St_X',S_Y) 
+-->     when (state(X'1) in St_X') and changeObjState0(X',X'1) .
+--> **********************************************************************
+select O2O2O-LEMMAS
+:goal {
+  eq o2o2o-lemma03(empLObj,setSX,x',x'1,setX',setSX',setY) = true .
+  eq o2o2o-lemma03(setX,setSX,x',x'1,setX',setSX',setY) implies
+     o2o2o-lemma03((x setX),setSX,x',x'1,setX',setSX',setY) = true .
+}
+:apply (rd-)
+:def ctfidx' = :ctf {
+  eq id(x') = id(x'1) .
+}
+:apply(ctfidx' rd-)
+:def ctfstatex' = :ctf {
+  eq state(x') > state(x'1) = true .
+}
+:apply(ctfstatex' rd-)
+:def ctfstatex'1 = :ctf {
+  eq (state(x'1) in setSX') = true .
+}
+:apply(ctfstatex'1 rd-)
+:def cspgetY = :csp {
+  eq getYOfX(setY,id(x)) = null .
+  eq setY = (y1 setY1) .
+}
+:apply(cspgetY)
+:apply(rd-)
+:csp { eq link(y1) = id(x) . }
+:def ctfy1 = :ctf {
+  eq link'(y1) = id(x'1) .
+}
+:apply(ctfy1 rd-)
+show proof
+
+select
+
+--> Totally 59 goals should be proved
+--> including 2 cont-lemmas, 15 bool&set-lemmas, 4 base-lemmas(+1), 28 m2o-lemmas, 6 o2o-lemmas, and 4 o2o2o-lemmas.

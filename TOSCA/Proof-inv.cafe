@@ -201,7 +201,7 @@ module ProofInv {
 
   -- Since wfs-allCPHaveRL and wfs-allRLHaveRQ(SetRL,SetRQ) always hold
   -- they are omitted from the antecedent.
-  ceq [tosca-lemma22]:
+  ceq [tosca-lemma19]:
       (allRQInStates(SetRQ,SRQ) and 
        ifCPInStatesThenRQInStates(SetCP,STCP,SetRQ,STRQ,SetRL))
     = allRQInStates(SetRQ,SRQ)
@@ -943,6 +943,7 @@ show proof
 -->           => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
+-- This goal requires o2o2o-lemma01
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,available,idND) sCP), 
   	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
@@ -952,22 +953,14 @@ show proof
   eq existCP(sCP,idCP) = true .
 }
 :apply (ctf5-2 rd-)
-:def ctfsCPa = :ctf {
-  eq uniqCP(sCP) = true .
+:def ctfuniqCP = :ctf {
+  eq uniqCP((rel(hostedOn,idRL,idCP,idRQ) sRL)) = true .
 }
-:apply (ctfsCPa rd-)
-:def ctfsCPb = :ctf {
-  eq allCPHaveRL(sCP,(rel(hostedOn,idRL,idCP,idRQ) sRL)) = true .
+:apply (ctfuniqCP rd-)
+:def ctfuniqRQ = :ctf {
+  eq uniqRQ((rel(hostedOn,idRL,idCP,idRQ) sRL)) = true .
 }
-:apply (ctfsCPb rd-)
-:def ctfsRL = :ctf {
-  eq allRLHaveRQ(sRL,(req(hostedOn,idRQ,unbound,idND') sRQ)) = true .
-}
-:apply (ctfsRL rd-)
-:def ctfidRQ = :ctf {
-  eq existRQ(sRL,idRQ) = true .
-}
-:apply (ctfidRQ rd-)
+:apply (ctfuniqRQ rd-)
 show proof
 
 --> **********************************************************************************
@@ -1007,6 +1000,7 @@ show proof
 -->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
+-- This goal requires o2o2o-lemma01
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,unbound,idND') sRQ), 
@@ -1025,22 +1019,14 @@ show proof
   eq existCP(sCP,idCP) = true .
 }
 :apply (ctfidCP rd-)
-:def ctfsCPa = :ctf {
-  eq uniqCP(sCP) = true .
+:def ctfuniqCP = :ctf {
+  eq uniqCP((rel(dependsOn,idRL,idCP,idRQ) sRL)) = true .
 }
-:apply (ctfsCPa rd-)
-:def ctfsCPb = :ctf {
-  eq allCPHaveRL(sCP,(rel(dependsOn,idRL,idCP,idRQ) sRL)) = true .
+:apply (ctfuniqCP rd-)
+:def ctfuniqRQ = :ctf {
+  eq uniqRQ((rel(dependsOn,idRL,idCP,idRQ) sRL)) = true .
 }
-:apply (ctfsCPb rd-)
-:def ctfsRL = :ctf {
-  eq allRLHaveRQ(sRL,(req(dependsOn, idRQ, unbound, idND') sRQ)) = true .
-}
-:apply (ctfsRL rd-)
-:def ctfidRQ = :ctf {
-  eq existRQ(sRL,idRQ) = true .
-}
-:apply (ctfidRQ rd-)
+:apply (ctfuniqRQ rd-)
 show proof
 
 --> ******************************************************************************************************
@@ -1095,6 +1081,7 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ******************************************************************************************************
+-- This goal requires o2o2o-lemma01
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,unbound,idND) sRQ), 
@@ -1118,22 +1105,14 @@ show proof
   eq scp = closed .
 }
 :apply (ctfscp rd-)
-:def ctfsCP'a = :ctf {
-  eq uniqCP(sCP') = true .
+:def ctfuniqCP = :ctf {
+  eq uniqCP((rel(connectsTo,idRL,idCP,idRQ) sRL)) = true .
 }
-:apply (ctfsCP'a rd-)
-:def ctfsCPb = :ctf {
-  eq allCPHaveRL(sCP',(rel(connectsTo,idRL,idCP,idRQ) sRL)) = true .
+:apply (ctfuniqCP rd-)
+:def ctfuniqRQ = :ctf {
+  eq uniqRQ((rel(connectsTo,idRL,idCP,idRQ) sRL)) = true .
 }
-:apply (ctfsCPb rd-)
-:def ctfsRL = :ctf {
-  eq allRLHaveRQ(sRL,(req(connectsTo,idRQ,unbound,idND) sRQ)) = true .
-}
-:apply (ctfsRL rd-)
-:def ctfidRQ = :ctf {
-  eq existRQ(sRL,idRQ) = true .
-}
-:apply (ctfidRQ rd-)
+:apply (ctfuniqRQ rd-)
 show proof
 
 --> *******************************************************************************************************
@@ -1228,6 +1207,7 @@ show proof
 -->           => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
+-- This goal requires o2o2o-lemma01
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,available,idND) sCP), 
   	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
@@ -1237,22 +1217,14 @@ show proof
   eq existCP(sCP,idCP) = true .
 }
 :apply (ctf5-2 rd-)
-:def ctfsCPa = :ctf {
-  eq uniqCP(sCP) = true .
+:def ctfuniqCP = :ctf {
+  eq uniqCP((rel(hostedOn,idRL,idCP,idRQ) sRL)) = true .
 }
-:apply (ctfsCPa rd-)
-:def ctfsCPb = :ctf {
-  eq allCPHaveRL(sCP,(rel(hostedOn,idRL,idCP,idRQ) sRL)) = true .
+:apply (ctfuniqCP rd-)
+:def ctfuniqRQ = :ctf {
+  eq uniqRQ((rel(hostedOn,idRL,idCP,idRQ) sRL)) = true .
 }
-:apply (ctfsCPb rd-)
-:def ctfsRL = :ctf {
-  eq allRLHaveRQ(sRL,(req(hostedOn, idRQ, unbound, idND') sRQ)) = true .
-}
-:apply (ctfsRL rd-)
-:def ctfidRQ = :ctf {
-  eq existRQ(sRL,idRQ) = true .
-}
-:apply (ctfidRQ rd-)
+:apply (ctfuniqRQ rd-)
 show proof
 
 --> **********************************************************************************
@@ -1411,6 +1383,7 @@ show proof
 -->           => < SetND, SetCP, 
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
+-- This goal requires o2o2o-lemma01
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,waiting,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
@@ -1430,22 +1403,14 @@ show proof
   eq existCP(sCP',idCP) = true .
 }
 :apply (ctfidCP rd-)
-:def ctfsCP'a = :ctf {
-  eq uniqCP(sCP') = true .
+:def ctfuniqCP = :ctf {
+  eq uniqCP((rel(connectsTo,idRL,idCP,idRQ) sRL)) = true .
 }
-:apply (ctfsCP'a rd-)
-:def ctfsCPb = :ctf {
-  eq allCPHaveRL(sCP',(rel(connectsTo,idRL,idCP,idRQ) sRL)) = true .
+:apply (ctfuniqCP rd-)
+:def ctfuniqRQ = :ctf {
+  eq uniqRQ((rel(connectsTo,idRL,idCP,idRQ) sRL)) = true .
 }
-:apply (ctfsCPb rd-)
-:def ctfsRL = :ctf {
-  eq allRLHaveRQ(sRL,(req(connectsTo,idRQ,waiting,idND) sRQ)) = true .
-}
-:apply (ctfsRL rd-)
-:def ctfidRQ = :ctf {
-  eq existRQ(sRL,idRQ) = true .
-}
-:apply (ctfidRQ rd-)
+:apply (ctfuniqRQ rd-)
 show proof
 select
 
