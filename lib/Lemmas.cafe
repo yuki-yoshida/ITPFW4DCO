@@ -459,8 +459,6 @@ module BASE-LEMMAS {
      = (id(O) = IDO) implies existObj((O S_O),IDO) .
 
   pred base-lemma03 : SetOfObject ObjState SetOfObjState
-  -- When allObjInStates0(S_O,(SO St_O)) and #ObjInStates0(SO,S_O) =0 holds, 
-  -- allObjInStates0(S_O,St_O) also holds.
   eq base-lemma03(S_O, SO, St_O)
      = allObjInStates0(S_O,(SO St_O)) and #ObjInStates0(SO,S_O) = 0 
        implies allObjInStates0(S_O,St_O) .
@@ -580,11 +578,9 @@ module M2O-LEMMAS {
   ceq Z in (Z' S_Z) = Z in S_Z if not(Z = Z') .
   eq ((Z S_Z) = empObj) = false .
 
-  -- eq SX in empState = false .
   eq SX in SX1 = (SX = SX1) .
   eq SX in (SX St_X) = true .
   ceq SX in (SX1 St_X) = SX in St_X if not(SX = SX1) .
-  -- eq ((SX St_X) = empState) = false .
 
   eq SZ in empState = false .
   eq SZ in (SZ St_Z) = true .
@@ -1452,11 +1448,9 @@ module O2O-LEMMAS {
   ceq Y in (Y' S_Y) = Y in S_Y if not(Y = Y') .
   eq ((Y S_Y) = empObj) = false .
 
-  -- eq SX in empState = false .
   eq SX in SX1 = (SX = SX1) .
   eq SX in (SX St_X) = true .
   ceq SX in (SX1 St_X) = SX in St_X if not(SX = SX1) .
-  -- eq ((SX St_X) = empState) = false .
 
   eq SY in empState = false .
   eq SY in (SY St_Y) = true .

@@ -1104,8 +1104,51 @@ module OBJLINKONE2ONE3(LINK :: PRMOBJLINK3) {
 
 module PRMOBJLINKLINK {
 
-  including(PRMOBJLINK)
+  -- Source Object
+  [Object < SetOfObject]
+  op null : -> Object {constr}
+  op empObj : -> SetOfObject {constr}
+  [ObjID]
+  [ObjType]
+  pred existObj : SetOfObject ObjID
+  [ObjState < SetOfObjState]
+  op empState : -> SetOfObjState {constr}
+  pred allObjInStates : SetOfObject SetOfObjState
+
+  -- The followings are usually not renamed.
+  op _ _ : SetOfObject SetOfObject -> SetOfObject {constr assoc comm id: empObj}
+  op _ _ : SetOfObjState SetOfObjState -> SetOfObjState {constr assoc comm id: empState}
+  op id : Object -> ObjID
+  op type : Object -> ObjType
+  op state : Object -> ObjState
+  pred _>_ : ObjState ObjState
+  pred _in_ : Object SetOfObject
+  pred _in_ : ObjState SetOfObjState
+  pred subset : SetOfObject SetOfObject
+
+  -- Target Object 
+  [LObject < SetOfLObject]
+  op empLObj : -> SetOfLObject {constr}
+  [LObjID]
+  pred existObj : SetOfLObject LObjID
+  [LObjState < SetOfLObjState]
+
+  -- Linking Objects which exist zero or many
+  op link : Object -> LObjID
+
+  -- The followings are usually not renamed.
+  op _ _ : SetOfLObject SetOfLObject -> SetOfLObject {constr assoc comm}
+  op _ _ : SetOfLObjState SetOfLObjState -> SetOfLObjState {constr assoc comm}
+  op id : LObject -> LObjID
+  op state : LObject -> LObjState
+  pred _>_ : LObjState LObjState
+  pred _in_ : LObject SetOfLObject
+  pred _in_ : LObjState SetOfLObjState
+  pred subset : SetOfLObject SetOfLObject
+
   pred uniqX : SetOfObject
+  op getXOfY : SetOfLObject Object -> LObject
+  op getYOfX : SetOfObject LObjID -> Object
 
   -- Second Target Object 
   [L'Object < SetOfL'Object]
@@ -1114,18 +1157,16 @@ module PRMOBJLINKLINK {
   -- op name link cannot be resolved by specifying signatures ... why??
   op link' : Object -> L'ObjID
   op null : -> L'Object
-  pred uniqX' : SetOfObject
 
   -- The followings are usually not renamed.
   op _ _ : SetOfL'Object SetOfL'Object -> SetOfL'Object {constr assoc comm}
   op id : L'Object -> L'ObjID
+  pred _>_ : L'ObjState L'ObjState
   op state : L'Object -> L'ObjState
   pred _in_ : L'ObjState SetOfL'ObjState
-  pred _>_ : L'ObjState L'ObjState
 
-  op getXOfY : SetOfLObject Object -> LObject
+  pred uniqX' : SetOfObject
   op getX'OfY : SetOfL'Object Object -> L'Object
-  op getYOfX : SetOfObject LObjID -> Object
   op getYOfX' : SetOfObject L'ObjID -> Object
 
 }

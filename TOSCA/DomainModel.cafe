@@ -419,8 +419,6 @@ module! LINKLINKS {
 	       sort ObjState -> RLState,
 	       sort SetOfObjState -> SetOfRLState,
 	       op empObj -> empRL,
-	       op getObject(X:SetOfObject,Y:ObjID) 
-	          -> getObject(X:SetOfRelationship,Y:RLID),
 	       op existObj(X:SetOfObject,Y:ObjID)
 	          -> existRL(X:SetOfRelationship,Y:RLID),
 
@@ -431,13 +429,8 @@ module! LINKLINKS {
 	       sort SetOfLObjState -> SetOfCPState,
 	       op empLObj -> empCP,
 	       op link -> cap,
-	       op getObject(X:SetOfLObject,Y:LObjID)
-	          -> getCapability(X:SetOfCapability,Y:CPID),
 	       op existObj(X:SetOfLObject,Y:LObjID)
 	          -> existCP(X:SetOfCapability,Y:CPID),
-	       op existObjInStates -> existCPInStates,
-	       op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
-	          -> allCPInStates(X:SetOfCapability,Y:SetOfCPState),
 	       op uniqX -> uniqCP,
 	       op getYOfX -> getRLOfCP,
 	       op getXOfY -> getCPOfRL,
