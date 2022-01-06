@@ -905,4 +905,4 @@ show proof
 :apply (ctfsrq' rd-)
 show proof
 select
---> Totally 44 goals should be proved.
+--> Totally 38 goals should be proved.
