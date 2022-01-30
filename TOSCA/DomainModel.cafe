@@ -415,7 +415,6 @@ module! LINKLINKS {
 	LINKS {sort Object -> Relationship,
 	       sort SetOfObject -> SetOfRelationship,
 	       sort ObjID -> RLID,
-	       sort ObjType -> RLType,
 	       sort ObjState -> RLState,
 	       sort SetOfObjState -> SetOfRLState,
 	       op empObj -> empRL,

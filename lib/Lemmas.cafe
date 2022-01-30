@@ -1753,7 +1753,6 @@ module O2O2O-LEMMAS {
   ops setX setX1 : -> SetOfLObject
   ops setX' setX'1 : -> SetOfL'Object
   ops setY setY1 : -> SetOfObject
-  op ot : -> ObjType
   op sx : -> LObjState
   op sy : -> ObjState
   op setSX : -> SetOfLObjState

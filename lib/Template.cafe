@@ -1109,17 +1109,14 @@ module PRMOBJLINKLINK {
   op null : -> Object {constr}
   op empObj : -> SetOfObject {constr}
   [ObjID]
-  [ObjType]
   pred existObj : SetOfObject ObjID
   [ObjState < SetOfObjState]
-  op empState : -> SetOfObjState {constr}
   pred allObjInStates : SetOfObject SetOfObjState
 
   -- The followings are usually not renamed.
   op _ _ : SetOfObject SetOfObject -> SetOfObject {constr assoc comm id: empObj}
-  op _ _ : SetOfObjState SetOfObjState -> SetOfObjState {constr assoc comm id: empState}
+  op _ _ : SetOfObjState SetOfObjState -> SetOfObjState {constr assoc comm}
   op id : Object -> ObjID
-  op type : Object -> ObjType
   op state : Object -> ObjState
   pred _>_ : ObjState ObjState
   pred _in_ : Object SetOfObject
@@ -1176,8 +1173,6 @@ module -OBJLINKONE2ONE2ONE-lemma(LINK :: PRMOBJLINKLINK) {
   -- one X' has exactly one coressponding Y
   -- Y has links to X and X'
 
-  including(-PRMOBJLINKPRED(LINK))
-
   var X : LObject
   vars X' X'1 X'2 : L'Object
   var Y : Object
@@ -1193,6 +1188,18 @@ module -OBJLINKONE2ONE2ONE-lemma(LINK :: PRMOBJLINKLINK) {
     if not (Y == null) .
   ceq (X' = null ) = false
     if not (X' == null) .
+
+  pred changeObjState0 : Object Object
+  eq changeObjState0(O1:Object,O2:Object)
+     = (id(O1) = id(O2)) and 
+       (link(O1) = link(O2)) and 
+       (state(O1) >  state(O2)) .
+
+  pred changeObjState0 : LObject LObject
+  eq changeObjState0(LO1:LObject,LO2:LObject)
+     = (id(LO1) = id(LO2)) and 
+       (state(LO1) > state(LO2)) .
+
   pred changeObjState0 : L'Object L'Object
   eq changeObjState0(X'1,X'2)
      = (id(X'1) = id(X'2)) and 
