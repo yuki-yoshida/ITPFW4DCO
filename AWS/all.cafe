@@ -1,10 +1,7 @@
 in DomainModel.cafe
-in Simulate.cafe
+-- in Simulate.cafe
 in Proof.cafe               -- Reload everytime!
-in Proof-initcont.cafe      -- 1 goal
-in Proof-contcont-R01.cafe  -- 1 goal
-in Proof-contcont-R02.cafe  -- 1 goal
-in Proof-measure.cafe       -- 2 goals
-in Proof-inv.cafe           -- 11 goals
 in Proof-invcont.cafe       -- 1 goal
---> Totally 17 goals should be proved.
+in Proof-measure.cafe       -- 2 goals
+in Proof-inv.cafe           -- 9 goals
+--> Totally 12 goals should be proved.

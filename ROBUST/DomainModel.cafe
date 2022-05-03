@@ -166,16 +166,11 @@ module! LINKS {
 		    op empObj -> empIM,
 		    op state2 -> next,
 		    op state3 -> target,
-		    op getObject(X:SetOfObject,Y:ObjID) 
-		       -> getImport(X:SetOfImport,Y:IMID),
-		    op existObj(X:SetOfObject,Y:ObjID)
-		       -> existIM(X:SetOfImport,Y:IMID),
-		    op allObjInStates(X:SetOfObject,Y:SetOfObjState)
-		       -> allIMInStates(X:SetOfImport,Y:SetOfIMState),
-		    op allObjInStates2(X:SetOfObject,Y:SetOfObjState)
-		      -> allIMInNextStates(X:SetOfImport,Y:SetOfIMState),
-		    op allObjInStates3(X:SetOfObject,Y:SetOfObjState)
-		      -> allIMInTargetStates(X:SetOfImport,Y:SetOfIMState),
+		    op getObject -> getImport,
+		    op existObj -> existIM,
+		    op allObjInStates -> allIMInStates,
+		    op allObjInStates2 -> allIMInNextStates,
+		    op allObjInStates3 -> allIMInTargetStates,
 		    sort LObject -> Component,
 		    sort LObjID -> COID,
 		    sort LObjState -> COState,
@@ -183,19 +178,14 @@ module! LINKS {
 		    sort SetOfLObjState -> SetOfCOState,
 		    op link -> importer,
 		    op empLObj -> empCO,
-		    op getObject(X:SetOfLObject,Y:LObjID) 
-		      -> getComponent(X:SetOfComponent,Y:COID),
-		    op existObj(X:SetOfLObject,Y:LObjID)
-		      -> existCO(X:SetOfComponent,Y:COID),
-		    op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
-		      -> allCOInStates(X:SetOfComponent,Y:SetOfCOState),
-		    op allObjInStates2(X:SetOfLObject,Y:SetOfLObjState)
-		      -> allCOInNextStates(X:SetOfComponent,Y:SetOfCOState),
-		    op allObjInStates3(X:SetOfLObject,Y:SetOfLObjState)
- 		      -> allCOInTargetStates(X:SetOfComponent,Y:SetOfCOState),
-		    op existObjInStates -> existCOInStates,
-		    op existObjInStates2 -> existCOInNextStates,
-		    op existObjInStates3 -> existCOInTargetStates})
+		    op getLObject -> getComponent,
+		    op existLObj -> existCO,
+		    op allLObjInStates -> allCOInStates,
+		    op allLObjInStates2 -> allCOInNextStates,
+		    op allLObjInStates3 -> allCOInTargetStates,
+		    op existLObjInStates -> existCOInStates,
+		    op existLObjInStates2 -> existCOInNextStates,
+		    op existLObjInStates3 -> existCOInTargetStates})
 	* {op hasLObj -> hasImporter,
 	   op getXOfZ -> getICOOfIM,
 	   op getZsOfX -> getIMsOfICO,
@@ -239,16 +229,11 @@ module! LINKS {
 		    op empObj -> empIM,
 		    op state2 -> next,
 		    op state3 -> target,
-		    op getObject(X:SetOfObject,Y:ObjID) 
-		    -> getImport(X:SetOfImport,Y:IMID),
-		    op existObj(X:SetOfObject,Y:ObjID)
-		    -> existIM(X:SetOfImport,Y:IMID),
-		    op allObjInStates(X:SetOfObject,Y:SetOfObjState)
-		    -> allIMInStates(X:SetOfImport,Y:SetOfIMState),
-		    op allObjInStates2(X:SetOfObject,Y:SetOfObjState)
-		    -> allIMInNextStates(X:SetOfImport,Y:SetOfIMState),
-		    op allObjInStates3(X:SetOfObject,Y:SetOfObjState)
-		    -> allIMInTargetStates(X:SetOfImport,Y:SetOfIMState),
+		    op getObject -> getImport,
+		    op existObj -> existIM,
+		    op allObjInStates -> allIMInStates,
+		    op allObjInStates2 -> allIMInNextStates,
+		    op allObjInStates3 -> allIMInTargetStates,
 		    sort LObject -> Component,
 		    sort LObjID -> COID,
 		    sort LObjState -> COState,
@@ -256,19 +241,14 @@ module! LINKS {
 		    sort SetOfLObjState -> SetOfCOState,
 		    op link -> exporter,
 		    op empLObj -> empCO,
-		    op getObject(X:SetOfLObject,Y:LObjID) 
-		      -> getComponent(X:SetOfComponent,Y:COID),
-		    op existObj(X:SetOfLObject,Y:LObjID)
-		      -> existCO(X:SetOfComponent,Y:COID),
-		    op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
-		      -> allCOInStates(X:SetOfComponent,Y:SetOfCOState),
-		    op allObjInStates2(X:SetOfLObject,Y:SetOfLObjState)
-		      -> allCOInNextStates(X:SetOfComponent,Y:SetOfCOState),
-		    op allObjInStates3(X:SetOfLObject,Y:SetOfLObjState)
-		      -> allCOInTargetStates(X:SetOfComponent,Y:SetOfCOState),
-		    op existObjInStates -> existCOInStates,
-		    op existObjInStates2 -> existCOInNextStates,
-		    op existObjInStates3 -> existCOInTargetStates})
+		    op getLObject -> getComponent,
+		    op existLObj -> existCO,
+		    op allLObjInStates -> allCOInStates,
+		    op allLObjInStates2 -> allCOInNextStates,
+		    op allLObjInStates3 -> allCOInTargetStates,
+		    op existLObjInStates -> existCOInStates,
+		    op existLObjInStates2 -> existCOInNextStates,
+		    op existLObjInStates3 -> existCOInTargetStates})
 	* {op hasLObj -> hasExporter,
 	   op getXOfZ -> getECOOfIM,
 	   op getZsOfX -> getIMsOfECO,

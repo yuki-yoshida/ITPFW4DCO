@@ -10,14 +10,25 @@ module PROOF {
   var SetPR : SetOfProperty
   vars S SS : State
 
+--> **************************************
+--> Step 0-1: Define init(S) and final(S).
+--> **************************************
+  eq init(< SetRS,SetPR >)
+     = wfs(< SetRS,SetPR >) and
+       noRSCycle(< SetRS,SetPR >) and
+       allRSInStates(SetRS,initial) and 
+       allPRInStates(SetPR,notready) .
+  eq final(< SetRS,SetPR >)
+     = allRSInStates(SetRS,started) .
+
 --> **********************
---> Step 0-3: Define m(S).
+--> Step 0-2: Define m(S).
 --> **********************
   eq m(< SetRS,SetPR >)
      = #ResourceInStates(initial,SetRS) + #PropertyInStates(notready,SetPR) .
 
 --> ************************
---> Step 0-4: Define inv(S).
+--> Step 0-3: Define inv(S).
 --> ************************
   -- The invariant should be defined as the conjunction of all inv-* and all wfs-*.
   -- But this definition causes costly computations.
@@ -27,7 +38,6 @@ module PROOF {
      = ifRSInStatesThenPRInStates(SetRS,started,SetPR,ready) .
 
   -- wfs-*:
-  ceq wfs(S) = false if not wfs-atLeastOneRS(S) .
   ceq wfs(S) = false if not wfs-allPRHaveRS(S) .
   ceq wfs(S) = false if not wfs-allPRHaveRRS(S) .
   ceq inv(S) = false if not wfs(S) .
@@ -41,11 +51,11 @@ module PROOF {
   eq (RS in SRS) = (state(RS) = SRS) .
 
 --> **************************************
---> Step 0-5: Prepare arbitrary constants.
+--> Step 0-4: Prepare arbitrary constants.
 --> **************************************
-  ops idRS idRS' idRS1 : -> RSIDLt
-  ops idRRS idRRS' : -> RSIDLt
-  ops idPR idPR' : -> PRIDLt
+  ops idRS idRS' idRS1 : -> RSID
+  ops idRRS idRRS' : -> RSID
+  ops idPR idPR' : -> PRID
   ops sRS sRS' sRS'' sRS''' : -> SetOfResource
   ops sPR sPR' sPR'' sPR''' : -> SetOfProperty
   ops trs trs' trs'' trs''' : -> RSType
@@ -57,31 +67,25 @@ module PROOF {
   op x : -> Resource
 }
 
--- *************************************************************************
--- (1) init(S) implies cont(S).
--- (2) inv(S) and not final(S) implies cont(SS) or final(SS).
--- (3) inv(S) and not final(S) implies measure(S) > measure(SS).
--- (4) init(S) implies inv(S).
--- (5) inv(S) implies inv(SS).
--- *************************************************************************
+-- *************************************************************
+-- (1) inv(S) implies cont(SS) or final(SS).
+-- (2) inv(S) and not final(S) implies measure(S) > measure(SS).
+-- (3) init(S) implies inv(S).
+-- (4) inv(S) implies inv(SS).
+-- *************************************************************
 
--- ****************************
--- (1) init(S) implies cont(S).
--- ****************************
--- in Proof-initcont.cafe
-
--- **********************************************************
--- (2) inv(S) and not final(S) implies cont(SS) or final(SS).
--- **********************************************************
--- in Proof-contcont.cafe
+-- *****************************************
+-- (1) inv(S) implies cont(SS) or final(SS).
+-- *****************************************
+-- in Proof-invcont.cafe
 
 -- *************************************************************************
--- (3) inv(S) and not final(S) implies measure(S) > measure(SS).
+-- (2) inv(S) and not final(S) implies measure(S) > measure(SS).
 -- *************************************************************************
 -- in Proof-measure.cafe
 
 -- ***************************
--- (4) init(S) implies inv(S).
--- (5) inv(S) implies inv(SS).
+-- (3) init(S) implies inv(S).
+-- (4) inv(S) implies inv(SS).
 -- ***************************
 -- in Proof-inv.cafe

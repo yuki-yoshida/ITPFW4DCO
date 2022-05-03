@@ -1,75 +1,82 @@
 require PROOF Proof.cafe
 
---> **********************************************
---> (6) (inv(S) and not final(S)) implies cont(S).
---> **********************************************
--- Proof of (6) (inv(S) and not final(S)) implies cont(S).
--- Assuming 
---   init(S) implies final(S) = false,
---   initinv(S) is proved, and
---   invcont(S) is prove, 
--- then both initcont(S) and contcont(S) holds.
+--> ****************************************
+--> (1) inv(S) implies final(S) or cont(S) .
+--> ****************************************
+-- Proof of (1) inv(S) implies final(S) or cont(S) .
 
-open PROOF .
+select PROOF .
 
---> *******************************************
---> Step 6-1: Begin with the most general case. 
---> *******************************************
+--> ***********************************************************************
+--> Step 1-1: Begin with the most general representation of a global state.
+--> ***********************************************************************
 :goal {eq invcont(< sRS, sPR >) = true .}
---> *********************************************
---> Step 6-2: Split the current case into cases 
--->  where predicate final does or does not hold.
---> *********************************************
+--> *********************************************************************************
+--> Step 1-2: Split the current case into cases where final(S) does or does not hold.
+--> *********************************************************************************
 -- eq final(< SetRS,SetPR >) = allRSInStates(SetRS,started) .
-:def finalcsp = :csp  { 
+:def csp1-2 = :csp  { 
   eq final(< sRS, sPR >) = true .
   eq sRS = (res(trs,idRS,initial) sRS') .
 }
-:apply (finalcsp rd-)
+:apply (csp1-2 rd-)
 -- Case 2: sRS = (res(trs,idRS,started) sRS') .
---> ******************************************************************
---> Step 6-4: Consider which rule can be applied to the current case. 
---> ******************************************************************
+--> *****************************************************************
+--> Step 1-3: Consider which rule can be applied to the current case.
+--> *****************************************************************
 -- rule R01 should be applied
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- The corrent case is already matched with the LHS of rule R01.
 --> *********************************************************
---> Step 6-6: Split the current case into cases where
+--> Step 1-5: Split the current case into cases where
 -->  the condition of the current rule does or does not hold. 
 --> *********************************************************
 -- The condition of R01 is allPROfRSInStates(sPR,idRS,ready) .
-:def sPRcsp = :csp { 
+:def csp1-5 = :csp { 
   eq allPROfRSInStates(sPR,idRS,ready) = true .
   eq sPR = (prop(tpr,idPR,notready,idRS,idRRS) sPR') .
 }
-:apply (sPRcsp rd-)
---> ******************************************************************
---> Step 6-4: Consider which rule can be applied to the current case. 
---> ******************************************************************
--- rule R02 should be applied
+:apply (csp1-5 rd-)
 --> **********************************************************************
---> Step 6-5: Split the current case into cases which collectively cover
--->  the current case and one of which matches to LHS of the current rule.
+--> Step 1-6: When there are two identifier constants of the same sort,
+-->  split the current case into cases where they are or are not the same.
 --> **********************************************************************
--- LHS of R02 requires that the refering resource is started.
-:def exRRScsp = :csp {
-  eq existRS(sRS',idRRS) = false .
-  eq sRS' = (res(trs',idRRS,srs') sRS'') .
+:def ctf1-6idRRS = :ctf { eq idRRS = idRS .  }
+:apply (ctf1-6idRRS rd-)
+--> **************************************************************************
+--> Step 1-7: When there is a dangling link, split the current case into cases
+-->  where the linked object does or does not exist.
+--> **************************************************************************
+:def csp1-7 = :csp {
+  eq existRS(sRS',idRRS) = false . 
+  eq sRS' = (res(trs',idRRS,srs') sRS'') . 
 }
-:apply (exRRScsp rd-)
-:def srs'csp = :csp {
+:apply (csp1-7 rd-)
+--> *****************************************************************
+--> Step 1-3: Consider which rule can be applied to the current case.
+--> *****************************************************************
+-- rule R02 should be applied
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- In order to be matched with the LHS of rule R02, the state of resource idRRS should be started.
+:def csp1-4 = :csp {
   eq srs' = initial .
   eq srs' = started .
 }
-:apply (srs'csp rd-)
+:apply (csp1-4 rd-)
 --> ******************************************************************************
---> Step 6-7: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
+--> Step 1-8: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
 --> ******************************************************************************
 -- The Cyclic Dependency Lemma rejects this case.
-:def noCycleinit = :init as noCycleLemma-in [noCycleLemma]
+:def noCycle = :init as noCycleLemma-in [noCycleLemma]
   by {O:Resource <- res(trs,idRS,initial);
       X:Resource <- res(trs,idRS,initial);
       S:State <- (< sRS, sPR >);
       LS:RSState <- initial; }
-:apply (noCycleinit rd-)
-show proof
-
-close
+:apply (noCycle rd-)
+select

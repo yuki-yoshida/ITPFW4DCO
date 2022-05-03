@@ -244,12 +244,9 @@ module! LINKS {
 			sort SetOfObject -> SetOfCapability,
 			sort SetOfObjState -> SetOfCPState,
 			op empObj -> empCP,
-			op getObject(X:SetOfObject,Y:ObjID) 
-			  -> getCapability(X:SetOfCapability,Y:CPID),
-			op existObj(X:SetOfObject,Y:ObjID)
-			  -> existCP(X:SetOfCapability,Y:CPID),
-			op allObjInStates(X:SetOfObject,Y:SetOfObjState)
-			  -> allCPInStates(X:SetOfCapability,Y:SetOfCPState),
+			op getObject -> getCapability,
+			op existObj -> existCP,
+			op allObjInStates -> allCPInStates,
 			sort LObject -> Node,
 			sort LObjID -> NDID,
 			sort LObjState -> NDState,
@@ -257,13 +254,10 @@ module! LINKS {
 			sort SetOfLObjState -> SetOfNDState,
 			op link -> node,
 			op empLObj -> empND,
-			op getObject(X:SetOfLObject,Y:LObjID) 
-			  -> getNode(X:SetOfNode,Y:NDID),
-			op existObj(X:SetOfLObject,Y:LObjID)
-			  -> existND(X:SetOfNode,Y:NDID),
-			op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
-			  -> allNDInStates(X:SetOfNode,Y:SetOfNDState),
-			op existObjInStates -> existNDInStates})
+			op getLObject -> getNode,
+			op existLObj -> existND,
+			op allLObjInStates -> allNDInStates,
+			op existLObjInStates -> existNDInStates})
 	* {op allZHaveX -> allCPHaveND,
 	   op allZOfTypeOfXInStates -> allCPOfTypeOfNDInStates,
 	   op allZOfXInStates -> allCPOfNDInStates,
@@ -289,12 +283,9 @@ module! LINKS {
 			 sort SetOfObject -> SetOfRequirement,
 			 sort SetOfObjState -> SetOfRQState,
 			 op empObj -> empRQ,
-			 op getObject(X:SetOfObject,Y:ObjID) 
-			   -> getRequirement(X:SetOfRequirement,Y:RQID),
-			 op existObj(X:SetOfObject,Y:ObjID)
-		           -> existRQ(X:SetOfRequirement,Y:RQID),
-			 op allObjInStates(X:SetOfObject,Y:SetOfObjState)
-		           -> allRQInStates(X:SetOfRequirement,Y:SetOfRQState),
+			 op getObject -> getRequirement,
+			 op existObj -> existRQ,
+			 op allObjInStates -> allRQInStates,
 			 sort LObject -> Node,
 			 sort LObjID -> NDID,
 			 sort LObjState -> NDState,
@@ -302,13 +293,10 @@ module! LINKS {
 			 sort SetOfLObjState -> SetOfNDState,
 			 op link -> node,
 			 op empLObj -> empND,
-			 op getObject(X:SetOfLObject,Y:LObjID) 
-		           -> getNode(X:SetOfNode,Y:NDID),
-			 op existObj(X:SetOfLObject,Y:LObjID)
-		           -> existND(X:SetOfNode,Y:NDID),
-			 op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
-		           -> allNDInStates(X:SetOfNode,Y:SetOfNDState),
-			 op existObjInStates -> existNDInStates})
+			 op getLObject -> getNode,
+			 op existLObj -> existND,
+			 op allLObjInStates -> allNDInStates,
+			 op existLObjInStates -> existNDInStates})
 	* {op allZHaveX -> allRQHaveND,
 	   op allZOfTypeOfXInStates -> allRQOfTypeOfNDInStates,
 	   op allZOfXInStates -> allRQOfNDInStates,
@@ -334,8 +322,7 @@ module! LINKS {
 			  sort SetOfObject -> SetOfRelationship,
 			  sort SetOfObjState -> SetOfRLState,
 			  op empObj -> empRL,
-			  op existObj(X:SetOfObject,Y:ObjID)
-			    -> existRL(X:SetOfRelationship,Y:RLID),
+			  op existObj -> existRL,
 			  sort LObject -> Capability,
 			  sort LObjID -> CPID,
 			  sort LObjState -> CPState,
@@ -343,13 +330,10 @@ module! LINKS {
 			  sort SetOfLObjState -> SetOfCPState,
 			  op link -> cap,
 			  op empLObj -> empCP,
-			  op getObject(X:SetOfLObject,Y:LObjID) 
-			    -> getCapability(X:SetOfCapability,Y:CPID),
-			  op existObj(X:SetOfLObject,Y:LObjID)
-			    -> existCP(X:SetOfCapability,Y:CPID),
-			  op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
-			    -> allCPInStates(X:SetOfCapability,Y:SetOfCPState),
-			  op existObjInStates -> existCPInStates})
+			  op getLObject -> getCapability,
+			  op existLObj -> existCP,
+			  op allLObjInStates -> allCPInStates,
+			  op existLObjInStates -> existCPInStates})
 	* {op allXHaveY -> allCPHaveRL,
 	   op allYHaveX -> allRLHaveCP,
 	   op existX -> existCP,
@@ -374,8 +358,7 @@ module! LINKS {
 			  sort SetOfObject -> SetOfRelationship,
 			  sort SetOfObjState -> SetOfRLState,
 			  op empObj -> empRL,
-			  op existObj(X:SetOfObject,Y:ObjID)
-			    -> existRL(X:SetOfRelationship,Y:RLID),
+			  op existObj -> existRL,
 			  sort LObject -> Requirement,
 			  sort LObjID -> RQID,
 			  sort LObjState -> RQState,
@@ -383,13 +366,10 @@ module! LINKS {
 			  sort SetOfLObjState -> SetOfRQState,
 			  op link -> req,
 			  op empLObj -> empRQ,
-			  op getObject(X:SetOfLObject,Y:LObjID) 
-			    -> getRequirement(X:SetOfRequirement,Y:RQID),
-			  op existObj(X:SetOfLObject,Y:LObjID)
-			    -> existRQ(X:SetOfRequirement,Y:RQID),
-			  op allObjInStates(X:SetOfLObject,Y:SetOfLObjState)
-			    -> allRQInStates(X:SetOfRequirement,Y:SetOfRQState),
-			  op existObjInStates -> existRQInStates})
+			  op getLObject -> getRequirement,
+			  op existLObj -> existRQ,
+			  op allLObjInStates -> allRQInStates,
+			  op existLObjInStates -> existRQInStates})
 	* {op existX -> existRQ,
 	   op getXOfY -> getRQOfRL,
 	   op getXsOfYs -> getRQsOfRLs,
@@ -418,8 +398,7 @@ module! LINKLINKS {
 	       sort ObjState -> RLState,
 	       sort SetOfObjState -> SetOfRLState,
 	       op empObj -> empRL,
-	       op existObj(X:SetOfObject,Y:ObjID)
-	          -> existRL(X:SetOfRelationship,Y:RLID),
+	       op existObj -> existRL,
 
 	       sort LObject -> Capability,
 	       sort SetOfLObject -> SetOfCapability,
@@ -428,8 +407,7 @@ module! LINKLINKS {
 	       sort SetOfLObjState -> SetOfCPState,
 	       op empLObj -> empCP,
 	       op link -> cap,
-	       op existObj(X:SetOfLObject,Y:LObjID)
-	          -> existCP(X:SetOfCapability,Y:CPID),
+	       op existLObj -> existCP,
 	       op uniqX -> uniqCP,
 	       op getYOfX -> getRLOfCP,
 	       op getXOfY -> getCPOfRL,

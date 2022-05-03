@@ -601,20 +601,20 @@ module M2O-LEMMAS {
   ceq subset((Z S_Z),S_Z') = false if not (Z in S_Z') .
   eq subset(S_Z,(Z S_Z)) = true .
 
-  eq getObject((X S_X),IDX)
-     = if (id(X) = IDX) then X else getObject(S_X,IDX) fi .
+  eq getLObject((X S_X),IDX)
+     = if (id(X) = IDX) then X else getLObject(S_X,IDX) fi .
 
   pred hasID : LObject LObjID
   eq hasID(X,IDX) = id(X) = IDX .
 
-  eq existObj(empLObj,IDX)
+  eq existLObj(empLObj,IDX)
      = false .
-  eq existObj((X S_X),IDX)
-     = hasID(X,IDX) or existObj(S_X,IDX) .
+  eq existLObj((X S_X),IDX)
+     = hasID(X,IDX) or existLObj(S_X,IDX) .
 
-  eq allObjInStates(empLObj, St_X) = true .
-  eq allObjInStates((X S_X), St_X)
-     = (state(X) in St_X) and allObjInStates(S_X, St_X) .
+  eq allLObjInStates(empLObj, St_X) = true .
+  eq allLObjInStates((X S_X), St_X)
+     = (state(X) in St_X) and allLObjInStates(S_X, St_X) .
 
   eq allObjInStates(empObj, St_Z) = true .
   eq allObjInStates((Z S_Z), St_Z)
@@ -682,14 +682,14 @@ module M2O-LEMMAS {
 
   pred m2o-lemma07 : SetOfLObject LObjState SetOfLObjState SetOfObject SetOfObjState
   eq m2o-lemma07(S_X,SX,St_X,S_Z,St_Z)
-     = allObjInStates(S_X,SX) implies ifXInStatesThenZInStates0(S_X,St_X,S_Z,St_Z)
+     = allLObjInStates(S_X,SX) implies ifXInStatesThenZInStates0(S_X,St_X,S_Z,St_Z)
      when not (SX in St_X) .
 
   pred m2o-lemma08 : Object Object SetOfLObject SetOfLObjState SetOfObject SetOfObjState
   eq m2o-lemma08(Z,Z',S_X,St_X,S_Z,St_Z)
      = ifXInStatesThenZInStates0(S_X,St_X,(Z S_Z),St_Z)
          implies ifXInStatesThenZInStates0(S_X,St_X,(Z' S_Z),St_Z)
-     when not existObj(S_X,link(Z)) and changeObjState0(Z,Z') .
+     when not existLObj(S_X,link(Z)) and changeObjState0(Z,Z') .
 
   pred m2o-lemma09 : SetOfLObject SetOfLObjState Object SetOfObject SetOfObjState
   eq m2o-lemma09(S_X,St_X,Z,S_Z,St_Z)
@@ -727,14 +727,14 @@ module M2O-LEMMAS {
 
   pred m2o-lemma15 : SetOfLObject LObjState SetOfLObjState SetOfObject ObjType SetOfObjState
   eq m2o-lemma15(S_X,SX,St_X,S_Z,OT,St_Z)
-     = allObjInStates(S_X,SX) implies ifXInStatesThenZOfTypeInStates0(S_X,St_X,S_Z,OT,St_Z)
+     = allLObjInStates(S_X,SX) implies ifXInStatesThenZOfTypeInStates0(S_X,St_X,S_Z,OT,St_Z)
      when not (SX in St_X) .
 
   pred m2o-lemma16 : Object Object SetOfLObject SetOfLObjState SetOfObject ObjType SetOfObjState
   eq m2o-lemma16(Z,Z',S_X,St_X,S_Z,OT,St_Z)
      = ifXInStatesThenZOfTypeInStates0(S_X,St_X,(Z S_Z),OT,St_Z)
          implies ifXInStatesThenZOfTypeInStates0(S_X,St_X,(Z' S_Z),OT,St_Z)
-     when not existObj(S_X,link(Z)) and changeObjState0(Z,Z') .
+     when not existLObj(S_X,link(Z)) and changeObjState0(Z,Z') .
 
   pred m2o-lemma17 : SetOfLObject SetOfLObjState Object SetOfObject ObjType SetOfObjState
   eq m2o-lemma17(S_X,St_X,Z,S_Z,OT,St_Z)
@@ -767,8 +767,8 @@ module M2O-LEMMAS {
 
   pred m2o-lemma22 : Object SetOfObject SetOfLObject SetOfLObjState .
   eq m2o-lemma22(Z,S_Z,S_X,St_X)
-     = getObject(S_X,link(Z)) in getXsOfZsInStates0(S_X,S_Z,St_X)
-     when not S_X = empLObj and (state(getObject(S_X,link(Z))) in St_X) and (Z in S_Z) .
+     = getLObject(S_X,link(Z)) in getXsOfZsInStates0(S_X,S_Z,St_X)
+     when not S_X = empLObj and (state(getLObject(S_X,link(Z))) in St_X) and (Z in S_Z) .
 
   pred m2o-lemma23 : SetOfObject SetOfObject SetOfLObject SetOfLObjState .
   eq m2o-lemma23(S_Z,S_Z',S_X,St_X)
@@ -932,7 +932,7 @@ close
 
 --> ********************************************************************************
 --> Prove m2o-lemma07
--->    = allObjInStates(S_X,SX) implies ifXInStatesThenZInStates0(S_X,St_X,S_Z,St_Z)
+-->    = allLObjInStates(S_X,SX) implies ifXInStatesThenZInStates0(S_X,St_X,S_Z,St_Z)
 -->    when not (SX in St_X) .
 --> ********************************************************************************
 select M2O-LEMMAS
@@ -959,7 +959,7 @@ show proof
 --> Prove m2o-lemma08
 -->       = ifXInStatesThenZInStates0(S_X,St_X,(Z S_Z),St_Z)
 -->           implies ifXInStatesThenZInStates0(S_X,St_X,(Z' S_Z),St_Z)
--->       when not existObj(S_X,link(Z)) and changeObjState0(Z,Z') .
+-->       when not existLObj(S_X,link(Z)) and changeObjState0(Z,Z') .
 --> *******************************************************************
 select M2O-LEMMAS
 :goal {
@@ -1093,7 +1093,7 @@ close
 
 --> *****************************************************************************************
 --> Prove m2o-lemma15
--->    = allObjInStates(S_X,SX) implies ifXInStatesThenZOfTypeInStates0(S_X,St_X,S_Z,OT,St_Z)
+-->    = allLObjInStates(S_X,SX) implies ifXInStatesThenZOfTypeInStates0(S_X,St_X,S_Z,OT,St_Z)
 -->    when not (SX in St_X) .
 --> *****************************************************************************************
 select M2O-LEMMAS
@@ -1120,7 +1120,7 @@ show proof
 --> Prove m2o-lemma16
 -->       = ifXInStatesThenZOfTypeInStates0(S_X,St_X,(Z S_Z),OT,St_Z)
 -->           implies ifXInStatesThenZOfTypeInStates0(S_X,St_X,(Z' S_Z),OT,St_Z)
--->       when not existObj(S_X,link(Z)) and changeObjState0(Z,Z') .
+-->       when not existLObj(S_X,link(Z)) and changeObjState0(Z,Z') .
 --> ****************************************************************************
 select M2O-LEMMAS
 :goal {
@@ -1235,8 +1235,8 @@ show proof
 
 --> ****************************************************************************************
 --> Prove m2o-lemma22
--->     = getObject(S_X,link(Z)) in getXsOfZsInStates0(S_X,S_Z,St_X)
--->     when not S_X = empLObj and (state(getObject(S_X,link(Z))) in St_X) and (Z in S_Z) .
+-->     = getLObject(S_X,link(Z)) in getXsOfZsInStates0(S_X,S_Z,St_X)
+-->     when not S_X = empLObj and (state(getLObject(S_X,link(Z))) in St_X) and (Z in S_Z) .
 --> ****************************************************************************************
 select M2O-LEMMAS
 :goal {
@@ -1252,7 +1252,7 @@ select M2O-LEMMAS
 }
 :apply (cspz rd-)
 :def ctfstate = :ctf {
-  eq state(getObject(setX,link(z))) in setSX = true .
+  eq state(getLObject(setX,link(z))) in setSX = true .
 }
 :apply (ctfstate rd-)
 show proof
@@ -1264,8 +1264,8 @@ show proof
 --> **********************************************************************************
 open M2O-LEMMAS .
   ceq [m2o-lemma22]:
-    (getObject(S_X,link(Z)) in getXsOfZsInStates0(S_X,S_Z,St_X)) = true
-    if not S_X = empLObj and (state(getObject(S_X,link(Z))) in St_X) and (Z in S_Z) .
+    (getLObject(S_X,link(Z)) in getXsOfZsInStates0(S_X,S_Z,St_X)) = true
+    if not S_X = empLObj and (state(getLObject(S_X,link(Z))) in St_X) and (Z in S_Z) .
 :goal {
   eq m2o-lemma23(empObj,setZ',setX,setSX) = true .
   eq m2o-lemma23(setZ,setZ',setX,setSX) implies m2o-lemma23((z setZ),setZ',setX,setSX) = true .
@@ -1279,7 +1279,7 @@ open M2O-LEMMAS .
 }
 :apply (ctfz rd-)
 :def ctfstate = :ctf {
-  eq state(getObject(setX,link(z))) in setSX = true .
+  eq state(getLObject(setX,link(z))) in setSX = true .
 }
 :apply (ctfstate rd-)
 show proof
@@ -1310,7 +1310,7 @@ select M2O-LEMMAS
   eq (state(x1) in setSX) = true .
 }
 :def ctfstate = :ctf {
-  eq (state(getObject(setX,link(z))) in setSX) = true .
+  eq (state(getLObject(setX,link(z))) in setSX) = true .
 }
 :apply (ctflink ctfx1 ctfstate rd-)
 show proof
@@ -1471,19 +1471,19 @@ module O2O-LEMMAS {
   ceq subset((Y S_Y),S_Y') = false if not (Y in S_Y') .
   eq subset(S_Y,(Y S_Y)) = true .
 
-  eq getObject((X S_X),IDX)
-     = if (id(X) = IDX) then X else getObject(S_X,IDX) fi .
+  eq getLObject((X S_X),IDX)
+     = if (id(X) = IDX) then X else getLObject(S_X,IDX) fi .
 
   pred hasID : LObject LObjID
   eq hasID(X,IDX) = id(X) = IDX .
 
-  eq existObj(empLObj,IDX) = false .
-  eq existObj((X S_X),IDX)
-     = id(X) = IDX or existObj(S_X,IDX) .
+  eq existLObj(empLObj,IDX) = false .
+  eq existLObj((X S_X),IDX)
+     = id(X) = IDX or existLObj(S_X,IDX) .
 
-  eq allObjInStates(empLObj, St_X) = true .
-  eq allObjInStates((X S_X), St_X)
-     = (state(X) in St_X) and allObjInStates(S_X, St_X) .
+  eq allLObjInStates(empLObj, St_X) = true .
+  eq allLObjInStates((X S_X), St_X)
+     = (state(X) in St_X) and allLObjInStates(S_X, St_X) .
 
   eq allObjInStates(empObj, St_Y) = true .
   eq allObjInStates((Y S_Y), St_Y)
@@ -1509,7 +1509,7 @@ module O2O-LEMMAS {
   eq o2o-lemma04(Y,Y',S_X,St_X,S_Y,St_Y)
      = ifXInStatesThenYInStates0(S_X,St_X,(Y S_Y),St_Y)
          implies ifXInStatesThenYInStates0(S_X,St_X,(Y' S_Y),St_Y)
-     when not existObj(S_X,link(Y)) and changeObjState0(Y,Y') .
+     when not existLObj(S_X,link(Y)) and changeObjState0(Y,Y') .
 
   pred o2o-lemma05 : Object Object SetOfLObject SetOfLObjState SetOfObject SetOfObjState
   eq o2o-lemma05(Y,Y',S_X,St_X,S_Y,St_Y)
@@ -1610,7 +1610,7 @@ close
 --> Prove o2o-lemma04 
 -->       = ifXInStatesThenYInStates0(S_X,St_X,(Y S_Y),St_Y)
 -->           implies ifXInStatesThenYInStates0(S_X,St_X,(Y' S_Y),St_Y)
--->       when not existObj(S_X,link(Y)) and changeObjState0(Y,Y') .
+-->       when not existLObj(S_X,link(Y)) and changeObjState0(Y,Y') .
 --> *******************************************************************
 select O2O-LEMMAS
 :goal {
@@ -1716,16 +1716,16 @@ module O2O2O-LEMMAS {
   eq getYOfX((Y S_Y),IDX)
      = if (IDX = link(Y)) then Y else getYOfX(S_Y,IDX) fi .
 
-  eq existObj(empLObj,IDX) = false .
-  eq existObj((X S_X),IDX)
-     = id(X) = IDX or existObj(S_X,IDX) .
+  eq existLObj(empLObj,IDX) = false .
+  eq existLObj((X S_X),IDX)
+     = id(X) = IDX or existLObj(S_X,IDX) .
 
   pred o2o2o-lemma01 : SetOfLObject SetOfLObjState L'Object L'Object SetOfL'Object
        		       SetOfL'ObjState Object SetOfObject
   eq o2o2o-lemma01(S_X,St_X,X',X'1,S_X',St_X',Y,S_Y)
      = ifXInStatesThenX'InStates(S_X,St_X,(X'  S_X'),St_X',(Y S_Y)) implies
        ifXInStatesThenX'InStates(S_X,St_X,(X'1 S_X'),St_X',(Y S_Y)) 
-     when not existObj(S_X,link(Y)) and uniqX(Y S_Y) and uniqX'(Y S_Y) and
+     when not existLObj(S_X,link(Y)) and uniqX(Y S_Y) and uniqX'(Y S_Y) and
           link'(Y) = id(X') and changeObjState0(X',X'1) .
 
   pred o2o2o-lemma02 : SetOfLObject SetOfLObjState L'Object L'Object SetOfL'Object
@@ -1764,7 +1764,7 @@ module O2O2O-LEMMAS {
 --> Prove o2o2o-lemma01(S_X,St_X,X',X'1,S_X',St_X',Y,S_Y)
 -->     = ifXInStatesThenX'InStates(S_X,St_X,(X'  S_X'),St_X',(Y S_Y)) implies
 -->       ifXInStatesThenX'InStates(S_X,St_X,(X'1 S_X'),St_X',(Y S_Y)) 
--->     when not existObj(S_X,link(Y)) and uniqX(Y S_Y) and uniqX'(Y S_Y) and
+-->     when not existLObj(S_X,link(Y)) and uniqX(Y S_Y) and uniqX'(Y S_Y) and
 -->          link'(Y) = id(X') and changeObjState0(X',X'1) .
 --> **************************************************************************
 select O2O2O-LEMMAS
@@ -1790,10 +1790,10 @@ show proof
 }
 :apply(ctfidx)
 :apply(rd-)
-:def ctfexistObj = :ctf {
-  eq existObj(setX,link(y)) = true .
+:def ctfexistLObj = :ctf {
+  eq existLObj(setX,link(y)) = true .
 }
-:apply(ctfexistObj rd-)
+:apply(ctfexistLObj rd-)
 :def ctflink' = :ctf {
   eq link'(y) = id(x'1) .
 }

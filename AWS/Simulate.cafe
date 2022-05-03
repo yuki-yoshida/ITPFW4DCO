@@ -1,11 +1,10 @@
-require DomainModel DomainModel.cafe
+require PROOF Proof.cafe
 
 --> Sample Simulation
-open STATERules .
+open PROOF .
 
 eq wfs(S:State)
-   = true and wfs-atLeastOneRS(S) and
-     wfs-uniqRS(S) and wfs-uniqPR(S) and 
+   = wfs-uniqRS(S) and wfs-uniqPR(S) and 
      wfs-allPRHaveRS(S) and wfs-allPRHaveRRS(S) .
 
 ops myInstance myEIP rs0 : -> RSIDLt .
