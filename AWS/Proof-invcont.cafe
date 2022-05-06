@@ -70,13 +70,14 @@ select PROOF .
 }
 :apply (csp1-4 rd-)
 --> ******************************************************************************
---> Step 1-8: When falling in a cyclic situation, use the Cyclic Dependency Lemma.
+--> Step 1-8: When falling in a cyclic situation, use No Cyclic Dependency Lemma.
 --> ******************************************************************************
 -- The Cyclic Dependency Lemma rejects this case.
-:def noCycle = :init as noCycleLemma-in [noCycleLemma]
-  by {O:Resource <- res(trs,idRS,initial);
-      X:Resource <- res(trs,idRS,initial);
+:def noCycle = :init as noCDL-in [noCDL]
+  by {Oc:Resource <- res(trs,idRS,initial);
+      Xc:Resource <- res(trs,idRS,initial);
       S:State <- (< sRS, sPR >);
       LS:RSState <- initial; }
 :apply (noCycle rd-)
+show proof
 select

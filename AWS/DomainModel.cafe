@@ -175,7 +175,7 @@ module! STATEfuns {
   extending(CYCLEPRED(
   	STATECyclefuns {sort Object -> Resource,
   	       		sort SetOfObject -> SetOfResource,
-			sort LocalState -> RSState,
+			sort ObjState -> RSState,
 			op DDSC -> DDSRS,
   	       		op empObj -> empRS,
   	       		op getAllObjC -> getAllRSInState})

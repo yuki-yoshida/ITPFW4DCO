@@ -46,10 +46,6 @@ module PROOF {
   ceq inv(S) = false if not inv-ifRSStartedThenPRReady(S) .
   ceq inv(S) = false if not noRSCycle(S) .
 
-  -- for NoCyclic Lemma
-  var SRS : RSState
-  eq (RS in SRS) = (state(RS) = SRS) .
-
 --> **************************************
 --> Step 0-4: Prepare arbitrary constants.
 --> **************************************

@@ -1,23 +1,23 @@
 require Template Template.cafe
 
--- No Cycle Lemma:
+-- No Cyclic Dependency Lemma:
 -- if noCycleC(S) and some object O in S is in a local state LS
 -- then there is some object X in S that is also in LS
 --      but does not depend on any other objects in LS.
--- eq noCycleLemma(O,S,LS)
---   = (noCycleC(S) and O in getAllObjC(S) and O in LS) 
+-- eq noCDL(O,S,LS)
+--   = (noCycleC(S) and O in getAllObjC(S) and state(O) = LS) 
 --     implies someNoDependObj(getAllObjC(S), LS, S) .
 module CYCLELEMMA {
   protecting(CYCLEPRED)
   
-  op getNoDependObj : SetOfObject LocalState State -> Object
-  pred noCycleLemma : Object State LocalState
-  pred cycle-lemma1 : Object LocalState State
-  pred cycle-lemma2 : Object LocalState State
+  op getNoDependObj : SetOfObject ObjState State -> Object
+  pred noCDL : Object State ObjState
+  pred cycle-lemma1 : Object ObjState State
+  pred cycle-lemma2 : Object ObjState State
 
   vars O O' : Object
   vars OS OS' OS0 OS0' : SetOfObject
-  var LS : LocalState
+  var LS : ObjState
   var S : State
 
   -- Assuming subset(DDSC(O,S),getAllObjC(S)) .
@@ -26,27 +26,27 @@ module CYCLELEMMA {
 
   ceq getNoDependObj((O OS),LS,S) 
     = (if isNoDepend(O,LS,S) then O else getNoDependObj(DDSC(O,S),LS,S) fi)
-    if O in LS .
+    if state(O) = LS .
 
   ceq getNoDependObj((O OS),LS,S) 
     = getNoDependObj(OS,LS,S)
-    if not (O in LS) .
+    if not (state(O) = LS) .
 
   -- Lemmas to be proved
-  eq noCycleLemma(O,S,LS)
-    = (noCycleC(S) and O in getAllObjC(S) and O in LS) 
+  eq noCDL(O,S,LS)
+    = (noCycleC(S) and O in getAllObjC(S) and state(O) = LS) 
       implies someNoDependObj(getAllObjC(S), LS, S) .
 
   eq cycle-lemma1(O,LS,S)
     = (noCycleC(S) and 
        O in getAllObjC(S) and 
-       O in LS) implies 
+       state(O) = LS) implies 
       isNoDepend(getNoDependObj(O,LS,S),LS,S) .
 
   eq cycle-lemma2(O,LS,S)
     = (noCycleC(S) and 
        O in getAllObjC(S) and 
-       O in LS) implies 
+       state(O) = LS) implies 
       getNoDependObj(O,LS,S) in getAllObjC(S) .
 
   -- Set Axiom
@@ -54,7 +54,7 @@ module CYCLELEMMA {
       (O in OS) = true
    if subset((O OS'),OS) .
 
-  [OLSS] op t : Object LocalState State -> OLSS {constr} .
+  [OLSS] op t : Object ObjState State -> OLSS {constr} .
   pred _<wf_ : OLSS OLSS .
 
   -- Define <wf for cycle-lemma1
@@ -63,7 +63,7 @@ module CYCLELEMMA {
 
   ops o o' : -> Object .
   ops os0 os os' : -> SetOfObject .
-  op ls : -> LocalState .
+  op ls : -> ObjState .
   op s : -> State .
 }
 
@@ -71,7 +71,7 @@ module CYCLELEMMA {
 -->  eq cycle-lemma1(O,LS,S)
 -->    = (noCycleC(S) and 
 -->       O in getAllObjC(S) and 
--->       O in LS) implies 
+-->       state(O) = LS) implies 
 -->      isNoDepend(getNoDependObj(O,LS,S),LS,S) .
 open CYCLELEMMA .
 
@@ -87,7 +87,7 @@ open CYCLELEMMA .
 }
 :apply (OinScsp rd-)
 :def OinLSctf = :ctf {
-  eq (o in ls) = true .
+  eq (state(o) = ls) = true .
 }
 :apply (OinLSctf rd-)
 :def allNScsp = :csp {
@@ -96,7 +96,7 @@ open CYCLELEMMA .
 }
 :apply (allNScsp rd-)
 :csp {
-  eq (o' in ls) = true .
+  eq (state(o') = ls) = true .
 }
 :def OisO'ctf = :ctf {
   eq (o' in o) = true .
@@ -111,7 +111,7 @@ open CYCLELEMMA .
       OS':SetOfObject <- os'; }
 :init as cycle-lemma1-IH-in [cycle-lemma1-IH]
   by {O:Object <- o'; 
-      LS:LocalState <- ls; 
+      LS:ObjState <- ls; 
       S:State <- s; }
 :apply (rd-)
 --> Proof of cycle-lemma1 done
@@ -123,7 +123,7 @@ close
 -->  eq cycle-lemma2(O,LS,S)
 -->    = (noCycleC(S) and 
 -->       O in getAllObjC(S) and 
--->       O in LS) implies 
+-->       state(O) = LS) implies 
 -->      getNoDependObj(O,LS,S) in getAllObjC(S) .
 open CYCLELEMMA .
 
@@ -139,7 +139,7 @@ open CYCLELEMMA .
 }
 :apply (OinScsp rd-)
 :def OinLSctf = :ctf {
-  eq (o in ls) = true .
+  eq (state(o) = ls) = true .
 }
 :apply (OinLSctf rd-)
 :def allNScsp = :csp {
@@ -148,7 +148,7 @@ open CYCLELEMMA .
 }
 :apply (allNScsp rd-)
 :csp {
-  eq (o' in ls) = true .
+  eq (state(o') = ls) = true .
 }
 :def OisO'ctf = :ctf {
   eq (o' in o) = true .
@@ -163,7 +163,7 @@ open CYCLELEMMA .
       OS':SetOfObject <- os'; }
 :init as cycle-lemma2-IH-in [cycle-lemma2-IH]
   by {O:Object <- o'; 
-      LS:LocalState <- ls; 
+      LS:ObjState <- ls; 
       S:State <- s; }
 :apply (rd-)
 --> Proof of cycle-lemma2 done
@@ -171,9 +171,9 @@ open CYCLELEMMA .
 show proof
 close
 
---> Proof of noCycleLemma
--->  eq noCycleLemma(O,S,LS)
--->    = (noCycleC(S) and O in getAllObjC(S) and O in LS)
+--> Proof of noCDL
+-->  eq noCDL(O,S,LS)
+-->    = (noCycleC(S) and O in getAllObjC(S) and state(O) = LS)
 -->      implies someNoDependObj(getAllObjC(S), LS, S) .
 open CYCLELEMMA .
 
@@ -181,24 +181,24 @@ open CYCLELEMMA .
   -- eq cycle-lemma1(O,LS,S)
   --   = (noCycleC(S) and 
   --      O in getAllObjC(S) and 
-  --      O in LS) implies 
+  --      state(O) = LS) implies 
   --     isNoDepend(getNoDependObj(O,LS,S),LS,S) .
   ceq [cycle-lemma1 :nonexec]:
     isNoDepend(getNoDependObj(O,LS,S),LS,S) = true
     if (noCycleC(S) and 
         O in getAllObjC(S) and 
-        O in LS) .
+        state(O) = LS) .
 
   -- eq cycle-lemma2(O,LS,S)
   --   = (noCycleC(S) and 
   --      O in getAllObjC(S) and 
-  --      O in LS) implies 
+  --      state(O) = LS) implies 
   --     getNoDependObj(O,LS,S) in getAllObjC(S) .
   ceq [cycle-lemma2 :nonexec]:
     (getNoDependObj(O,LS,S) in getAllObjC(S)) = true
-    if noCycleC(S) and O in getAllObjC(S) and O in LS .
+    if noCycleC(S) and O in getAllObjC(S) and state(O) = LS .
 
-:goal { eq noCycleLemma(o,s,ls) = true . }
+:goal { eq noCDL(o,s,ls) = true . }
 :def noCyclectf = :ctf {
   eq noCycleC(s) = true .
 }
@@ -209,7 +209,7 @@ open CYCLELEMMA .
 }
 :apply (OinScsp rd-)
 :def OinLSctf = :ctf {
-  eq (o in ls) = true .
+  eq (state(o) = ls) = true .
 }
 :apply (OinLSctf rd-)
 :def allNSctf = :ctf {
@@ -224,16 +224,16 @@ open CYCLELEMMA .
 -- 1-2-1-2-1
 :init as cycle-lemma2-in [cycle-lemma2]
   by {O:Object <- o;
-      LS:LocalState <- ls;
+      LS:ObjState <- ls;
       S:State <- s; }
 :apply (rd-)
 -- 1-2-1-2-2
 :init as cycle-lemma1-in [cycle-lemma1]
   by {O:Object <- o;
-      LS:LocalState <- ls;
+      LS:ObjState <- ls;
       S:State <- s; }
 :apply (rd-)
---> Proof of noCycleLemma done
+--> Proof of noCDL done
 -->
 show proof
 close 
