@@ -17,21 +17,20 @@ module ProofMeasure {
 -->     if allPROfRSInStates(SetPR,IDRS,ready) .
 --> ********************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< (res(trs,idRS,initial) sRS), sPR >) = true .
 }
---> ********************************************************
---> Step 3-3: Split the current case for a rule into cases
--->  where the condition of the rule does or does not hold. 
---> ********************************************************
--- The condition of R01 does or does not hold for S.
-:def ctf3-3R01 = :ctf {
+--> ************************************************************************
+--> Step 2-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
+:def csp2-2R01 = :csp {
   eq allPROfRSInStates(sPR,idRS,ready) = true .
 }
-:apply (ctf3-3R01 rd-)
+:apply (csp2-2R01 rd-)
 show proof
 
 --> ****************************************************
@@ -41,9 +40,9 @@ show proof
 -->  => < (res(TRS,IDRRS,started) SetRS), 
 -->       (prop(TPR,IDPR,ready   ,IDRS,IDRRS) SetPR) > .
 --> ****************************************************
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >) = true .
 }
