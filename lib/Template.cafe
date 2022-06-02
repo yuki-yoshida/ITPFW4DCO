@@ -1417,5 +1417,20 @@ module CYCLEPRED(P :: PRMCYCLE) {
     if Oc in getAllObjC(S) and 
        state(Oc) = LS and 
        isNoDepend(Xc,LS,S) = false .
+
+  -- Subset Dependency Lemma
+  var S' : State
+  pred subsetDepend : State State
+  pred subsetDepend : SetOfObject State State
+  eq subsetDepend(S,S') 
+    = subsetDepend(getAllObjC(S),S,S') .
+  eq subsetDepend(empObj,S,S') = true .
+  eq subsetDepend((Oc OS),S,S') 
+    = subset(DDSC(Oc,S'),DDSC(Oc,S)) and
+      subsetDepend(OS,S,S') .
+
+  ceq [SDL-lemma :nonexec]:
+    noCycleC(S) and noCycleC(S') = noCycleC(S) 
+    if subsetDepend(S,S') .
 }
 
