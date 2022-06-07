@@ -50,3 +50,5 @@ show proof
 show proof
 
 select
+--> AWS/Proof-measure.cafe
+--> Totally 2 goals should be proved.

@@ -47,14 +47,14 @@ show proof
 :goal {
   eq invinv(< (res(trs,idRS,initial) sRS), sPR >) = true .
 }
---> *******************************************************
---> Step 4-2: Split the current case for a rule into cases
--->  where the condition of the rule does or does not hold. 
---> *******************************************************
-:def ctf4-2R01 = :ctf {
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
+:def csp4-2R01 = :csp {
   eq allPROfRSInStates(sPR,idRS,ready) = true .
 }
-:apply (ctf4-2R01 rd-)
+:apply (csp4-2R01 rd-)
 show proof
 
 --> ****************************************************
@@ -109,14 +109,14 @@ select Proofwfs-allPRHaveRS
 :goal {
   eq invinv(< (res(trs,idRS,initial) sRS), sPR >) = true .
 }
---> ********************************************************
---> Step 4-2: Split the current case for a rule into cases
--->  where the condition of the rule does or does not hold. 
---> ********************************************************
-:def ctf4-2R01 = :ctf {
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
+:def csp4-2R01 = :csp {
   eq allPROfRSInStates(sPR,idRS,ready) = true .
 }
-:apply (ctf4-2R01 rd-)
+:apply (csp4-2R01 rd-)
 show proof
 
 --> ****************************************************
@@ -171,14 +171,14 @@ select Proofwfs-allPRHaveRRS
 :goal {
   eq invinv(< (res(trs,idRS,initial) sRS), sPR >) = true .
 }
---> *******************************************************
---> Step 4-2: Split the current case for a rule into cases
--->  where the condition of the rule does or does not hold. 
---> *******************************************************
-:def ctf4-2R01 = :ctf {
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
+:def csp4-2R01 = :csp {
   eq allPROfRSInStates(sPR,idRS,ready) = true .
 }
-:apply (ctf4-2R01 rd-)
+:apply (csp4-2R01 rd-)
 show proof
 
 --> ****************************************************
@@ -206,8 +206,11 @@ select
 --> ******************************************
 module Proofinv-noRSCycle {
   protecting(PROOF)
-  var S : State
+  vars S S' : State
   eq invK(S) = noRSCycle(S) .
+
+  pred noRSCycle-lemma : State State
+  eq noRSCycle-lemma(S,S') = inv(S) implies subsetDepend(S',S) .
 }
 
 select Proofinv-noRSCycle
@@ -238,16 +241,19 @@ show proof
 :goal {
   eq invinv(< (res(trs,idRS,initial) sRS), sPR >) = true .
 }
---> *******************************************************
---> Step 4-2: Split the current case for a rule into cases
--->  where the condition of the rule does or does not hold. 
---> *******************************************************
-:def ctf4-2R01 = :ctf {
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
+:def csp4-2R01 = :csp {
   eq allPROfRSInStates(sPR,idRS,ready) = true .
 }
-:apply (ctf4-2R01 rd-)
-
-:init as subsetDepend-in ( eq subsetDepend(S:State,S':State) = true . )
+:apply (csp4-2R01 rd-)
+:def ctfuniqRS = :ctf {
+  eq wfs-uniqRS(< (res(trs,idRS,initial) sRS) , sPR >) = true .
+}
+:apply (ctfuniqRS rd-)
+:init as noRSCycle-lemma-in ( eq noRSCycle-lemma(S:State,S':State) = true . )
   by {S:State  <- (< (res(trs,idRS,initial) sRS) , sPR >);
       S':State <- (< (res(trs,idRS,started) sRS) , sPR >); }
 :init as SDL-lemma-in [SDL-lemma]
@@ -255,7 +261,6 @@ show proof
       S':State <- (< (res(trs,idRS,started) sRS) , sPR >); }
 :apply (rd-)
 show proof
-
 --> ****************************************************
 -->  trans [R02]:
 -->     < (res(TRS,IDRRS,started) SetRS), 
@@ -269,7 +274,11 @@ show proof
 :goal {
   eq invinv(< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >) = true .
 }
-:init as subsetDepend-in ( eq subsetDepend(S:State,S':State) = true . )
+:def ctfuniqPR = :ctf {
+  eq wfs-uniqPR(< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >) = true .
+}
+:apply (ctfuniqPR rd-)
+:init as noRSCycle-lemma-in ( eq noRSCycle-lemma(S:State,S':State) = true . )
   by {S:State  <- (< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >);
       S':State <- (< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,ready,idRS,idRRS) sPR) >); }
 :init as SDL-lemma-in [SDL-lemma]
@@ -278,4 +287,177 @@ show proof
 :apply (rd-)
 show proof
 select
+--> Lemma for invariant noRSCycle(S)
+module Proofinv-noRSCycle-lemma {
+  protecting(Proofinv-noRSCycle)
+  [SRSRRPR] op t : SetOfResource SetOfResource Resource Resource SetOfProperty -> SRSRRPR {constr} .
+  [SRSPPPR] op t : SetOfResource SetOfResource Property Property SetOfProperty -> SRSPPPR {constr} .
+  pred _<wf_ : SRSRRPR SRSRRPR
+  pred _<wf_ : SRSPPPR SRSPPPR
+  vars RS RS' : Resource
+  vars SRS SRS' SRS0 : SetOfResource
+  vars PR PR' : Property
+  var SPR : SetOfProperty
+  ceq ( t(SRS',SRS0,RS,RS',SPR) <wf t(SRS,SRS0,RS,RS',SPR) ) = true
+    if SRS' <wf SRS .
+  ceq ( t(SRS',SRS0,PR,PR',SPR) <wf t(SRS,SRS0,PR,PR',SPR) ) = true
+    if SRS' <wf SRS .
+
+  pred noRSCycle-lemma1 : SetOfResource SetOfResource Resource Resource SetOfProperty
+  ceq noRSCycle-lemma1(SRS,SRS0,RS,RS',SPR)
+    = inv(< (RS SRS0), SPR >) implies subsetDepend(SRS,< (RS' SRS0), SPR >,< (RS SRS0), SPR >)
+      if subset(SRS,(RS SRS0)) .
+  -- Induction Hypothesis
+  ceq [noRSCycle-lemma1-IH :nonexec]:
+     noRSCycle-lemma1(SRS,SRS0,RS,RS',SPR) = true
+       if t(SRS,SRS0,RS,RS',SPR) <wf t(sRS,SRS0,RS,RS',SPR) .
+
+  pred noRSCycle-lemma2 : SetOfResource SetOfResource Property Property SetOfProperty
+  ceq noRSCycle-lemma2(SRS,SRS0,PR,PR',SPR)
+    = inv(< SRS0, (PR SPR) >) implies subsetDepend(SRS,< SRS0, (PR' SPR) >,< SRS0, (PR SPR) >)
+      if subset(SRS,SRS0) .
+  -- Induction Hypothesis
+  ceq [noRSCycle-lemma2-IH :nonexec]:
+     noRSCycle-lemma2(SRS,SRS0,PR,PR',SPR) = true
+       if t(SRS,SRS0,PR,PR',SPR) <wf t(sRS,SRS0,PR,PR',SPR) .
+}
+
+--> ********************************************
+-->  ctrans [R01]:
+-->     < (res(TRS,IDRS,initial) SetRS), SetPR >
+-->  => < (res(TRS,IDRS,started) SetRS), SetPR > 
+-->     if allPROfRSInStates(SetPR,IDRS,ready) .
+--> ********************************************
+select Proofinv-noRSCycle-lemma
+:goal {
+  eq noRSCycle-lemma1(sRS,sRS,res(trs,idRS,initial),res(trs,idRS,started),sPR) = true .
+}
+:def cspempRS = :csp {
+  eq sRS = empRS .
+  eq sRS = (res(trs',idRS',srs) sRS') .
+}
+:apply (cspempRS rd-)
+:def ctfidRS = :ctf {
+  eq idRS' = idRS .
+}
+:apply (ctfidRS rd-)
+:def cspsrs = :csp {
+  eq srs = initial .
+  eq srs = started .
+}
+:apply (cspsrs rd-)
+:init as noRSCycle-lemma1-IH-in [noRSCycle-lemma1-IH]
+  by {SRS:SetOfResource  <- sRS';
+      SRS0:SetOfResource <- sRS;
+      RS:Resource  <- res(trs,idRS,initial);
+      RS':Resource <- res(trs,idRS,started);
+      SPR:SetOfProperty <- sPR; }
+  -- Note: Following predefined lemma automatically used here:
+  -- ceq [m2o-lemma27]:
+  --    subset(getZsOfXsInStates0((Z' S_Z),S_X,St_Z),getZsOfXsInStates0((Z S_Z),S_X,St_Z)) = true
+  --    if changeObjState0(Z,Z') and not state(Z') in St_Z .
+  -- which assuming that initial > started .
+:apply (rd-)
+:init as noRSCycle-lemma1-IH-in [noRSCycle-lemma1-IH]
+  by {SRS:SetOfResource  <- sRS';
+      SRS0:SetOfResource <- sRS;
+      RS:Resource  <- res(trs,idRS,initial);
+      RS':Resource <- res(trs,idRS,started);
+      SPR:SetOfProperty <- sPR; }
+:apply (rd-)
+show proof
+select
+open Proofinv-noRSCycle .
+  -- ceq noRSCycle-lemma1(SRS,SRS0,RS,RS',SPR)
+  --   = inv(< (RS SRS0), SPR >) implies subsetDepend(SRS,< (RS' SRS0), SPR >,< (RS SRS0), SPR >)
+  --     if subset(SRS,(RS SRS0)) .
+ceq (inv(< (res(trs,idRS,initial) sRS), sPR >) and 
+     subsetDepend(sRS,< (res(trs,idRS,started) sRS), sPR >, < (res(trs,idRS,initial) sRS), sPR >))
+   = inv(< (res(trs,idRS,initial) sRS), sPR >)
+   if subset(sRS,(res(trs,idRS,initial) sRS)) .
+:goal {
+  eq noRSCycle-lemma(< (res(trs,idRS,initial) sRS), sPR >, < (res(trs,idRS,started) sRS), sPR >) = true .
+}
+:apply (rd-)
+close
+--> ****************************************************
+-->  trans [R02]:
+-->     < (res(TRS,IDRRS,started) SetRS), 
+-->       (prop(TPR,IDPR,notready,IDRS,IDRRS) SetPR) >
+-->  => < (res(TRS,IDRRS,started) SetRS), 
+-->       (prop(TPR,IDPR,ready   ,IDRS,IDRRS) SetPR) > .
+--> ****************************************************
+select Proofinv-noRSCycle-lemma
+:goal {
+  eq noRSCycle-lemma2(sRS,(res(trs,idRRS,started) sRS),
+		      prop(tpr,idPR,notready,idRS,idRRS),prop(tpr,idPR,ready,idRS,idRRS),sPR) = true .
+}
+:def cspempRS = :csp {
+  eq sRS = empRS .
+  eq sRS = (res(trs',idRS',srs) sRS') .
+}
+:apply (cspempRS rd-)
+:def ctfidRRS = :ctf {
+  eq idRS' = idRRS .
+}
+:apply (ctfidRRS rd-)
+:def ctfidRS = :ctf {
+  eq idRS' = idRS .
+}
+:apply (ctfidRS rd-)
+:def cspsrs = :csp {
+  eq srs = initial .
+  eq srs = started .
+}
+:apply (cspsrs rd-)
+:init as noRSCycle-lemma2-IH-in [noRSCycle-lemma2-IH]
+  by {SRS:SetOfResource  <- sRS';
+      SRS0:SetOfResource <- (res(trs,idRRS,started) sRS);
+      PR:Property  <- prop(tpr,idPR,notready,idRS,idRRS);
+      PR':Property <- prop(tpr,idPR,ready,idRS,idRRS);
+      SPR:SetOfProperty <- sPR; }
+:apply (rd-)
+:apply (cspsrs rd-)
+:init as noRSCycle-lemma2-IH-in [noRSCycle-lemma2-IH]
+  by {SRS:SetOfResource  <- sRS';
+      SRS0:SetOfResource <- (res(trs,idRRS,started) sRS);
+      PR:Property  <- prop(tpr,idPR,notready,idRS,idRRS);
+      PR':Property <- prop(tpr,idPR,ready,idRS,idRRS);
+      SPR:SetOfProperty <- sPR; }
+:apply (rd-)
+:init as noRSCycle-lemma2-IH-in [noRSCycle-lemma2-IH]
+  by {SRS:SetOfResource  <- sRS';
+      SRS0:SetOfResource <- (res(trs,idRRS,started) sRS);
+      PR:Property  <- prop(tpr,idPR,notready,idRS,idRRS);
+      PR':Property <- prop(tpr,idPR,ready,idRS,idRRS);
+      SPR:SetOfProperty <- sPR; }
+  -- Note: Following predefined lemma automatically used here:
+  -- eq [m2o-lemma23]:
+  --     (subset(S_Z,S_Z') and
+  --      subset(getXsOfZsInStates0(S_X,S_Z,St_X),getXsOfZsInStates0(S_X,S_Z',St_X)))
+  --    = subset(S_Z,S_Z') .
+  -- ceq [m2o-lemma27]:
+  --    subset(getZsOfXsInStates0((Z' S_Z),S_X,St_Z),getZsOfXsInStates0((Z S_Z),S_X,St_Z)) = true
+  --    if changeObjState0(Z,Z') and not state(Z') in St_Z .
+  -- which assuming that initial > started .
+:apply (rd-)
+show proof
+select
+open Proofinv-noRSCycle .
+  -- ceq noRSCycle-lemma2(SRS,SRS0,PR,PR',SPR)
+  --   = inv(< SRS0, (PR SPR) >) implies subsetDepend(SRS,< SRS0, (PR' SPR) >,< SRS0, (PR SPR) >)
+  --     if subset(SRS,SRS0) .
+ceq (inv(< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >) and 
+     subsetDepend(sRS,< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,ready,idRS,idRRS) sPR) >, 
+                      < (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >))
+   = inv(< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >)
+   if subset(sRS,(res(trs,idRS,initial) sRS)) .
+:goal {
+  eq noRSCycle-lemma(< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >,
+                     < (res(trs,idRRS,started) sRS), (prop(tpr,idPR,ready,idRS,idRRS) sPR) >) = true .
+}
+:apply (rd-)
+close
+--> AWS/Proof-inv.cafe
+--> Totally 12 goals should be proved.
 

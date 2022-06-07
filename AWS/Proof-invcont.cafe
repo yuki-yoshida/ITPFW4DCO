@@ -81,3 +81,5 @@ select PROOF .
 :apply (noCycle rd-)
 show proof
 select
+--> AWS/Proof-invcont.cafe
+--> Totally 1 goal should be proved.

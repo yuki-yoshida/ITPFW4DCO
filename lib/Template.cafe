@@ -1358,6 +1358,7 @@ module PRMCYCLE {
 
   op getAllObjC : State -> SetOfObject
   op state : Object -> ObjState
+  pred inv : State
 
   -- DDSC means get Direct Depending Set of the same Class.
   op DDSC : Object State -> SetOfObject
@@ -1422,15 +1423,15 @@ module CYCLEPRED(P :: PRMCYCLE) {
   var S' : State
   pred subsetDepend : State State
   pred subsetDepend : SetOfObject State State
-  eq subsetDepend(S,S') 
-    = subsetDepend(getAllObjC(S),S,S') .
-  eq subsetDepend(empObj,S,S') = true .
-  eq subsetDepend((Oc OS),S,S') 
+  eq subsetDepend(S',S) 
+    = subsetDepend(getAllObjC(S),S',S) .
+  eq subsetDepend(empObj,S',S) = true .
+  eq subsetDepend((Oc OS),S',S) 
     = subset(DDSC(Oc,S'),DDSC(Oc,S)) and
-      subsetDepend(OS,S,S') .
+      subsetDepend(OS,S',S) .
 
   ceq [SDL-lemma :nonexec]:
     noCycleC(S) and noCycleC(S') = noCycleC(S) 
-    if subsetDepend(S,S') .
+    if inv(S) implies subsetDepend(S',S) .
 }
 

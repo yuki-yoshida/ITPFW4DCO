@@ -38,6 +38,8 @@ module PROOF {
      = ifRSInStatesThenPRInStates(SetRS,started,SetPR,ready) .
 
   -- wfs-*:
+  ceq wfs(S) = false if not wfs-uniqRS(S) .
+  ceq wfs(S) = false if not wfs-uniqPR(S) .
   ceq wfs(S) = false if not wfs-allPRHaveRS(S) .
   ceq wfs(S) = false if not wfs-allPRHaveRRS(S) .
   ceq inv(S) = false if not wfs(S) .
