@@ -1354,9 +1354,11 @@ module PRMCYCLE {
   including(SET(-OBJECT {sort Elt -> Object})
       * {sort Set -> SetOfObject,
       	 op empty -> empObj})
-  [State] [ObjState]
+  [State] [ObjID] [ObjState]
 
+  pred existObj : SetOfObject ObjID
   op getAllObjC : State -> SetOfObject
+  op id : Object -> ObjID
   op state : Object -> ObjState
   pred inv : State
 
@@ -1366,8 +1368,8 @@ module PRMCYCLE {
 
 module CYCLEPRED(P :: PRMCYCLE) {
 
-  vars Oc Xc : Object
-  vars V OS : SetOfObject
+  vars Oc Oc' Xc : Object
+  vars V OS OS' : SetOfObject
   var LS : ObjState
   var S : State
 
@@ -1422,16 +1424,19 @@ module CYCLEPRED(P :: PRMCYCLE) {
   -- Subset Dependency Lemma
   var S' : State
   pred subsetDepend : State State
-  pred subsetDepend : SetOfObject State State
+  pred subsetDepend : SetOfObject SetOfObject State State
   eq subsetDepend(S',S) 
-    = subsetDepend(getAllObjC(S),S',S) .
-  eq subsetDepend(empObj,S',S) = true .
-  eq subsetDepend((Oc OS),S',S) 
-    = subset(DDSC(Oc,S'),DDSC(Oc,S)) and
-      subsetDepend(OS,S',S) .
+    = subsetDepend(getAllObjC(S'),getAllObjC(S),S',S) .
+  eq subsetDepend(empObj,OS,S',S) = true .
+  ceq subsetDepend((Oc' OS'),OS,S',S) 
+    = false if not existObj(OS,id(Oc')) .
+  eq subsetDepend((Oc' OS'),(Oc OS),S',S) 
+    = (id(Oc') = id(Oc)) and
+      subset(DDSC(Oc,S'),DDSC(Oc,S)) and
+      subsetDepend(OS',OS,S',S) .
 
   ceq [SDL-lemma :nonexec]:
-    noCycleC(S) and noCycleC(S') = noCycleC(S) 
+    inv(S) and noCycleC(S) and noCycleC(S') = inv(S) and noCycleC(S) 
     if inv(S) implies subsetDepend(S',S) .
 }
 

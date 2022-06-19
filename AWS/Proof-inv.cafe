@@ -305,21 +305,13 @@ module Proofinv-noRSCycle-lemma {
 
   pred noRSCycle-lemma1 : SetOfResource SetOfResource Resource Resource SetOfProperty
   ceq noRSCycle-lemma1(SRS,SRS0,RS,RS',SPR)
-    = inv(< (RS SRS0), SPR >) implies subsetDepend(SRS,< (RS' SRS0), SPR >,< (RS SRS0), SPR >)
+    = inv(< (RS SRS0), SPR >) implies subsetDepend(SRS,SRS,< (RS' SRS0), SPR >,< (RS SRS0), SPR >)
       if subset(SRS,(RS SRS0)) .
-  -- Induction Hypothesis
-  ceq [noRSCycle-lemma1-IH :nonexec]:
-     noRSCycle-lemma1(SRS,SRS0,RS,RS',SPR) = true
-       if t(SRS,SRS0,RS,RS',SPR) <wf t(sRS,SRS0,RS,RS',SPR) .
 
   pred noRSCycle-lemma2 : SetOfResource SetOfResource Property Property SetOfProperty
   ceq noRSCycle-lemma2(SRS,SRS0,PR,PR',SPR)
-    = inv(< SRS0, (PR SPR) >) implies subsetDepend(SRS,< SRS0, (PR' SPR) >,< SRS0, (PR SPR) >)
+    = inv(< SRS0, (PR SPR) >) implies subsetDepend(SRS,SRS,< SRS0, (PR' SPR) >,< SRS0, (PR SPR) >)
       if subset(SRS,SRS0) .
-  -- Induction Hypothesis
-  ceq [noRSCycle-lemma2-IH :nonexec]:
-     noRSCycle-lemma2(SRS,SRS0,PR,PR',SPR) = true
-       if t(SRS,SRS0,PR,PR',SPR) <wf t(sRS,SRS0,PR,PR',SPR) .
 }
 
 --> ********************************************
@@ -328,7 +320,11 @@ module Proofinv-noRSCycle-lemma {
 -->  => < (res(TRS,IDRS,started) SetRS), SetPR > 
 -->     if allPROfRSInStates(SetPR,IDRS,ready) .
 --> ********************************************
-select Proofinv-noRSCycle-lemma
+open Proofinv-noRSCycle-lemma .
+-- Induction Hypothesis
+ceq [noRSCycle-lemma1-IH :nonexec]:
+   noRSCycle-lemma1(SRS,SRS0,RS,RS',SPR) = true
+   if t(SRS,SRS0,RS,RS',SPR) <wf t(sRS,SRS0,RS,RS',SPR) .
 :goal {
   eq noRSCycle-lemma1(sRS,sRS,res(trs,idRS,initial),res(trs,idRS,started),sPR) = true .
 }
@@ -366,20 +362,26 @@ select Proofinv-noRSCycle-lemma
       SPR:SetOfProperty <- sPR; }
 :apply (rd-)
 show proof
-select
-open Proofinv-noRSCycle .
+close
+open Proofinv-noRSCycle-lemma .
   -- ceq noRSCycle-lemma1(SRS,SRS0,RS,RS',SPR)
-  --   = inv(< (RS SRS0), SPR >) implies subsetDepend(SRS,< (RS' SRS0), SPR >,< (RS SRS0), SPR >)
+  --   = inv(< (RS SRS0), SPR >) implies subsetDepend(SRS,SRS,< (RS' SRS0), SPR >,< (RS SRS0), SPR >)
   --     if subset(SRS,(RS SRS0)) .
-ceq (inv(< (res(trs,idRS,initial) sRS), sPR >) and 
-     subsetDepend(sRS,< (res(trs,idRS,started) sRS), sPR >, < (res(trs,idRS,initial) sRS), sPR >))
-   = inv(< (res(trs,idRS,initial) sRS), sPR >)
-   if subset(sRS,(res(trs,idRS,initial) sRS)) .
+  eq [noRSCycle-lemma1-NE :nonexec]:
+    noRSCycle-lemma1(SRS,SRS0,RS,RS',SPR) = true .
 :goal {
   eq noRSCycle-lemma(< (res(trs,idRS,initial) sRS), sPR >, < (res(trs,idRS,started) sRS), sPR >) = true .
 }
+:init as noRSCycle-lemma1-NE-in [noRSCycle-lemma1-NE]
+  by {SRS:SetOfResource  <- sRS;
+      SRS0:SetOfResource <- sRS;
+      RS:Resource  <- res(trs,idRS,initial);
+      RS':Resource <- res(trs,idRS,started);
+      SPR:SetOfProperty <- sPR; }
 :apply (rd-)
+show proof
 close
+
 --> ****************************************************
 -->  trans [R02]:
 -->     < (res(TRS,IDRRS,started) SetRS), 
@@ -387,7 +389,11 @@ close
 -->  => < (res(TRS,IDRRS,started) SetRS), 
 -->       (prop(TPR,IDPR,ready   ,IDRS,IDRRS) SetPR) > .
 --> ****************************************************
-select Proofinv-noRSCycle-lemma
+open Proofinv-noRSCycle-lemma .
+-- Induction Hypothesis
+ceq [noRSCycle-lemma2-IH :nonexec]:
+   noRSCycle-lemma2(SRS,SRS0,PR,PR',SPR) = true
+     if t(SRS,SRS0,PR,PR',SPR) <wf t(sRS,SRS0,PR,PR',SPR) .
 :goal {
   eq noRSCycle-lemma2(sRS,(res(trs,idRRS,started) sRS),
 		      prop(tpr,idPR,notready,idRS,idRRS),prop(tpr,idPR,ready,idRS,idRRS),sPR) = true .
@@ -442,22 +448,26 @@ select Proofinv-noRSCycle-lemma
   -- which assuming that initial > started .
 :apply (rd-)
 show proof
-select
-open Proofinv-noRSCycle .
+close
+open Proofinv-noRSCycle-lemma .
   -- ceq noRSCycle-lemma2(SRS,SRS0,PR,PR',SPR)
-  --   = inv(< SRS0, (PR SPR) >) implies subsetDepend(SRS,< SRS0, (PR' SPR) >,< SRS0, (PR SPR) >)
+  --   = inv(< SRS0, (PR SPR) >) implies subsetDepend(SRS,SRS,< SRS0, (PR' SPR) >,< SRS0, (PR SPR) >)
   --     if subset(SRS,SRS0) .
-ceq (inv(< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >) and 
-     subsetDepend(sRS,< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,ready,idRS,idRRS) sPR) >, 
-                      < (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >))
-   = inv(< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >)
-   if subset(sRS,(res(trs,idRS,initial) sRS)) .
+  eq [noRSCycle-lemma2-NE :nonexec]:
+    noRSCycle-lemma2(SRS,SRS0,PR,PR',SPR) = true .
 :goal {
   eq noRSCycle-lemma(< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >,
                      < (res(trs,idRRS,started) sRS), (prop(tpr,idPR,ready,idRS,idRRS) sPR) >) = true .
 }
+:init as noRSCycle-lemma2-NE-in [noRSCycle-lemma2-NE]
+  by {SRS:SetOfResource  <- sRS;
+      SRS0:SetOfResource <- (res(trs,idRRS,started) sRS);
+      PR:Property  <- prop(tpr,idPR,notready,idRS,idRRS);
+      PR':Property <- prop(tpr,idPR,ready,   idRS,idRRS);
+      SPR:SetOfProperty <- sPR; }
 :apply (rd-)
+show proof
 close
 --> AWS/Proof-inv.cafe
---> Totally 12 goals should be proved.
+--> Totally 14 goals should be proved.
 

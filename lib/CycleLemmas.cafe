@@ -14,11 +14,12 @@ module CYCLELEMMA {
   pred noCDL : Object State ObjState
   pred cycle-lemma1 : Object ObjState State
   pred cycle-lemma2 : Object ObjState State
+  pred SDL : State State
 
   vars O O' : Object
   vars OS OS' OS0 OS0' : SetOfObject
   var LS : ObjState
-  var S : State
+  vars S S' : State
 
   -- Assuming subset(DDSC(O,S),getAllObjC(S)) .
   eq [DDSCinS :nonexec]:
@@ -49,6 +50,10 @@ module CYCLELEMMA {
        state(O) = LS) implies 
       getNoDependObj(O,LS,S) in getAllObjC(S) .
 
+  eq SDL(S,S') =
+    (inv(S) implies subsetDepend(S',S)) implies
+    (inv(S) implies (noCycleC(S) implies noCycleC(S'))) .
+
   -- Set Axiom
   ceq [OinOS :nonexec]:
       (O in OS) = true
@@ -64,7 +69,7 @@ module CYCLELEMMA {
   ops o o' : -> Object .
   ops os0 os os' : -> SetOfObject .
   op ls : -> ObjState .
-  op s : -> State .
+  ops s s' : -> State .
 }
 
 --> Proof of cycle-lemma1
@@ -238,4 +243,19 @@ open CYCLELEMMA .
 show proof
 close 
 
---> Totally 3 goals should be proved
+--> Proof of Subset Dependency Lemma
+-->  eq SDL(S,S') =
+-->    (inv(S) implies subsetDepend(S',S)) implies
+-->    (noCycleC(S) implies noCycleC(S') .
+open CYCLELEMMA .
+:goal { eq SDL(s,s') = true . }
+:def invctf = :ctf {
+  eq inv(s) = true .
+}
+:apply (invctf rd-)
+:def empObjcsp = :csp {
+  eq getAllObjC(s) = empObj .
+  eq getAllObjC(s) = (o os) .
+}
+:apply (empObjcsp rd-)
+--> Totally 4 goals should be proved
