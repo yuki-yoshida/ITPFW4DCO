@@ -207,6 +207,7 @@ select
 module Proofinv-noRSCycle {
   protecting(PROOF)
   vars S S' : State
+  vars OS OS' : SetOfResource
   eq invK(S) = noRSCycle(S) .
 
   pred noRSCycle-lemma : State State
@@ -249,15 +250,13 @@ show proof
   eq allPROfRSInStates(sPR,idRS,ready) = true .
 }
 :apply (csp4-2R01 rd-)
-:def ctfuniqRS = :ctf {
-  eq wfs-uniqRS(< (res(trs,idRS,initial) sRS) , sPR >) = true .
-}
-:apply (ctfuniqRS rd-)
 :init as noRSCycle-lemma-in ( eq noRSCycle-lemma(S:State,S':State) = true . )
   by {S:State  <- (< (res(trs,idRS,initial) sRS) , sPR >);
       S':State <- (< (res(trs,idRS,started) sRS) , sPR >); }
 :init as SDL-lemma-in [SDL-lemma]
-  by {S:State  <- (< (res(trs,idRS,initial) sRS) , sPR >);
+  by {OS:SetOfResource <- sRS;
+      OS':SetOfResource <- empRS;
+      S:State  <- (< (res(trs,idRS,initial) sRS) , sPR >);
       S':State <- (< (res(trs,idRS,started) sRS) , sPR >); }
 :apply (rd-)
 show proof
@@ -274,15 +273,13 @@ show proof
 :goal {
   eq invinv(< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >) = true .
 }
-:def ctfuniqPR = :ctf {
-  eq wfs-uniqPR(< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >) = true .
-}
-:apply (ctfuniqPR rd-)
 :init as noRSCycle-lemma-in ( eq noRSCycle-lemma(S:State,S':State) = true . )
   by {S:State  <- (< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >);
       S':State <- (< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,ready,idRS,idRRS) sPR) >); }
 :init as SDL-lemma-in [SDL-lemma]
-  by {S:State  <- (< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >);
+  by {OS:SetOfResource <- sRS;
+      OS':SetOfResource <- empRS;
+      S:State  <- (< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >);
       S':State <- (< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,ready,idRS,idRRS) sPR) >); }
 :apply (rd-)
 show proof

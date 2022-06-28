@@ -1432,11 +1432,14 @@ module CYCLEPRED(P :: PRMCYCLE) {
     = false if not existObj(OS,id(Oc')) .
   eq subsetDepend((Oc' OS'),(Oc OS),S',S) 
     = (id(Oc') = id(Oc)) and
-      subset(DDSC(Oc,S'),DDSC(Oc,S)) and
+      subset(DDSC(Oc',S'),DDSC(Oc,S)) and
       subsetDepend(OS',OS,S',S) .
 
   ceq [SDL-lemma :nonexec]:
-    inv(S) and noCycleC(S) and noCycleC(S') = inv(S) and noCycleC(S) 
-    if inv(S) implies subsetDepend(S',S) .
+     inv(S) and noCycleC(OS,OS',S) and noCycleC(OS,OS',S') 
+   = inv(S) and noCycleC(OS,OS',S) 
+    if subset(OS,getAllObjC(S')) and 
+       subset(OS',OS) and
+       (inv(S) implies subsetDepend(S',S)) .
 }
 
