@@ -1369,7 +1369,7 @@ module PRMCYCLE {
 module CYCLEPRED(P :: PRMCYCLE) {
 
   vars Oc Oc' Xc : Object
-  vars V OS OS' : SetOfObject
+  vars V OS OS' OS0 : SetOfObject
   var LS : ObjState
   var S : State
 
@@ -1436,9 +1436,9 @@ module CYCLEPRED(P :: PRMCYCLE) {
       subsetDepend(OS',OS,S',S) .
 
   ceq [SDL-lemma :nonexec]:
-     inv(S) and noCycleC(OS,OS',S) and noCycleC(OS,OS',S') 
-   = inv(S) and noCycleC(OS,OS',S) 
-    if subset(OS,getAllObjC(S')) and 
+     inv(S) and noCycleC(OS,OS0,S) and noCycleC(OS',OS0,S') 
+   = inv(S) and noCycleC(OS,OS0,S) 
+    if subset(OS',getAllObjC(S')) and 
        subset(OS',OS) and
        (inv(S) implies subsetDepend(S',S)) .
 }

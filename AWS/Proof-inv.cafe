@@ -250,12 +250,16 @@ show proof
   eq allPROfRSInStates(sPR,idRS,ready) = true .
 }
 :apply (csp4-2R01 rd-)
-:init as noRSCycle-lemma-in ( eq noRSCycle-lemma(S:State,S':State) = true . )
+--> **************************************************
+--> Step 4-3: Use Subset Dependency Lemma if possible.
+--> **************************************************
+-- :init as noRSCycle-lemma-in ( eq noRSCycle-lemma(S:State,S':State) = true . )
+:init ( eq (inv(S:State) implies subsetDepend(S':State,S)) = true . )
   by {S:State  <- (< (res(trs,idRS,initial) sRS) , sPR >);
       S':State <- (< (res(trs,idRS,started) sRS) , sPR >); }
 :init as SDL-lemma-in [SDL-lemma]
   by {OS:SetOfResource <- sRS;
-      OS':SetOfResource <- empRS;
+      OS':SetOfResource <- sRS;
       S:State  <- (< (res(trs,idRS,initial) sRS) , sPR >);
       S':State <- (< (res(trs,idRS,started) sRS) , sPR >); }
 :apply (rd-)
@@ -273,12 +277,15 @@ show proof
 :goal {
   eq invinv(< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >) = true .
 }
+--> **************************************************
+--> Step 4-3: Use Subset Dependency Lemma if possible.
+--> **************************************************
 :init as noRSCycle-lemma-in ( eq noRSCycle-lemma(S:State,S':State) = true . )
   by {S:State  <- (< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >);
       S':State <- (< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,ready,idRS,idRRS) sPR) >); }
 :init as SDL-lemma-in [SDL-lemma]
   by {OS:SetOfResource <- sRS;
-      OS':SetOfResource <- empRS;
+      OS':SetOfResource <- sRS;
       S:State  <- (< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >);
       S':State <- (< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,ready,idRS,idRRS) sPR) >); }
 :apply (rd-)
