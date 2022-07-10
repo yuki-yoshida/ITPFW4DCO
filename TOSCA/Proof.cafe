@@ -18,8 +18,26 @@ module PROOF {
   var MP : PoolOfMsg
   var S : State
 
+--> **************************************
+--> Step 0-1: Define init(S) and final(S).
+--> **************************************
+  eq init(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = not (SetND = empND) and (MP = empMsg) and
+       wfs(< SetND,SetCP,SetRQ,SetRL,MP >) and
+       noNDCycle(< SetND,SetCP,SetRQ,SetRL,MP >) and
+       allNDInStates(SetND,initial) and 
+       allCPInStates(SetCP,closed) and 
+       allRQInStates(SetRQ,unbound) .
+  eq final(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = allNDInStates(SetND,started) .
+  -- It may define more strictly:
+  -- = (MP = empMsg) and
+  --   allNDInStates(SetND,started) and
+  --   allCPInStates(SetCP,available) and
+  --   allRQInStates(SetRQ,ready) .
+
 --> **********************
---> Step 0-3: Define m(S).
+--> Step 0-2: Define m(S).
 --> **********************
   eq m(< SetND,SetCP,SetRQ,SetRL,MP >)
      = (( (#NodeInStates(initial,SetND)        * 2) + #NodeInStates(created,SetND))
@@ -28,7 +46,7 @@ module PROOF {
 
 
 --> *************************
---> Step 0-4: Define inv(S).
+--> Step 0-3: Define inv(S).
 --> *************************
   -- The invariant should be defined as the conjunction of all inv-* and all wfs-*.
   -- But this definition causes costly computations.
@@ -74,6 +92,7 @@ module PROOF {
      = ifAvailableMsgThenCPInStates(MP,SetCP,available) .
 
   -- wfs-*:
+  -- wfs's defined by using general predicates.
   ceq wfs(S) = false if not wfs-uniqND(S) .
   ceq wfs(S) = false if not wfs-uniqCP(S) .
   ceq wfs(S) = false if not wfs-uniqRQ(S) .
@@ -110,13 +129,8 @@ module PROOF {
   ceq inv(S) = false if not inv-ifOpenMsgThenCPActivated(S) .
   ceq inv(S) = false if not inv-ifAvailableMsgThenCPAvailable(S).
 
-  -- for NoCyclic Lemma
-  var ND : Node
-  var SND : NDState
-  eq (ND in SND) = (state(ND) = SND) .
-
 --> **************************************
---> Step 0-5: Prepare arbitrary constants.
+--> Step 0-4: Prepare arbitrary constants.
 --> **************************************
   ops idND idND' : -> NDIDLt
   ops idCP idCP' : -> CPIDLt

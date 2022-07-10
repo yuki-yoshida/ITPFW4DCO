@@ -469,19 +469,21 @@ module! STATECyclefuns {
 
   op DDSND : Node State -> SetOfNode
   eq DDSND(ND,< SetND,SetCP,SetRQ,SetRL,MP >)
-    = getNDsOfCPs(SetND,
+    = if state(ND) in (initial created)  then
+         getNDsOfCPs(SetND,
                   getCPsOfRLs(SetCP,
      		              getRLsOfRQs(SetRL,
-    		                          getRQsOfND(SetRQ,ND)))) .
+    		                          getRQsOfND(SetRQ,ND))))
+      else empND fi .
 }
 
 module! STATEfuns {
-  protecting(STATE)
-
   extending(CYCLEPRED(
 	STATECyclefuns {sort Object -> Node,
 	       		sort SetOfObject -> SetOfNode,
-			sort LocalState -> NDState,
+			sort ObjID -> NDID,
+			sort ObjState -> NDState,
+			op existObj -> existND,
 			op DDSC -> DDSND,
 	       		op empObj -> empND,
 	       		op getAllObjC -> getAllNDInState})
@@ -685,12 +687,6 @@ module! STATEfuns {
   eq wfs-allRLHoldLocality(< SetND,SetCP,SetRQ,SetRL,MP >) = allRLHoldLocality(SetRL,SetND,SetCP,SetRQ) .
   pred wfs-allNDHaveAtMostOneHost : State
   eq wfs-allNDHaveAtMostOneHost(< SetND,SetCP,SetRQ,SetRL,MP >) = allNDHaveAtMostOneHost(SetND,SetRQ) .
-  
---> **************************************
---> Step 0-1: Define init(S) and final(S).
---> **************************************
-  -- wfs is a conjunction of invariants which are intentionally imposed by the init condition.
-  -- Since too long wfs causes a large evalutaion cost, define wfs minimally for each use case.
   eq [:nonexec]: wfs(S)
      = wfs-uniqND(S) and wfs-uniqCP(S) and wfs-uniqRQ(S) and wfs-uniqRL(S) and
        wfs-allCPHaveND(S) and wfs-allRQHaveND(S) and 
@@ -700,20 +696,6 @@ module! STATEfuns {
        wfs-allRLNotInSameND(S) and
        wfs-allRLHoldLocality(S) and
        wfs-allNDHaveAtMostOneHost(S) .
-
-  eq init(< SetND,SetCP,SetRQ,SetRL,MP >)
-     = not (SetND = empND) and (MP = empMsg) and
-       wfs(< SetND,SetCP,SetRQ,SetRL,MP >) and
-       noNDCycle(< SetND,SetCP,SetRQ,SetRL,MP >) and
-       allNDInStates(SetND,initial) and 
-       allCPInStates(SetCP,closed) and 
-       allRQInStates(SetRQ,unbound) .
-
-  eq final(< SetND,SetCP,SetRQ,SetRL,MP >)
-     = allNDInStates(SetND,started) .
--- It may define more strictly:
---     = (MP = empMsg) and
---       allNDInStates(SetND,started) and allCPInStates(SetCP,available) and allRQInStates(SetRQ,ready) .
 }
 module! STATERules {
   protecting(STATEfuns)
