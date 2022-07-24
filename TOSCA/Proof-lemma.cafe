@@ -22,20 +22,20 @@ module TOSCALEMMA {
   -- ifConnectsToCPInStatesThenRQInStatesOrOpenMsg keeps to hold
   -- after changing the state of a requirement 
   -- whose corresponding capability is not included in the set of capabilities.
-  pred tosca-lemma01 : SetOfCapability
-                 RQState RQState NDID CPID RQID RLID RLType 
-                 SetOfCPState SetOfRQState
-                 SetOfRequirement SetOfRelationship PoolOfMsg 
-  eq tosca-lemma01(SetCP,SRQ1,SRQ2,IDND,IDCP,IDRQ,IDRL,TRL,STCP,STRQ,SetRQ,SetRL,MP)
-     = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
-                SetCP,STCP,(req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,
-		(rel(TRL,IDRL,IDCP,IDRQ) SetRL),MP) implies
-       ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
-                SetCP,STCP,(req(TRL,IDRQ,SRQ2,IDND) SetRQ),STRQ,
-		(rel(TRL,IDRL,IDCP,IDRQ) SetRL),MP)
-     when not existCP(SetCP,IDCP) and uniqCP(SetCP) and
-          allCPHaveRL(SetCP,(rel(TRL,IDRL,IDCP,IDRQ) SetRL)) and
-          allRLHaveRQ((rel(TRL,IDRL,IDCP,IDRQ) SetRL),(req(TRL,IDRQ,SRQ2,IDND) SetRQ)) .
+  -- pred tosca-lemma01 : SetOfCapability
+  --                RQState RQState NDID CPID RQID RLID RLType 
+  --                SetOfCPState SetOfRQState
+  --                SetOfRequirement SetOfRelationship PoolOfMsg 
+  -- eq tosca-lemma01(SetCP,SRQ1,SRQ2,IDND,IDCP,IDRQ,IDRL,TRL,STCP,STRQ,SetRQ,SetRL,MP)
+  --    = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
+  --               SetCP,STCP,(req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,
+  -- 		(rel(TRL,IDRL,IDCP,IDRQ) SetRL),MP) implies
+  --      ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
+  --               SetCP,STCP,(req(TRL,IDRQ,SRQ2,IDND) SetRQ),STRQ,
+  -- 		(rel(TRL,IDRL,IDCP,IDRQ) SetRL),MP)
+  --    when not existCP(SetCP,IDCP) and uniqCP(SetCP) and
+  --         allCPHaveRL(SetCP,(rel(TRL,IDRL,IDCP,IDRQ) SetRL)) and
+  --         allRLHaveRQ((rel(TRL,IDRL,IDCP,IDRQ) SetRL),(req(TRL,IDRQ,SRQ2,IDND) SetRQ)) .
 
   pred tosca-lemma02 : SetOfRelationship RLType CPID CPState NDID SetOfCapability SetOfRequirement
   eq tosca-lemma02(SetRL,TRL,IDCP,SCP,IDND,SetCP,SetRQ)
@@ -219,62 +219,62 @@ module TOSCALEMMA {
 -->          allCPHaveRL(SetCP,(rel(TRL,IDRL,IDCP,IDRQ) SetRL)) and
 -->          allRLHaveRQ((rel(TRL,IDRL,IDCP,IDRQ) SetRL),(req(TRL,IDRQ,SRQ2,IDND) SetRQ)) .
 --> *********************************************************************************************
-select TOSCALEMMA
-:goal {
-  eq tosca-lemma01(empCP,
-		   srq,srq',idND,idCP,idRQ,idRL,trl,stCP,stRQ,sRQ,sRL,mp) = true . 
-}
-:apply (rd-)
-show proof
-:goal {
-  eq (tosca-lemma01(sCP,
-		    srq,srq',idND,idCP,idRQ,idRL,trl,stCP,stRQ,sRQ,sRL,mp) implies
-      tosca-lemma01((cap(trl',idCP',scp,idND') sCP),
-		    srq,srq',idND,idCP,idRQ,idRL,trl,stCP,stRQ,sRQ,sRL,mp)) = true .
-}
-:def ctfidCP' = :ctf { 
-  eq idCP' = idCP .
-}
--- Since :apply(xxx rd-) is too time consuming, we use :apply(xxx):appy(rd) instead.
--- :apply (ctfidCP' rd-)
-:apply (ctfidCP')
-:apply (rd)
-:def ctfidCP = :ctf { 
-  eq existCP(sCP,idCP) = true .
-}
--- Since :apply(xxx rd-) is too time consuming, we use :apply(xxx):appy(rd) instead.
--- :apply (ctfidCP rd-)
-:apply (ctfidCP)
-:apply (rd)
-:def ctfsCPa = :ctf { 
-  eq uniqCP(sCP) = true .
-}
-:def ctfsCPb = :ctf {
-  eq existCP(sCP,idCP') = true .
-}
-:apply (ctfsCPa ctfsCPb rd-)
-:def ctfsRLa = :ctf { 
-  eq allCPHaveRL(sCP,(rel(trl,idRL,idCP,idRQ) sRL)) = true .
-}
-:apply (ctfsRLa rd-)
-:def ctfsRLb = :ctf { 
-  eq allRLHaveRQ(sRL,(req(trl,idRQ,srq',idND) sRQ)) = true .
-}
-:apply (ctfsRLb rd-)
-:def cspsRL = :csp {
-  eq existCP(sRL,idCP') = false .
-  eq sRL = (rel(trl',idRL',idCP',idRQ') sRL') .
-}
--- Since :apply(xxx rd-) is too time consuming, we use :apply(xxx):appy(rd) instead.
--- :apply (cspsRL rd-)
-:apply (cspsRL)
-:apply (rd)
-:def ctfidRQ' = :ctf {
-  eq idRQ' = idRQ .
-}
-:apply (ctfidRQ' rd-)
-show proof
-select
+-- select TOSCALEMMA
+-- :goal {
+--   eq tosca-lemma01(empCP,
+-- 		   srq,srq',idND,idCP,idRQ,idRL,trl,stCP,stRQ,sRQ,sRL,mp) = true . 
+-- }
+-- :apply (rd-)
+-- show proof
+-- :goal {
+--   eq (tosca-lemma01(sCP,
+-- 		    srq,srq',idND,idCP,idRQ,idRL,trl,stCP,stRQ,sRQ,sRL,mp) implies
+--       tosca-lemma01((cap(trl',idCP',scp,idND') sCP),
+-- 		    srq,srq',idND,idCP,idRQ,idRL,trl,stCP,stRQ,sRQ,sRL,mp)) = true .
+-- }
+-- :def ctfidCP' = :ctf { 
+--   eq idCP' = idCP .
+-- }
+-- -- Since :apply(xxx rd-) is too time consuming, we use :apply(xxx):appy(rd) instead.
+-- -- :apply (ctfidCP' rd-)
+-- :apply (ctfidCP')
+-- :apply (rd)
+-- :def ctfidCP = :ctf { 
+--   eq existCP(sCP,idCP) = true .
+-- }
+-- -- Since :apply(xxx rd-) is too time consuming, we use :apply(xxx):appy(rd) instead.
+-- -- :apply (ctfidCP rd-)
+-- :apply (ctfidCP)
+-- :apply (rd)
+-- :def ctfsCPa = :ctf { 
+--   eq uniqCP(sCP) = true .
+-- }
+-- :def ctfsCPb = :ctf {
+--   eq existCP(sCP,idCP') = true .
+-- }
+-- :apply (ctfsCPa ctfsCPb rd-)
+-- :def ctfsRLa = :ctf { 
+--   eq allCPHaveRL(sCP,(rel(trl,idRL,idCP,idRQ) sRL)) = true .
+-- }
+-- :apply (ctfsRLa rd-)
+-- :def ctfsRLb = :ctf { 
+--   eq allRLHaveRQ(sRL,(req(trl,idRQ,srq',idND) sRQ)) = true .
+-- }
+-- :apply (ctfsRLb rd-)
+-- :def cspsRL = :csp {
+--   eq existCP(sRL,idCP') = false .
+--   eq sRL = (rel(trl',idRL',idCP',idRQ') sRL') .
+-- }
+-- -- Since :apply(xxx rd-) is too time consuming, we use :apply(xxx):appy(rd) instead.
+-- -- :apply (cspsRL rd-)
+-- :apply (cspsRL)
+-- :apply (rd)
+-- :def ctfidRQ' = :ctf {
+--   eq idRQ' = idRQ .
+-- }
+-- :apply (ctfidRQ' rd-)
+-- show proof
+-- select
 
 --> Proof of tosca-lemma02.
 --> *******************************************************************************

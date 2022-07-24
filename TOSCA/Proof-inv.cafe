@@ -1,8 +1,8 @@
 require PROOF Proof.cafe
 
 --> ***************************
---> (4) init(S) implies inv(S).
---> (5) inv(S) implies inv(SS).
+--> (3) init(S) implies inv(S).
+--> (4) inv(S) implies inv(SS).
 --> ***************************
 
 module ProofInv {
@@ -165,9 +165,17 @@ module ProofInv {
      = ifAvailableMsgThenCPInStates(MP,(cap(TCP,IDCP,SCP1,IDND) SetCP),STCP)
      if not (SCP1 in STCP) and SCP1 > SCP2 .
 
+  -- Since wfs-allCPHaveRL and wfs-allRLHaveRQ(SetRL,SetRQ) always hold
+  -- they are omitted from the antecedent.
+  ceq [tosca-lemma19]:
+      (allRQInStates(SetRQ,SRQ) and 
+       ifCPInStatesThenRQInStates(SetCP,STCP,SetRQ,STRQ,SetRL))
+    = allRQInStates(SetRQ,SRQ)
+    if SRQ in STRQ .
+
   -- ifCPClosedThenRQUnbound keeps to hold 
   -- even if a requirement, whose capability is not concerned, changes its state.
-  ceq [tosca-lemma19]:
+  ceq [tosca-lemma20]:
       (ifCPInStatesThenRQInStates(SetCP,STCP,(req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,
 		                  (rel(TRL,IDRL,IDCP,IDRQ) SetRL)) and
        ifCPInStatesThenRQInStates(SetCP,STCP,(req(TRL,IDRQ,SRQ2,IDND) SetRQ),STRQ,
@@ -181,7 +189,7 @@ module ProofInv {
 
   -- ifCPClosedThenRQUnbound keeps to hold 
   -- even if a requirement, whose current state is not concerned, changes its state.
-  ceq [tosca-lemma20]:
+  ceq [tosca-lemma21]:
       (ifCPInStatesThenRQInStates(
 		SetCP,STCP,(req(TRQ,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL) and
        ifCPInStatesThenRQInStates(
@@ -190,7 +198,7 @@ module ProofInv {
 		SetCP,STCP,(req(TRQ,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL)
      if not (SRQ1 in STRQ) and SRQ1 > SRQ2 .
 
-  ceq [tosca-lemma21]:
+  ceq [tosca-lemma22]:
       (ifCPInStatesThenRQInStates(
 		SetCP,STCP,(req(TRQ,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL) and
        ifCPInStatesThenRQInStates(
@@ -198,14 +206,6 @@ module ProofInv {
      = ifCPInStatesThenRQInStates(
 		SetCP,STCP,(req(TRQ,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL)
      if (SRQ2 in STRQ) and SRQ1 > SRQ2 .
-
-  -- Since wfs-allCPHaveRL and wfs-allRLHaveRQ(SetRL,SetRQ) always hold
-  -- they are omitted from the antecedent.
-  ceq [tosca-lemma19]:
-      (allRQInStates(SetRQ,SRQ) and 
-       ifCPInStatesThenRQInStates(SetCP,STCP,SetRQ,STRQ,SetRL))
-    = allRQInStates(SetRQ,SRQ)
-    if SRQ in STRQ .
 }
 
 -- Note:
@@ -219,16 +219,21 @@ module ProofInv {
 -->  eq inv-ifNDInitialThenRQUnboundReady(< SetND,SetCP,SetRQ,SetRL,MP >)
 -->     = ifNDInStatesThenRQInStates(SetND,initial,SetRQ,(unbound ready)) .
 --> ***********************************************************************
---> Proof of inv(S) implies inv(SS)
+--> ******************************************
+--> Step 3-0: Define a predicate to be proved.
+--> ******************************************
 module Proofinv-ifNDInitialThenRQUnboundReady {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifNDInitialThenRQUnboundReady(S) .
 }
 
---> ***************************
---> (4) init(S) implies inv(S).
---> ***************************
 select Proofinv-ifNDInitialThenRQUnboundReady .
+--> ***************************
+--> (3) init(S) implies inv(S).
+--> ***************************
+--> ***************************************************
+--> Step 3-1: Begin with the most general initial case.
+--> ***************************************************
 :goal {
   eq initinv(< sND,sCP,sRQ,sRL,mp >) = true .
 }
@@ -236,16 +241,23 @@ select Proofinv-ifNDInitialThenRQUnboundReady .
 show proof
 
 --> ***************************
---> (5) inv(S) implies inv(SS).
+--> (4) inv(S) implies inv(SS).
 --> ***************************
 --> *************************************************************************
 --> ctrans [R01]: < (node(TND,IDND,initial) SetND), SetCP, SetRQ, SetRL, MP >
 -->            => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfTypeOfNDInStates(SetRQ,hostedOn,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
 }
@@ -257,9 +269,16 @@ show proof
 -->            => < (node(TND,IDND,started) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfNDInStates(SetRQ,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,created)  sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfNDInStates(sRQ,idND,ready) = true .
 }
@@ -271,9 +290,16 @@ show proof
 -->            => < SetND, (cap(hostedOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -286,6 +312,9 @@ show proof
 -->           => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,available,idND) sCP), 
   	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
@@ -299,9 +328,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,open,  IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if isCreated(state(getNode(SetND,IDND))) .
 --> **********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -313,9 +349,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> *************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -331,11 +374,18 @@ show proof
 -->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,unbound,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def csp5-2a = :csp {
   eq existND(sND,idND') = false .
   eq sND = (node(tnd,idND',initial) sND') .
@@ -365,6 +415,9 @@ show proof
 -->           => < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
 -->  	       	  (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,waiting,idND') sRQ), 
@@ -379,9 +432,16 @@ show proof
 -->	       	 (opMsg(IDCP) MP) >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ***********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -394,9 +454,16 @@ show proof
 -->	       	  (avMsg(IDCP) MP) >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> **************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -411,12 +478,19 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,unbound,idND) sRQ), 
 	      (rel(connectsTo,idRL,idCP,idRQ) sRL),
 	      (opMsg(idCP) mp) >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def csp5-4idND = :csp {
   eq existND(sND,idND) = false .
   eq sND = (node(tnd,idND,snd) sND') .
@@ -441,6 +515,9 @@ show proof
 -->           => < SetND, SetCP, 
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,waiting,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
@@ -455,16 +532,21 @@ select
 -->  eq inv-ifNDCreatedThenHostedOnRQReady(< SetND,SetCP,SetRQ,SetRL,MP >)
 -->     = ifNDInStatesThenRQOfTypeInStates(SetND,(created started),SetRQ,hostedOn,ready) .
 --> **************************************************************************************
---> Proof of inv(S) implies inv(SS)
+--> ******************************************
+--> Step 3-0: Define a predicate to be proved.
+--> ******************************************
 module Proofinv-ifNDCreatedThenHostedOnRQReady {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifNDCreatedThenHostedOnRQReady(S) .
 }
 
---> ***************************
---> (4) init(S) implies inv(S).
---> ***************************
 select Proofinv-ifNDCreatedThenHostedOnRQReady .
+--> ***************************
+--> (3) init(S) implies inv(S).
+--> ***************************
+--> ***************************************************
+--> Step 3-1: Begin with the most general initial case.
+--> ***************************************************
 :goal {
   eq initinv(< sND,sCP,sRQ,sRL,mp >) = true .
 }
@@ -472,16 +554,23 @@ select Proofinv-ifNDCreatedThenHostedOnRQReady .
 show proof
 
 --> ***************************
---> (5) inv(S) implies inv(SS).
+--> (4) inv(S) implies inv(SS).
 --> ***************************
 --> *************************************************************************
 --> ctrans [R01]: < (node(TND,IDND,initial) SetND), SetCP, SetRQ, SetRL, MP >
 -->            => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfTypeOfNDInStates(SetRQ,hostedOn,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
 }
@@ -493,9 +582,16 @@ show proof
 -->            => < (node(TND,IDND,started) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfNDInStates(SetRQ,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,created)  sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfNDInStates(sRQ,idND,ready) = true .
 }
@@ -511,9 +607,16 @@ show proof
 -->            => < SetND, (cap(hostedOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -526,6 +629,9 @@ show proof
 -->           => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,available,idND) sCP), 
   	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
@@ -539,9 +645,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,open,  IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if isCreated(state(getNode(SetND,IDND))) .
 --> **********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -553,9 +666,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> *************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -571,11 +691,18 @@ show proof
 -->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,unbound,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq (state(getNode(sND,idND')) = created and isActivated(scp)) = true .
 }
@@ -588,6 +715,9 @@ show proof
 -->           => < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
 -->  	       	  (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,waiting,idND') sRQ), 
@@ -602,9 +732,16 @@ show proof
 -->	       	 (opMsg(IDCP) MP) >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ***********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -617,9 +754,16 @@ show proof
 -->	       	  (avMsg(IDCP) MP) >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> **************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -634,12 +778,19 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,unbound,idND) sRQ), 
 	      (rel(connectsTo,idRL,idCP,idRQ) sRL),
 	      (opMsg(idCP) mp) >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = created .
 }
@@ -653,6 +804,9 @@ show proof
 -->           => < SetND, SetCP, 
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,waiting,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
@@ -667,16 +821,21 @@ select
 -->  eq inv-ifNDStartedThenRQReady(< SetND,SetCP,SetRQ,SetRL,MP >)
 -->     = ifNDInStatesThenRQInStates(SetND,started,SetRQ,ready) .
 --> **************************************************************
---> Proof of inv(S) implies inv(SS)
+--> ******************************************
+--> Step 3-0: Define a predicate to be proved.
+--> ******************************************
 module Proofinv-ifNDStartedThenRQReady {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifNDStartedThenRQReady(S) .
 }
 
---> ***************************
---> (4) init(S) implies inv(S).
---> ***************************
 select Proofinv-ifNDStartedThenRQReady .
+--> ***************************
+--> (3) init(S) implies inv(S).
+--> ***************************
+--> ***************************************************
+--> Step 3-1: Begin with the most general initial case.
+--> ***************************************************
 :goal {
   eq initinv(< sND,sCP,sRQ,sRL,mp >) = true .
 }
@@ -684,16 +843,23 @@ select Proofinv-ifNDStartedThenRQReady .
 show proof
 
 --> ***************************
---> (5) inv(S) implies inv(SS).
+--> (4) inv(S) implies inv(SS).
 --> ***************************
 --> *************************************************************************
 --> ctrans [R01]: < (node(TND,IDND,initial) SetND), SetCP, SetRQ, SetRL, MP >
 -->            => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfTypeOfNDInStates(SetRQ,hostedOn,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
 }
@@ -705,9 +871,16 @@ show proof
 -->            => < (node(TND,IDND,started) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfNDInStates(SetRQ,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,created)  sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfNDInStates(sRQ,idND,ready) = true .
 }
@@ -719,9 +892,16 @@ show proof
 -->            => < SetND, (cap(hostedOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -734,6 +914,9 @@ show proof
 -->           => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,available,idND) sCP), 
   	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
@@ -747,9 +930,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,open,  IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if isCreated(state(getNode(SetND,IDND))) .
 --> **********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -761,9 +951,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> *************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -779,11 +976,18 @@ show proof
 -->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,unbound,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq (state(getNode(sND,idND')) = created and isActivated(scp)) = true .
 }
@@ -796,6 +1000,9 @@ show proof
 -->           => < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
 -->  	       	  (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,waiting,idND') sRQ), 
@@ -810,9 +1017,16 @@ show proof
 -->	       	 (opMsg(IDCP) MP) >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ***********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -825,9 +1039,16 @@ show proof
 -->	       	  (avMsg(IDCP) MP) >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> **************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -842,12 +1063,19 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,unbound,idND) sRQ), 
 	      (rel(connectsTo,idRL,idCP,idRQ) sRL),
 	      (opMsg(idCP) mp) >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = created .
 }
@@ -861,6 +1089,9 @@ show proof
 -->           => < SetND, SetCP, 
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,waiting,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
@@ -875,17 +1106,22 @@ select
 -->  eq inv-ifCPClosedThenRQUnbound(< SetND,SetCP,SetRQ,SetRL,MP >)
 -->     = ifCPInStatesThenRQInStates(SetCP,closed,SetRQ,unbound,SetRL) .
 --> ********************************************************************
+--> ******************************************
+--> Step 3-0: Define a predicate to be proved.
+--> ******************************************
 --> This proof requires inv-ifOpenMsgThenCPActivated.
---> Proof of inv(S) implies inv(SS)
 module Proofinv-ifCPClosedThenRQUnbound {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifCPClosedThenRQUnbound(S) .
 }
 
---> ***************************
---> (4) init(S) implies inv(S).
---> ***************************
 select Proofinv-ifCPClosedThenRQUnbound .
+--> ***************************
+--> (3) init(S) implies inv(S).
+--> ***************************
+--> ***************************************************
+--> Step 3-1: Begin with the most general initial case.
+--> ***************************************************
 :goal {
   eq initinv(< sND,sCP,sRQ,sRL,mp >) = true .
 }
@@ -893,16 +1129,23 @@ select Proofinv-ifCPClosedThenRQUnbound .
 show proof
 
 --> ***************************
---> (5) inv(S) implies inv(SS).
+--> (4) inv(S) implies inv(SS).
 --> ***************************
 --> *************************************************************************
 --> ctrans [R01]: < (node(TND,IDND,initial) SetND), SetCP, SetRQ, SetRL, MP >
 -->            => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfTypeOfNDInStates(SetRQ,hostedOn,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
 }
@@ -914,9 +1157,16 @@ show proof
 -->            => < (node(TND,IDND,started) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfNDInStates(SetRQ,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,created)  sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfNDInStates(sRQ,idND,ready) = true .
 }
@@ -928,9 +1178,16 @@ show proof
 -->            => < SetND, (cap(hostedOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -944,6 +1201,9 @@ show proof
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
 -- This goal requires o2o2o-lemma01
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,available,idND) sCP), 
   	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
@@ -968,9 +1228,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,open,  IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if isCreated(state(getNode(SetND,IDND))) .
 --> **********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -982,9 +1249,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> *************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -1001,11 +1275,18 @@ show proof
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
 -- This goal requires o2o2o-lemma01
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,unbound,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2a = :ctf {
   eq state(getNode(sND,idND')) = created .
 }
@@ -1035,6 +1316,9 @@ show proof
 -->           => < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
 -->  	       	  (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,waiting,idND') sRQ), 
@@ -1049,9 +1333,16 @@ show proof
 -->	       	 (opMsg(IDCP) MP) >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ***********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -1064,9 +1355,16 @@ show proof
 -->	       	  (avMsg(IDCP) MP) >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> **************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -1082,12 +1380,19 @@ show proof
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ******************************************************************************************************
 -- This goal requires o2o2o-lemma01
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,unbound,idND) sRQ), 
 	      (rel(connectsTo,idRL,idCP,idRQ) sRL),
 	      (opMsg(idCP) mp) >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = created .
 }
@@ -1122,6 +1427,9 @@ show proof
 -->           => < SetND, SetCP, 
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,waiting,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
@@ -1136,17 +1444,22 @@ select
 -->  eq inv-ifCPOpenThenRQUnboundWaiting(< SetND,SetCP,SetRQ,SetRL,MP >)
 -->     = ifCPInStatesThenRQInStates(SetCP,open,SetRQ,(unbound waiting),SetRL) .
 --> ****************************************************************************
+--> ******************************************
+--> Step 3-0: Define a predicate to be proved.
+--> ******************************************
 --> This proof requires inv-ifCPClosedThenRQUnbound, inv-ifAvailableMsgThenCPAvailable.
---> Proof of inv(S) implies inv(SS)
 module Proofinv-ifCPOpenThenRQUnboundWaiting {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifCPOpenThenRQUnboundWaiting(S) .
 }
 
---> ***************************
---> (4) init(S) implies inv(S).
---> ***************************
 select Proofinv-ifCPOpenThenRQUnboundWaiting .
+--> ***************************
+--> (3) init(S) implies inv(S).
+--> ***************************
+--> ***************************************************
+--> Step 3-1: Begin with the most general initial case.
+--> ***************************************************
 :goal {
   eq initinv(< sND,sCP,sRQ,sRL,mp >) = true .
 }
@@ -1157,16 +1470,23 @@ select Proofinv-ifCPOpenThenRQUnboundWaiting .
 show proof
 
 --> ***************************
---> (5) inv(S) implies inv(SS).
+--> (4) inv(S) implies inv(SS).
 --> ***************************
 --> *************************************************************************
 --> ctrans [R01]: < (node(TND,IDND,initial) SetND), SetCP, SetRQ, SetRL, MP >
 -->            => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfTypeOfNDInStates(SetRQ,hostedOn,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
 }
@@ -1178,9 +1498,16 @@ show proof
 -->            => < (node(TND,IDND,started) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfNDInStates(SetRQ,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,created)  sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfNDInStates(sRQ,idND,ready) = true .
 }
@@ -1192,9 +1519,16 @@ show proof
 -->            => < SetND, (cap(hostedOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -1208,6 +1542,9 @@ show proof
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
 -- This goal requires o2o2o-lemma01
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,available,idND) sCP), 
   	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
@@ -1232,9 +1569,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,open,  IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if isCreated(state(getNode(SetND,IDND))) .
 --> **********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -1261,9 +1605,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> *************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -1279,11 +1630,18 @@ show proof
 -->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,unbound,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2a = :ctf {
   eq state(getNode(sND,idND')) = created .
 }
@@ -1303,6 +1661,9 @@ show proof
 -->           => < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
 -->  	       	  (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,waiting,idND') sRQ), 
@@ -1317,9 +1678,16 @@ show proof
 -->	       	 (opMsg(IDCP) MP) >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ***********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -1347,9 +1715,16 @@ show proof
 -->	       	  (avMsg(IDCP) MP) >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> **************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -1364,12 +1739,19 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,unbound,idND) sRQ), 
 	      (rel(connectsTo,idRL,idCP,idRQ) sRL),
 	      (opMsg(idCP) mp) >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = created .
 }
@@ -1384,6 +1766,9 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
 -- This goal requires o2o2o-lemma01
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,waiting,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
@@ -1419,16 +1804,21 @@ select
 -->  eq inv-allHostedOnCPNotOpen(< SetND,SetCP,SetRQ,SetRL,MP >)
 -->     = allHostedOnCPInStates(SetCP,(closed available)) .
 --> ************************************************************
---> Proof of inv(S) implies inv(SS)
+--> ******************************************
+--> Step 3-0: Define a predicate to be proved.
+--> ******************************************
 module Proofinv-HostedOnCPNotOpen {
   protecting(ProofInv)
   eq invK(S:State) = inv-HostedOnCPNotOpen(S) .
 }
 
---> ***************************
---> (4) init(S) implies inv(S).
---> ***************************
 select Proofinv-HostedOnCPNotOpen .
+--> ***************************
+--> (3) init(S) implies inv(S).
+--> ***************************
+--> ***************************************************
+--> Step 3-1: Begin with the most general initial case.
+--> ***************************************************
 :goal {
   eq initinv(< sND,sCP,sRQ,sRL,mp >) = true .
 }
@@ -1436,16 +1826,23 @@ select Proofinv-HostedOnCPNotOpen .
 show proof
 
 --> ***************************
---> (5) inv(S) implies inv(SS).
+--> (4) inv(S) implies inv(SS).
 --> ***************************
 --> *************************************************************************
 --> ctrans [R01]: < (node(TND,IDND,initial) SetND), SetCP, SetRQ, SetRL, MP >
 -->            => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfTypeOfNDInStates(SetRQ,hostedOn,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
 }
@@ -1457,9 +1854,16 @@ show proof
 -->            => < (node(TND,IDND,started) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfNDInStates(SetRQ,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,created)  sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfNDInStates(sRQ,idND,ready) = true .
 }
@@ -1471,9 +1875,16 @@ show proof
 -->            => < SetND, (cap(hostedOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -1486,6 +1897,9 @@ show proof
 -->           => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,available,idND) sCP), 
   	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
@@ -1499,9 +1913,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,open,  IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if isCreated(state(getNode(SetND,IDND))) .
 --> **********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -1513,9 +1934,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> *************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -1531,11 +1959,18 @@ show proof
 -->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,unbound,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq (state(getNode(sND,idND')) = created and isActivated(scp)) = true .
 }
@@ -1548,6 +1983,9 @@ show proof
 -->           => < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
 -->  	       	  (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,waiting,idND') sRQ), 
@@ -1562,9 +2000,16 @@ show proof
 -->	       	 (opMsg(IDCP) MP) >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ***********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -1577,9 +2022,16 @@ show proof
 -->	       	  (avMsg(IDCP) MP) >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> **************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -1594,12 +2046,19 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,unbound,idND) sRQ), 
 	      (rel(connectsTo,idRL,idCP,idRQ) sRL),
 	      (opMsg(idCP) mp) >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = created .
 }
@@ -1613,6 +2072,9 @@ show proof
 -->           => < SetND, SetCP, 
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,waiting,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
@@ -1627,16 +2089,21 @@ select
 -->  eq inv-HostedOnRQNotWaiting(< SetND,SetCP,SetRQ,SetRL,MP >)
 -->     = HostedOnRQInState(SetCP,(closed available)) .
 --> *********************************************************
---> Proof of inv(S) implies inv(SS)
+--> ******************************************
+--> Step 3-0: Define a predicate to be proved.
+--> ******************************************
 module Proofinv-HostedOnRQNotWaiting {
   protecting(ProofInv)
   eq invK(S:State) = inv-HostedOnRQNotWaiting(S) .
 }
 
---> ***************************
---> (4) init(S) implies inv(S).
---> ***************************
 select Proofinv-HostedOnRQNotWaiting .
+--> ***************************
+--> (3) init(S) implies inv(S).
+--> ***************************
+--> ***************************************************
+--> Step 3-1: Begin with the most general initial case.
+--> ***************************************************
 :goal {
   eq initinv(< sND,sCP,sRQ,sRL,mp >) = true .
 }
@@ -1644,16 +2111,23 @@ select Proofinv-HostedOnRQNotWaiting .
 show proof
 
 --> ***************************
---> (5) inv(S) implies inv(SS).
+--> (4) inv(S) implies inv(SS).
 --> ***************************
 --> *************************************************************************
 --> ctrans [R01]: < (node(TND,IDND,initial) SetND), SetCP, SetRQ, SetRL, MP >
 -->            => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfTypeOfNDInStates(SetRQ,hostedOn,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
 }
@@ -1665,9 +2139,16 @@ show proof
 -->            => < (node(TND,IDND,started) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfNDInStates(SetRQ,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,created)  sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfNDInStates(sRQ,idND,ready) = true .
 }
@@ -1679,9 +2160,16 @@ show proof
 -->            => < SetND, (cap(hostedOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -1694,6 +2182,9 @@ show proof
 -->           => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,available,idND) sCP), 
   	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
@@ -1707,9 +2198,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,open,  IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if isCreated(state(getNode(SetND,IDND))) .
 --> **********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -1721,9 +2219,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> *************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -1739,11 +2244,18 @@ show proof
 -->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,unbound,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq (state(getNode(sND,idND')) = created and isActivated(scp)) = true .
 }
@@ -1756,6 +2268,9 @@ show proof
 -->           => < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
 -->  	       	  (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,waiting,idND') sRQ), 
@@ -1770,9 +2285,16 @@ show proof
 -->	       	 (opMsg(IDCP) MP) >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ***********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -1785,9 +2307,16 @@ show proof
 -->	       	  (avMsg(IDCP) MP) >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> **************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -1802,12 +2331,19 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,unbound,idND) sRQ), 
 	      (rel(connectsTo,idRL,idCP,idRQ) sRL),
 	      (opMsg(idCP) mp) >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = created .
 }
@@ -1821,6 +2357,9 @@ show proof
 -->           => < SetND, SetCP, 
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,waiting,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
@@ -1835,17 +2374,22 @@ select
 -->  eq inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg(< SetND,SetCP,SetRQ,SetRL,MP >)
 -->     = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,open,SetRQ,waiting,SetRL,MP) .
 --> ****************************************************************************************
+--> ******************************************
+--> Step 3-0: Define a predicate to be proved.
+--> ******************************************
 --> This proof requires inv-ifAvailableMsgThenCPAvailable.
---> Proof of inv(S) implies inv(SS)
 module Proofinv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg(S) .
 }
 
---> ***************************
---> (4) init(S) implies inv(S).
---> ***************************
 select Proofinv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg .
+--> ***************************
+--> (3) init(S) implies inv(S).
+--> ***************************
+--> ***************************************************
+--> Step 3-1: Begin with the most general initial case.
+--> ***************************************************
 :goal {
   eq initinv(< sND,sCP,sRQ,sRL,mp >) = true .
 }
@@ -1853,16 +2397,23 @@ select Proofinv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg .
 show proof
 
 --> ***************************
---> (5) inv(S) implies inv(SS).
+--> (4) inv(S) implies inv(SS).
 --> ***************************
 --> *************************************************************************
 --> ctrans [R01]: < (node(TND,IDND,initial) SetND), SetCP, SetRQ, SetRL, MP >
 -->            => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfTypeOfNDInStates(SetRQ,hostedOn,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
 }
@@ -1874,9 +2425,16 @@ show proof
 -->            => < (node(TND,IDND,started) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfNDInStates(SetRQ,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,created)  sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfNDInStates(sRQ,idND,ready) = true .
 }
@@ -1888,9 +2446,16 @@ show proof
 -->            => < SetND, (cap(hostedOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -1903,6 +2468,9 @@ show proof
 -->           => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,available,idND) sCP), 
   	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
@@ -1916,9 +2484,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,open,  IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if isCreated(state(getNode(SetND,IDND))) .
 --> **********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -1930,9 +2505,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> *************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -1948,11 +2530,18 @@ show proof
 -->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,unbound,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq (state(getNode(sND,idND')) = created and isActivated(scp)) = true .
 }
@@ -1965,6 +2554,9 @@ show proof
 -->           => < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
 -->  	       	  (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,waiting,idND') sRQ), 
@@ -1979,9 +2571,16 @@ show proof
 -->	       	 (opMsg(IDCP) MP) >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ***********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -1994,9 +2593,16 @@ show proof
 -->	       	  (avMsg(IDCP) MP) >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> **************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -2011,12 +2617,19 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,unbound,idND) sRQ), 
 	      (rel(connectsTo,idRL,idCP,idRQ) sRL),
 	      (opMsg(idCP) mp) >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = created .
 }
@@ -2030,6 +2643,9 @@ show proof
 -->           => < SetND, SetCP, 
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,waiting,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
@@ -2057,17 +2673,22 @@ select
 -->  eq inv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg(< SetND,SetCP,SetRQ,SetRL,MP >)
 -->     = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,available,SetRQ,(waiting ready),SetRL,MP) .
 --> *****************************************************************************************************
+--> ******************************************
+--> Step 3-0: Define a predicate to be proved.
+--> ******************************************
 --> This proof requires inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg.
---> Proof of inv(S) implies inv(SS)
 module Proofinv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg(S) .
 }
 
---> ***************************
---> (4) init(S) implies inv(S).
---> ***************************
 select Proofinv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg .
+--> ***************************
+--> (3) init(S) implies inv(S).
+--> ***************************
+--> ***************************************************
+--> Step 3-1: Begin with the most general initial case.
+--> ***************************************************
 :goal {
   eq initinv(< sND,sCP,sRQ,sRL,mp >) = true .
 }
@@ -2075,16 +2696,23 @@ select Proofinv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg .
 show proof
 
 --> ***************************
---> (5) inv(S) implies inv(SS).
+--> (4) inv(S) implies inv(SS).
 --> ***************************
 --> *************************************************************************
 --> ctrans [R01]: < (node(TND,IDND,initial) SetND), SetCP, SetRQ, SetRL, MP >
 -->            => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfTypeOfNDInStates(SetRQ,hostedOn,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
 }
@@ -2096,9 +2724,16 @@ show proof
 -->            => < (node(TND,IDND,started) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfNDInStates(SetRQ,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,created)  sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfNDInStates(sRQ,idND,ready) = true .
 }
@@ -2110,9 +2745,16 @@ show proof
 -->            => < SetND, (cap(hostedOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -2125,6 +2767,9 @@ show proof
 -->           => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,available,idND) sCP), 
   	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
@@ -2138,9 +2783,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,open,  IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if isCreated(state(getNode(SetND,IDND))) .
 --> **********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -2152,9 +2804,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> *************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -2170,11 +2829,18 @@ show proof
 -->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,unbound,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq (state(getNode(sND,idND')) = created and isActivated(scp)) = true .
 }
@@ -2187,6 +2853,9 @@ show proof
 -->           => < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
 -->  	       	  (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,waiting,idND') sRQ), 
@@ -2201,9 +2870,16 @@ show proof
 -->	       	 (opMsg(IDCP) MP) >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ***********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -2216,9 +2892,16 @@ show proof
 -->	       	  (avMsg(IDCP) MP) >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> **************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -2252,12 +2935,19 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,unbound,idND) sRQ), 
 	      (rel(connectsTo,idRL,idCP,idRQ) sRL),
 	      (opMsg(idCP) mp) >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = created .
 }
@@ -2271,6 +2961,9 @@ show proof
 -->           => < SetND, SetCP, 
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,waiting,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
@@ -2285,16 +2978,21 @@ select
 -->  eq inv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg(< SetND,SetCP,SetRQ,SetRL,MP >)
 -->     = ifConnectsToCPInStatesThenRQInStatesOrAvailableMsg(SetCP,available,SetRQ,ready,SetRL,MP) .
 --> ************************************************************************************************
---> Proof of inv(S) implies inv(SS)
+--> ******************************************
+--> Step 3-0: Define a predicate to be proved.
+--> ******************************************
 module Proofinv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg(S) .
 }
 
---> ***************************
---> (4) init(S) implies inv(S).
---> ***************************
 select Proofinv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg .
+--> ***************************
+--> (3) init(S) implies inv(S).
+--> ***************************
+--> ***************************************************
+--> Step 3-1: Begin with the most general initial case.
+--> ***************************************************
 :goal {
   eq initinv(< sND,sCP,sRQ,sRL,mp >) = true .
 }
@@ -2302,16 +3000,23 @@ select Proofinv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg .
 show proof
 
 --> ***************************
---> (5) inv(S) implies inv(SS).
+--> (4) inv(S) implies inv(SS).
 --> ***************************
 --> *************************************************************************
 --> ctrans [R01]: < (node(TND,IDND,initial) SetND), SetCP, SetRQ, SetRL, MP >
 -->            => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfTypeOfNDInStates(SetRQ,hostedOn,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
 }
@@ -2323,9 +3028,16 @@ show proof
 -->            => < (node(TND,IDND,started) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfNDInStates(SetRQ,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,created)  sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfNDInStates(sRQ,idND,ready) = true .
 }
@@ -2337,9 +3049,16 @@ show proof
 -->            => < SetND, (cap(hostedOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -2352,6 +3071,9 @@ show proof
 -->           => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,available,idND) sCP), 
   	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
@@ -2365,9 +3087,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,open,  IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if isCreated(state(getNode(SetND,IDND))) .
 --> **********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -2379,9 +3108,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> *************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -2397,11 +3133,18 @@ show proof
 -->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,unbound,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq (state(getNode(sND,idND')) = created and isActivated(scp)) = true .
 }
@@ -2414,6 +3157,9 @@ show proof
 -->           => < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
 -->  	       	  (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,waiting,idND') sRQ), 
@@ -2428,9 +3174,16 @@ show proof
 -->	       	 (opMsg(IDCP) MP) >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ***********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -2443,9 +3196,16 @@ show proof
 -->	       	  (avMsg(IDCP) MP) >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> **************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -2460,12 +3220,19 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,unbound,idND) sRQ), 
 	      (rel(connectsTo,idRL,idCP,idRQ) sRL),
 	      (opMsg(idCP) mp) >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = created .
 }
@@ -2479,6 +3246,9 @@ show proof
 -->           => < SetND, SetCP, 
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,waiting,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
@@ -2493,16 +3263,21 @@ select
 -->  eq inv-ifOpenMsgThenCPActivated(< SetND,SetCP,SetRQ,SetRL,MP >)
 -->     = ifOpenMsgThenCPInStates(MP,SetCP,(open available)) .
 --> ****************************************************************
---> Proof of inv(S) implies inv(SS)
+--> ******************************************
+--> Step 3-0: Define a predicate to be proved.
+--> ******************************************
 module Proofinv-ifOpenMsgThenCPActivated {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifOpenMsgThenCPActivated(S) .
 }
 
---> ***************************
---> (4) init(S) implies inv(S).
---> ***************************
 select Proofinv-ifOpenMsgThenCPActivated .
+--> ***************************
+--> (3) init(S) implies inv(S).
+--> ***************************
+--> ***************************************************
+--> Step 3-1: Begin with the most general initial case.
+--> ***************************************************
 :goal {
   eq initinv(< sND,sCP,sRQ,sRL,mp >) = true .
 }
@@ -2513,16 +3288,23 @@ select Proofinv-ifOpenMsgThenCPActivated .
 show proof
 
 --> ***************************
---> (5) inv(S) implies inv(SS).
+--> (4) inv(S) implies inv(SS).
 --> ***************************
 --> *************************************************************************
 --> ctrans [R01]: < (node(TND,IDND,initial) SetND), SetCP, SetRQ, SetRL, MP >
 -->            => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfTypeOfNDInStates(SetRQ,hostedOn,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
 }
@@ -2534,9 +3316,16 @@ show proof
 -->            => < (node(TND,IDND,started) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfNDInStates(SetRQ,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,created)  sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfNDInStates(sRQ,idND,ready) = true .
 }
@@ -2548,9 +3337,16 @@ show proof
 -->            => < SetND, (cap(hostedOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -2563,6 +3359,9 @@ show proof
 -->           => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,available,idND) sCP), 
   	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
@@ -2576,9 +3375,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,open,  IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if isCreated(state(getNode(SetND,IDND))) .
 --> **********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -2590,9 +3396,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> *************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -2608,11 +3421,18 @@ show proof
 -->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,unbound,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq (state(getNode(sND,idND')) = created and isActivated(scp)) = true .
 }
@@ -2625,6 +3445,9 @@ show proof
 -->           => < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
 -->  	       	  (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,waiting,idND') sRQ), 
@@ -2639,9 +3462,16 @@ show proof
 -->	       	 (opMsg(IDCP) MP) >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ***********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -2654,9 +3484,16 @@ show proof
 -->	       	  (avMsg(IDCP) MP) >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> **************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -2671,12 +3508,19 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,unbound,idND) sRQ), 
 	      (rel(connectsTo,idRL,idCP,idRQ) sRL),
 	      (opMsg(idCP) mp) >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = created .
 }
@@ -2690,6 +3534,9 @@ show proof
 -->           => < SetND, SetCP, 
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,waiting,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
@@ -2704,16 +3551,21 @@ select
 -->  eq inv-ifAvailableMsgThenCPAvailable(< SetND,SetCP,SetRQ,SetRL,MP >)
 -->     = ifAvailableMsgThenCPInStates(MP,SetCP,available) .
 --> *********************************************************************
---> Proof of inv(S) implies inv(SS)
+--> ******************************************
+--> Step 3-0: Define a predicate to be proved.
+--> ******************************************
 module Proofinv-ifAvailableMsgThenCPAvailable {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifAvailableMsgThenCPAvailable(S) .
 }
 
---> ***************************
---> (4) init(S) implies inv(S).
---> ***************************
 select Proofinv-ifAvailableMsgThenCPAvailable .
+--> ***************************
+--> (3) init(S) implies inv(S).
+--> ***************************
+--> ***************************************************
+--> Step 3-1: Begin with the most general initial case.
+--> ***************************************************
 :goal {
   eq initinv(< sND,sCP,sRQ,sRL,mp >) = true .
 }
@@ -2724,16 +3576,23 @@ select Proofinv-ifAvailableMsgThenCPAvailable .
 show proof
 
 --> ***************************
---> (5) inv(S) implies inv(SS).
+--> (4) inv(S) implies inv(SS).
 --> ***************************
 --> *************************************************************************
 --> ctrans [R01]: < (node(TND,IDND,initial) SetND), SetCP, SetRQ, SetRL, MP >
 -->            => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfTypeOfNDInStates(SetRQ,hostedOn,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
 }
@@ -2745,9 +3604,16 @@ show proof
 -->            => < (node(TND,IDND,started) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfNDInStates(SetRQ,IDND,ready) .
 --> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< (node(tnd,idND,created)  sND), sCP, sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq allRQOfNDInStates(sRQ,idND,ready) = true .
 }
@@ -2759,9 +3625,16 @@ show proof
 -->            => < SetND, (cap(hostedOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -2774,6 +3647,9 @@ show proof
 -->           => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(hostedOn,idCP,available,idND) sCP), 
   	           (req(hostedOn,idRQ,unbound,idND') sRQ), 
@@ -2787,9 +3663,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,open,  IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if isCreated(state(getNode(SetND,IDND))) .
 --> **********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -2801,9 +3684,16 @@ show proof
 -->            => < SetND, (cap(dependsOn,IDCP,available,IDND) SetCP), SetRQ, SetRL, MP >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> *************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -2819,11 +3709,18 @@ show proof
 -->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,unbound,idND') sRQ), 
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def csp5-2a = :csp {
   eq existND(sND,idND') = false .
   eq sND = (node(tnd,idND',initial) sND') .
@@ -2846,6 +3743,9 @@ show proof
 -->           => < SetND, (cap(dependsOn,IDCP,available,IDND1) SetCP), 
 -->  	       	  (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(dependsOn,idCP,scp,idND) sCP), 
    	           (req(dependsOn,idRQ,waiting,idND') sRQ), 
@@ -2860,9 +3760,16 @@ show proof
 -->	       	 (opMsg(IDCP) MP) >
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ***********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
@@ -2875,9 +3782,16 @@ show proof
 -->	       	  (avMsg(IDCP) MP) >
 -->	     if state(getNode(SetND,IDND)) = started .
 --> **************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
@@ -2892,12 +3806,19 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,unbound,idND) sRQ), 
 	      (rel(connectsTo,idRL,idCP,idRQ) sRL),
 	      (opMsg(idCP) mp) >) = true .
 }
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :def ctf5-2 = :ctf {
   eq state(getNode(sND,idND)) = created .
 }
@@ -2911,6 +3832,9 @@ show proof
 -->           => < SetND, SetCP, 
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
 :goal {
   eq invinv(< sND, sCP, 
    	      (req(connectsTo,idRQ,waiting,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
