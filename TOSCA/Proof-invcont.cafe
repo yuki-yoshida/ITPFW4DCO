@@ -1,49 +1,486 @@
 require PROOF Proof.cafe
 
---> **********************************************
---> (6) (inv(S) and not final(S)) implies cont(S).
---> **********************************************
--- Proof of (6) (inv(S) and not final(S)) implies cont(S).
--- Assuming 
---   init(S) implies final(S) = false,
---   initinv(S) is proved, and
---   invcont(S) is prove, 
--- then both initcont(S) and contcont(S) holds.
+--> ****************************************
+--> (1) inv(S) implies final(S) or cont(S) .
+--> ****************************************
+-- Proof of (1) inv(S) implies final(S) or cont(S) .
 
-open PROOF .
+--> **********************************************************************************
+--> Initial Cont Lemma: If there is an initail node, then there is an applicable rule.
+--> **********************************************************************************
+--> ******************************************
+--> Step 1-0: Define a predicate to be proved.
+--> ******************************************
+module ProofInitialCont {
+  protecting(PROOF)
 
-  var S : State
-  var T : NDType
-  var I : NDID
   var SetND : SetOfNode
   var SetCP : SetOfCapability
   var SetRQ : SetOfRequirement
   var SetRL : SetOfRelationship
-  var M : PoolOfMsg
+  var MP : PoolOfMsg
+  var S : State
 
-  -- initial-cont lemma: 
-  eq cont(< (node(T, I, initial) SetND), 
-            SetCP, SetRQ, SetRL, M >) = true .
+  pred someInitialNode : State
+  eq someInitialNode(< SetND, SetCP, SetRQ, SetRL, MP >)
+    = someNDInStates(SetND,initial) .
 
-  -- created-cont lemma: 
-  eq cont(< (node(T, I, created) SetND), 
-            SetCP, SetRQ, SetRL, M >) = true .
+  pred initialcont : State
+  eq initialcont(S) 
+    = inv(S) and someInitialNode(S) implies cont(S) .
+}
 
---> *******************************************
---> Step 6-1: Begin with the most general case. 
---> *******************************************
+select ProofInitialCont .
+--> ***********************************************************************
+--> Step 1-1: Begin with the most general representation of a global state.
+--> ***********************************************************************
+:goal {eq initialcont(< sND, sCP, sRQ, sRL, mp >) = true .}
+:def cspsnd' = :csp {
+  eq snd' = initial .
+  eq snd' = created .
+  eq snd' = started .
+}
+:def cspscp = :csp {
+  eq scp = closed .
+  eq scp = open .
+  eq scp = available .
+}
+:def csptrl' = :csp {
+  eq trl' = hostedOn .
+  eq trl' = dependsOn .
+  eq trl' = connectsTo .
+}
+:def csptrl'' = :csp {
+  eq trl'' = hostedOn .
+  eq trl'' = dependsOn .
+  eq trl'' = connectsTo .
+}
+:def cspsND = :csp {
+  eq someNDInStates(sND,initial) = false .
+  eq sND = (node(tnd,idND,initial) sND') .
+}
+:apply (cspsND rd-)
+-- Case 2: sND = (node(tnd,idND,initial) sND') .
+--> *****************************************************************
+--> Step 1-3: Consider which rule can be applied to the current case.
+--> *****************************************************************
+-- The next rule should be R01 for the node of idND.
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- The corrent case is already matched with the LHS of rule R01.
+--> *********************************************************
+--> Step 1-5: Split the current case into cases where
+-->  the condition of the current rule does or does not hold. 
+--> *********************************************************
+-- The condition of R01 is allRQOfTypeOfNDInStates(SetRQ,hostedOn,IDND,ready) .
+:def csp1-5R01 = :csp { 
+  eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
+  eq sRQ = (req(hostedOn,idRQ,unbound,idND) sRQ') .
+  eq sRQ = (req(hostedOn,idRQ,waiting,idND) sRQ') .
+}
+:apply (csp1-5R01 rd-)
+-- Case 2-2: sRQ = (req(hostedOn,idRQ,unbound,idND) sRQ') .
+--> *****************************************************************
+--> Step 1-3: Consider which rule can be applied to the current case.
+--> *****************************************************************
+-- The next rule should be R04 for the requirement of idRQ
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- LHS of R04 requires a hostedOn relationship of the requirement of idRQ.
+:def csp1-4idRQ = :csp {
+  eq onlyOneRLOfRQ(sRL,idRQ) = false .
+  eq sRL = (rel(trl',idRL,idCP,idRQ) sRL') .
+}
+:apply (csp1-4idRQ rd- csptrl' rd-)
+-- Case 2-2-2-1: sRL = (rel(hostedOn,idRL,idCP,idRQ) sRL') .
+--> **************************************************************************
+--> Step 1-7: When there is a dangling link, split the current case into cases
+-->  where the linked object does or does not exist.
+--> **************************************************************************
+:def csp1-7idCP = :csp {
+  eq existCP(sCP,idCP) = false .
+  eq sCP = (cap(trl'',idCP,scp,idND') sCP') .
+}
+:apply (csp1-7idCP rd- csptrl'' rd-)
+-- Case 2-2-2-1-2-1: sCP = (cap(hostedOn,idCP,scp,idND') sCP') .
+--> **********************************************************************
+--> Step 1-6: When there are two identifier constants of the same sort,
+-->  split the current case into cases where they are or are not the same.
+--> **********************************************************************
+:def ctf1-6idND' = :ctf {
+  eq idND' = idND .
+}
+:apply (ctf1-6idND' rd-)
+--> *****************************************************************
+--> Step 1-3: Consider which rule can be applied to the current case.
+--> *****************************************************************
+-- The next rule should be R03 or R04 for the capability of idCP.
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- LHS of R04 requires an available capability.
+:apply (cspscp rd-)
+-- Case 2-2-2-1-2-1-2-1: scp = closed .
+--> **************************************************************************
+--> Step 1-7: When there is a dangling link, split the current case into cases
+-->  where the linked object does or does not exist.
+--> **************************************************************************
+:def csp1-7idND' = :csp {
+  eq existND(sND',idND') = false .
+  eq sND' = (node(tnd',idND',snd') sND'') .
+}
+:apply (csp1-7idND' rd-)
+--> *****************************************************************
+--> Step 1-3: Consider which rule can be applied to the current case.
+--> *****************************************************************
+-- The next rule should be R03 for the capability of idCP
+--> *********************************************************
+--> Step 1-5: Split the current case into cases where
+-->  the condition of the current rule does or does not hold. 
+--> *********************************************************
+-- The condition of R03 is isCreated(state(getNode(SetND,IDND))) .
+:apply (cspsnd' rd-)
+-- Case 2-2-2-1-2-1-2-1-2-1: snd' = initial .
+--> ******************************************************************************
+--> Step 1-8: When falling in a cyclic situation, use No Cyclic Dependency Lemma.
+--> ******************************************************************************
+-- The Cyclic Dependency Lemma rejects this case.
+:def noCycle = :init as noCDL-in [noCDL]
+  by {Oc:Node <- node(tnd,idND,initial);
+      Xc:Node <- node(tnd,idND,initial);
+      S:State  <- (< sND , sCP , sRQ , sRL , mp >);
+      LS:NDState <- initial; }
+:apply (noCycle rd-)
+show proof
+select
+
+open ProofInitialCont .
+--  Initial Cont Lemma
+--  eq initialcont(S) 
+--    = inv(S) and someInitialNode(S) implies cont(S) .
+ceq inv(S) = false if someInitialNode(S) and cont(S) = false .
+
+--> ***********************************************************************
+--> Step 1-1: Begin with the most general representation of a global state.
+--> ***********************************************************************
 :goal {eq invcont(< sND, sCP, sRQ, sRL, mp >) = true .}
---> *********************************************
---> Step 6-2: Split the current case into cases 
--->  where predicate final does or does not hold.
---> *********************************************
+:def cspsnd' = :csp {
+  eq snd' = initial .
+  eq snd' = created .
+  eq snd' = started .
+}
+:def cspscp = :csp {
+  eq scp = closed .
+  eq scp = open .
+  eq scp = available .
+}
+:def csptrl = :csp {
+  eq trl = hostedOn .
+  eq trl = dependsOn .
+  eq trl = connectsTo .
+}
+:def csptrl' = :csp {
+  eq trl' = hostedOn .
+  eq trl' = dependsOn .
+  eq trl' = connectsTo .
+}
+:def csptrl'' = :csp {
+  eq trl'' = hostedOn .
+  eq trl'' = dependsOn .
+  eq trl'' = connectsTo .
+}
+--> *********************************************************************************
+--> Step 1-2: Split the current case into cases where final(S) does or does not hold.
+--> *********************************************************************************
 -- eq final(< SetND,SetCP,SetRQ,SetRL,MP >) = allNDInStates(SetND,started) .
-:def finalcsp = :csp  { 
+:def csp1-2 = :csp  { 
   eq final(< sND, sCP, sRQ, sRL, mp >) = true .
   eq sND = (node(tnd,idND,initial) sND') .
   eq sND = (node(tnd,idND,created) sND') .
 }
-:apply (finalcsp rd-)
+:apply (csp1-2 rd-)
+-- Case 3: sND = (node(tnd,idND,created) sND') .
+--> *****************************************************************
+--> Step 1-3: Consider which rule can be applied to the current case.
+--> *****************************************************************
+-- The next rule should be R02 for the node of idND.
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- The corrent case is already matched with the LHS of rule R02.
+--> *********************************************************
+--> Step 1-5: Split the current case into cases where
+-->  the condition of the current rule does or does not hold. 
+--> *********************************************************
+-- The condition of R02 is allRQOfNDInStates(SetRQ,IDND,ready) .
+:def csp1-5R02 = :csp { 
+  eq allRQOfNDInStates(sRQ,idND,ready) = true .
+  eq sRQ = (req(trl,idRQ,unbound,idND) sRQ') .
+  eq sRQ = (req(trl,idRQ,waiting,idND) sRQ') .
+}
+:apply (csp1-5R02 rd-)
+
+-- Case 3-2: sRQ = (req(trl,idRQ,unbound,idND) sRQ') .
+--> *************************************************************************************
+--> Step 1-3: Consider which rule can be applied to the global state in the current case. 
+--> *************************************************************************************
+-- The next applicable rule depends on the type of the requirement.
+:apply (csptrl rd-)
+-- Case 3-2-2: When the type of requirement of idRQ is dependsOn .
+--> *************************************************************************************
+--> Step 1-3: Consider which rule can be applied to the global state in the current case. 
+--> *************************************************************************************
+-- The next rule should be R07 for the dependsOn requirement of idRQ.
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- LHS of R07 requires a dependsOn relationship of the requirement of idRQ.
+:def csp1-4idRQ = :csp {
+  eq onlyOneRLOfRQ(sRL,idRQ) = false .
+  eq sRL = (rel(trl',idRL,idCP,idRQ) sRL') .
+}
+:apply (csp1-4idRQ rd- csptrl' rd-)
+-- Case 3-2-2-2-2: sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+--> **************************************************************************
+--> Step 1-7: When there is a dangling link, split the current case into cases
+-->  where the linked object does or does not exist.
+--> **************************************************************************
+:def csp1-7idCP = :csp {
+  eq existCP(sCP,idCP) = false .
+  eq sCP = (cap(trl'',idCP,scp,idND') sCP') .
+}
+:apply (csp1-7idCP rd- csptrl'' rd-)
+-- Case 3-2-2-2-2-2-2: sCP = (cap(dependsOn,idCP,scp,idND') sCP') .
+--> **********************************************************************
+--> Step 1-6: When there are two identifier constants of the same sort,
+-->  split the current case into cases where they are or are not the same.
+--> **********************************************************************
+:def ctf1-6idND' = :ctf {
+  eq idND' = idND .
+}
+:apply (ctf1-6idND' rd-)
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- LHS of R07 requires an activated capability.
+:apply (cspscp rd-)
+-- Case 3-2-2-2-2-2-2-2-1: sCP = (cap(dependsOn,idCP,closed,idND') sCP') .
+--> *************************************************************************************
+--> Step 1-3: Consider which rule can be applied to the global state in the current case. 
+--> *************************************************************************************
+-- The next rule should be R05 for the dependsOn capability of idCP.
+--> *********************************************************
+--> Step 1-5: Split the current case into cases where
+-->  the condition of the current rule does or does not hold. 
+--> *********************************************************
+-- The condition of R05 is isCreated(state(getNode(SetND,IDND))) .
+--> **********************************************************************
+--> Step 1-6: When there are two identifier constants of the same sort,
+-->  split the current case into cases where they are or are not the same.
+--> **********************************************************************
+:apply (ctf1-6idND' rd-)
+--> **************************************************************************
+--> Step 1-7: When there is a dangling link, split the current case into cases
+-->  where the linked object does or does not exist.
+--> **************************************************************************
+:def csp1-7idND' = :csp {
+  eq existND(sND',idND') = false .
+  eq sND' = (node(tnd',idND',snd') sND'') .
+}
+:apply (csp1-7idND' rd-)
+--> *********************************************************
+--> Step 1-5: Split the current case into cases where
+-->  the condition of the current rule does or does not hold. 
+--> *********************************************************
+-- The condition of R05 is isCreated(state(getNode(SetND,IDND))) .
+:apply (cspsnd' rd-)
+
+-- Case 3-2-3: When the type of requirement of idRQ is connectsTo .
+--> *************************************************************************************
+--> Step 1-3: Consider which rule can be applied to the global state in the current case. 
+--> *************************************************************************************
+-- The next rule should be R11 for the connectsTo requirement of idRQ.
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- LHS of R11 requires a connectsTo relationship of the requirement of idRQ
+-- and an open message of the capability of the relationship.
+:apply (csp1-4idRQ rd- csptrl' rd-)
+:def csp1-4opMsg = :csp {
+  eq (opMsg(idCP) in mp) = false .
+  eq mp = (opMsg(idCP) mp') .
+}
+:apply (csp1-4opMsg rd-)
+-- Case 3-2-3-2-3-1: sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL') and (opMsg(idCP) in mp) = false .
+--> **************************************************************************
+--> Step 1-7: When there is a dangling link, split the current case into cases
+-->  where the linked object does or does not exist.
+--> **************************************************************************
+:apply (csp1-7idCP rd- csptrl'' rd- cspscp rd-)
+-- Case 3-2-3-2-3-1-2-3-1: sCP = (cap(connectsTo,idCP,closed,idND') sCP') .
+--> *************************************************************************************
+--> Step 1-3: Consider which rule can be applied to the global state in the current case. 
+--> *************************************************************************************
+-- The next rule should be R09 for the connectsTo capability of idCP.
+--> *********************************************************
+--> Step 1-5: Split the current case into cases where
+-->  the condition of the current rule does or does not hold. 
+--> *********************************************************
+-- The condition of R09 is isCreated(state(getNode(SetND,IDND))) .
+--> **********************************************************************
+--> Step 1-6: When there are two identifier constants of the same sort,
+-->  split the current case into cases where they are or are not the same.
+--> **********************************************************************
+:apply (ctf1-6idND' rd-)
+--> **************************************************************************
+--> Step 1-7: When there is a dangling link, split the current case into cases
+-->  where the linked object does or does not exist.
+--> **************************************************************************
+:apply (csp1-7idND' rd-)
+--> *********************************************************
+--> Step 1-5: Split the current case into cases where
+-->  the condition of the current rule does or does not hold. 
+--> *********************************************************
+-- The condition of R05 is isCreated(state(getNode(SetND,IDND))) .
+:apply (cspsnd' rd-)
+--> ******************************************************************************
+--> Step 1-8: When falling in a cyclic situation, use No Cyclic Dependency Lemma.
+--> ******************************************************************************
+:def noCycle = :init as noCDL-in [noCDL]
+  by {Oc:Node <- node(tnd,idND,created);
+      Xc:Node <- node(tnd,idND,created);
+      S:State  <- (< sND , sCP , sRQ , sRL , mp >);
+      LS:NDState <- created; }
+:apply (noCycle rd-)
+
+-- Case 3-3: sRQ = (req(trl,idRQ,waiting,idND) sRQ') .
+--> *************************************************************************************
+--> Step 1-3: Consider which rule can be applied to the global state in the current case. 
+--> *************************************************************************************
+-- The next applicable rule depends on the type of the requirement.
+:apply (csptrl rd-)
+-- Case 3-3-2: When the type of requirement of idRQ is dependsOn .
+--> *************************************************************************************
+--> Step 1-3: Consider which rule can be applied to the global state in the current case. 
+--> *************************************************************************************
+-- The next rule should be R08 for the dependsOn requirement of idRQ.
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- LHS of R08 requires a dependsOn relationship of the requirement of idRQ.
+:apply (csp1-4idRQ rd- csptrl' rd-)
+-- Case 3-3-2-2-2: sRL = (rel(dependsOn,idRL,idCP,idRQ) sRL') .
+--> **************************************************************************
+--> Step 1-7: When there is a dangling link, split the current case into cases
+-->  where the linked object does or does not exist.
+--> **************************************************************************
+:apply (csp1-7idCP rd- csptrl'' rd-)
+-- Case 3-3-2-2-2-2-2: sCP = (cap(dependsOn,idCP,scp,idND') sCP') .
+--> **********************************************************************
+--> Step 1-6: When there are two identifier constants of the same sort,
+-->  split the current case into cases where they are or are not the same.
+--> **********************************************************************
+:apply (ctf1-6idND' rd-)
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- LHS of R08 requires an activated capability.
+:apply (cspscp rd-)
+-- Case 3-3-2-2-2-2-2-2-2: sCP = (cap(dependsOn,idCP,open,idND') sCP') .
+--> *************************************************************************************
+--> Step 1-3: Consider which rule can be applied to the global state in the current case. 
+--> *************************************************************************************
+-- The next rule should be R06 for the dependsOn capability of idCP.
+--> *********************************************************
+--> Step 1-5: Split the current case into cases where
+-->  the condition of the current rule does or does not hold. 
+--> *********************************************************
+-- The condition of R06 is state(getNode(SetND,IDND)) = started .
+--> **********************************************************************
+--> Step 1-6: When there are two identifier constants of the same sort,
+-->  split the current case into cases where they are or are not the same.
+--> **********************************************************************
+:apply (ctf1-6idND' rd-)
+--> **************************************************************************
+--> Step 1-7: When there is a dangling link, split the current case into cases
+-->  where the linked object does or does not exist.
+--> **************************************************************************
+:apply (csp1-7idND' rd-)
+--> *********************************************************
+--> Step 1-5: Split the current case into cases where
+-->  the condition of the current rule does or does not hold. 
+--> *********************************************************
+-- The condition of R06 is state(getNode(SetND,IDND)) = started .
+:apply (cspsnd' rd-)
+--> ******************************************************************************
+--> Step 1-8: When falling in a cyclic situation, use No Cyclic Dependency Lemma.
+--> ******************************************************************************
+:apply (noCycle rd-)
+
+-- Case 3-3-3: When the type of requirement of idRQ is connectsTo .
+--> *************************************************************************************
+--> Step 1-3: Consider which rule can be applied to the global state in the current case. 
+--> *************************************************************************************
+-- The next rule should be R12 for the connectsTo requirement of idRQ.
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- LHS of R12 requires a connectsTo relationship of the requirement of idRQ
+-- and an available message of the capability of the relationship.
+:apply (csp1-4idRQ rd- csptrl' rd-)
+:def csp1-4avMsg = :csp {
+  eq (avMsg(idCP) in mp) = false .
+  eq mp = (avMsg(idCP) mp') .
+}
+:apply (csp1-4avMsg rd-)
+-- Case 3-3-3-2-3-1: sRL = (rel(connectsTo,idRL,idCP,idRQ) sRL') and (avMsg(idCP) in mp) = false .
+--> **************************************************************************
+--> Step 1-7: When there is a dangling link, split the current case into cases
+-->  where the linked object does or does not exist.
+--> **************************************************************************
+:apply (csp1-7idCP rd- csptrl'' rd- cspscp rd-)
+-- Case 3-3-3-2-3-1-2-3-2: sCP = (cap(connectsTo,idCP,open,idND') sCP') .
+--> *************************************************************************************
+--> Step 1-3: Consider which rule can be applied to the global state in the current case. 
+--> *************************************************************************************
+-- The next rule should be R10 for the connectsTo capability of idCP.
+--> *********************************************************
+--> Step 1-5: Split the current case into cases where
+-->  the condition of the current rule does or does not hold. 
+--> *********************************************************
+-- The condition of R10 is state(getNode(SetND,IDND)) = started .
+--> **********************************************************************
+--> Step 1-6: When there are two identifier constants of the same sort,
+-->  split the current case into cases where they are or are not the same.
+--> **********************************************************************
+:apply (ctf1-6idND' rd-)
+--> **************************************************************************
+--> Step 1-7: When there is a dangling link, split the current case into cases
+-->  where the linked object does or does not exist.
+--> **************************************************************************
+:apply (csp1-7idND' rd-)
+--> *********************************************************
+--> Step 1-5: Split the current case into cases where
+-->  the condition of the current rule does or does not hold. 
+--> *********************************************************
+-- The condition of R10 is state(getNode(SetND,IDND)) = started .
+:apply (cspsnd' rd-)
+--> ******************************************************************************
+--> Step 1-8: When falling in a cyclic situation, use No Cyclic Dependency Lemma.
+--> ******************************************************************************
+:apply (noCycle rd-)
 show proof
 close
---> Totally 1 goal should be proved.
+--> Totally 2 goals should be proved.

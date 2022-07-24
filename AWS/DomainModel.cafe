@@ -1,8 +1,12 @@
 require Template ../lib/Template.cafe
 provide DomainModel
 module! RESOURCE {
+  -- Sorts
   [Resource RSID RSType RSState]
+  -- Constructor
+  -- res(RSType, RSID, RSState) is a Resource.
   op res : RSType RSID RSState -> Resource {constr}
+  -- Selectors
   op id : Resource -> RSID
   op type : Resource -> RSType
   op state : Resource -> RSState
@@ -39,8 +43,12 @@ module! RESOURCEfuns {
 }
 module! PROPERTY {
   protecting(RESOURCE)
+  -- Sorts
   [Property PRID PRType PRState]
+  -- Constructor
+  -- prop(PRType, PRID, PRState, RSID, RSID) is a Property of a Node identified by the first RSID.
   op prop : PRType PRID PRState RSID RSID -> Property {constr}
+  -- Selectors
   op id : Property -> PRID
   op type : Property -> PRType
   op state : Property -> PRState

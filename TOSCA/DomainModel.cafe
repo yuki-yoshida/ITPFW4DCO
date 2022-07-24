@@ -234,8 +234,6 @@ module! RELATIONSHIPfuns {
 }
 
 module! LINKS {
-  protecting(NODE + CAPABILITY + REQUIREMENT + RELATIONSHIP)
-
   extending(OBJLINKMANY2ONE(
 	CAPABILITYfuns {sort Object -> Capability,
 			sort ObjID -> CPID,
@@ -388,9 +386,7 @@ module! LINKS {
 	)
 }
 
---> Start Defining LINKLINKS <--
 module! LINKLINKS {
-
   extending(OBJLINKONE2ONE2ONE(
 	LINKS {sort Object -> Relationship,
 	       sort SetOfObject -> SetOfRelationship,
@@ -513,20 +509,6 @@ module! STATEfuns {
   var MP : PoolOfMsg
   var S : State
 
-  -- op getCPOfRQ : SetOfCapability SetOfRelationship RQID -> Capability
-  -- op getCPOfRQ : SetOfCapability SetOfRelationship Requirement -> Capability
-  -- eq getCPOfRQ(SetCP,SetRL,RQ)
-  --    = getCPOfRQ(SetCP,SetRL,id(RQ)) .
-  -- eq getCPOfRQ(SetCP,SetRL,IDRQ)
-  --    = getCPOfRL(SetCP,getRLOfRQ(SetRL,IDRQ)) .
-
-  -- op getRQOfCP : SetOfRequirement SetOfRelationship CPID -> Requirement
-  -- op getRQOfCP : SetOfRequirement SetOfRelationship Capability -> Requirement
-  -- eq getRQOfCP(SetRQ,SetRL,CP)
-  --    = getRQOfCP(SetRQ,SetRL,id(CP)) .
-  -- eq getRQOfCP(SetRQ,SetRL,IDCP)
-  --    = getRQOfRL(SetRQ,getRLOfCP(SetRL,IDCP)) .
-
   pred allRLHaveSameTypeCPRQ : SetOfRelationship SetOfCapability SetOfRequirement
   eq allRLHaveSameTypeCPRQ(empRL,SetCP,SetRQ)
      = true .
@@ -624,14 +606,6 @@ module! STATEfuns {
   eq ifAvailableMsgThenCPInStates((avMsg(IDCP) MP),SetCP,StCP)
      = state(getCapability(SetCP,IDCP)) in StCP and
        ifAvailableMsgThenCPInStates(MP,SetCP,StCP) .
-
-  -- pred ifCPInStatesThenRQInStates : 
-  --      SetOfCapability SetOfCPState SetOfRequirement SetOfRQState SetOfRelationship
-  -- eq ifCPInStatesThenRQInStates(empCP,StCP,SetRQ,StRQ,SetRL)
-  --    = true .
-  -- eq ifCPInStatesThenRQInStates((CP SetCP),StCP,SetRQ,StRQ,SetRL)
-  --    = (state(CP) in StCP implies state(getRQOfCP(SetRQ,SetRL,CP)) in StRQ) and
-  --      ifCPInStatesThenRQInStates(SetCP,StCP,SetRQ,StRQ,SetRL) .
 
   pred ifConnectsToCPInStatesThenRQInStatesOrOpenMsg : 
        SetOfCapability SetOfCPState SetOfRequirement SetOfRQState SetOfRelationship PoolOfMsg

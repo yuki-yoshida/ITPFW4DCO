@@ -18,20 +18,20 @@ module ProofMeasure {
 select ProofMeasure .
 -- When R01 can be applied to the state S:
 --> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 :goal {
   eq mesmes(< (node(tnd,idND,initial) sND), sCP, sRQ, sRL, mp >) = true .
 }
 --> ********************************************************
---> Step 3-3: Split the current case for a rule into cases
+--> Step 2-2: Split the current case for a rule into cases
 -->  where the condition of the rule does or does not hold. 
 --> ********************************************************
 -- The condition of R01 does or does not hold for S.
-:def ctf3-3R01 = :ctf {
+:def ctf2-2R01 = :ctf {
   eq allRQOfTypeOfNDInStates(sRQ,hostedOn,idND,ready) = true .
 }
-:apply (ctf3-3R01 rd-)
+:apply (ctf2-2R01 rd-)
 show proof
 
 --> *************************************************************************
@@ -40,21 +40,21 @@ show proof
 -->	      if allRQOfNDInStates(SetRQ,IDND,ready) .
 --> *************************************************************************
 --> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 select ProofMeasure .
 :goal {
   eq mesmes(< (node(tnd,idND,created) sND), sCP, sRQ, sRL, mp >) = true .
 }
 --> ********************************************************
---> Step 3-3: Split the current case for a rule into cases
+--> Step 2-2: Split the current case for a rule into cases
 -->  where the condition of the rule does or does not hold. 
 --> ********************************************************
 -- The condition of R02 does or does not hold for S.
-:def ctf3-3R02 = :ctf {
+:def ctf2-2R02 = :ctf {
   eq allRQOfNDInStates(sRQ,idND,ready) = true .
 }
-:apply (ctf3-3R02 rd-)
+:apply (ctf2-2R02 rd-)
 show proof
 
 --> ************************************************************************************
@@ -63,21 +63,21 @@ show proof
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ************************************************************************************
 --> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 select ProofMeasure .
 :goal {
   eq mesmes(< sND, (cap(hostedOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
 --> ********************************************************
---> Step 3-3: Split the current case for a rule into cases
+--> Step 2-2: Split the current case for a rule into cases
 -->  where the condition of the rule does or does not hold. 
 --> ********************************************************
 -- The condition of R03 does or does not hold for S.
-:def ctf3-3R03 = :ctf {
+:def ctf2-2R03 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
-:apply (ctf3-3R03 rd-)
+:apply (ctf2-2R03 rd-)
 show proof
 
 --> ***************************************************************************************************
@@ -87,7 +87,7 @@ show proof
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
 --> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 select ProofMeasure .
 :goal {
@@ -104,21 +104,21 @@ show proof
 -->	     if isCreated(state(getNode(SetND,IDND))) .
 --> **********************************************************************************
 --> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 select ProofMeasure .
 :goal {
   eq mesmes(< sND, (cap(dependsOn,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
 --> ********************************************************
---> Step 3-3: Split the current case for a rule into cases
+--> Step 2-2: Split the current case for a rule into cases
 -->  where the condition of the rule does or does not hold. 
 --> ********************************************************
 -- The condition of R05 does or does not hold for S.
-:def ctf3-3R05 = :ctf {
+:def ctf2-2R05 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
-:apply (ctf3-3R05 rd-)
+:apply (ctf2-2R05 rd-)
 show proof
 
 --> *************************************************************************************
@@ -127,21 +127,21 @@ show proof
 -->	     if state(getNode(SetND,IDND)) = started .
 --> *************************************************************************************
 --> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 select ProofMeasure .
 :goal {
   eq mesmes(< sND, (cap(dependsOn,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
 --> ********************************************************
---> Step 3-3: Split the current case for a rule into cases
+--> Step 2-2: Split the current case for a rule into cases
 -->  where the condition of the rule does or does not hold. 
 --> ********************************************************
 -- The condition of R06 does or does not hold for S.
-:def ctf3-3R06 = :ctf {
+:def ctf2-2R06 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
-:apply (ctf3-3R06 rd-)
+:apply (ctf2-2R06 rd-)
 show proof
 
 --> ****************************************************************************************************
@@ -152,7 +152,7 @@ show proof
 -->             if state(SetND,IDND2) = created and isActivated(SCP) .
 --> ****************************************************************************************************
 --> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 select ProofMeasure .
 :goal {
@@ -161,14 +161,14 @@ select ProofMeasure .
 	           (rel(dependsOn,idRL,idCP,idRQ) sRL), mp >) = true .
 }
 --> ********************************************************
---> Step 3-3: Split the current case for a rule into cases
+--> Step 2-2: Split the current case for a rule into cases
 -->  where the condition of the rule does or does not hold. 
 --> ********************************************************
 -- The condition of R07 does or does not hold for S.
-:def ctf3-3R07 = :ctf {
+:def ctf2-2R07 = :ctf {
   eq (state(getNode(sND,idND')) = created and isActivated(scp)) = true .
 }
-:apply (ctf3-3R07 rd-)
+:apply (ctf2-2R07 rd-)
 show proof
 
 --> ******************************************************************************************************
@@ -178,7 +178,7 @@ show proof
 -->  	       	  (req(dependsOn,IDRQ,ready,  IDND2) SetRQ), (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ******************************************************************************************************
 --> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 select ProofMeasure .
 :goal {
@@ -196,21 +196,21 @@ show proof
 -->	    if isCreated(state(getNode(SetND,IDND))) .
 --> ***********************************************************************************
 --> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 select ProofMeasure .
 :goal {
   eq mesmes(< sND, (cap(connectsTo,idCP,closed,idND) sCP), sRQ, sRL, mp >) = true .
 }
 --> ********************************************************
---> Step 3-3: Split the current case for a rule into cases
+--> Step 2-2: Split the current case for a rule into cases
 -->  where the condition of the rule does or does not hold. 
 --> ********************************************************
 -- The condition of R09 does or does not hold for S.
-:def ctf3-3R09 = :ctf {
+:def ctf2-2R09 = :ctf {
   eq isCreated(state(getNode(sND,idND))) = true .
 }
-:apply (ctf3-3R09 rd-)
+:apply (ctf2-2R09 rd-)
 show proof
 
 --> **************************************************************************************
@@ -220,21 +220,21 @@ show proof
 -->	     if state(getNode(SetND,IDND)) = started .
 --> **************************************************************************************
 --> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 select ProofMeasure .
 :goal {
   eq mesmes(< sND, (cap(connectsTo,idCP,open,idND) sCP), sRQ, sRL, mp >) = true .
 }
 --> ********************************************************
---> Step 3-3: Split the current case for a rule into cases
+--> Step 2-2: Split the current case for a rule into cases
 -->  where the condition of the rule does or does not hold. 
 --> ********************************************************
 -- The condition of R10 does or does not hold for S.
-:def ctf3-3R10 = :ctf {
+:def ctf2-2R10 = :ctf {
   eq state(getNode(sND,idND)) = started .
 }
-:apply (ctf3-3R10 rd-)
+:apply (ctf2-2R10 rd-)
 show proof
 
 --> ********************************************************************************************************
@@ -246,7 +246,7 @@ show proof
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ********************************************************************************************************
 --> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 select ProofMeasure .
 :goal {
@@ -256,14 +256,14 @@ select ProofMeasure .
 	      (opMsg(idCP) mp) >) = true .
 }
 --> ********************************************************
---> Step 3-3: Split the current case for a rule into cases
+--> Step 2-2: Split the current case for a rule into cases
 -->  where the condition of the rule does or does not hold. 
 --> ********************************************************
 -- The condition of R11 does or does not hold for S.
-:def ctf3-3R11 = :ctf {
+:def ctf2-2R11 = :ctf {
   eq state(getNode(sND,idND)) = created .
 }
-:apply (ctf3-3R11 rd-)
+:apply (ctf2-2R11 rd-)
 show proof
 
 --> *******************************************************************************************************
@@ -274,7 +274,7 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
 --> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
+--> Step 2-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
 select ProofMeasure .
 :goal {
