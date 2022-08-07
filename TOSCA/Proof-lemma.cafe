@@ -19,51 +19,33 @@ module TOSCALEMMA {
   var TRL : RLType
   var MP : PoolOfMsg
 
-  -- ifConnectsToCPInStatesThenRQInStatesOrOpenMsg keeps to hold
-  -- after changing the state of a requirement 
-  -- whose corresponding capability is not included in the set of capabilities.
-  -- pred tosca-lemma01 : SetOfCapability
-  --                RQState RQState NDID CPID RQID RLID RLType 
-  --                SetOfCPState SetOfRQState
-  --                SetOfRequirement SetOfRelationship PoolOfMsg 
-  -- eq tosca-lemma01(SetCP,SRQ1,SRQ2,IDND,IDCP,IDRQ,IDRL,TRL,STCP,STRQ,SetRQ,SetRL,MP)
-  --    = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
-  --               SetCP,STCP,(req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,
-  -- 		(rel(TRL,IDRL,IDCP,IDRQ) SetRL),MP) implies
-  --      ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
-  --               SetCP,STCP,(req(TRL,IDRQ,SRQ2,IDND) SetRQ),STRQ,
-  -- 		(rel(TRL,IDRL,IDCP,IDRQ) SetRL),MP)
-  --    when not existCP(SetCP,IDCP) and uniqCP(SetCP) and
-  --         allCPHaveRL(SetCP,(rel(TRL,IDRL,IDCP,IDRQ) SetRL)) and
-  --         allRLHaveRQ((rel(TRL,IDRL,IDCP,IDRQ) SetRL),(req(TRL,IDRQ,SRQ2,IDND) SetRQ)) .
-
-  pred tosca-lemma02 : SetOfRelationship RLType CPID CPState NDID SetOfCapability SetOfRequirement
-  eq tosca-lemma02(SetRL,TRL,IDCP,SCP,IDND,SetCP,SetRQ)
+  pred tosca-lemma01 : SetOfRelationship RLType CPID CPState NDID SetOfCapability SetOfRequirement
+  eq tosca-lemma01(SetRL,TRL,IDCP,SCP,IDND,SetCP,SetRQ)
      = allRLHaveSameTypeCPRQ(SetRL,(cap(TRL,IDCP,SCP,IDND) SetCP),SetRQ) implies
        allRLHaveSameTypeCPRQ(SetRL,SetCP,SetRQ)
        when uniqCP((cap(TRL,IDCP,SCP,IDND) SetCP)) .
 
   -- ifConnectsToCPInStatesThenRQInStatesOrOpenMsg keeps to hold
   -- after adding an open message.
-  pred tosca-lemma03 : SetOfCapability SetOfCPState SetOfRequirement SetOfRQState 
+  pred tosca-lemma02 : SetOfCapability SetOfCPState SetOfRequirement SetOfRQState 
                          SetOfRelationship PoolOfMsg CPID
-  eq tosca-lemma03(SetCP,STCP,SetRQ,STRQ,SetRL,MP,IDCP)
+  eq tosca-lemma02(SetCP,STCP,SetRQ,STRQ,SetRL,MP,IDCP)
      = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) implies
        ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,(opMsg(IDCP) MP)) .
 
   -- ifConnectsToCPInStatesThenRQInStatesOrOpenMsg keeps to hold
   -- after adding an available message.
-  pred tosca-lemma04 : SetOfCapability SetOfCPState SetOfRequirement SetOfRQState 
+  pred tosca-lemma03 : SetOfCapability SetOfCPState SetOfRequirement SetOfRQState 
                          SetOfRelationship PoolOfMsg CPID
-  eq tosca-lemma04(SetCP,STCP,SetRQ,STRQ,SetRL,MP,IDCP)
+  eq tosca-lemma03(SetCP,STCP,SetRQ,STRQ,SetRL,MP,IDCP)
      = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) implies
        ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,(avMsg(IDCP) MP)) .
 
   -- ifConnectsToCPInStatesThenRQInStatesOrOpenMsg keeps to hold
   -- after changing the state of a requirement to the target state.
-  pred tosca-lemma05 : SetOfCapability SetOfCPState SetOfRequirement RQState RQState 
+  pred tosca-lemma04 : SetOfCapability SetOfCPState SetOfRequirement RQState RQState 
        		       	 SetOfRQState SetOfRelationship PoolOfMsg RQID NDID CPID
-  eq tosca-lemma05(SetCP,STCP,SetRQ,SRQ1,SRQ2,STRQ,SetRL,MP,IDRQ,IDND,IDCP)
+  eq tosca-lemma04(SetCP,STCP,SetRQ,SRQ1,SRQ2,STRQ,SetRL,MP,IDRQ,IDND,IDCP)
      = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 		SetCP,STCP,(req(connectsTo,IDRQ,SRQ1,IDND) SetRQ),STRQ,
 		SetRL,(opMsg(IDCP) MP)) implies
@@ -72,9 +54,9 @@ module TOSCALEMMA {
 		SetRL,MP) 
      when (SRQ2 in STRQ) and (IDRQ = req(getRLOfCP(SetRL, IDCP))) .
 
-  pred tosca-lemma06 : SetOfCapability RLType SetOfCPState SetOfRequirement RQState RQState 
+  pred tosca-lemma05 : SetOfCapability RLType SetOfCPState SetOfRequirement RQState RQState 
        		       	 SetOfRQState SetOfRelationship PoolOfMsg RQID NDID RLID
-  eq tosca-lemma06(SetCP,TRL,STCP,SetRQ,SRQ1,SRQ2,STRQ,SetRL,MP,IDRQ,IDND,IDRL)
+  eq tosca-lemma05(SetCP,TRL,STCP,SetRQ,SRQ1,SRQ2,STRQ,SetRL,MP,IDRQ,IDND,IDRL)
      = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 		SetCP,STCP,(req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,
 		SetRL,MP) implies
@@ -89,9 +71,9 @@ module TOSCALEMMA {
 
   -- ifConnectsToCPInStatesThenRQInStatesOrOpenMsg keeps to hold
   -- after changing the state of a requirement to the target state.
-  pred tosca-lemma07 : SetOfCapability SetOfCPState SetOfRequirement RQState RQState 
+  pred tosca-lemma06 : SetOfCapability SetOfCPState SetOfRequirement RQState RQState 
        		       	 SetOfRQState SetOfRelationship PoolOfMsg RQID NDID CPID
-  eq tosca-lemma07(SetCP,STCP,SetRQ,SRQ1,SRQ2,STRQ,SetRL,MP,IDRQ,IDND,IDCP)
+  eq tosca-lemma06(SetCP,STCP,SetRQ,SRQ1,SRQ2,STRQ,SetRL,MP,IDRQ,IDND,IDCP)
      = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 		SetCP,STCP,(req(connectsTo,IDRQ,SRQ1,IDND) SetRQ),STRQ,
 		SetRL,(avMsg(IDCP) MP)) implies
@@ -99,6 +81,8 @@ module TOSCALEMMA {
 		SetCP,STCP,(req(connectsTo,IDRQ,SRQ2,IDND) SetRQ),STRQ,
 		SetRL,MP) 
      when SRQ2 in STRQ .
+
+  --   tosca-lemma07 becomes useless
 
   pred tosca-lemma08 : SetOfCapability
                        CPState SetOfCPState SetOfRQState SetOfRequirement SetOfRelationship PoolOfMsg
@@ -198,102 +182,55 @@ module TOSCALEMMA {
        ifCPInStatesThenRQInStates(SetCP,STCP,SetRQ,STRQ,SetRL) 
      when SRQ in STRQ .
 
-  -- toscal-lemma02 is a sub-lemma for lemma06 and lemma12
-  ceq [tosca-lemma02 :nonexec]:
+  -- toscal-lemma01 is a sub-lemma for lemma05 and lemma12
+  ceq [tosca-lemma01 :nonexec]:
       (allRLHaveSameTypeCPRQ(SetRL,(cap(TRL,IDCP,SCP,IDND) SetCP),SetRQ) and
        allRLHaveSameTypeCPRQ(SetRL,SetCP,SetRQ) )
      = allRLHaveSameTypeCPRQ(SetRL,(cap(TRL,IDCP,SCP,IDND) SetCP),SetRQ)
      if uniqCP((cap(TRL,IDCP,SCP,IDND) SetCP)) .
 }
 
---> *********************************************************************************************
 --> Proof of tosca-lemma01.
--->  eq tosca-lemma01(SetCP,SRQ1,SRQ2,IDND,IDCP,IDRQ,IDRL,TRL,STCP,STRQ,SetRQ,SetRL,MP)
--->     = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,
--->                                                     (req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,
--->					             (rel(TRL,IDRL,IDCP,IDRQ) SetRL),MP) implies
--->       ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,
--->                                                     (req(TRL,IDRQ,SRQ2,IDND) SetRQ),STRQ,
--->						     (rel(TRL,IDRL,IDCP,IDRQ) SetRL),MP)
--->     when not existCP(SetCP,IDCP) and uniqCP(SetCP) and
--->          allCPHaveRL(SetCP,(rel(TRL,IDRL,IDCP,IDRQ) SetRL)) and
--->          allRLHaveRQ((rel(TRL,IDRL,IDCP,IDRQ) SetRL),(req(TRL,IDRQ,SRQ2,IDND) SetRQ)) .
---> *********************************************************************************************
--- select TOSCALEMMA
--- :goal {
---   eq tosca-lemma01(empCP,
--- 		   srq,srq',idND,idCP,idRQ,idRL,trl,stCP,stRQ,sRQ,sRL,mp) = true . 
--- }
--- :apply (rd-)
--- show proof
--- :goal {
---   eq (tosca-lemma01(sCP,
--- 		    srq,srq',idND,idCP,idRQ,idRL,trl,stCP,stRQ,sRQ,sRL,mp) implies
---       tosca-lemma01((cap(trl',idCP',scp,idND') sCP),
--- 		    srq,srq',idND,idCP,idRQ,idRL,trl,stCP,stRQ,sRQ,sRL,mp)) = true .
--- }
--- :def ctfidCP' = :ctf { 
---   eq idCP' = idCP .
--- }
--- -- Since :apply(xxx rd-) is too time consuming, we use :apply(xxx):appy(rd) instead.
--- -- :apply (ctfidCP' rd-)
--- :apply (ctfidCP')
--- :apply (rd)
--- :def ctfidCP = :ctf { 
---   eq existCP(sCP,idCP) = true .
--- }
--- -- Since :apply(xxx rd-) is too time consuming, we use :apply(xxx):appy(rd) instead.
--- -- :apply (ctfidCP rd-)
--- :apply (ctfidCP)
--- :apply (rd)
--- :def ctfsCPa = :ctf { 
---   eq uniqCP(sCP) = true .
--- }
--- :def ctfsCPb = :ctf {
---   eq existCP(sCP,idCP') = true .
--- }
--- :apply (ctfsCPa ctfsCPb rd-)
--- :def ctfsRLa = :ctf { 
---   eq allCPHaveRL(sCP,(rel(trl,idRL,idCP,idRQ) sRL)) = true .
--- }
--- :apply (ctfsRLa rd-)
--- :def ctfsRLb = :ctf { 
---   eq allRLHaveRQ(sRL,(req(trl,idRQ,srq',idND) sRQ)) = true .
--- }
--- :apply (ctfsRLb rd-)
--- :def cspsRL = :csp {
---   eq existCP(sRL,idCP') = false .
---   eq sRL = (rel(trl',idRL',idCP',idRQ') sRL') .
--- }
--- -- Since :apply(xxx rd-) is too time consuming, we use :apply(xxx):appy(rd) instead.
--- -- :apply (cspsRL rd-)
--- :apply (cspsRL)
--- :apply (rd)
--- :def ctfidRQ' = :ctf {
---   eq idRQ' = idRQ .
--- }
--- :apply (ctfidRQ' rd-)
--- show proof
--- select
-
---> Proof of tosca-lemma02.
 --> *******************************************************************************
--->  eq tosca-lemma02(SetRL,TRL,IDCP,SCP,IDND,SetCP,SetRQ)
+-->  eq tosca-lemma01(SetRL,TRL,IDCP,SCP,IDND,SetCP,SetRQ)
 -->     = allRLHaveSameTypeCPRQ(SetRL,(cap(TRL,IDCP,SCP,IDND) SetCP),SetRQ) implies
 -->       allRLHaveSameTypeCPRQ(SetRL,SetCP,SetRQ) .
 -->     when uniqCP((cap(TRL,IDCP,SCP,IDND) SetCP)) .
 --> *******************************************************************************
 select TOSCALEMMA
 :goal {
-  eq tosca-lemma02(empRL,trl,idCP,scp,idND,sCP,sRQ) = true .
+  eq tosca-lemma01(empRL,trl,idCP,scp,idND,sCP,sRQ) = true .
 }
 :apply (rd-)
 show proof
 :goal {
-  eq (tosca-lemma02(sRL,trl,idCP,scp,idND,sCP,sRQ) implies
-      tosca-lemma02((rel(trl',idRL,idCP',idRQ) sRL),trl,idCP,scp,idND,sCP,sRQ)) = true .
+  eq (tosca-lemma01(sRL,trl,idCP,scp,idND,sCP,sRQ) implies
+      tosca-lemma01((rel(trl',idRL,idCP',idRQ) sRL),trl,idCP,scp,idND,sCP,sRQ)) = true .
 }
 :def ctfidCP' = :ctf { 
+  eq idCP' = idCP .
+}
+:apply (ctfidCP' rd-)
+show proof
+select
+
+--> Proof of tosca-lemma02.
+--> ***************************************************************************************************
+-->  eq tosca-lemma02(SetCP,STCP,SetRQ,STRQ,SetRL,MP,IDCP)
+-->     = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) implies
+-->       ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,(opMsg(IDCP) MP)) .
+--> ***************************************************************************************************
+select TOSCALEMMA
+:goal {  
+  eq tosca-lemma02(empCP,stCP,sRQ,stRQ,sRL,mp,idCP) = true .
+}
+:apply (rd-)
+show proof
+:goal {  
+  eq (tosca-lemma02(sCP,stCP,sRQ,stRQ,sRL,mp,idCP) implies 
+      tosca-lemma02((cap(trl,idCP',scp,idND) sCP),stCP,sRQ,stRQ,sRL,mp,idCP)) = true .
+}
+:def ctfidCP' = :ctf {
   eq idCP' = idCP .
 }
 :apply (ctfidCP' rd-)
@@ -304,9 +241,9 @@ select
 --> ***************************************************************************************************
 -->  eq tosca-lemma03(SetCP,STCP,SetRQ,STRQ,SetRL,MP,IDCP)
 -->     = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) implies
--->       ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,(opMsg(IDCP) MP)) .
+-->       ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,(avMsg(IDCP) MP)) .
 --> ***************************************************************************************************
-select TOSCALEMMA
+select TOSCALEMMA .
 :goal {  
   eq tosca-lemma03(empCP,stCP,sRQ,stRQ,sRL,mp,idCP) = true .
 }
@@ -324,31 +261,8 @@ show proof
 select
 
 --> Proof of tosca-lemma04.
---> ***************************************************************************************************
--->  eq tosca-lemma04(SetCP,STCP,SetRQ,STRQ,SetRL,MP,IDCP)
--->     = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) implies
--->       ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,(avMsg(IDCP) MP)) .
---> ***************************************************************************************************
-select TOSCALEMMA .
-:goal {  
-  eq tosca-lemma04(empCP,stCP,sRQ,stRQ,sRL,mp,idCP) = true .
-}
-:apply (rd-)
-show proof
-:goal {  
-  eq (tosca-lemma04(sCP,stCP,sRQ,stRQ,sRL,mp,idCP) implies 
-      tosca-lemma04((cap(trl,idCP',scp,idND) sCP),stCP,sRQ,stRQ,sRL,mp,idCP)) = true .
-}
-:def ctfidCP' = :ctf {
-  eq idCP' = idCP .
-}
-:apply (ctfidCP' rd-)
-show proof
-select
-
---> Proof of tosca-lemma05.
 --> **************************************************************************
--->  eq tosca-lemma05(SetCP,STCP,SetRQ,SRQ1,SRQ2,STRQ,SetRL,MP,IDRQ,IDND,IDCP)
+-->  eq tosca-lemma04(SetCP,STCP,SetRQ,SRQ1,SRQ2,STRQ,SetRL,MP,IDRQ,IDND,IDCP)
 -->     = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 -->		SetCP,STCP,(req(connectsTo,IDRQ,SRQ1,IDND) SetRQ),STRQ,
 -->		SetRL,(opMsg(IDCP) MP)) implies
@@ -359,13 +273,13 @@ select
 --> **************************************************************************
 select TOSCALEMMA .
 :goal {
-  eq tosca-lemma05(empCP,stCP,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND,idCP) = true .
+  eq tosca-lemma04(empCP,stCP,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND,idCP) = true .
 }
 :apply (rd-)
 show proof
 :goal {
-  eq (tosca-lemma05(sCP,stCP,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND,idCP) implies
-      tosca-lemma05((cap(trl,idCP',scp,idND') sCP),stCP,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND,idCP)) = true .
+  eq (tosca-lemma04(sCP,stCP,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND,idCP) implies
+      tosca-lemma04((cap(trl,idCP',scp,idND') sCP),stCP,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND,idCP)) = true .
 }
 :def ctftrl = :ctf {
   eq trl = connectsTo .
@@ -389,9 +303,9 @@ show proof
 show proof
 select
 
---> Proof of tosca-lemma06.
+--> Proof of tosca-lemma05.
 --> *****************************************************************************
--->  eq tosca-lemma06(SetCP,TRL,STCP,SetRQ,SRQ1,SRQ2,STRQ,SetRL,MP,IDRQ,IDND,IDRL)
+-->  eq tosca-lemma05(SetCP,TRL,STCP,SetRQ,SRQ1,SRQ2,STRQ,SetRL,MP,IDRQ,IDND,IDRL)
 -->     = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 -->		SetCP,STCP,(req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,
 -->		SetRL,MP) implies
@@ -406,18 +320,18 @@ select
 --> *****************************************************************************
 select TOSCALEMMA .
 :goal {
-  eq tosca-lemma06(empCP,
+  eq tosca-lemma05(empCP,
 		   trl,stCP,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND,idRL) = true .
 }
 :apply (rd-)
 show proof
 :goal {
-  eq (tosca-lemma06(sCP,
+  eq (tosca-lemma05(sCP,
 		    trl,stCP,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND,idRL) implies
-      tosca-lemma06((cap(trl',idCP,scp,idND') sCP),
+      tosca-lemma05((cap(trl',idCP,scp,idND') sCP),
 		    trl,stCP,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND,idRL)) = true .
 }
-:init as tosca-lemma02-in [tosca-lemma02] .
+:init as tosca-lemma01-in [tosca-lemma01] .
 :def ctftrl = :ctf {
   eq trl = connectsTo .
 }
@@ -465,9 +379,9 @@ show proof
 show proof
 select
 
---> Proof of tosca-lemma07.
+--> Proof of tosca-lemma06.
 --> **************************************************************************
--->  eq tosca-lemma07(SetCP,STCP,SetRQ,SRQ1,SRQ2,STRQ,SetRL,MP,IDRQ,IDND,IDCP)
+-->  eq tosca-lemma06(SetCP,STCP,SetRQ,SRQ1,SRQ2,STRQ,SetRL,MP,IDRQ,IDND,IDCP)
 -->     = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 -->		SetCP,STCP,(req(connectsTo,IDRQ,SRQ1,IDND) SetRQ),STRQ,
 -->		SetRL,(avMsg(IDCP) MP)) implies
@@ -478,13 +392,13 @@ select
 --> **************************************************************************
 select TOSCALEMMA
 :goal {
-  eq tosca-lemma07(empCP,scp,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND,idCP) = true .
+  eq tosca-lemma06(empCP,scp,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND,idCP) = true .
 }
 :apply (rd-)
 show proof
 :goal {
-  eq (tosca-lemma07(sCP,scp,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND,idCP) implies
-      tosca-lemma07((cap(trl,idCP',scp',idND') sCP),scp,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND,idCP)) = true .
+  eq (tosca-lemma06(sCP,scp,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND,idCP) implies
+      tosca-lemma06((cap(trl,idCP',scp',idND') sCP),scp,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND,idCP)) = true .
 }  
 :def ctftrl = :ctf {
   eq trl = connectsTo .
@@ -637,7 +551,7 @@ show proof
   eq (tosca-lemma12(sCP,trl,stCP,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND) implies
       tosca-lemma12((cap(trl',idCP,scp,idND') sCP),trl,stCP,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND)) = true .
 }  
-:init as tosca-lemma02-in [tosca-lemma02] .
+:init as tosca-lemma01-in [tosca-lemma01] .
 :def ctftrl = :ctf {
   eq trl = connectsTo .
 }

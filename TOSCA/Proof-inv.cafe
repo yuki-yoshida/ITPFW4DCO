@@ -25,17 +25,17 @@ module ProofInv {
   var TRL : RLType
   var MP : PoolOfMsg
 
-  eq [tosca-lemma03]:
+  eq [tosca-lemma02]:
       (ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) and
        ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,(opMsg(IDCP) MP)) )
      = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) .
 
-  eq [tosca-lemma04]:
+  eq [tosca-lemma03]:
       (ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) and
        ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,(avMsg(IDCP) MP)) )
      = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,STCP,SetRQ,STRQ,SetRL,MP) .
 
-  ceq [tosca-lemma05]:
+  ceq [tosca-lemma04]:
       (ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 		SetCP,STCP,(req(connectsTo,IDRQ,SRQ1,IDND) SetRQ),STRQ,
 		SetRL,(opMsg(IDCP) MP)) and
@@ -47,7 +47,7 @@ module ProofInv {
 		SetRL,(opMsg(IDCP) MP)) 
      if (SRQ2 in STRQ) and (IDRQ = req(getRLOfCP(SetRL, IDCP))) .
 
-  ceq [tosca-lemma06]:
+  ceq [tosca-lemma05]:
       (ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 		SetCP,STCP,(req(TRQ,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL,MP) and
        ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
@@ -56,7 +56,7 @@ module ProofInv {
 		SetCP,STCP,(req(TRQ,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL,MP) 
      if not (TRQ = connectsTo) and SRQ1 > SRQ2 .
 
-  ceq [tosca-lemma07]:
+  ceq [tosca-lemma06]:
       (ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
 		SetCP,STCP,(req(connectsTo,IDRQ,SRQ1,IDND) SetRQ),STRQ,
 		SetRL,(avMsg(IDCP) MP)) and
@@ -67,18 +67,6 @@ module ProofInv {
 		SetCP,STCP,(req(connectsTo,IDRQ,SRQ1,IDND) SetRQ),STRQ,
 		SetRL,(avMsg(IDCP) MP)) 
      if SRQ2 in STRQ .
-
-  ceq [tosca-lemma0701]:
-      (ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
-		SetCP,STCP,(req(connectsTo,IDRQ,SRQ1,IDND) SetRQ),STRQ,
-		(rel(connectsTo,IDRL,IDCP,IDRQ) SetRL),(avMsg(IDCP) MP)) and
-       ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
-		SetCP,STCP,(req(connectsTo,IDRQ,SRQ2,IDND) SetRQ),STRQ,
-		(rel(connectsTo,IDRL,IDCP,IDRQ) SetRL),MP) )
-     = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(
-		SetCP,STCP,(req(connectsTo,IDRQ,SRQ1,IDND) SetRQ),STRQ,
-		(rel(connectsTo,IDRL,IDCP,IDRQ) SetRL),(avMsg(IDCP) MP)) 
-     if not existCP(SetCP,IDCP) .
 
   ceq [tosca-lemma08]:
       (allCPInStates(SetCP,SCP) and
@@ -172,40 +160,6 @@ module ProofInv {
        ifCPInStatesThenRQInStates(SetCP,STCP,SetRQ,STRQ,SetRL))
     = allRQInStates(SetRQ,SRQ)
     if SRQ in STRQ .
-
-  -- ifCPClosedThenRQUnbound keeps to hold 
-  -- even if a requirement, whose capability is not concerned, changes its state.
-  ceq [tosca-lemma20]:
-      (ifCPInStatesThenRQInStates(SetCP,STCP,(req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,
-		                  (rel(TRL,IDRL,IDCP,IDRQ) SetRL)) and
-       ifCPInStatesThenRQInStates(SetCP,STCP,(req(TRL,IDRQ,SRQ2,IDND) SetRQ),STRQ,
-				  (rel(TRL,IDRL,IDCP,IDRQ) SetRL)))
-     = ifCPInStatesThenRQInStates(SetCP,STCP,(req(TRL,IDRQ,SRQ1,IDND) SetRQ),STRQ,
-		                  (rel(TRL,IDRL,IDCP,IDRQ) SetRL))
-     if not existCP(SetCP,IDCP) and uniqCP(SetCP) and
-        allCPHaveRL(SetCP,(rel(TRL,IDRL,IDCP,IDRQ) SetRL)) and
-        allRLHaveRQ((rel(TRL,IDRL,IDCP,IDRQ) SetRL),(req(TRL,IDRQ,SRQ1,IDND) SetRQ))
-	and SRQ1 > SRQ2 .
-
-  -- ifCPClosedThenRQUnbound keeps to hold 
-  -- even if a requirement, whose current state is not concerned, changes its state.
-  ceq [tosca-lemma21]:
-      (ifCPInStatesThenRQInStates(
-		SetCP,STCP,(req(TRQ,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL) and
-       ifCPInStatesThenRQInStates(
-		SetCP,STCP,(req(TRQ,IDRQ,SRQ2,IDND) SetRQ),STRQ,SetRL))
-     = ifCPInStatesThenRQInStates(
-		SetCP,STCP,(req(TRQ,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL)
-     if not (SRQ1 in STRQ) and SRQ1 > SRQ2 .
-
-  ceq [tosca-lemma22]:
-      (ifCPInStatesThenRQInStates(
-		SetCP,STCP,(req(TRQ,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL) and
-       ifCPInStatesThenRQInStates(
-		SetCP,STCP,(req(TRQ,IDRQ,SRQ2,IDND) SetRQ),STRQ,SetRL))
-     = ifCPInStatesThenRQInStates(
-		SetCP,STCP,(req(TRQ,IDRQ,SRQ1,IDND) SetRQ),STRQ,SetRL)
-     if (SRQ2 in STRQ) and SRQ1 > SRQ2 .
 }
 
 -- Note:
@@ -1427,6 +1381,7 @@ show proof
 -->           => < SetND, SetCP, 
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
+-- This goal requires o2o2o-lemma02
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -1630,6 +1585,7 @@ show proof
 -->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
+-- This goal requires o2o2o-lemma03
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -1739,6 +1695,7 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ******************************************************************************************************
+-- This goal requires o2o2o-lemma03
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -2370,20 +2327,20 @@ show proof
 select
 
 --> ****************************************************************************************
---> Proof of inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg.
--->  eq inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg(< SetND,SetCP,SetRQ,SetRL,MP >)
+--> Proof of inv-ifConnectsToCPOpenThenRQWaitingReadyOrOpenMsg.
+-->  eq inv-ifConnectsToCPOpenThenRQWaitingReadyOrOpenMsg(< SetND,SetCP,SetRQ,SetRL,MP >)
 -->     = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,open,SetRQ,waiting,SetRL,MP) .
 --> ****************************************************************************************
 --> ******************************************
 --> Step 3-0: Define a predicate to be proved.
 --> ******************************************
 --> This proof requires inv-ifAvailableMsgThenCPAvailable.
-module Proofinv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg {
+module Proofinv-ifConnectsToCPOpenThenRQWaitingReadyOrOpenMsg {
   protecting(ProofInv)
-  eq invK(S:State) = inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg(S) .
+  eq invK(S:State) = inv-ifConnectsToCPOpenThenRQWaitingReadyOrOpenMsg(S) .
 }
 
-select Proofinv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg .
+select Proofinv-ifConnectsToCPOpenThenRQWaitingReadyOrOpenMsg .
 --> ***************************
 --> (3) init(S) implies inv(S).
 --> ***************************
@@ -2651,20 +2608,7 @@ show proof
    	      (req(connectsTo,idRQ,waiting,idND) sRQ), (rel(connectsTo,idRL,idCP,idRQ) sRL),
 	      (avMsg(idCP) mp) >) = true .
 }
-:def csp5-4idCPa = :csp {
-  eq existCP(sCP,idCP) = false .
-  eq sCP = (cap(connectsTo,idCP,scp,idND') sCP') .
-}
-:def csp5-4idCPb = :csp {
-  eq scp = closed .
-  eq scp = open .
-  eq scp = available .
-}
-:apply (csp5-4idCPa rd- csp5-4idCPb rd-)
-:def ctfidCP = :ctf {
-  eq existCP(sCP',idCP) = true .
-}
-:apply (ctfidCP rd-)
+:apply (rd-)
 show proof
 select
 
@@ -2676,7 +2620,7 @@ select
 --> ******************************************
 --> Step 3-0: Define a predicate to be proved.
 --> ******************************************
---> This proof requires inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg.
+--> This proof requires inv-ifConnectsToCPOpenThenRQWaitingReadyOrOpenMsg.
 module Proofinv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg {
   protecting(ProofInv)
   eq invK(S:State) = inv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg(S) .

@@ -75,9 +75,9 @@ module PROOF {
      = allHostedOnRQInStates(SetRQ,(unbound ready)) .
 
   -- Problem specific invariants for messaging.
-  pred inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg : State
-  eq inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg(< SetND,SetCP,SetRQ,SetRL,MP >)
-     = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,open,SetRQ,waiting,SetRL,MP) .
+  pred inv-ifConnectsToCPOpenThenRQWaitingReadyOrOpenMsg : State
+  eq inv-ifConnectsToCPOpenThenRQWaitingReadyOrOpenMsg(< SetND,SetCP,SetRQ,SetRL,MP >)
+     = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,open,SetRQ,(waiting ready),SetRL,MP) .
   pred inv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg : State
   eq inv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg(< SetND,SetCP,SetRQ,SetRL,MP >)
      = ifConnectsToCPInStatesThenRQInStatesOrOpenMsg(SetCP,available,SetRQ,(waiting ready),SetRL,MP) .
@@ -122,7 +122,7 @@ module PROOF {
   ceq inv(S) = false if not noNDCycle(S) .
 
   -- Problem specific invariants for messaging.
-  ceq inv(S) = false if not inv-ifConnectsToCPOpenThenRQWaitingOrOpenMsg(S) .
+  ceq inv(S) = false if not inv-ifConnectsToCPOpenThenRQWaitingReadyOrOpenMsg(S) .
   ceq inv(S) = false if not inv-ifConnectsToCPAvailableThenRQWaitingReadyOrOpenMsg(S) .
   ceq inv(S) = false if not inv-ifConnectsToCPAvailableThenRQReadyOrAvailableMsg(S) .
   -- Problem specific invariants for proving other invariants.
