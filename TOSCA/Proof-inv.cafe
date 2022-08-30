@@ -185,6 +185,7 @@ select Proofinv-ifNDInitialThenRQUnboundReady .
 --> ***************************
 --> (3) init(S) implies inv(S).
 --> ***************************
+-- This goal requires m2o-lemma06.
 --> ***************************************************
 --> Step 3-1: Begin with the most general initial case.
 --> ***************************************************
@@ -202,6 +203,7 @@ show proof
 -->            => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfTypeOfNDInStates(SetRQ,hostedOn,IDND,ready) .
 --> *************************************************************************
+-- This goal requires m2o-lemma10.
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -223,6 +225,7 @@ show proof
 -->            => < (node(TND,IDND,started) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfNDInStates(SetRQ,IDND,ready) .
 --> *************************************************************************
+-- This goal requires m2o-lemma10.
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -266,6 +269,7 @@ show proof
 -->           => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
+-- This goal requires m2o-lemma11.
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -328,6 +332,7 @@ show proof
 -->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
+-- This goal requires m2o-lemma08.
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -432,6 +437,7 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ******************************************************************************************************
+-- This goal requires m2o-lemma08.
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -469,6 +475,7 @@ show proof
 -->           => < SetND, SetCP, 
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
+-- This goal requires m2o-lemma11.
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -498,6 +505,7 @@ select Proofinv-ifNDCreatedThenHostedOnRQReady .
 --> ***************************
 --> (3) init(S) implies inv(S).
 --> ***************************
+-- This goal requires m2o-lemma15.
 --> ***************************************************
 --> Step 3-1: Begin with the most general initial case.
 --> ***************************************************
@@ -515,6 +523,7 @@ show proof
 -->            => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfTypeOfNDInStates(SetRQ,hostedOn,IDND,ready) .
 --> *************************************************************************
+-- This goal requires m2o-lemma20.
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -583,6 +592,7 @@ show proof
 -->           => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
+-- This goal requires m2o-lemma19.
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -645,6 +655,7 @@ show proof
 -->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
+-- This goal requires m2o-lemma21.
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -732,6 +743,7 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ******************************************************************************************************
+-- This goal requires m2o-lemma21.
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -758,6 +770,7 @@ show proof
 -->           => < SetND, SetCP, 
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
+-- This goal requires m2o-lemma19.
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -787,6 +800,7 @@ select Proofinv-ifNDStartedThenRQReady .
 --> ***************************
 --> (3) init(S) implies inv(S).
 --> ***************************
+-- This goal requires m2o-lemma07.
 --> ***************************************************
 --> Step 3-1: Begin with the most general initial case.
 --> ***************************************************
@@ -804,6 +818,7 @@ show proof
 -->            => < (node(TND,IDND,created) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfTypeOfNDInStates(SetRQ,hostedOn,IDND,ready) .
 --> *************************************************************************
+-- This goal requires m2o-lemma10.
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -825,6 +840,7 @@ show proof
 -->            => < (node(TND,IDND,started) SetND), SetCP, SetRQ, SetRL, MP > 
 -->	      if allRQOfNDInStates(SetRQ,IDND,ready) .
 --> *************************************************************************
+-- This goal requires m2o-lemma12.
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -868,6 +884,7 @@ show proof
 -->           => < SetND, (cap(hostedOn,IDCP,available,IDND1) SetCP), 
 -->  	       	(req(hostedOn,IDRQ,ready,   IDND2) SetRQ), (rel(hostedOn,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> ***************************************************************************************************
+-- This goal requires m2o-lemma11.
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -930,6 +947,7 @@ show proof
 -->                        (rel(dependsOn,IDRL,IDCP,IDRQ) SetRL), MP >
 -->            if state(getNode(SetND,IDND2)) = created and isActivated(SCP) .
 --> **************************************************************************
+-- This goal requires m2o-lemma13.
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -1017,6 +1035,7 @@ show proof
 --> 	       	  (req(connectsTo,IDRQ,waiting,IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP >
 --> 	     if state(getNode(SetND,IDND)) = created .
 --> ******************************************************************************************************
+-- This goal requires m2o-lemma13.
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -1043,6 +1062,7 @@ show proof
 -->           => < SetND, SetCP, 
 --> 	       	  (req(connectsTo,IDRQ,ready,  IDND) SetRQ), (rel(connectsTo,IDRL,IDCP,IDRQ) SetRL), MP > .
 --> *******************************************************************************************************
+-- This goal requires m2o-lemma11.
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************

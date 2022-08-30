@@ -325,6 +325,7 @@ select TOSCALEMMA .
 }
 :apply (rd-)
 show proof
+-- This goal requires o2o-lemma06.
 :goal {
   eq (tosca-lemma05(sCP,
 		    trl,stCP,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND,idRL) implies
@@ -527,7 +528,6 @@ show proof
 :apply (ctfidRQ rd-)
 show proof
 select
-
 --> Proof of tosca-lemma12.
 --> *****************************************************************************
 -->  eq tosca-lemma12(SetCP,TRL,STCP,SetRQ,SRQ1,SRQ2,STRQ,SetRL,MP,IDRQ,IDND)
@@ -547,6 +547,7 @@ select TOSCALEMMA
 }
 :apply (rd-)
 show proof
+-- This goal requires o2o-lemma06.
 :goal {
   eq (tosca-lemma12(sCP,trl,stCP,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND) implies
       tosca-lemma12((cap(trl',idCP,scp,idND') sCP),trl,stCP,sRQ,srq,srq',stRQ,sRL,mp,idRQ,idND)) = true .
