@@ -1,14 +1,9 @@
 require PROOF Proof.cafe
 
---> **********************************************
---> (6) (inv(S) and not final(S)) implies cont(S).
---> **********************************************
--- Proof of (6) (inv(S) and not final(S)) implies cont(S).
--- Assuming 
---   init(S) implies final(S) = false,
---   initinv(S) is proved, and
---   invcont(S) is prove, 
--- then both initcont(S) and contcont(S) holds.
+--> ****************************************
+--> (1) inv(S) implies final(S) or cont(S) .
+--> ****************************************
+-- Proof of (1) inv(S) implies final(S) or cont(S) .
 
 open PROOF .
 
@@ -46,15 +41,11 @@ open PROOF .
     if CO in st(stopped,sstarted,sstarted) and
        cont(< (CO SCO), SIM, L >) = false .
 
---> *******************************************
---> Step 6-1: Begin with the most general case. 
---> *******************************************
+--> ***********************************************************************
+--> Step 1-1: Begin with the most general representation of a global state.
+--> ***********************************************************************
 :goal {eq invcont(< sCO, sIM, lg >) = true .}
 -- Define common csp's.
-:def empIMcsp = :csp  { 
-  eq sIM = empIM .
-  eq sIM = (imp(tIM,idIM,iidCO,eidCO,cIMs,nIMs,tIMs) sIM') .
-}
 :def tIMcsp = :csp  { 
   eq tIM = mandatory .
   eq tIM = optional .
@@ -76,22 +67,6 @@ open PROOF .
   eq tIMs = unwired .
   eq tIMs = wired .
   eq tIMs = swired .
-}
-:def nIMs'csp = :csp  { 
-  eq nIMs' = unused .
-  eq nIMs' = unwired .
-  eq nIMs' = wired .
-  eq nIMs' = swired .
-}
-:def tIMs'csp = :csp  { 
-  eq tIMs' = unused .
-  eq tIMs' = unwired .
-  eq tIMs' = wired .
-  eq tIMs' = swired .
-}
-:def empCOcsp = :csp  { 
-  eq sCO = empCO .
-  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
 }
 :def cCOscsp = :csp  { 
   eq cCOs = stopped .
@@ -116,103 +91,150 @@ open PROOF .
   eq existCO(sCO,eidCO) = false .
   eq sCO = (cmp(eidCO,cCOs,nCOs,tCOs) sCO') .
 }
-
---> *********************************************
---> Step 6-2: Split the current case into cases 
--->  where predicate final does or does not hold.
---> *********************************************
--- final(S) = equivCOSet() and equivIMSet().
-:def finalcsp = :csp  { 
-  eq final(< sCO, sIM, lg >) = true .
-  eq equivCOSet(sCO) = false .
-  eq equivIMSet(sIM) = false .
-}
-:apply (finalcsp rd-)
---> *************************************************************************************
---> Step 6-3: Split the current case into cases which collectively cover the current case
---> *************************************************************************************
--- Case 2: equivIMSet(sIM) = false means that
---          at least one import whose state is not its target.
-:apply (empIMcsp)
--- Case 2-1: equivIMSet(empIM) = true .
-:def empIMinit = :init (ceq true = false
-	if equivIMSet(SIM:SetOfImport) . ) by {
-  SIM:SetOfImport <- sIM;
-}
-:apply (empIMinit rd-)
--- Case 2-2:
-:apply (tIMcsp cIMscsp nIMscsp tIMscsp rd-)
--- Case 2-2-1-1-1-1: it is discharged by :init eq (cIMs = tIMs) = false .
-:def ctIMsinit = :init (ceq true = false
-	if CIMS:IMState = TIMS:IMState . ) by {
-  CIMS:IMState <- cIMs;
-  TIMS:IMState <- tIMs;
-}
-:apply (ctIMsinit rd-)
-
--- Case 2-2-1-2-2-2: it is discharged by :init eq (cIMs = tIMs) = false .
-:apply (ctIMsinit rd-)
-
--- Case 2-2-1-2-4-4: mandatory unwired  swired  swired
-:apply (exECOcsp rd-)
-:apply (cCOscsp nCOscsp tCOscsp rd-)
--- Case 2-2-1-2-4-4-2-1-3-3: stopped sstarted sstarted is discharged by C04
--- Case 2-2-1-2-4-4-2-2-1-3: started stopped sstated   is discharged by C02
--- Case 2-2-1-2-4-4-2-2-2-3: started started sstarted  is discharged by C03
-
--- Case 2-2-1-3-2-2: mandatory   wired unwired unwired
-:apply (exICOcsp rd-)
-:apply (cCOscsp nCOscsp tCOscsp rd-)
--- Case 2-2-1-3-2-2-2-2-1-1: started stopped stopped   is discharged by C01
-
--- Case 2-2-1-3-2-4: mandatory   wired unwired  swired
-:apply (exICOcsp rd-)
-:apply (cCOscsp nCOscsp tCOscsp rd-)
-
--- Case 2-2-1-3-3-4: mandatory   wired   wired  swired
-:apply (exECOcsp rd-)
-:apply (cCOscsp nCOscsp tCOscsp rd-)
-
--- Case 2-2-1-4-4-4: it is discharged by :init eq (cIMs = tIMs) = false .
-:apply (ctIMsinit rd-)
-
--- Case 2-2-2-1-1-1: it is discharged by :init eq (cIMs = tIMs) = false .
-:apply (ctIMsinit rd-)
-
--- Case 2-2-2-2-2-2: it is discharged by :init eq (cIMs = tIMs) = false .
-:apply (ctIMsinit rd-)
-
--- Case 2-2-2-2-4-4:  optional unwired  swired  swired
-:apply (exECOcsp rd-)
-:apply (cCOscsp nCOscsp tCOscsp rd-)
-
--- Case 2-2-2-3-3-4:  optional   wired   wired  swired
-:apply (exECOcsp rd-)
-:apply (cCOscsp nCOscsp tCOscsp rd-)
-
--- Case 2-2-2-4-4-4: it is discharged by :init eq (cIMs = tIMs) = false .
-:apply (ctIMsinit rd-)
-
--- Case 3: equivCOSet(sIM) = false means that
---          at least one component whose state is not its target.
-:apply (empCOcsp)
--- Case 3-1: equivCOSet(empCO) = true .
-:def empCOinit = :init (ceq true = false
-	if equivCOSet(SCO:SetOfComponent) . ) by {
-  SCO:SetOfComponent <- sCO;
-}
-:apply (empCOinit rd-)
--- Case 3-2:
-:apply (cCOscsp nCOscsp tCOscsp rd-)
--- Case 3-2-1-1-1: it is discharged by :init eq (cCOs = tCOs) = false .
-:def ctCOsinit = :init (ceq true = false
+:def equivCOSetFalse = :init (ceq true = false
 	if CCOS:COState = TCOS:COState . ) by {
   CCOS:COState <- cCOs;
   TCOS:COState <- tCOs;
 }
-:apply(ctCOsinit rd-)
--- Case 3-2-3-3-3: it is discharged by :init eq (cCOs = tCOs) = false .
-:apply(ctCOsinit rd-)
+:def equivIMSetFalse = :init (ceq true = false
+	if CIMS:IMState = TIMS:IMState . ) by {
+  CIMS:IMState <- cIMs;
+  TIMS:IMState <- tIMs;
+}
+
+--> *********************************************************************************
+--> Step 1-2: Split the current case into cases where final(S) does or does not hold.
+--> *********************************************************************************
+-- eq final(< SCO,SIM,L >) = equivCOSet(SCO) and equivIMSet(SIM) .
+:def csp1-2 = :csp  { 
+  eq final(< sCO, sIM, lg >) = true .
+  eq equivCOSet(sCO) = false .
+  eq equivIMSet(sIM) = false .
+}
+:apply (csp1-2 rd-)
+-- Case 2: equivCOSet(sIM) = false
+--  which means that at least one component whose state is not its target.
+:csp  { 
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+-- (cCOs = tCOs) should not hold.
+-- Case 2-1:
+:apply (cCOscsp nCOscsp tCOscsp rd-)
+-- Case 2-1-1-1-1: stopped  stopped  stopped
+--  which is discharged by :init eq (cCOs = tCOs) = false .
+:apply (equivCOSetFalse rd-)
+-- Case 2-1-1-3-3: stopped  sstarted sstarted is discharged by C04
+-- Case 2-1-2-1-3: started  stopped  sstated  is discharged by C02
+-- Case 2-1-2-2-3: started  started  sstarted is discharged by C03
+-- Case 2-1-3-3-3: sstarted sstarted sstarted
+--  which is discharged by :init eq (cCOs = tCOs) = false .
+:apply (equivCOSetFalse rd-)
+
+-- Case 3: equivIMSet(sIM) = false
+--  which means that at least one import whose state is not its target.
+:csp  { 
+  eq sIM = (imp(tIM,idIM,iidCO,eidCO,cIMs,nIMs,tIMs) sIM') .
+}
+-- (cIMs = tIMs) should not hold.
+-- Case 3-1:
+:apply (tIMcsp cIMscsp nIMscsp tIMscsp rd-)
+-- Case 3-1-1-1-1-1: mandatory unused  unused  unused
+--  which is discharged by :init eq (cIMs = tIMs) = false .
+:apply (equivIMSetFalse rd-)
+-- Case 3-1-1-2-2-2: mandatory unwired unwired unwired
+--  which is discharged by :init eq (cIMs = tIMs) = false .
+:apply (equivIMSetFalse rd-)
+-- Case 3-1-1-2-4-4: mandatory unwired swired  swired
+--> *****************************************************************
+--> Step 1-3: Consider which rule can be applied to the current case.
+--> *****************************************************************
+-- rule RD-wire1 should be applied
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- In order to apply rule RD-wire1, the state of component iidCO should be stopped,stopped.
+:apply (exICOcsp rd-)
+-- Case 3-1-1-2-4-4-2: there is iidCO component
+:apply (cCOscsp nCOscsp tCOscsp rd-)
+-- Case 3-1-1-3-2-2: mandatory   wired unwired unwired
+--> *****************************************************************
+--> Step 1-3: Consider which rule can be applied to the current case.
+--> *****************************************************************
+-- rule RD-unwire2 should be applied
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- In order to apply rule RD-unwire2, the state of component iidCO should be stopped.
+:apply (exICOcsp rd-)
+-- Case 3-1-1-3-2-2-2: there is iidCO component
+:apply (cCOscsp nCOscsp tCOscsp rd-)
+-- Case 3-1-1-3-2-2-2-2-1-1: started stopped stopped   is discharged by C01
+-- Case 3-1-1-3-2-4: mandatory   wired unwired  swired
+--> *****************************************************************
+--> Step 1-3: Consider which rule can be applied to the current case.
+--> *****************************************************************
+-- rule RD-unwire2 should be applied
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- In order to apply rule RD-unwire2, the state of component iidCO should be stopped.
+:apply (exICOcsp rd-)
+-- Case 3-1-1-3-2-4-2: there is iidCO component
+:apply (cCOscsp nCOscsp tCOscsp rd-)
+-- Case 3-1-1-3-3-4: mandatory   wired   wired  swired
+--> *****************************************************************
+--> Step 1-3: Consider which rule can be applied to the current case.
+--> *****************************************************************
+-- rule RS-swire2 should be applied
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- In order to apply rule RS-swire2, the state of component eidCO should be started,started,started
+:apply (exECOcsp rd-)
+-- Case 3-1-1-3-3-4-2: there is eidCO component
+:apply (cCOscsp nCOscsp tCOscsp rd-)
+-- Case 3-1-1-4-4-4: mandatory  swired  swired  swired
+--  which is discharged by :init eq (cIMs = tIMs) = false .
+:apply (equivIMSetFalse rd-)
+-- Case 3-1-2-1-1-1: optional   unused  unused  unused
+--  which is discharged by :init eq (cIMs = tIMs) = false .
+:apply (equivIMSetFalse rd-)
+-- Case 3-1-2-2-2-2: optional  unwired unwired unwired
+--  which is discharged by :init eq (cIMs = tIMs) = false .
+:apply (equivIMSetFalse rd-)
+-- Case 3-1-2-2-4-4: optional  unwired  swired  swired
+--> *****************************************************************
+--> Step 1-3: Consider which rule can be applied to the current case.
+--> *****************************************************************
+-- rule RD-wire2 should be applied
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- In order to apply rule RD-wire2, the state of component eidCO should be started,started,started
+:apply (exECOcsp rd-)
+-- Case 3-1-2-2-4-4-2: there is eidCO component
+:apply (cCOscsp nCOscsp tCOscsp rd-)
+-- Case 3-1-2-3-3-4: optional    wired   wired  swired
+--> *****************************************************************
+--> Step 1-3: Consider which rule can be applied to the current case.
+--> *****************************************************************
+-- rule RS-swire2 or RS-unwire3 should be applied
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- In order to apply rule Rs-swire2, the state of component eidCO should be started,started,started
+:apply (exECOcsp rd-)
+-- Case 3-1-2-3-3-4-2: there is eidCO component
+:apply (cCOscsp nCOscsp tCOscsp rd-)
+-- Case 3-1-2-4-4-4: optional   swired  swired  swired
+--  which is discharged by :init eq (cIMs = tIMs) = false .
+:apply (equivIMSetFalse rd-)
 show proof
 close
 

@@ -305,11 +305,20 @@ module! STATECyclefuns {
   protecting(STATE)
 
   [LocalState]
+  
+  op st : COState COState COState -> LocalState {constr}
+  op state3 : Component -> LocalState
+  pred _in_ : Component LocalState
 
   var CO : Component
   var SCO : SetOfComponent
+  vars CSCO NSCO TSCO : COState
   var SIM : SetOfImport
   var L : ListOfLog
+
+  eq state3(CO) = st(state(CO),next(CO),target(CO)) .
+  eq (CO in st(CSCO,NSCO,TSCO))
+     = (state(CO) = CSCO and next(CO) = NSCO and target(CO) = TSCO) .
 
   op getAllCO : State -> SetOfComponent
   eq getAllCO(< SCO,SIM,L >) = SCO .
@@ -329,20 +338,28 @@ module! STATEfuns {
   extending(CYCLEPRED(
 	STATECyclefuns {sort Object -> Component,
 			sort SetOfObject -> SetOfComponent,
-			op empObj -> empCO,
+			sort ObjID -> COID,
+			sort ObjState -> LocalState,
+			op state -> state3,
+			op existObj -> existCO,
 			op DDSC -> DDSCOU,
+			op empObj -> empCO,
 			op getAllObjC -> getAllCO})
 	* {op noCycleC -> noCOCycleU,
-           op noCycleLemma -> noCycleLemmaU})
+	       op noCDL -> noCDLU})
 
   extending(CYCLEPRED(
 	STATECyclefuns {sort Object -> Component,
 			sort SetOfObject -> SetOfComponent,
-			op empObj -> empCO,
+			sort ObjID -> COID,
+			sort ObjState -> LocalState,
+			op state -> state3,
+			op existObj -> existCO,
 			op DDSC -> DDSCOD,
+			op empObj -> empCO,
 			op getAllObjC -> getAllCO})
-	* {op noCycleC -> noCOCycleD,
-           op noCycleLemma -> noCycleLemmaD})
+	    * {op noCycleC -> noCOCycleD,
+	       op noCDL -> noCDLD})
 
   var CO : Component
   var IM : Import
@@ -501,9 +518,6 @@ module! STATEfuns {
   eq wfs-iidCOeidCODiffer(< SCO,SIM,L >)
     = iidCOeidCODiffer(SIM) .
 
---> **************************************
---> Step 0-1: Define init(S) and final(S).
---> **************************************
   -- wfs is a conjunction of invariants which are intentionally imposed by the init condition.
   -- Since too long wfs causes a large evalutaion cost, define wfs minimally for each use case.
   eq [:nonexec]: wfs(S)
@@ -511,18 +525,6 @@ module! STATEfuns {
        wfs-allIMHaveICO(S) and wfs-allIMHaveECO(S) and
        wfs-validTarget(S) and wfs-validCurrent(S) and 
        wfs-validNext(S) and wfs-iidCOeidCODiffer(S) .
-
-  eq init(< SCO,SIM,L >)
-     = wfs(< SCO,SIM,L >) and
-       allCOin9States(SCO) and
-       allIMin14States(SIM) and
-       stableCOSet(SCO) and stableIMSet(SIM) and
-       not final(< SCO,SIM,L >) and
-       noCOCycleU(< SCO,SIM,L >) and
-       noCOCycleD(< SCO,SIM,L >) .
-
-  eq final(< SCO,SIM,L >)
-     = equivCOSet(SCO) and equivIMSet(SIM) .
 }
 
 -- Architecture Invariants

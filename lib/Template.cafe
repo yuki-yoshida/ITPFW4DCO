@@ -366,7 +366,7 @@ module OBJECTBASE2(OBJ :: OBJECT2) {
     if not (ST == state2(null)) .
 }
 
-module OBJECTBASE3(OBJ :: OBJECT3) {
+module -OBJECTBASE3-lemma(OBJ :: OBJECT3) {
   including(-OBJECTBASE0(OBJECTBASE2(OBJ) {op state -> state3})
                     * {op #ObjInStates0 -> #ObjInStates3,
                        op existObjInStates0 -> existObjInStates3,
@@ -379,6 +379,12 @@ module OBJECTBASE3(OBJ :: OBJECT3) {
                        op isInStates0 -> isInStates3})
   ceq (ST:ObjState = state3(null) ) = false
     if not (ST == state3(null)) .
+}
+
+module OBJECTBASE3 {
+  including(-OBJECTBASE3-lemma)
+
+  -- Proved Lemmas
 }
 
 module PRMOBJLINK {
@@ -836,7 +842,6 @@ module OBJLINKMANY2ONE2(LINK :: PRMOBJLINK2) {
 		      op existLObjInStates -> existLObjInStates2})
 	     * {op allZOfTypeOfXInStates0 -> allZOfTypeOfXInStates2,
 		op allZOfXInStates0 -> allZOfXInStates2,
-		op changeObjState0 -> changeObjState2,
 		op getXsOfZsInStates0 -> getXsOfZsInStates2,
 		op getZsOfTypeOfXsInStates0 -> getZsOfTypeOfXsInStates2,
 		op getZsOfXsInStates0 -> getZsOfXsInStates2,
@@ -847,17 +852,45 @@ module OBJLINKMANY2ONE2(LINK :: PRMOBJLINK2) {
 		op ifOfTypeOfXThenInStates0 -> ifOfTypeOfXThenInStates2,
 		op ifOfXThenInStates0 -> ifOfXThenInStates2,
 		op ifXInStatesThenZInStates0 -> ifXInStatesThenZInStates2,
-		op ifXInStatesThenZOfTypeInStates0 -> ifXInStatesThenZOfTypeInStates2})
+		op ifXInStatesThenZOfTypeInStates0 -> ifXInStatesThenZOfTypeInStates2,
+		op changeObjState -> -changeObjState})
+  
+  pred changeObjState : Object Object
+  eq changeObjState(O1:Object,O2:Object)
+     = (id(O1) = id(O2)) and 
+       (link(O1) = link(O2)) and 
+       (type(O1) = type(O2)) and
+       (state(O1) >  state(O2)) and
+       (state2(O1) =  state2(O2)) .
+
+  pred changeObjState2 : Object Object
+  eq changeObjState2(O1:Object,O2:Object)
+     = (id(O1) = id(O2)) and 
+       (link(O1) = link(O2)) and 
+       (type(O1) = type(O2)) and
+       (state(O1) =  state(O2)) and
+       (state2(O1) >  state2(O2)) .
+
+  pred changeObjState : LObject LObject
+  eq changeObjState(LO1:LObject,LO2:LObject)
+     = (id(LO1) = id(LO2)) and 
+       (state(LO1) >  state(LO2)) and
+       (state2(LO1) =  state2(LO2)) .
+
+  pred changeObjState2 : LObject LObject
+  eq changeObjState2(LO1:LObject,LO2:LObject)
+     = ((id(LO1) = id(LO2)) and 
+        (state(LO1) =  state(LO2))) and
+       (state2(LO1) >  state2(LO2)) .
 }
 
-module OBJLINKMANY2ONE3(LINK :: PRMOBJLINK3) {
+module -OBJLINKMANY2ONE3-lemma(LINK :: PRMOBJLINK3) {
   including(-OBJLINKMANY2ONE0(OBJLINKMANY2ONE2(LINK)
 	             {op state -> state3,
 		      op allLObjInStates -> allLObjInStates3,
 		      op existLObjInStates -> existLObjInStates3})
 	     * {op allZOfTypeOfXInStates0 -> allZOfTypeOfXInStates3,
 		op allZOfXInStates0 -> allZOfXInStates3,
-		op changeObjState0 -> changeObjState3,
 		op getXsOfZsInStates0 -> getXsOfZsInStates3,
 		op getZsOfTypeOfXsInStates0 -> getZsOfTypeOfXsInStates3,
 		op getZsOfXsInStates0 -> getZsOfXsInStates3,
@@ -868,7 +901,63 @@ module OBJLINKMANY2ONE3(LINK :: PRMOBJLINK3) {
 		op ifOfTypeOfXThenInStates0 -> ifOfTypeOfXThenInStates3,
 		op ifOfXThenInStates0 -> ifOfXThenInStates3,
 		op ifXInStatesThenZInStates0 -> ifXInStatesThenZInStates3,
-		op ifXInStatesThenZOfTypeInStates0 -> ifXInStatesThenZOfTypeInStates3})
+		op ifXInStatesThenZOfTypeInStates0 -> ifXInStatesThenZOfTypeInStates3,
+		op changeObjState -> -changeObjState,
+		op changeObjState2 -> -changeObjState2})
+  
+  pred changeObjState : Object Object
+  eq changeObjState(O1:Object,O2:Object)
+     = (id(O1) = id(O2)) and 
+       (link(O1) = link(O2)) and 
+       (type(O1) = type(O2)) and
+       (state(O1) >  state(O2)) and
+       (state2(O1) =  state2(O2)) and
+       (state3(O1) =  state3(O2)) .
+
+  pred changeObjState2 : Object Object
+  eq changeObjState2(O1:Object,O2:Object)
+     = (id(O1) = id(O2)) and 
+       (link(O1) = link(O2)) and 
+       (type(O1) = type(O2)) and
+       (state(O1) =  state(O2)) and
+       (state2(O1) >  state2(O2)) and
+       (state3(O1) =  state3(O2)) .
+
+  pred changeObjState3 : Object Object
+  eq changeObjState3(O1:Object,O2:Object)
+     = (id(O1) = id(O2)) and 
+       (link(O1) = link(O2)) and 
+       (type(O1) = type(O2)) and
+       (state(O1) =  state(O2)) and
+       (state2(O1) =  state2(O2)) and
+       (state3(O1) >  state3(O2)) .
+
+  pred changeObjState : LObject LObject
+  eq changeObjState(LO1:LObject,LO2:LObject)
+     = (id(LO1) = id(LO2)) and 
+       (state(LO1) >  state(LO2)) and
+       (state2(LO1) =  state2(LO2)) and
+       (state3(LO1) =  state3(LO2)) .
+
+  pred changeObjState2 : LObject LObject
+  eq changeObjState2(LO1:LObject,LO2:LObject)
+     = (id(LO1) = id(LO2)) and 
+       (state(LO1) =  state(LO2)) and
+       (state2(LO1) >  state2(LO2)) and
+       (state3(LO1) =  state3(LO2)) .
+
+  pred changeObjState3 : LObject LObject
+  eq changeObjState3(LO1:LObject,LO2:LObject)
+     = (id(LO1) = id(LO2)) and 
+       (state(LO1) =  state(LO2)) and
+       (state2(LO1) =  state2(LO2)) and
+       (state3(LO1) >  state3(LO2)) .
+}
+
+module OBJLINKMANY2ONE3 {
+  including(-OBJLINKMANY2ONE3-lemma)
+
+  -- Proved Lemmas
 }
 
 module -OBJLINKONE2ONE0-lemma(LINK :: PRMOBJLINK) {
@@ -1409,18 +1498,22 @@ module CYCLEPRED(P :: PRMCYCLE) {
   -- eq noCDL(O,S,LS)
   --   = (noCycleC(S) and O in getAllObjC(S) and O in LS) 
   --     implies someNoDependObj(getAllObjC(S), LS, S) .
+
+  -- The equation version of No Cyclic Dependency Lemma
+  ceq [noCDL :nonexec]:
+    noCycleC(S) = false
+    if Oc in getAllObjC(S) and 
+       state(Oc) = LS and 
+       isNoDepend(Xc,LS,S) = false .
+
+  -- The predicate version of No Cyclic Dependency Lemma
+  -- Since an equation label cannot be renamed, noCDL equation cannot be extended twice.
   pred noCDL : Object Object ObjState State
   eq noCDL(Oc,Xc,LS,S)
     = (Oc in getAllObjC(S)) and 
       (state(Oc) = LS) and 
       noCycleC(S) implies
         isNoDepend(Xc,LS,S) .
-
-  ceq [noCDL :nonexec]:
-    noCycleC(S) = false
-    if Oc in getAllObjC(S) and 
-       state(Oc) = LS and 
-       isNoDepend(Xc,LS,S) = false .
 
   -- Subset Dependency Lemma
   var S' : State

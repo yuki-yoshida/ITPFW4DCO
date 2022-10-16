@@ -346,7 +346,7 @@ ceq [noRSCycle-lemma1-IH :nonexec]:
   eq srs = started .
 }
 :apply (cspsrs rd-)
-:init as noRSCycle-lemma1-IH-in [noRSCycle-lemma1-IH]
+:def initIH = :init as noRSCycle-lemma1-IH-in [noRSCycle-lemma1-IH]
   by {SRS:SetOfResource  <- sRS';
       SRS0:SetOfResource <- sRS;
       RS:Resource  <- res(trs,idRS,initial);
@@ -357,14 +357,8 @@ ceq [noRSCycle-lemma1-IH :nonexec]:
   --    subset(getZsOfXsInStates0((Z' S_Z),S_X,St_Z),getZsOfXsInStates0((Z S_Z),S_X,St_Z)) = true
   --    if changeObjState0(Z,Z') and not state(Z') in St_Z .
   -- which assuming that initial > started .
-:apply (rd-)
-:init as noRSCycle-lemma1-IH-in [noRSCycle-lemma1-IH]
-  by {SRS:SetOfResource  <- sRS';
-      SRS0:SetOfResource <- sRS;
-      RS:Resource  <- res(trs,idRS,initial);
-      RS':Resource <- res(trs,idRS,started);
-      SPR:SetOfProperty <- sPR; }
-:apply (rd-)
+:apply (initIH rd-)
+:apply (initIH rd-)
 show proof
 close
 open Proofinv-noRSCycle-lemma .
@@ -420,27 +414,15 @@ ceq [noRSCycle-lemma2-IH :nonexec]:
   eq srs = started .
 }
 :apply (cspsrs rd-)
-:init as noRSCycle-lemma2-IH-in [noRSCycle-lemma2-IH]
+:def initIH = :init as noRSCycle-lemma2-IH-in [noRSCycle-lemma2-IH]
   by {SRS:SetOfResource  <- sRS';
       SRS0:SetOfResource <- (res(trs,idRRS,started) sRS);
       PR:Property  <- prop(tpr,idPR,notready,idRS,idRRS);
       PR':Property <- prop(tpr,idPR,ready,idRS,idRRS);
       SPR:SetOfProperty <- sPR; }
-:apply (rd-)
+:apply (initIH rd-)
 :apply (cspsrs rd-)
-:init as noRSCycle-lemma2-IH-in [noRSCycle-lemma2-IH]
-  by {SRS:SetOfResource  <- sRS';
-      SRS0:SetOfResource <- (res(trs,idRRS,started) sRS);
-      PR:Property  <- prop(tpr,idPR,notready,idRS,idRRS);
-      PR':Property <- prop(tpr,idPR,ready,idRS,idRRS);
-      SPR:SetOfProperty <- sPR; }
-:apply (rd-)
-:init as noRSCycle-lemma2-IH-in [noRSCycle-lemma2-IH]
-  by {SRS:SetOfResource  <- sRS';
-      SRS0:SetOfResource <- (res(trs,idRRS,started) sRS);
-      PR:Property  <- prop(tpr,idPR,notready,idRS,idRRS);
-      PR':Property <- prop(tpr,idPR,ready,idRS,idRRS);
-      SPR:SetOfProperty <- sPR; }
+:apply (initIH rd-)
   -- Note: Following predefined lemma automatically used here:
   -- eq [m2o-lemma23]:
   --     (subset(S_Z,S_Z') and
@@ -450,7 +432,7 @@ ceq [noRSCycle-lemma2-IH :nonexec]:
   --    subset(getZsOfXsInStates0((Z' S_Z),S_X,St_Z),getZsOfXsInStates0((Z S_Z),S_X,St_Z)) = true
   --    if changeObjState0(Z,Z') and not state(Z') in St_Z .
   -- which assuming that initial > started .
-:apply (rd-)
+:apply (initIH rd-)
 show proof
 close
 open Proofinv-noRSCycle-lemma .

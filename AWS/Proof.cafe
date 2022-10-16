@@ -8,7 +8,7 @@ module PROOF {
   var RS : Resource
   var SetRS : SetOfResource
   var SetPR : SetOfProperty
-  vars S SS : State
+  var S : State
 
 --> **************************************
 --> Step 0-1: Define init(S) and final(S).

@@ -2,7 +2,7 @@ require NatAxiom ../lib/NatAxiom.cafe
 require PROOF Proof.cafe
 
 --> *************************************************
---> (3) inv(S) and not final(S) implies m(S) > m(SS).
+--> (2) inv(S) and not final(S) implies m(S) > m(SS).
 --> *************************************************
 
 module ProofMeasure {
@@ -21,9 +21,9 @@ module ProofMeasure {
 -->      )) ListLG) > .
 --> ************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< (cmp(idCO, started, started, stopped) sCO), sIM, 
               lg >) = true .
@@ -48,13 +48,17 @@ select
 -->                            (started sstarted)) = empCO .
 --> ************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< (cmp(idCO, started, stopped, tCOs) sCO), sIM, 
               lg >) = true .
 }
+--> ************************************************************************
+--> Step 2-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :ctf {
   eq getICOsOfIMsInStates(sCO,
                           getIMsOfECOInStates(sIM,idCO,(wired swired)),
@@ -86,9 +90,9 @@ select
 -->      )) ListLG) > .
 --> *************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< (cmp(idCO, started, started, sstarted) sCO), 
               (imp(mandatory, idIM, idCO, eidCO, wired, unwired, tIMs) sIM),
@@ -117,9 +121,9 @@ select
 -->      )) ListLG) > .
 --> ************************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< (cmp(idCO, stopped, stopped, sstarted) sCO), sIM, 
                lg >) = true .
@@ -142,13 +146,17 @@ select
 -->    if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) .
 --> ************************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< (cmp(idCO, started, started, sstarted) sCO), sIM, 
               lg >) = true .
 }
+--> ************************************************************************
+--> Step 2-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :ctf {
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
@@ -171,13 +179,17 @@ select
 -->    if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) .
 --> ****************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< (cmp(idCO, stopped, sstarted, sstarted) sCO), sIM,
               lg >) = true .
 }
+--> ************************************************************************
+--> Step 2-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
 :ctf {
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
@@ -199,9 +211,9 @@ select
 -->      )) ListLG) > .
 --> ********************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< (cmp(idCO, started, sstarted, started) sCO), sIM, 
               lg >) = true .
@@ -223,9 +235,9 @@ select
 -->      )) ListLG) > .
 --> *********************************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired, wired, unwired) sIM),
               lg >) = true .
@@ -250,9 +262,9 @@ select
 -->      )) ListLG) > .
 --> ********************************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< sCO,
               (imp(optional, idIM, idCO, eidCO,   wired, unwired, tIMs) sIM),
@@ -284,9 +296,9 @@ select
 -->      )) ListLG) > .
 --> *********************************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< (cmp(idCO, stopped, nCOs, tCOs) sCO), 
               (imp(mandatory, idIM, idCO, eidCO,   wired, unwired, tIMs) sIM),
@@ -315,9 +327,9 @@ select
 -->      )) ListLG) > .
 --> *********************************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired,  wired, unused) sIM),
               lg >) = true .
@@ -339,9 +351,9 @@ select
 -->      )) ListLG) > .
 --> **************************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< sCO, (imp(tIM, idIM, idCO, eidCO,  wired, unused, unused) sIM),
               lg >) = true .
@@ -363,9 +375,9 @@ select
 -->      )) ListLG) > .
 --> *********************************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< sCO, (imp(tIM, idIM, iidCO, eidCO, unused,  unused, swired) sIM),
               lg >) = true .
@@ -387,9 +399,9 @@ select
 -->      )) ListLG) > .
 --> ******************************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< sCO, (imp(tIM, idIM, iidCO, eidCO,  unused, unwired, swired) sIM),
               lg >) = true .
@@ -411,9 +423,9 @@ select
 -->      )) ListLG) > .
 --> ******************************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< sCO, (imp(tIM, idIM, iidCO, eidCO, unwired, unwired, swired) sIM),
               lg >) = true .
@@ -438,9 +450,9 @@ select
 -->      )) ListLG) > .
 --> ****************************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< (cmp(eidCO, sstarted, sstarted, sstarted) sCO), 
               (imp(tIM, idIM, iidCO, eidCO, wired,  wired, swired) sIM),
@@ -466,9 +478,9 @@ select
 -->      )) ListLG) > .
 --> ********************************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< (cmp(eidCO, started, stopped, sstarted) sCO), 
               (imp(tIM, idIM, iidCO, eidCO, wired, wired, swired) sIM),
@@ -494,9 +506,9 @@ select
 -->      )) ListLG) > .
 --> ***********************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< (cmp(iidCO, stopped, stopped, tCOs) sCO), 
               (imp(tIM, idIM, iidCO, eidCO, unwired, swired, swired) sIM),
@@ -522,9 +534,9 @@ select
 -->      )) ListLG) > .
 --> ***********************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< (cmp(eidCO, sstarted, sstarted, sstarted) sCO), 
               (imp(tIM, idIM, iidCO, eidCO, unwired, swired, swired) sIM),
@@ -547,9 +559,9 @@ select
 -->      )) ListLG) > .
 --> *******************************************************************************************
 select ProofMeasure .
---> *************************************************************************
---> Step 3-2: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
 :goal {
   eq mesmes(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired, swired, swired) sIM),
               lg >) = true .

@@ -5,27 +5,38 @@ module PROOF {
   protecting(PROOFBASE)
   protecting(STATERules)
 
-  op st : COState COState COState -> LocalState {constr}
-
   var CO : Component
-  vars SCO SCO0 : SetOfComponent
+  var SCO : SetOfComponent
   vars IDCO IIDCO EIDCO : COID 
-  vars CSCO NSCO TSCO : COState
   var StCO : SetOfCOState
 
   var IM : Import
-  vars SIM SIM0 SIM' : SetOfImport
+  var SIM : SetOfImport
   var IDIM : IMID
   var TIM : IMType
   vars CSIM NSIM TSIM : IMState
   var StIM : SetOfIMState
-
   var L : ListOfLog
-  vars S SS : State
-  var LS : LocalState
+  var S : State
+
+--> **************************************
+--> Step 0-1: Define init(S) and final(S).
+--> **************************************
+  eq init(< SCO,SIM,L >)
+     = wfs(< SCO,SIM,L >) and
+       allCOin9States(SCO) and
+       allIMin14States(SIM) and
+       stableCOSet(SCO) and stableIMSet(SIM) and
+       not final(< SCO,SIM,L >) and
+       noCOCycleU(< SCO,SIM,L >) and
+       noCOCycleD(< SCO,SIM,L >) and
+       noChangeSstarted(SCO) .
+
+  eq final(< SCO,SIM,L >)
+     = equivCOSet(SCO) and equivIMSet(SIM) .
 
 --> **********************
---> Step 0-3: Define m(S).
+--> Step 0-2: Define m(S).
 --> **********************
   -- Measuring functions
   -- Target Distance
@@ -78,7 +89,7 @@ module PROOF {
     = tdis(SCO) + tdis(SIM) .
 
 --> ************************
---> Step 0-4: Define inv(S).
+--> Step 0-3: Define inv(S).
 --> ************************
   -- The invariant should be defined as the conjunction of all inv-* and all wfs-*.
   -- But this definition causes costly computations.
@@ -107,7 +118,9 @@ module PROOF {
 
   ceq inv(S) = false if not wfs(S) .
   ceq inv(S) = false if (true xor noCOCycleU(S)) .
+      -- Note that (true xor A) == (not A)
   ceq inv(S) = false if (true xor noCOCycleD(S)) .
+      -- Note that (true xor A) == (not A)
   ceq inv(S) = false if not inv-allCOin9States(S) .
   ceq inv(S) = false if not inv-allIMin14States(S) .
   ceq inv(S) = false if not inv-noChangeSstarted(S) .
@@ -205,19 +218,8 @@ module PROOF {
       (next(CO)  = sstarted implies target(CO) = sstarted) and
       noChangeSstarted(SCO) .
 
-  -- for NoCyclic Lemma
-  eq (CO in st(CSCO,NSCO,TSCO))
-    = (state(CO) = CSCO and next(CO) = NSCO and target(CO) = TSCO) .
-
-  var X : Component
-  eq [noCycleU :nonexec]:
-    noCycleLemmaU(CO,X,LS,S) = true .
-
-  eq [noCycleD :nonexec]:
-    noCycleLemmaD(CO,X,LS,S) = true .
-
 --> **************************************
---> Step 0-5: Prepare arbitrary constants.
+--> Step 0-4: Prepare arbitrary constants.
 --> **************************************
   ops idCO idCO' iidCO eidCO : -> COIDLt
   ops idIM idIM' : -> IMIDLt
