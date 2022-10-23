@@ -906,6 +906,7 @@ show proof
 -->    This proof requires M2O-lemma01.
 --> ***********************************************************************************
 open M2O-LEMMAS .
+  -- Using m20-lemma01
   ceq [m2o-lemma01]:
       (allObjInStates(S_Z,SZ) and allZOfXInStates0(S_Z,IDX,St_Z))
      = allObjInStates(S_Z,SZ)
@@ -1068,6 +1069,7 @@ show proof
 -->    This proof requires M2O-lemma01.
 --> ********************************************************************************************
 open M2O-LEMMAS .
+  -- Using m2o-lemma02
   ceq [m2o-lemma02]:
       (allObjInStates(S_Z,SZ) and allZOfTypeOfXInStates0(S_Z,OT,IDX,St_Z))
      = allObjInStates(S_Z,SZ)
@@ -1263,6 +1265,7 @@ show proof
 -->       subset(getXsOfZsInStates0(S_X,S_Z,St_X),getXsOfZsInStates0(S_X,S_Z',St_X)) .
 --> **********************************************************************************
 open M2O-LEMMAS .
+  -- Using m2o-lemma22
   ceq [m2o-lemma22]:
     (getLObject(S_X,link(Z)) in getXsOfZsInStates0(S_X,S_Z,St_X)) = true
     if not S_X = empLObj and (state(getLObject(S_X,link(Z))) in St_X) and (Z in S_Z) .
@@ -1582,6 +1585,7 @@ show proof
 -->       when uniqX(S_Y) and allXHaveY(S_X,S_Y).
 --> *************************************************************************************
 open O2O-LEMMAS .
+  -- Using o2o-lemma01
   ceq [o2o-lemma01]:
       (allObjInStates(S_Y,St_Y) and YOfXInStates0(S_Y,IDX,St_Y))
      = allObjInStates(S_Y,St_Y)

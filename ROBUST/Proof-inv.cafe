@@ -25,9 +25,49 @@ module Proofwfs-validTarget {
   protecting(PROOF)
   var S : State
   eq invK(S) = wfs-validTarget(S) .
+
+  -- Lemmas
+  vars CO CO' : Component
+  vars SCO SCO0 : SetOfComponent
+  var SIM0 : SetOfImport
+
+  -- eq robust-lemmaV01(CO,CO',SCO,SCO0,SIM0)
+  --   = validTargetComponent(SCO,(CO  SCO0),SIM0) implies 
+  --     validTargetComponent(SCO,(CO' SCO0),SIM0)
+  --     when changeObjState(CO,CO') .
+  ceq (validTargetComponent(SCO,(CO  SCO0),SIM0) and
+       validTargetComponent(SCO,(CO' SCO0),SIM0))
+     = validTargetComponent(SCO,(CO  SCO0),SIM0)
+    if changeObjState(CO,CO') .
+
+  -- eq robust-lemmaV01-2(CO,CO',SCO,SCO0,SIM0)
+  --   = validTargetComponent(SCO,(CO  SCO0),SIM0) implies 
+  --     validTargetComponent(SCO,(CO' SCO0),SIM0)
+  --     when changeObjState2(CO,CO') .
+  ceq (validTargetComponent(SCO,(CO  SCO0),SIM0) and
+       validTargetComponent(SCO,(CO' SCO0),SIM0))
+     = validTargetComponent(SCO,(CO  SCO0),SIM0)
+    if changeObjState2(CO,CO') .
+
+  -- eq robust-lemmaV02(CO,CO',SCO0,SIM0)
+  --   = validTargetImport(SIM0,(CO  SCO0)) implies 
+  --     validTargetImport(SIM0,(CO' SCO0))
+  --     when changeObjState(CO,CO') .
+  ceq (validTargetImport(SIM0,(CO  SCO0)) and
+       validTargetImport(SIM0,(CO' SCO0)))
+     = validTargetImport(SIM0,(CO  SCO0))
+    if changeObjState(CO,CO') .
+
+  -- eq robust-lemmaV02-2(CO,CO',SCO0,SIM0)
+  --   = validTargetImport(SIM0,(CO  SCO0)) implies 
+  --     validTargetImport(SIM0,(CO' SCO0))
+  --     when changeObjState2(CO,CO') .
+  ceq (validTargetImport(SIM0,(CO  SCO0)) and
+       validTargetImport(SIM0,(CO' SCO0)))
+     = validTargetImport(SIM0,(CO  SCO0))
+    if changeObjState2(CO,CO') .
 }
 
-select Proofwfs-validTarget
 --> ***************************
 --> (3) init(S) implies inv(S).
 --> ***************************
@@ -36,6 +76,7 @@ select Proofwfs-validTarget
 --> ***************************
 --> (4) inv(S) implies inv(SS).
 --> ***************************
+open Proofwfs-validTarget .
 --> ************************************************************************
 --> trans [RS-stop1]:
 -->    < (cmp(IDCO, started, started, stopped) SCO), SIM,
@@ -49,6 +90,8 @@ select Proofwfs-validTarget
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
+-- Set the direction of state change.
+eq started > stopped = true .
 :goal {
   eq invinv(< (cmp(idCO, started, started, stopped) sCO), sIM, 
               lg >) = true .
@@ -62,7 +105,9 @@ eof
 --> Proof of RS-stop1 for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> ************************************************************************
 --> ctrans [RD-stop]:
 -->    < (cmp(IDCO, started, stopped, TSCO) SCO), SIM,
@@ -96,7 +141,9 @@ show proof
 --> Proof of RD-stop for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> *************************************************************************
 --> trans [RS-stop2]:
 -->    < (cmp(IDCO, started, started, sstarted) SCO),
@@ -128,7 +175,9 @@ show proof
 --> Proof of RS-stop2 for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> ************************************************************************************
 --> trans [RS-sstart1]:
 -->    < (cmp(IDCO, stopped,  stopped, sstarted) SCO), SIM,
@@ -150,7 +199,9 @@ show proof
 --> Proof of RS-sstart1 for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> ************************************************************************************
 --> ctrans [RS-sstart2]:
 -->    < (cmp(IDCO, started,  started, sstarted) SCO), SIM,
@@ -180,7 +231,9 @@ show proof
 --> Proof of RS-sstart2 for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> ****************************************************************************
 --> ctrans [RD-start]:
 -->    < (cmp(IDCO, stopped, sstarted, sstarted) SCO), SIM,
@@ -207,7 +260,9 @@ show proof
 --> Proof of RD-start for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> ********************************************************************************
 --> trans [RD-sstart]:
 -->    < (cmp(IDCO,  started, sstarted, sstarted) SCO), SIM,
@@ -229,7 +284,9 @@ show proof
 --> Proof of RD-sstart for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> *********************************************************************************************
 --> trans [RS-unwire1]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unwired) SIM),
@@ -251,7 +308,9 @@ show proof
 --> Proof of RS-unwire1 for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> ********************************************************************************************
 --> trans [RD-unwire1]:
 -->    < SCO,
@@ -283,7 +342,9 @@ show proof
 --> Proof of RD-unwire1 for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> *********************************************************************************************
 --> trans [RD-unwire2]:
 -->    < (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
@@ -315,7 +376,9 @@ show proof
 --> Proof of RD-unwire2 for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> *********************************************************************************************
 --> trans [RS-unused]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,  wired, unused) SIM),
@@ -337,7 +400,9 @@ show proof
 --> Proof of RS-unused for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> **************************************************************************************
 --> trans [RD-unused]:
 -->    < SCO, (imp(TIM, IDIM, IDCO, EIDCO,  wired, unused, unused) SIM),
@@ -359,7 +424,9 @@ show proof
 --> Proof of RD-unused for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> *********************************************************************************************
 --> trans [RS-unwire2]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused,  unused, swired) SIM),
@@ -381,7 +448,9 @@ show proof
 --> Proof of RS-unwire2 for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> ******************************************************************************************
 --> trans [RD-unwire3]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused, unwired, swired) SIM),
@@ -403,7 +472,9 @@ show proof
 --> Proof of RD-unwire3 for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> ******************************************************************************************
 --> trans [RS-swire1]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, swired) SIM),
@@ -425,7 +496,9 @@ show proof
 --> Proof of RS-swire1 for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> ****************************************************************************************
 --> trans [RS-swire2]:
 -->    < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
@@ -451,7 +524,9 @@ show proof
 --> Proof of RS-swire2 for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> ********************************************************************************************
 --> trans [RS-unwire3]:
 -->    < (cmp(EIDCO, started, stopped, sstarted) SCO), 
@@ -477,7 +552,9 @@ show proof
 --> Proof of RS-unwire3 for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> ***********************************************************************************
 --> trans [RD-wire1]:
 -->    < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
@@ -503,7 +580,9 @@ show proof
 --> Proof of RD-wire1 for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> ***********************************************************************************
 --> trans [RD-wire2]:
 -->    < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
@@ -529,7 +608,9 @@ show proof
 --> Proof of RD-wire2 for inv-validTarget done.
 -->
 show proof
+close
 
+open Proofwfs-validTarget .
 --> *******************************************************************************************
 --> trans [RD-swire]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  wired, swired, swired) SIM),
@@ -551,7 +632,7 @@ show proof
 --> Proof of RD-swire for inv-validTarget done.
 -->
 show proof
-select
+close
 
 --> **************************************
 --> Proof of wfs-validCurrent.
@@ -567,7 +648,6 @@ module Proofwfs-validCurrent {
   eq invK(S) = wfs-validCurrent(S) .
 }
 
-select Proofwfs-validCurrent
 --> ***************************
 --> (3) init(S) implies inv(S).
 --> ***************************
@@ -576,6 +656,7 @@ select Proofwfs-validCurrent
 --> ***************************
 --> (4) inv(S) implies inv(SS).
 --> ***************************
+open Proofwfs-validCurrent .
 --> ************************************************************************
 --> trans [RS-stop1]:
 -->    < (cmp(IDCO, started, started, stopped) SCO), SIM,
@@ -601,7 +682,9 @@ select Proofwfs-validCurrent
 --> Proof of RS-stop1 for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> ************************************************************************
 --> ctrans [RD-stop]:
 -->    < (cmp(IDCO, started, stopped, TSCO) SCO), SIM,
@@ -635,7 +718,9 @@ show proof
 --> Proof of RD-stop for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> *************************************************************************
 --> trans [RS-stop2]:
 -->    < (cmp(IDCO, started, started, sstarted) SCO),
@@ -667,7 +752,9 @@ show proof
 --> Proof of RS-stop2 for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> ************************************************************************************
 --> trans [RS-sstart1]:
 -->    < (cmp(IDCO, stopped,  stopped, sstarted) SCO), SIM,
@@ -689,7 +776,9 @@ show proof
 --> Proof of RS-sstart1 for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> ************************************************************************************
 --> ctrans [RS-sstart2]:
 -->    < (cmp(IDCO, started,  started, sstarted) SCO), SIM,
@@ -719,7 +808,9 @@ show proof
 --> Proof of RS-sstart2 for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> ****************************************************************************
 --> ctrans [RD-start]:
 -->    < (cmp(IDCO, stopped, sstarted, sstarted) SCO), SIM,
@@ -746,7 +837,9 @@ show proof
 --> Proof of RD-start for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> ********************************************************************************
 --> trans [RD-sstart]:
 -->    < (cmp(IDCO,  started, sstarted, sstarted) SCO), SIM,
@@ -768,7 +861,9 @@ show proof
 --> Proof of RD-sstart for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> *********************************************************************************************
 --> trans [RS-unwire1]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unwired) SIM),
@@ -790,7 +885,9 @@ show proof
 --> Proof of RS-unwire1 for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> ********************************************************************************************
 --> trans [RD-unwire1]:
 -->    < SCO,
@@ -822,7 +919,9 @@ show proof
 --> Proof of RD-unwire1 for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> *********************************************************************************************
 --> trans [RD-unwire2]:
 -->    < (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
@@ -854,7 +953,9 @@ show proof
 --> Proof of RD-unwire2 for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> *********************************************************************************************
 --> trans [RS-unused]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,  wired, unused) SIM),
@@ -876,7 +977,9 @@ show proof
 --> Proof of RS-unused for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> **************************************************************************************
 --> trans [RD-unused]:
 -->    < SCO, (imp(TIM, IDIM, IDCO, EIDCO,  wired, unused, unused) SIM),
@@ -898,7 +1001,9 @@ show proof
 --> Proof of RD-unused for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> *********************************************************************************************
 --> trans [RS-unwire2]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused,  unused, swired) SIM),
@@ -920,7 +1025,9 @@ show proof
 --> Proof of RS-unwire2 for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> ******************************************************************************************
 --> trans [RD-unwire3]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused, unwired, swired) SIM),
@@ -942,7 +1049,9 @@ show proof
 --> Proof of RD-unwire3 for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> ******************************************************************************************
 --> trans [RS-swire1]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, swired) SIM),
@@ -964,7 +1073,9 @@ show proof
 --> Proof of RS-swire1 for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> ****************************************************************************************
 --> trans [RS-swire2]:
 -->    < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
@@ -990,7 +1101,9 @@ show proof
 --> Proof of RS-swire2 for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> ********************************************************************************************
 --> trans [RS-unwire3]:
 -->    < (cmp(EIDCO, started, stopped, sstarted) SCO), 
@@ -1016,7 +1129,9 @@ show proof
 --> Proof of RS-unwire3 for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> ***********************************************************************************
 --> trans [RD-wire1]:
 -->    < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
@@ -1042,7 +1157,9 @@ show proof
 --> Proof of RD-wire1 for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> ***********************************************************************************
 --> trans [RD-wire2]:
 -->    < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
@@ -1068,7 +1185,9 @@ show proof
 --> Proof of RD-wire2 for inv-validCurrent done.
 -->
 show proof
+close
 
+open Proofwfs-validCurrent .
 --> *******************************************************************************************
 --> trans [RD-swire]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  wired, swired, swired) SIM),
@@ -1090,7 +1209,7 @@ show proof
 --> Proof of RD-swire for inv-validCurrent done.
 -->
 show proof
-select
+close
 eof
 --> **************************************
 --> Proof of wfs-validNext.
@@ -1106,7 +1225,6 @@ module Proofwfs-validNext {
   eq invK(S) = wfs-validNext(S) .
 }
 
-select Proofwfs-validNext
 --> ***************************
 --> (3) init(S) implies inv(S).
 --> ***************************
@@ -1115,6 +1233,7 @@ select Proofwfs-validNext
 --> ***************************
 --> (4) inv(S) implies inv(SS).
 --> ***************************
+open Proofwfs-validNext .
 --> ************************************************************************
 --> trans [RS-stop1]:
 -->    < (cmp(IDCO, started, started, stopped) SCO), SIM,
@@ -1140,7 +1259,9 @@ select Proofwfs-validNext
 --> Proof of RS-stop1 for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> ************************************************************************
 --> ctrans [RD-stop]:
 -->    < (cmp(IDCO, started, stopped, TSCO) SCO), SIM,
@@ -1174,7 +1295,9 @@ show proof
 --> Proof of RD-stop for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> *************************************************************************
 --> trans [RS-stop2]:
 -->    < (cmp(IDCO, started, started, sstarted) SCO),
@@ -1206,7 +1329,9 @@ show proof
 --> Proof of RS-stop2 for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> ************************************************************************************
 --> trans [RS-sstart1]:
 -->    < (cmp(IDCO, stopped,  stopped, sstarted) SCO), SIM,
@@ -1228,7 +1353,9 @@ show proof
 --> Proof of RS-sstart1 for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> ************************************************************************************
 --> ctrans [RS-sstart2]:
 -->    < (cmp(IDCO, started,  started, sstarted) SCO), SIM,
@@ -1258,7 +1385,9 @@ show proof
 --> Proof of RS-sstart2 for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> ****************************************************************************
 --> ctrans [RD-start]:
 -->    < (cmp(IDCO, stopped, sstarted, sstarted) SCO), SIM,
@@ -1285,7 +1414,9 @@ show proof
 --> Proof of RD-start for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> ********************************************************************************
 --> trans [RD-sstart]:
 -->    < (cmp(IDCO,  started, sstarted, sstarted) SCO), SIM,
@@ -1307,7 +1438,9 @@ show proof
 --> Proof of RD-sstart for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> *********************************************************************************************
 --> trans [RS-unwire1]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unwired) SIM),
@@ -1329,7 +1462,9 @@ show proof
 --> Proof of RS-unwire1 for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> ********************************************************************************************
 --> trans [RD-unwire1]:
 -->    < SCO,
@@ -1361,7 +1496,9 @@ show proof
 --> Proof of RD-unwire1 for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> *********************************************************************************************
 --> trans [RD-unwire2]:
 -->    < (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
@@ -1393,7 +1530,9 @@ show proof
 --> Proof of RD-unwire2 for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> *********************************************************************************************
 --> trans [RS-unused]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,  wired, unused) SIM),
@@ -1415,7 +1554,9 @@ show proof
 --> Proof of RS-unused for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> **************************************************************************************
 --> trans [RD-unused]:
 -->    < SCO, (imp(TIM, IDIM, IDCO, EIDCO,  wired, unused, unused) SIM),
@@ -1437,7 +1578,9 @@ show proof
 --> Proof of RD-unused for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> *********************************************************************************************
 --> trans [RS-unwire2]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused,  unused, swired) SIM),
@@ -1459,7 +1602,9 @@ show proof
 --> Proof of RS-unwire2 for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> ******************************************************************************************
 --> trans [RD-unwire3]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused, unwired, swired) SIM),
@@ -1481,7 +1626,9 @@ show proof
 --> Proof of RD-unwire3 for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> ******************************************************************************************
 --> trans [RS-swire1]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, swired) SIM),
@@ -1503,7 +1650,9 @@ show proof
 --> Proof of RS-swire1 for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> ****************************************************************************************
 --> trans [RS-swire2]:
 -->    < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
@@ -1529,7 +1678,9 @@ show proof
 --> Proof of RS-swire2 for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> ********************************************************************************************
 --> trans [RS-unwire3]:
 -->    < (cmp(EIDCO, started, stopped, sstarted) SCO), 
@@ -1555,7 +1706,9 @@ show proof
 --> Proof of RS-unwire3 for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> ***********************************************************************************
 --> trans [RD-wire1]:
 -->    < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
@@ -1581,7 +1734,9 @@ show proof
 --> Proof of RD-wire1 for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> ***********************************************************************************
 --> trans [RD-wire2]:
 -->    < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
@@ -1607,7 +1762,9 @@ show proof
 --> Proof of RD-wire2 for inv-validNext done.
 -->
 show proof
+close
 
+open Proofwfs-validNext .
 --> *******************************************************************************************
 --> trans [RD-swire]:
 -->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  wired, swired, swired) SIM),
@@ -1629,7 +1786,7 @@ show proof
 --> Proof of RD-swire for inv-validNext done.
 -->
 show proof
-select
+eof
 
 --> **************************************
 --> Proof of inv-allCOin9States.
@@ -2176,7 +2333,6 @@ show proof
 --> Proof of RD-swire for inv-allCOin9States done.
 -->
 show proof
-select
 
 --> **************************************
 --> Proof of inv-allIMin14States.
@@ -2717,7 +2873,6 @@ show proof
 --> Proof of RD-swire for inv-allIMin14States done.
 -->
 show proof
-select
 
 --> **************************************
 --> Proof of inv-noChangeSstarted.
@@ -3258,7 +3413,6 @@ show proof
 --> Proof of RD-swire for inv-noChangeSstarted done.
 -->
 show proof
-select
 
 --> Totally 21*4 goals should be proved.
 

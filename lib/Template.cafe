@@ -958,6 +958,30 @@ module OBJLINKMANY2ONE3 {
   including(-OBJLINKMANY2ONE3-lemma)
 
   -- Proved Lemmas
+  vars X X' : LObject
+  vars Z Z' : Object
+  var IDX : LObjID
+  var IDZ : ObjID
+  vars S_X S_X' : SetOfLObject
+  vars S_Z S_Z' : SetOfObject
+  var SX : LObjState
+  var SZ : ObjState
+  var St_X : SetOfLObjState
+  var St_Z : SetOfObjState
+  var OT : ObjType
+
+  ceq [m2o3-lemma01]:
+    (allLObjInStates3(getXsOfZs((X  S_X),S_Z),St_X) and
+     allLObjInStates3(getXsOfZs((X' S_X),S_Z),St_X))
+   = allLObjInStates3(getXsOfZs((X  S_X),S_Z),St_X)
+   if changeObjState(X,X') .
+
+  ceq [m2o3-lemma01-2]:
+    (allLObjInStates3(getXsOfZs((X  S_X),S_Z),St_X) and
+     allLObjInStates3(getXsOfZs((X' S_X),S_Z),St_X))
+   = allLObjInStates3(getXsOfZs((X  S_X),S_Z),St_X)
+   if changeObjState2(X,X') .
+
 }
 
 module -OBJLINKONE2ONE0-lemma(LINK :: PRMOBJLINK) {
