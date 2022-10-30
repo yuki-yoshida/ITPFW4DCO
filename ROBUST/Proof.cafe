@@ -19,6 +19,13 @@ module PROOF {
   var L : ListOfLog
   var S : State
 
+  vars COS COS' : COState
+  vars IMS IMS' : IMState
+  pred transitsTo : COState COState
+  pred transitsTo : IMState IMState
+  ceq (COS > COS') = true if transitsTo(COS,COS') .
+  ceq (IMS > IMS') = true if transitsTo(IMS,IMS') .
+
 --> **************************************
 --> Step 0-1: Define init(S) and final(S).
 --> **************************************

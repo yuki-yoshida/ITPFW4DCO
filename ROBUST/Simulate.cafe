@@ -8,6 +8,69 @@ open PROOF .
 ops COC COC1 COC2 COD : -> COIDLt .
 ops IMW IMV IMW1 IMW2 : -> IMIDLt .
 
+ops components00 components01 : -> SetOfComponent .
+eq components00 =
+  (cmp(COD,  stopped, stopped, sstarted) cmp(COC,  stopped, stopped, sstarted) 
+   cmp(COC1, stopped, stopped, sstarted) cmp(COC2, stopped, stopped, sstarted)) .
+eq components01 =
+  (cmp(COD,  started, sstarted, sstarted) cmp(COC,  stopped, sstarted, sstarted) 
+   cmp(COC1, stopped, sstarted, sstarted) cmp(COC2, started, sstarted, sstarted)) .
+
+op imports00 : -> SetOfImport .
+eq imports00 =
+  (imp(optional,  IMW,  COD,  COC,   wired,  wired,  swired)
+   imp(optional,  IMW1, COD,  COC1,  wired,  wired,  swired)
+   imp(optional,  IMW2, COD,  COC2,  wired,  wired,  swired)) .
+
+ops s00 s01 : -> State .
+eq s00 =
+  < components00, imports00, empLog > .
+eq s01 =
+  < components01, imports00, empLog > .
+      
+red wfs-validCurrent(s00) .
+red wfs-validCurrent(s01) = false .
+
+red s00 .
+red m(s00) == 27 .
+red not (wfs(s00) == false) .
+red init(s00) = wfs(s00) .
+red final(s00) == false .
+
+exec s00 .
+exec m(s00) == 0 .
+exec not (wfs(s00) == false) .
+exec init(s00) == false .
+exec final(s00) .
+
+op components : -> SetOfComponent .
+eq components =
+  (cmp(COD,  started, started, sstarted) cmp(COC,  started, started, sstarted) 
+   cmp(COC1, started, started, sstarted) cmp(COC2, started, started, sstarted)) .
+
+op imports : -> SetOfImport .
+eq imports =
+  (imp(mandatory, IMW,  COD,  COC,   wired,  wired,  swired)
+   imp(optional,  IMV,  COC1, COC,   wired,  wired,  swired)
+   imp(mandatory, IMW1, COC,  COC1,  wired,  wired, unused)
+   imp(mandatory, IMW2, COC,  COC2, unused, unused,  swired)) .
+
+op s0 : -> State .
+eq s0 =
+  < components, imports, empLog > .
+      
+red s0 .
+red m(s0) == 37 .
+red not (wfs(s0) == false) .
+red init(s0) = wfs(s0) .
+red final(s0) == false .
+
+exec s0 .
+exec m(s0) == 0 .
+exec not (wfs(s0) == false) .
+exec init(s0) == false .
+exec final(s0) .
+
 op components1 : -> SetOfComponent .
 eq components1 =
   (cmp(COC,  started, started, sstarted) 
@@ -57,34 +120,6 @@ exec m(s2) == 0 .
 exec not (wfs(s2) == false) .
 exec init(s2) == false .
 exec final(s2) .
-
-op components : -> SetOfComponent .
-eq components =
-  (cmp(COD,  started, started, sstarted) cmp(COC,  started, started, sstarted) 
-   cmp(COC1, started, started, sstarted) cmp(COC2, started, started, sstarted)) .
-
-op imports : -> SetOfImport .
-eq imports =
-  (imp(mandatory, IMW,  COD,  COC,   wired,  wired,  swired)
-   imp(optional,  IMV,  COC1, COC,   wired,  wired,  swired)
-   imp(mandatory, IMW1, COC,  COC1,  wired,  wired, unused)
-   imp(mandatory, IMW2, COC,  COC2, unused, unused,  swired)) .
-
-op s0 : -> State .
-eq s0 =
-  < components, imports, empLog > .
-      
-red s0 .
-red m(s0) == 37 .
-red not (wfs(s0) == false) .
-red init(s0) = wfs(s0) .
-red final(s0) == false .
-
-exec s0 .
-exec m(s0) == 0 .
-exec not (wfs(s0) == false) .
-exec init(s0) == false .
-exec final(s0) .
 
 op COC3 : -> COIDLt .
 op IMW3 : -> IMIDLt .

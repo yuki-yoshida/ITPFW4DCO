@@ -446,7 +446,7 @@ module BASE-LEMMAS {
   vars O O' : Object
   var S_O : SetOfObject
   vars SO SO1 SO2 : ObjState
-  var St_O : SetOfObjState
+  vars St_O St_O' : SetOfObjState
   var OT : ObjType
   vars Z Z1 Z2 : Object
 
@@ -473,6 +473,18 @@ module BASE-LEMMAS {
   eq base-lemma05(S_O,IDO)
      = getObject(S_O,IDO) = null
        when not existObj(S_O,IDO) .
+
+  pred base-lemma06 : SetOfObject ObjState SetOfObjState
+  eq base-lemma06(S_O,SO,St_O)
+    = allObjInStates0(S_O,(SO St_O))
+      when allObjInStates0(S_O,St_O) .
+
+  -- Using set-lemma08 for SetOfObjState
+  -- ceq [set-lemma08]:
+  --    (O in (S S')) = true 
+  --    if O in S .
+  eq ((SO in St_O) and (SO in (St_O St_O')))
+    = (SO in St_O) .
 
   -- Using set-lemma07 for SetOfObjState
   ceq ((SO1 in SO2) and (SO1 in St_O))
@@ -544,6 +556,19 @@ select BASE-LEMMAS
 :goal {
   eq base-lemma05(empObj,idO) = true .
   eq base-lemma05(setO,idO) implies base-lemma05((o setO),idO) = true .
+}
+:apply (rd-)
+show proof
+
+--> ******************************************
+--> Prove base-lemma06(S_O,St,S_St)
+-->    = allObjInStates0(S_O,(St S_St)) = true
+-->      when allObjInStates0(S_O,S_St) .
+--> ******************************************
+select BASE-LEMMAS
+:goal {
+  eq base-lemma06(empObj,so,setSO) = true .
+  eq base-lemma06(setO,so,setSO) implies base-lemma06((o setO),so,setSO) = true .
 }
 :apply (rd-)
 show proof
@@ -1934,5 +1959,5 @@ show proof
 
 select
 
---> Totally 59 goals should be proved
---> including 2 cont-lemmas, 15 bool&set-lemmas, 4 base-lemmas(+1), 28 m2o-lemmas, 6 o2o-lemmas, and 4 o2o2o-lemmas.
+--> Totally 60 goals should be proved
+--> including 2 cont-lemmas, 15 bool&set-lemmas, 5 base-lemmas(+1), 28 m2o-lemmas, 6 o2o-lemmas, and 4 o2o2o-lemmas.

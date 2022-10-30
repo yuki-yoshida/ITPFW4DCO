@@ -609,7 +609,8 @@ module! STATERules {
      if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) .
 
   -- A stopped Component can be started 
-  -- only if all of its mandatory imports are stalby wired or unused.
+  -- only if all of its mandatory imports are stalby wired or unused
+  -- and also it is wired only to started components.
   ctrans [RD-start]:
      < (cmp(IDCO, stopped, sstarted, sstarted) SCO), SIM,
        ListLG >
@@ -618,7 +619,8 @@ module! STATERules {
 	  mlog(
        (cmp(IDCO, stopped, sstarted, sstarted) SCO), SIM
 	 )) ListLG) >
-     if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) .
+     if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) and
+        allCOInStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,(wired swired))),(started sstarted)) .
 
   -- A started Component can be stably started if it should be so.
   trans [RD-sstart]:

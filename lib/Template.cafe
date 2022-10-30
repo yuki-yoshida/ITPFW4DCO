@@ -307,6 +307,10 @@ module -OBJECTBASE0 {
     getObject(S_O,ID) = null
     if not existObj(S_O,ID) .
 
+  ceq [base-lemma06]:
+    allObjInStates0(S_O,(St S_St)) = true
+    if allObjInStates0(S_O,S_St) .
+
   ceq [set-lemma07]:
       ((O' in O) and (O' in S_O))
      = (O' in O)
@@ -980,6 +984,12 @@ module OBJLINKMANY2ONE3 {
     (allLObjInStates3(getXsOfZs((X  S_X),S_Z),St_X) and
      allLObjInStates3(getXsOfZs((X' S_X),S_Z),St_X))
    = allLObjInStates3(getXsOfZs((X  S_X),S_Z),St_X)
+   if changeObjState2(X,X') .
+
+  ceq [m2o3-lemma02]:
+    (allLObjInStates(getXsOfZs((X  S_X),S_Z),St_X) and
+     allLObjInStates(getXsOfZs((X' S_X),S_Z),St_X))
+   = allLObjInStates(getXsOfZs((X  S_X),S_Z),St_X)
    if changeObjState2(X,X') .
 
 }
