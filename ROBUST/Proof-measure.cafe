@@ -135,7 +135,7 @@ select ProofMeasure .
 show proof
 select
 
---> ************************************************************************************
+--> ********************************************************************************************************
 --> ctrans [RS-sstart2]:
 -->    < (cmp(IDCO, started,  started, sstarted) SCO), SIM,
 -->      ListLG >
@@ -145,7 +145,8 @@ select
 -->      (cmp(IDCO, started,  started, sstarted) SCO), SIM
 -->      )) ListLG) >
 -->    if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) .
---> ************************************************************************************
+-->       allCOInStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,(wired swired))),(started sstarted)) .
+--> ********************************************************************************************************
 select ProofMeasure .
 --> *****************************************************************************************
 --> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
@@ -158,11 +159,15 @@ select ProofMeasure .
 --> Step 2-2: When the current rule is conditinal, 
 -->  add an axiom representing that the condition holds to the current case.
 --> ************************************************************************
-:def csp2-2RS-sstart2 = :csp {
+:def csp2-2RS-sstart2A = :csp {
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
-:apply (csp2-2RS-sstart2 rd-)
---> Proof of RS-sstart1 done.
+:def csp2-2RS-sstart2B = :csp {
+  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
+                   (started sstarted)) = true .
+}
+:apply (csp2-2RS-sstart2A csp2-2RS-sstart2B rd-)
+--> Proof of RS-sstart2 done.
 -->
 show proof
 select
@@ -195,8 +200,7 @@ select ProofMeasure .
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
 :def csp2-2RD-startB = :csp {
-  eq allCOInStates(getECOsOfIMs((cmp(idCO,stopped,sstarted,sstarted) sCO),
-                                getIMsOfICOInStates(sIM,idCO,(wired swired))),
+  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
                    (started sstarted)) = true .
 }
 :apply (csp2-2RD-startA csp2-2RD-startB rd-)

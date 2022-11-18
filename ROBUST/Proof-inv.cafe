@@ -28,9 +28,19 @@ module Proofwfs-validCurrent {
 
   -- Lemmas
   vars CO CO' : Component
+  var IDCO : COID
   vars IM IM' : Import
   vars SCO SCO0 : SetOfComponent
-  var SIM0 : SetOfImport
+  vars SIM SIM0 : SetOfImport
+  var StIM : SetOfIMState
+
+  -- eq robust-lemma01(CO,IDCO,SCO,SIM,StIM) 
+  --   = (getECOsOfIMs((CO SCO),getIMsOfICOInStates(SIM,IDCO,StIM)) =
+  --      getECOsOfIMs(SCO,     getIMsOfICOInStates(SIM,IDCO,StIM)))
+  --     when id(CO) = IDCO and iidCOeidCODiffer(SIM) .
+  ceq getECOsOfIMs((CO SCO),getIMsOfICOInStates(SIM,IDCO,StIM)) =
+      getECOsOfIMs(SCO,     getIMsOfICOInStates(SIM,IDCO,StIM))
+    if id(CO) = IDCO and iidCOeidCODiffer(SIM) .
 
   -- eq robust-lemmaV03(CO,CO',SCO,SCO0,SIM0)
   --   = validCurrentComponent(SCO,(CO  SCO0),SIM0) implies 
@@ -44,16 +54,22 @@ module Proofwfs-validCurrent {
   -- eq robust-lemmaV04(CO,CO',SCO,SCO0,SIM0)
   --   = validCurrentComponent(SCO,(CO  SCO0),SIM0) implies 
   --     validCurrentComponent(SCO,(CO' SCO0),SIM0)
-  --     when state(CO') = stopped and changeObjState(CO,CO') .
+  --     when state(CO') = stopped and changeObjState(CO,CO') and subset(SCO,SCO0) and
+  --          getICOsOfIMsInStates(SCO0,
+  --                               getIMsOfECOInStates(SIM0,id(CO),(wired swired)),
+  --                               (started sstarted)) = empCO .
   ceq (validCurrentComponent(SCO,(CO  SCO0),SIM0) and
        validCurrentComponent(SCO,(CO' SCO0),SIM0))
-     = validCurrentComponent(SCO,(CO  SCO0),SIM0)
-    if state(CO') = stopped and changeObjState(CO,CO') .
+     = validCurrentComponent(SCO,(CO SCO0),SIM0)
+     if state(CO') = stopped and changeObjState(CO,CO') and subset(SCO,SCO0) and
+        getICOsOfIMsInStates(SCO0,
+                             getIMsOfECOInStates(SIM0,id(CO),(wired swired)),
+                             (started sstarted)) = empCO .
 
-  ceq (validCurrentComponent(SCO,(CO  SCO0),SIM0) and
-       validCurrentComponent(SCO,(CO' SCO0),SIM0))
-     = validCurrentComponent(SCO,(CO  SCO0),SIM0)
-    if not existCO(SCO,id(CO)) and changeObjState(CO,CO') .
+  -- ceq (validCurrentComponent(SCO,(CO  SCO0),SIM0) and
+  --      validCurrentComponent(SCO,(CO' SCO0),SIM0))
+  --    = validCurrentComponent(SCO,(CO  SCO0),SIM0)
+  --   if not existCO(SCO,id(CO)) and changeObjState(CO,CO') .
 }
 
 --> ***************************
@@ -125,6 +141,7 @@ eq transitsTo(started,stopped) = true .
 :apply (csp4-2RD-stop rd-)
 --> Proof of RD-stop for inv-validCurrent done.
 -->
+eof
 show proof
 close
 
@@ -185,7 +202,7 @@ show proof
 close
 
 open Proofwfs-validCurrent .
---> ************************************************************************************
+--> ********************************************************************************************************
 --> ctrans [RS-sstart2]:
 -->    < (cmp(IDCO, started,  started, sstarted) SCO), SIM,
 -->      ListLG >
@@ -195,7 +212,8 @@ open Proofwfs-validCurrent .
 -->      (cmp(IDCO, started,  started, sstarted) SCO), SIM
 -->      )) ListLG) >
 -->    if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) .
---> ************************************************************************************
+-->       allCOInStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,(wired swired))),(started sstarted)) .
+--> ********************************************************************************************************
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -209,10 +227,14 @@ eq transitsTo(started,sstarted) = true .
 --> Step 4-2: When the current rule is conditinal, 
 -->  add an axiom representing that the condition holds to the current case.
 --> ************************************************************************
-:def csp4-2RS-sstart2 = :csp {
+:def csp4-2RS-sstart2A = :csp {
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
-:apply (csp4-2RS-sstart2 rd-)
+:def csp4-2RS-sstart2B = :csp {
+  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
+                   (started sstarted)) = true .
+}
+:apply (csp4-2RS-sstart2A csp4-2RS-sstart2B rd-)
 --> Proof of RS-sstart2 for inv-validCurrent done.
 -->
 show proof
@@ -248,8 +270,7 @@ eq transitsTo(stopped,started) = true .
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
 :def csp4-2RD-startB = :csp {
-  eq allCOInStates(getECOsOfIMs((cmp(idCO,stopped,sstarted,sstarted) sCO),
-                                getIMsOfICOInStates(sIM,idCO,(wired swired))),
+  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
                    (started sstarted)) = true .
 }
 :apply (csp4-2RD-startA csp4-2RD-startB rd-)
@@ -257,12 +278,15 @@ eq transitsTo(stopped,started) = true .
   eq existCO(sCO,idCO) = true .
 }
 :apply (uniqCOctf rd-)
-eof
+:def differctf = :ctf {
+  eq iidCOeidCODiffer(sIM) = true .
+}
+:apply (differctf rd-)
 --> Proof of RD-start for inv-validCurrent done.
 -->
 show proof
 close
-
+eof
 open Proofwfs-validCurrent .
 --> ********************************************************************************
 --> trans [RD-sstart]:
@@ -790,7 +814,7 @@ show proof
 close
 
 open Proofwfs-validNext .
---> ************************************************************************************
+--> ********************************************************************************************************
 --> ctrans [RS-sstart2]:
 -->    < (cmp(IDCO, started,  started, sstarted) SCO), SIM,
 -->      ListLG >
@@ -800,7 +824,8 @@ open Proofwfs-validNext .
 -->      (cmp(IDCO, started,  started, sstarted) SCO), SIM
 -->      )) ListLG) >
 -->    if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) .
---> ************************************************************************************
+-->       allCOInStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,(wired swired))),(started sstarted)) .
+--> ********************************************************************************************************
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -814,10 +839,14 @@ eq transitsTo(started,sstarted) = true .
 --> Step 4-2: When the current rule is conditinal, 
 -->  add an axiom representing that the condition holds to the current case.
 --> ************************************************************************
-:def csp4-2RS-sstart2 = :csp {
+:def csp4-2RS-sstart2A = :csp {
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
-:apply (csp4-2RS-sstart2 rd-)
+:def csp4-2RS-sstart2B = :csp {
+  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
+                   (started sstarted)) = true .
+}
+:apply (csp4-2RS-sstart2A csp4-2RS-sstart2B rd-)
 --> Proof of RS-sstart2 for inv-validNext done.
 -->
 show proof
@@ -853,8 +882,7 @@ eq transitsTo(stopped,started ) = true .
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
 :def csp4-2RD-startB = :csp {
-  eq allCOInStates(getECOsOfIMs((cmp(idCO,stopped,sstarted,sstarted) sCO),
-                                getIMsOfICOInStates(sIM,idCO,(wired swired))),
+  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
                    (started sstarted)) = true .
 }
 :apply (csp4-2RD-startA csp4-2RD-startB rd-)
@@ -1325,8 +1353,7 @@ module Proofwfs-validTarget {
 
   ceq (validTargetComponent(SCO,SCO0,(IM  SIM0)) and
        validTargetComponent(SCO,SCO0,(IM' SIM0)))
-  = validTargetComponent(SCO,SCO0
-			   ,(IM  SIM0))
+     = validTargetComponent(SCO,SCO0,(IM  SIM0))
     if changeObjState2(IM,IM') .
 }
 
@@ -1465,7 +1492,7 @@ show proof
 close
 
 open Proofwfs-validTarget .
---> ************************************************************************************
+--> ********************************************************************************************************
 --> ctrans [RS-sstart2]:
 -->    < (cmp(IDCO, started,  started, sstarted) SCO), SIM,
 -->      ListLG >
@@ -1475,7 +1502,8 @@ open Proofwfs-validTarget .
 -->      (cmp(IDCO, started,  started, sstarted) SCO), SIM
 -->      )) ListLG) >
 -->    if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) .
---> ************************************************************************************
+-->       allCOInStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,(wired swired))),(started sstarted)) .
+--> ********************************************************************************************************
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -1489,10 +1517,14 @@ eq transitsTo(started,sstarted) = true .
 --> Step 4-2: When the current rule is conditinal, 
 -->  add an axiom representing that the condition holds to the current case.
 --> ************************************************************************
-:def csp4-2RS-sstart2 = :csp {
+:def csp4-2RS-sstart2A = :csp {
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
-:apply (csp4-2RS-sstart2 rd-)
+:def csp4-2RS-sstart2B = :csp {
+  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
+                   (started sstarted)) = true .
+}
+:apply (csp4-2RS-sstart2A csp4-2RS-sstart2B rd-)
 --> Proof of RS-sstart2 for inv-validTarget done.
 -->
 show proof
@@ -1528,8 +1560,7 @@ eq transitsTo(stopped,started ) = true .
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
 :def csp4-2RD-startB = :csp {
-  eq allCOInStates(getECOsOfIMs((cmp(idCO,stopped,sstarted,sstarted) sCO),
-                                getIMsOfICOInStates(sIM,idCO,(wired swired))),
+  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
                    (started sstarted)) = true .
 }
 :apply (csp4-2RD-startA csp4-2RD-startB rd-)
@@ -2082,7 +2113,7 @@ show proof
 -->
 show proof
 
---> ************************************************************************************
+--> ********************************************************************************************************
 --> ctrans [RS-sstart2]:
 -->    < (cmp(IDCO, started,  started, sstarted) SCO), SIM,
 -->      ListLG >
@@ -2092,7 +2123,8 @@ show proof
 -->      (cmp(IDCO, started,  started, sstarted) SCO), SIM
 -->      )) ListLG) >
 -->    if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) .
---> ************************************************************************************
+-->       allCOInStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,(wired swired))),(started sstarted)) .
+--> ********************************************************************************************************
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -2104,10 +2136,14 @@ show proof
 --> Step 4-2: When the current rule is conditinal, 
 -->  add an axiom representing that the condition holds to the current case.
 --> ************************************************************************
-:def csp4-2RS-sstart2 = :csp {
+:def csp4-2RS-sstart2A = :csp {
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
-:apply (csp4-2RS-sstart2 rd-)
+:def csp4-2RS-sstart2B = :csp {
+  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
+                   (started sstarted)) = true .
+}
+:apply (csp4-2RS-sstart2A csp4-2RS-sstart2B rd-)
 --> Proof of RS-sstart2 for inv-allCOin9States done.
 -->
 show proof
@@ -2139,8 +2175,7 @@ show proof
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
 :def csp4-2RD-startB = :csp {
-  eq allCOInStates(getECOsOfIMs((cmp(idCO,stopped,sstarted,sstarted) sCO),
-                                getIMsOfICOInStates(sIM,idCO,(wired swired))),
+  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
                    (started sstarted)) = true .
 }
 :apply (csp4-2RD-startA csp4-2RD-startB rd-)
@@ -2628,7 +2663,7 @@ show proof
 -->
 show proof
 
---> ************************************************************************************
+--> ********************************************************************************************************
 --> ctrans [RS-sstart2]:
 -->    < (cmp(IDCO, started,  started, sstarted) SCO), SIM,
 -->      ListLG >
@@ -2638,7 +2673,8 @@ show proof
 -->      (cmp(IDCO, started,  started, sstarted) SCO), SIM
 -->      )) ListLG) >
 -->    if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) .
---> ************************************************************************************
+-->       allCOInStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,(wired swired))),(started sstarted)) .
+--> ********************************************************************************************************
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -2650,10 +2686,14 @@ show proof
 --> Step 4-2: When the current rule is conditinal, 
 -->  add an axiom representing that the condition holds to the current case.
 --> ************************************************************************
-:def csp4-2RS-sstart2 = :csp {
+:def csp4-2RS-sstart2A = :csp {
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
-:apply (csp4-2RS-sstart2 rd-)
+:def csp4-2RS-sstart2B = :csp {
+  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
+                   (started sstarted)) = true .
+}
+:apply (csp4-2RS-sstart2A csp4-2RS-sstart2B rd-)
 --> Proof of RS-sstart2 for inv-allIMin14States done.
 -->
 show proof
@@ -2685,8 +2725,7 @@ show proof
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
 :def csp4-2RD-startB = :csp {
-  eq allCOInStates(getECOsOfIMs((cmp(idCO,stopped,sstarted,sstarted) sCO),
-                                getIMsOfICOInStates(sIM,idCO,(wired swired))),
+  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
                    (started sstarted)) = true .
 }
 :apply (csp4-2RD-startA csp4-2RD-startB rd-)
@@ -3174,7 +3213,7 @@ show proof
 -->
 show proof
 
---> ************************************************************************************
+--> ********************************************************************************************************
 --> ctrans [RS-sstart2]:
 -->    < (cmp(IDCO, started,  started, sstarted) SCO), SIM,
 -->      ListLG >
@@ -3184,7 +3223,8 @@ show proof
 -->      (cmp(IDCO, started,  started, sstarted) SCO), SIM
 -->      )) ListLG) >
 -->    if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) .
---> ************************************************************************************
+-->       allCOInStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,(wired swired))),(started sstarted)) .
+--> ********************************************************************************************************
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
@@ -3196,10 +3236,14 @@ show proof
 --> Step 4-2: When the current rule is conditinal, 
 -->  add an axiom representing that the condition holds to the current case.
 --> ************************************************************************
-:def csp4-2RS-sstart2 = :csp {
+:def csp4-2RS-sstart2A = :csp {
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
-:apply (csp4-2RS-sstart2 rd-)
+:def csp4-2RS-sstart2B = :csp {
+  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
+                   (started sstarted)) = true .
+}
+:apply (csp4-2RS-sstart2A csp4-2RS-sstart2B rd-)
 --> Proof of RS-sstart2 for inv-noChangeSstarted done.
 -->
 show proof
@@ -3231,8 +3275,7 @@ show proof
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
 :def csp4-2RD-startB = :csp {
-  eq allCOInStates(getECOsOfIMs((cmp(idCO,stopped,sstarted,sstarted) sCO),
-                                getIMsOfICOInStates(sIM,idCO,(wired swired))),
+  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
                    (started sstarted)) = true .
 }
 :apply (csp4-2RD-startA csp4-2RD-startB rd-)

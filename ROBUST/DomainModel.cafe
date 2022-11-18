@@ -606,7 +606,8 @@ module! STATERules {
 	  mlog(
        (cmp(IDCO, started,  started, sstarted) SCO), SIM
 	 )) ListLG) >
-     if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) .
+     if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) and
+        allCOInStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,(wired swired))),(started sstarted)) .
 
   -- A stopped Component can be started 
   -- only if all of its mandatory imports are stalby wired or unused
