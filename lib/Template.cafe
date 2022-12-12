@@ -336,7 +336,10 @@ module -OBJECTBASE0 {
   eq [set-lemma12]:
      subset(S_O,S_O) = true .
 
-  ceq [set-lemma13]:
+  eq [set-lemma13]:
+     subset(S_O,(S_O' S_O)) = true .
+
+  ceq [set-lemma14]:
       (subset(S_O1,S_O2) and subset(S_O1,S_O))
      = subset(S_O1,S_O2)
      if subset(S_O2,S_O) .

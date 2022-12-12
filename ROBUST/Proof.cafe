@@ -21,6 +21,9 @@ module PROOF {
 
   vars COS COS' : COState
   vars IMS IMS' : IMState
+  -- Since this model has no state ordering,
+  -- the order is temporary specified for each tras-rule
+  -- to use abstract lemmas asumming changeObjState .
   pred transitsTo : COState COState
   pred transitsTo : IMState IMState
   ceq (COS > COS') = true if transitsTo(COS,COS') .

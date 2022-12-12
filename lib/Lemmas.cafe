@@ -160,13 +160,18 @@ module SETLEMMAS {
      = subset(S,S1) implies subset(S,(S1 S2)) . 
 
   pred set-lemma12 : SetOfObject 
-  -- subset(S,S)) alway holds. 
+  -- subset(S,S) alway holds. 
   eq set-lemma12(S)
      = subset(S,S) .
 
-  pred set-lemma13 : SetOfObject SetOfObject SetOfObject
+  pred set-lemma13 : SetOfObject  SetOfObject 
+  -- subset(S,(S' S)) alway holds. 
+  eq set-lemma13(S,S')
+     = subset(S,(S' S)) .
+
+  pred set-lemma14 : SetOfObject SetOfObject SetOfObject
   -- When subset(S1,S2) and subset(S2,S) holds, subset(S1,S) also holds.
-  eq set-lemma13(S,S1,S2)
+  eq set-lemma14(S,S1,S2)
      = subset(S1,S2) implies subset(S1,S) 
      when subset(S2,S) .
 
@@ -415,13 +420,29 @@ eq [set-lemma09]:
 show proof
 close
 
+--> *****************************************
+--> Prove that subset(S,(S' S)) always holds.
+--> *****************************************
+open SETLEMMAS .
+-- Using set-lemma09
+eq [set-lemma09]:
+   (subset(S,S') and subset(S,(O S')))
+  = subset(S,S') .
+:goal {
+  eq set-lemma13(s,empObj) = true .
+  eq set-lemma13(s,s1) implies set-lemma13(s,o s1) = true .
+}
+:apply (rd-)
+show proof
+close
+
 --> ******************************************************************************
 --> Prove that when subset(S1,S2) and subset(S2,S) holds, subset(S1,S) also holds.
 --> ******************************************************************************
 select SETLEMMAS
 :goal {
-  eq set-lemma13(s,empObj,s2) = true .
-  eq set-lemma13(s,s1,s2) implies set-lemma13(s,(o s1),s2) = true .
+  eq set-lemma14(s,empObj,s2) = true .
+  eq set-lemma14(s,s1,s2) implies set-lemma14(s,(o s1),s2) = true .
 }
 :def cspos2 = :csp {
   eq (o in s2) = false .
@@ -1959,5 +1980,5 @@ show proof
 
 select
 
---> Totally 60 goals should be proved
---> including 2 cont-lemmas, 15 bool&set-lemmas, 5 base-lemmas(+1), 28 m2o-lemmas, 6 o2o-lemmas, and 4 o2o2o-lemmas.
+--> Totally 61 goals should be proved
+--> including 2 cont-lemmas, 16 bool&set-lemmas, 5 base-lemmas(+1), 28 m2o-lemmas, 6 o2o-lemmas, and 4 o2o2o-lemmas.
