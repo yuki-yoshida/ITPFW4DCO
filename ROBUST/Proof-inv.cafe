@@ -101,9 +101,20 @@ module Proofwfs-validCurrent {
   --        state(IM') = unwired and type(IM') = optional .
   ceq (validCurrentComponent(SCO,SCO0,(IM  SIM0)) and
        validCurrentComponent(SCO,SCO0,(IM' SIM0)))
-    = validCurrentComponent(SCO,SCO0,(IM SIM0))
-    if changeObjState(IM,IM') and
-       state(IM') = unwired and type(IM') = optional .
+     = validCurrentComponent(SCO,SCO0,(IM  SIM0))
+     if changeObjState(IM,IM') and
+        state(IM') = unwired and type(IM') = optional .
+
+  -- eq robust-lemmaV07(IM,IM',SCO,SCO0,SIM0)
+  --   = validCurrentComponent(SCO,SCO0,(IM  SIM0)) implies 
+  --     validCurrentComponent(SCO,SCO0,(IM' SIM0))
+  --     when changeObjState(IM,IM') and subset(SCO,SCO0) and
+  --          state(getComponent(SCO0,importer(IM))) = stopped .
+  ceq (validCurrentComponent(SCO,SCO0,(IM  SIM0)) and
+       validCurrentComponent(SCO,SCO0,(IM' SIM0)))
+     = validCurrentComponent(SCO,SCO0,(IM  SIM0))
+     if changeObjState(IM,IM') and subset(SCO,SCO0) and 
+        state(getComponent(SCO0,importer(IM))) = stopped .
 }
 
 --> ***************************
@@ -114,40 +125,6 @@ module Proofwfs-validCurrent {
 --> ***************************
 --> (4) inv(S) implies inv(SS).
 --> ***************************
-
-open Proofwfs-validCurrent .
---> *********************************************************************************************
---> trans [RD-unwire2]:
--->    < (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
--->      (imp(mandatory, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM),
--->      ListLG >
---> => < (cmp(IDCO, stopped, NSCO, TSCO) SCO),
--->      (imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM) SIM),
--->      (ilog("RD-unwire2:Do Unwire", imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM),
--->       mlog(
--->      (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
--->      (imp(mandatory, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM)
--->      )) ListLG) > .
---> *********************************************************************************************
---> *************************************************************************
---> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
-:goal {
-  eq invinv(< (cmp(idCO, stopped, nCOs, tCOs) sCO), 
-              (imp(mandatory, idIM, idCO, eidCO,   wired, unwired, tIMs) sIM),
-              lg >) = true .
-}
-:def tIMscsp = :csp {
-  eq tIMs = unused .
-  eq tIMs = wired .
-  eq tIMs = swired .
-  eq tIMs = unwired .
-}
-:apply (tIMscsp rd-)
---> Proof of RD-unwire2 for inv-validCurrent done.
--->
-show proof
-close
 
 open Proofwfs-validCurrent .
 --> *********************************************************************************************
@@ -712,6 +689,41 @@ eq transitsTo(wired,unwired) = true .
 }
 :apply (tIMscsp rd-)
 --> Proof of RD-unwire1 for inv-validCurrent done.
+-->
+show proof
+close
+
+open Proofwfs-validCurrent .
+--> *********************************************************************************************
+--> trans [RD-unwire2]:
+-->    < (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
+-->      (imp(mandatory, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM),
+-->      ListLG >
+--> => < (cmp(IDCO, stopped, NSCO, TSCO) SCO),
+-->      (imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM) SIM),
+-->      (ilog("RD-unwire2:Do Unwire", imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM),
+-->       mlog(
+-->      (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
+-->      (imp(mandatory, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM)
+-->      )) ListLG) > .
+--> *********************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+eq transitsTo(wired,unwired) = true .
+:goal {
+  eq invinv(< (cmp(idCO, stopped, nCOs, tCOs) sCO), 
+              (imp(mandatory, idIM, idCO, eidCO,   wired, unwired, tIMs) sIM),
+              lg >) = true .
+}
+:def tIMscsp = :csp {
+  eq tIMs = unused .
+  eq tIMs = wired .
+  eq tIMs = swired .
+  eq tIMs = unwired .
+}
+:apply (tIMscsp rd-)
+--> Proof of RD-unwire2 for inv-validCurrent done.
 -->
 show proof
 close
