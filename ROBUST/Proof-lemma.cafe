@@ -298,12 +298,27 @@ open ProofLemma .
 -->  the condition of the current rule does or does not hold. 
 --> *********************************************************
 -- The condition of RS-sstart2 is allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
-:def cansstartcsp = :csp {
+:def csp1-5-1 = :csp {
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
   eq sIM = (imp(mandatory, idIM, idCO, eidCO, unwired, nIMs, tIMs) sIM') .
   eq sIM = (imp(mandatory, idIM, idCO, eidCO,   wired, nIMs, tIMs) sIM') .
 }
-:apply (cansstartcsp rd-)
+:apply (csp1-5-1 rd-)
+-- Case 1-1: allIMInStates(...)
+:def csp1-5-2 = :csp {
+  eq allIMInTargetStates(getIMsOfTypeOfICOInStates(sIM,mandatory,idCO,unused),unused) = true .
+  eq sIM = (imp(mandatory, idIM, idCO, eidCO, unused, nIMs, tIMs) sIM') .
+}
+:apply (csp1-5-2 rd-)
+-- Case 1-1-2: sIM = (imp(mandatory, idIM, idCO, eidCO, unused, nIMs, tIMs) sIM')
+:def tIMs3csp = :csp {
+  eq tIMs = unwired .
+  eq tIMs = wired .
+  eq tIMs = swired .
+}
+:apply (tIMs3csp rd-)
+-- Case 1-1-2-3: swired
+:apply (nIMscsp rd-)
 -- Case 1-3: wired
 :apply (nIMscsp tIMscsp rd-)
 -- Case 1-3-3-4: wired wired swired
@@ -404,12 +419,59 @@ open ProofLemma .
 -->  the condition of the current rule does or does not hold. 
 --> *********************************************************
 -- The condition of RD-start is allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
-:def canstartcsp = :csp {
+:def csp1-5-1 = :csp {
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
   eq sIM = (imp(mandatory, idIM, idCO, eidCO, unwired, nIMs, tIMs) sIM') .
   eq sIM = (imp(mandatory, idIM, idCO, eidCO,   wired, nIMs, tIMs) sIM') .
 }
-:apply (canstartcsp rd-)
+:apply (csp1-5-1 rd-)
+-- Case 1-1: allIMInStates(...)
+:def csp1-5-2 = :csp {
+  eq allIMInTargetStates(getIMsOfTypeOfICOInStates(sIM,mandatory,idCO,unused),unused) = true .
+  eq sIM = (imp(mandatory, idIM, idCO, eidCO, unused, nIMs, tIMs) sIM') .
+}
+:apply (csp1-5-2 rd-)
+-- Case 1-1-1: allIMInTargetStates(...) 
+:def csp1-5-3 = :csp {
+  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),(started sstarted)) = true .
+  eq sIM = (imp(mandatory, idIM, idCO, eidCO, cIMs, nIMs, tIMs) sIM') .
+}
+:apply (csp1-5-3 rd-)
+-- Case 1-1-1-2: sIM = ...
+:def eidCOcsp = :csp {
+  eq sCO = (cmp(eidCO,stopped,nCOs,tCOs) sCO') .
+}
+:def cIMs2csp = :csp {
+  eq cIMs = wired .
+  eq cIMs = swired .
+}
+:apply (eidCOcsp cIMs2csp rd-)
+-- Case 1-1-1-2-1-1: wired
+:apply (nIMscsp tIMscsp rd-)
+-- Case 1-1-1-2-1-1-3-4: wired swired
+:apply (nCOscsp tCoscsp rd-)
+-- Case 1-1-1-2-1-1-3-4-3-3: sstarted sstarted
+:def noCycleU = :init as noCycleU-in [noCycleU]
+  by {CO:Component <- co;
+      Xc:Component <- co;
+      LS:LocalState <- st(stopped,sstarted,sstarted);
+      S:State <- (< (co sCO), sIM, lg >);}
+:apply (noCycleU rd-)
+-- Case 1-1-1-2-1-2: swired
+:apply (nIMscsp tIMscsp rd-)
+-- Case 1-1-1-2-1-2-4-4: swired swired
+:apply (nCOscsp tCoscsp rd-)
+-- Case 1-1-1-2-1-2-4-4-3-3: sstarted sstarted
+:apply (noCycleU rd-)
+-- Case 1-1-2: sIM = (imp(mandatory, idIM, idCO, eidCO, unused, nIMs, tIMs) sIM')
+:def tIMs3csp = :csp {
+  eq tIMs = unwired .
+  eq tIMs = wired .
+  eq tIMs = swired .
+}
+:apply (tIMs3csp rd-)
+-- Case 1-1-2-3: swired
+:apply (nIMscsp rd-)
 -- Case 1-2: unwired
 --> *****************************************************************
 --> Step 1-3: Consider which rule can be applied to the current case.
@@ -439,11 +501,6 @@ open ProofLemma .
 --> Step 1-8: When falling in a cyclic situation, use No Cyclic Dependency Lemma.
 --> ******************************************************************************
 -- The Cyclic Dependency Lemma rejects this case.
-:def noCycleU = :init as noCycleU-in [noCycleU]
-  by {CO:Component <- co;
-      Xc:Component <- co;
-      LS:LocalState <- st(stopped,sstarted,sstarted);
-      S:State <- (< (co sCO), sIM, lg >);}
 :apply (noCycleU rd-)
 -- Case 1-3: wired
 --> *****************************************************************

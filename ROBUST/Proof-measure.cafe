@@ -78,17 +78,18 @@ show proof
 select
 
 --> *************************************************************************
---> trans [RS-stop2]:
--->    < (cmp(IDCO, started, started, sstarted) SCO),
--->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
--->       ListLG >
---> => < (cmp(IDCO, started, stopped, sstarted) SCO),
--->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
--->      (clog("RS-stop2:Should Stop", cmp(IDCO, started, stopped, sstarted),
--->       mlog(
--->      (cmp(IDCO, started, started, sstarted) SCO),
--->      (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM)
--->      )) ListLG) > .
+-->  ctrans [RS-stop2]:
+-->     < (cmp(IDCO, started, started, sstarted) SCO),
+-->       (imp(mandatory, IDIM, IDCO, EIDCO, CSIM, unwired, TSIM) SIM),
+-->        ListLG >
+-->  => < (cmp(IDCO, started, stopped, sstarted) SCO),
+-->       (imp(mandatory, IDIM, IDCO, EIDCO, CSIM, unwired, TSIM) SIM),
+-->       (clog("RS-stop2:Should Stop", cmp(IDCO, started, stopped, sstarted),
+-->	  mlog(
+-->       (cmp(IDCO, started, started, sstarted) SCO),
+-->       (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM)
+-->	 )) ListLG) > 
+-->     if CSIM in (wired unused) .
 --> *************************************************************************
 select ProofMeasure .
 --> *****************************************************************************************
@@ -96,8 +97,12 @@ select ProofMeasure .
 --> *****************************************************************************************
 :goal {
   eq mesmes(< (cmp(idCO, started, started, sstarted) sCO), 
-              (imp(mandatory, idIM, idCO, eidCO, wired, unwired, tIMs) sIM),
+              (imp(mandatory, idIM, idCO, eidCO, cIMs, unwired, tIMs) sIM),
               lg >) = true .
+}
+:def cIMscsp = :csp {
+  eq cIMs = unused .
+  eq cIMs = wired .
 }
 :def tIMscsp = :csp {
   eq tIMs = unused .
@@ -105,7 +110,7 @@ select ProofMeasure .
   eq tIMs = swired .
   eq tIMs = unwired .
 }
-:apply (tIMscsp rd-)
+:apply (cIMscsp tIMscsp rd-)
 --> Proof of RS-stop2 done.
 -->
 show proof
@@ -135,7 +140,7 @@ select ProofMeasure .
 show proof
 select
 
---> ********************************************************************************************************
+--> ****************************************************************************************
 --> ctrans [RS-sstart2]:
 -->    < (cmp(IDCO, started,  started, sstarted) SCO), SIM,
 -->      ListLG >
@@ -144,9 +149,9 @@ select
 -->       mlog(
 -->      (cmp(IDCO, started,  started, sstarted) SCO), SIM
 -->      )) ListLG) >
--->    if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) .
--->       allCOInStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,(wired swired))),(started sstarted)) .
---> ********************************************************************************************************
+-->    if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) and
+-->       allIMInTargetStates(getIMsOfTypeOfICOInStates(SIM,mandatory,IDCO,unused),unused) .
+--> ****************************************************************************************
 select ProofMeasure .
 --> *****************************************************************************************
 --> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
@@ -163,9 +168,13 @@ select ProofMeasure .
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
 :def csp2-2RS-sstart2B = :csp {
-  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
-                   (started sstarted)) = true .
+  eq allIMInTargetStates(getIMsOfTypeOfICOInStates(sIM,mandatory,idCO,unused),unused) = true .
 }
+-- :def csp2-2RS-sstart2C = :csp {
+--   eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
+--                    (started sstarted)) = true .
+-- }
+-- :apply (csp2-2RS-sstart2A csp2-2RS-sstart2B csp2-2RS-sstart2C rd-)
 :apply (csp2-2RS-sstart2A csp2-2RS-sstart2B rd-)
 --> Proof of RS-sstart2 done.
 -->
@@ -181,7 +190,8 @@ select
 -->       mlog(
 -->      (cmp(IDCO, stopped, sstarted, sstarted) SCO), SIM
 -->      )) ListLG) >
--->    if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) .
+-->    if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) and
+-->       allIMInTargetStates(getIMsOfTypeOfICOInStates(SIM,mandatory,IDCO,unused),unused) and
 -->       allCOInStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,(wired swired))),(started sstarted)) .
 --> ********************************************************************************************************
 select ProofMeasure .
@@ -200,10 +210,13 @@ select ProofMeasure .
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
 }
 :def csp2-2RD-startB = :csp {
+  eq allIMInTargetStates(getIMsOfTypeOfICOInStates(sIM,mandatory,idCO,unused),unused) = true .
+}
+:def csp2-2RD-startC = :csp {
   eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
                    (started sstarted)) = true .
 }
-:apply (csp2-2RD-startA csp2-2RD-startB rd-)
+:apply (csp2-2RD-startA csp2-2RD-startB csp2-2RD-startC rd-)
 --> Proof of RD-start done.
 -->
 show proof
@@ -228,6 +241,7 @@ select ProofMeasure .
               lg >) = true .
 }
 :apply (rd-)
+
 --> Proof of RD-sstart done.
 -->
 show proof
@@ -399,9 +413,9 @@ select
 
 --> ******************************************************************************************
 --> trans [RD-unwire3]:
--->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused, unwired, swired) SIM),
+-->    < SCO, (imp(optional, IDIM, IIDCO, EIDCO,  unused, unwired, swired) SIM),
 -->      ListLG >
---> => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, swired) SIM),
+--> => < SCO, (imp(optional, IDIM, IIDCO, EIDCO, unwired, unwired, swired) SIM),
 -->      (ilog("RD-unwire3:Do Unwire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, swired),
 -->       mlog(
 -->      SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused, unwired, swired) SIM)
@@ -412,11 +426,39 @@ select ProofMeasure .
 --> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
 --> *****************************************************************************************
 :goal {
-  eq mesmes(< sCO, (imp(tIM, idIM, iidCO, eidCO,  unused, unwired, swired) sIM),
+  eq mesmes(< sCO, (imp(optional, idIM, iidCO, eidCO,  unused, unwired, swired) sIM),
               lg >) = true .
 }
 :apply (rd-)
 --> Proof of RD-unwire3 done.
+-->
+show proof
+select
+
+--> ************************************************************************************************
+-->  trans [RD-unwire4]:
+-->     < (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
+-->       (imp(mandatory, IDIM, IDCO, EIDCO,  unused, unwired, swired) SIM),
+-->       ListLG >
+-->  => < (cmp(IDCO, stopped, NSCO, TSCO) SCO),
+-->       (imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, swired) SIM),
+-->       (ilog("RD-unwire4:Do Unwire", imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, swired),
+-->	  mlog(
+-->       (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
+-->       (imp(mandatory, IDIM, IDCO, EIDCO,   unused, unwired, swired) SIM)
+-->	 )) ListLG) > .
+--> ************************************************************************************************
+select ProofMeasure .
+--> *****************************************************************************************
+--> Step 2-1: Begin with the most general case which is matched with LHS of the current rule.
+--> *****************************************************************************************
+:goal {
+  eq mesmes(< (cmp(idCO, stopped, nCOs, tCOs) sCO), 
+              (imp(mandatory, idIM, idCO, eidCO, unused, unwired, swired) sIM),
+              lg >) = true .
+}
+:apply (rd-)
+--> Proof of RD-unwire4 done.
 -->
 show proof
 select
@@ -581,4 +623,4 @@ select ProofMeasure .
 show proof
 select
 
---> Totally 20 goals should be proved.
+--> Totally 21 goals should be proved.

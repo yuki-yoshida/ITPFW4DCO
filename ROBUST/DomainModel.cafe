@@ -574,17 +574,18 @@ module! STATERules {
                              (started sstarted)) = empCO .
 
   -- A started Component should stop if its mandatory Import should be unwired.
-  trans [RS-stop2]:
+  ctrans [RS-stop2]:
      < (cmp(IDCO, started, started, sstarted) SCO),
-       (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
+       (imp(mandatory, IDIM, IDCO, EIDCO, CSIM, unwired, TSIM) SIM),
         ListLG >
   => < (cmp(IDCO, started, stopped, sstarted) SCO),
-       (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM),
+       (imp(mandatory, IDIM, IDCO, EIDCO, CSIM, unwired, TSIM) SIM),
        (clog("RS-stop2:Should Stop", cmp(IDCO, started, stopped, sstarted),
 	  mlog(
        (cmp(IDCO, started, started, sstarted) SCO),
        (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM)
-	 )) ListLG) > .
+	 )) ListLG) > 
+     if CSIM in (wired unused) .
 
   -- A stopped Component should be stably started if it is targeted.
   trans [RS-sstart1]:
@@ -597,7 +598,9 @@ module! STATERules {
 	 )) ListLG) > .
 
   -- A started Component should be stably started 
-  -- only if all of its mandatory imports are stalby wired or unused.
+  -- only if all of its mandatory imports are stalby wired or unused
+  --  but target states of the unused imports should be unused
+  -- and also it is wired only to started components.
   ctrans [RS-sstart2]:
      < (cmp(IDCO, started,  started, sstarted) SCO), SIM,
        ListLG >
@@ -607,10 +610,11 @@ module! STATERules {
        (cmp(IDCO, started,  started, sstarted) SCO), SIM
 	 )) ListLG) >
      if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) and
-        allCOInStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,(wired swired))),(started sstarted)) .
+        allIMInTargetStates(getIMsOfTypeOfICOInStates(SIM,mandatory,IDCO,unused),unused) .
 
   -- A stopped Component can be started 
   -- only if all of its mandatory imports are stalby wired or unused
+  --  but target states of the unused imports should be unused
   -- and also it is wired only to started components.
   ctrans [RD-start]:
      < (cmp(IDCO, stopped, sstarted, sstarted) SCO), SIM,
@@ -621,6 +625,7 @@ module! STATERules {
        (cmp(IDCO, stopped, sstarted, sstarted) SCO), SIM
 	 )) ListLG) >
      if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) and
+        allIMInTargetStates(getIMsOfTypeOfICOInStates(SIM,mandatory,IDCO,unused),unused) and
         allCOInStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,(wired swired))),(started sstarted)) .
 
   -- A started Component can be stably started if it should be so.
@@ -699,14 +704,27 @@ module! STATERules {
        SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused,  unused, swired) SIM)
 	 )) ListLG) > .
 
-  -- An Unused Import can be unwired anytime.
+  -- An Optional Import can be unwired anytime.
   trans [RD-unwire3]:
-     < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused, unwired, swired) SIM),
+     < SCO, (imp(optional, IDIM, IIDCO, EIDCO,  unused, unwired, swired) SIM),
        ListLG >
-  => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, swired) SIM),
-       (ilog("RD-unwire3:Do Unwire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, swired),
+  => < SCO, (imp(optional, IDIM, IIDCO, EIDCO, unwired, unwired, swired) SIM),
+       (ilog("RD-unwire3:Do Unwire", imp(optional, IDIM, IIDCO, EIDCO, unwired, unwired, swired),
 	  mlog(
-       SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused, unwired, swired) SIM)
+       SCO, (imp(optional, IDIM, IIDCO, EIDCO,  unused, unwired, swired) SIM)
+	 )) ListLG) > .
+
+  -- A Mandatory Import can be unwired only if its component is stopped.
+  trans [RD-unwire4]:
+     < (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
+       (imp(mandatory, IDIM, IDCO, EIDCO,  unused, unwired, swired) SIM),
+       ListLG >
+  => < (cmp(IDCO, stopped, NSCO, TSCO) SCO),
+       (imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, swired) SIM),
+       (ilog("RD-unwire4:Do Unwire", imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, swired),
+	  mlog(
+       (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
+       (imp(mandatory, IDIM, IDCO, EIDCO,   unused, unwired, swired) SIM)
 	 )) ListLG) > .
 
   -- An unwired Import should be stably wired if it is targeted.
