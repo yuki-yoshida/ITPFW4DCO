@@ -163,6 +163,7 @@ module Proofwfs-validCurrent {
 --> (4) inv(S) implies inv(SS).
 --> ***************************
 
+-- This goal requires robust-lemmaV03.
 open Proofwfs-validCurrent .
 --> ************************************************************************
 --> trans [RS-stop1]:
@@ -232,6 +233,7 @@ eq transitsTo(started,stopped) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV03.
 open Proofwfs-validCurrent .
 --> *************************************************************************
 -->  ctrans [RS-stop2]:
@@ -278,6 +280,8 @@ eq transitsTo(started,stopped) = true .
 show proof
 close
 
+
+-- This goal requires robust-lemmaV03.
 open Proofwfs-validCurrent .
 --> ************************************************************************************
 --> trans [RS-sstart1]:
@@ -304,6 +308,7 @@ eq transitsTo(stopped,sstarted) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV03.
 open Proofwfs-validCurrent .
 --> ****************************************************************************************
 --> ctrans [RS-sstart2]:
@@ -342,6 +347,7 @@ eq transitsTo(started,sstarted) = true .
 show proof
 close
 
+-- This goal requires robust-lemma01.
 -- This goal requires robust-lemmaV05.
 open Proofwfs-validCurrent .
 --> ********************************************************************************************************
@@ -448,6 +454,8 @@ eq transitsTo(wired,unwired) = true .
 -->
 show proof
 close
+
+-- This goal requires robust-lemmaV06.
 open Proofwfs-validCurrent .
 --> ********************************************************************************************
 --> trans [RD-unwire1]:
@@ -483,7 +491,8 @@ eq transitsTo(wired,unwired) = true .
 show proof
 close
 
--- This goal requires robust-lemmaV06.
+-- This goal requires robust-lemmaV07.
+-- This goal requires robust-lemmaV08.
 open Proofwfs-validCurrent .
 --> *********************************************************************************************
 --> trans [RD-unwire2]:
@@ -519,6 +528,7 @@ eq transitsTo(wired,unwired) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV03-1.
 open Proofwfs-validCurrent .
 --> *********************************************************************************************
 --> trans [RS-unused]:
@@ -571,6 +581,8 @@ eq transitsTo(wired,unused) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV03-1.
+-- This goal requires robust-lemmaV06.
 open Proofwfs-validCurrent .
 --> *********************************************************************************************
 --> trans [RS-unwire2]:
@@ -622,6 +634,8 @@ eq transitsTo(unused,unwired) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV07.
+-- This goal requires robust-lemmaV08.
 open Proofwfs-validCurrent .
 --> ************************************************************************************************
 -->  trans [RD-unwire4]:
@@ -651,6 +665,7 @@ eq transitsTo(unused,unwired) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV03-1.
 open Proofwfs-validCurrent .
 --> ******************************************************************************************
 --> trans [RS-swire1]:
@@ -677,6 +692,7 @@ eq transitsTo(unwired,swired) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV03-1.
 open Proofwfs-validCurrent .
 --> ****************************************************************************************
 --> trans [RS-swire2]:
@@ -707,6 +723,8 @@ eq transitsTo(wired,swired) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV03-1.
+-- This goal requires robust-lemmaV04.
 open Proofwfs-validCurrent .
 --> ********************************************************************************************
 --> trans [RS-unwire3]:
@@ -753,6 +771,8 @@ eq transitsTo(started,stopped) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV07.
+-- This goal requires robust-lemmaV08.
 open Proofwfs-validCurrent .
 --> ***********************************************************************************
 --> trans [RD-wire1]:
@@ -816,7 +836,7 @@ eq transitsTo(unwired,wired) = true .
 show proof
 close
 
--- This goal requires robust-lemmaV04.
+-- This goal requires robust-lemmaV10.
 open Proofwfs-validCurrent .
 --> *******************************************************************************************
 --> trans [RD-swire]:
@@ -896,11 +916,19 @@ module Proofwfs-validTarget {
      = validTargetImport(SIM0,(CO  SCO0))
     if changeObjState2(CO,CO') .
 
+  -- eq robust-lemmaV11(IM,IM',SCO,SCO0,SIM0)
+  --   = validTargetComponent(SCO,SCO0,(IM  SIM0)) implies
+  --     validTargetComponent(SCO,SCO0,(IM' SIM0))
+  --     when changeObjState(IM,IM') .
   ceq (validTargetComponent(SCO,SCO0,(IM  SIM0)) and
        validTargetComponent(SCO,SCO0,(IM' SIM0)))
      = validTargetComponent(SCO,SCO0,(IM  SIM0))
     if changeObjState(IM,IM') .
 
+  -- eq robust-lemmaV11-1(IM,IM',SCO,SCO0,SIM0)
+  --   = validTargetComponent(SCO,SCO0,(IM  SIM0)) implies
+  --     validTargetComponent(SCO,SCO0,(IM' SIM0))
+  --     when changeObjState2(IM,IM') .
   ceq (validTargetComponent(SCO,SCO0,(IM  SIM0)) and
        validTargetComponent(SCO,SCO0,(IM' SIM0)))
      = validTargetComponent(SCO,SCO0,(IM  SIM0))
@@ -915,6 +943,8 @@ module Proofwfs-validTarget {
 --> ***************************
 --> (4) inv(S) implies inv(SS).
 --> ***************************
+-- This goal requires robust-lemmaV01-2.
+-- This goal requires robust-lemmaV02-2.
 open Proofwfs-validTarget .
 --> ************************************************************************
 --> trans [RS-stop1]:
@@ -941,6 +971,8 @@ eq transitsTo(started,stopped) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV01.
+-- This goal requires robust-lemmaV02.
 open Proofwfs-validTarget .
 --> ************************************************************************
 --> ctrans [RD-stop]:
@@ -985,6 +1017,8 @@ eq transitsTo(started,stopped) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV01-2.
+-- This goal requires robust-lemmaV02-2.
 open Proofwfs-validTarget .
 --> *************************************************************************
 --> ctrans [RS-stop2]:
@@ -1031,6 +1065,8 @@ eq transitsTo(started,stopped) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV01-2.
+-- This goal requires robust-lemmaV02-2.
 open Proofwfs-validTarget .
 --> ************************************************************************************
 --> trans [RS-sstart1]:
@@ -1057,6 +1093,8 @@ eq transitsTo(stopped,sstarted) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV01-2.
+-- This goal requires robust-lemmaV02-2.
 open Proofwfs-validTarget .
 --> ****************************************************************************************
 --> ctrans [RS-sstart2]:
@@ -1095,6 +1133,8 @@ eq transitsTo(started,sstarted) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV01.
+-- This goal requires robust-lemmaV02.
 open Proofwfs-validTarget .
 --> ********************************************************************************************************
 --> ctrans [RD-start]:
@@ -1164,6 +1204,7 @@ eq transitsTo(started,sstarted) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV11-1.
 open Proofwfs-validTarget .
 --> *********************************************************************************************
 --> trans [RS-unwire1]:
@@ -1190,6 +1231,7 @@ eq transitsTo(wired,unwired) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV11.
 open Proofwfs-validTarget .
 --> ********************************************************************************************
 --> trans [RD-unwire1]:
@@ -1226,6 +1268,7 @@ eq transitsTo(wired,unwired) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV11.
 open Proofwfs-validTarget .
 --> *********************************************************************************************
 --> trans [RD-unwire2]:
@@ -1262,6 +1305,7 @@ eq transitsTo(wired,unwired) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV11-1.
 open Proofwfs-validTarget .
 --> *********************************************************************************************
 --> trans [RS-unused]:
@@ -1288,6 +1332,7 @@ eq transitsTo(wired,unused) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV11.
 open Proofwfs-validTarget .
 --> **************************************************************************************
 --> trans [RD-unused]:
@@ -1314,6 +1359,7 @@ eq transitsTo(wired,unused) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV11-1.
 open Proofwfs-validTarget .
 --> *********************************************************************************************
 --> trans [RS-unwire2]:
@@ -1340,6 +1386,7 @@ eq transitsTo(unused,unwired) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV11.
 open Proofwfs-validTarget .
 --> ******************************************************************************************
 --> trans [RD-unwire3]:
@@ -1366,6 +1413,7 @@ eq transitsTo(unused,unwired) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV11.
 open Proofwfs-validTarget .
 --> ************************************************************************************************
 -->  trans [RD-unwire4]:
@@ -1395,6 +1443,7 @@ eq transitsTo(unused,unwired) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV11-1.
 open Proofwfs-validTarget .
 --> ******************************************************************************************
 --> trans [RS-swire1]:
@@ -1421,6 +1470,7 @@ eq transitsTo(unwired,swired) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV11-1.
 open Proofwfs-validTarget .
 --> ****************************************************************************************
 --> trans [RS-swire2]:
@@ -1451,6 +1501,9 @@ eq transitsTo(wired,swired) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV01.
+-- This goal requires robust-lemmaV02.
+-- This goal requires robust-lemmaV11-1.
 open Proofwfs-validTarget .
 --> ********************************************************************************************
 --> trans [RS-unwire3]:
@@ -1483,6 +1536,7 @@ eq transitsTo(started,stopped) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV11.
 open Proofwfs-validTarget .
 --> ***********************************************************************************
 --> trans [RD-wire1]:
@@ -1513,6 +1567,7 @@ eq transitsTo(unwired,wired) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV11.
 open Proofwfs-validTarget .
 --> ***********************************************************************************
 --> trans [RD-wire2]:
@@ -1543,6 +1598,7 @@ eq transitsTo(unwired,wired) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV11.
 open Proofwfs-validTarget .
 --> *******************************************************************************************
 --> trans [RD-swire]:
