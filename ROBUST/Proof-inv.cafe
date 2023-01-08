@@ -473,6 +473,7 @@ open Proofwfs-validCurrent .
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
+-- Set the direction of state change.
 eq transitsTo(wired,unwired) = true .
 :goal {
   eq invinv(< sCO,
@@ -510,6 +511,7 @@ open Proofwfs-validCurrent .
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
+-- Set the direction of state change.
 eq transitsTo(wired,unwired) = true .
 :goal {
   eq invinv(< (cmp(idCO, stopped, nCOs, tCOs) sCO), 
@@ -570,6 +572,7 @@ open Proofwfs-validCurrent .
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
+-- Set the direction of state change.
 eq transitsTo(wired,unused) = true .
 :goal {
   eq invinv(< sCO, (imp(tIM, idIM, idCO, eidCO,  wired, unused, unused) sIM),
@@ -623,6 +626,7 @@ open Proofwfs-validCurrent .
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
+-- Set the direction of state change.
 eq transitsTo(unused,unwired) = true .
 :goal {
   eq invinv(< sCO, (imp(optional, idIM, iidCO, eidCO,  unused, unwired, swired) sIM),
@@ -653,6 +657,7 @@ open Proofwfs-validCurrent .
 --> *****************************************************************************************
 --> Step 4-1: Begin with the most general case which is matched with LHS of the current rule.
 --> *****************************************************************************************
+-- Set the direction of state change.
 eq transitsTo(unused,unwired) = true .
 :goal {
   eq invinv(< (cmp(idCO, stopped, nCOs, tCOs) sCO), 
@@ -771,47 +776,16 @@ eq transitsTo(started,stopped) = true .
 show proof
 close
 
--- This goal requires robust-lemmaV07.
--- This goal requires robust-lemmaV08.
-open Proofwfs-validCurrent .
---> ***********************************************************************************
---> trans [RD-wire1]:
--->    < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
--->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM),
--->      ListLG >
---> => < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
--->      (imp(TIM, IDIM, IIDCO, EIDCO,   wired, swired, swired) SIM),
--->      (ilog("RD-wire1:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
--->       mlog(
--->      (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
--->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM)
--->      )) ListLG) > .
---> ***********************************************************************************
---> *************************************************************************
---> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
-eq transitsTo(unwired,wired) = true .
-:goal {
-  eq invinv(< (cmp(iidCO, stopped, stopped, tCOs) sCO), 
-              (imp(tIM, idIM, iidCO, eidCO, unwired, swired, swired) sIM),
-              lg >) = true .
-}
-:apply (rd-)
---> Proof of RD-wire1 for inv-validCurrent done.
--->
-show proof
-close
-
 -- This goal requires robust-lemmaV09.
 open Proofwfs-validCurrent .
 --> ***********************************************************************************
---> trans [RD-wire2]:
+--> trans [RD-wire]:
 -->    < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM),
 -->      ListLG >
 --> => < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO,   wired, swired, swired) SIM),
--->      (ilog("RD-wire2:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
+-->      (ilog("RD-wire:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
 -->       mlog(
 -->      (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM)
@@ -820,6 +794,7 @@ open Proofwfs-validCurrent .
 --> *************************************************************************
 --> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
 --> *************************************************************************
+-- Set the direction of state change.
 eq transitsTo(unwired,wired) = true .
 :goal {
   eq invinv(< (cmp(eidCO, sstarted, sstarted, sstarted) sCO), 
@@ -831,7 +806,7 @@ eq transitsTo(unwired,wired) = true .
   eq iidCOeidCODiffer(sIM) = true .
 }
 :apply (Differctp rd-)
---> Proof of RD-wire2 for inv-validCurrent done.
+--> Proof of RD-wire for inv-validCurrent done.
 -->
 show proof
 close
@@ -857,6 +832,123 @@ open Proofwfs-validCurrent .
 }
 :apply (rd-)
 --> Proof of RD-swire for inv-validCurrent done.
+-->
+show proof
+close
+
+--> **************************************
+--> Proof of wfs-validNext.
+-->  eq wfs-validNext(< SCO, SIM, L >)
+-->    = validNext(SCO,SIM) .
+--> **************************************
+--> ******************************************
+--> Step 3-0: Define a predicate to be proved.
+--> ******************************************
+module Proofwfs-validNext {
+  protecting(PROOF)
+  var S : State
+  eq invK(S) = wfs-validNext(S) .
+
+  -- Lemmas
+  vars CO CO' : Component
+  var IDCO : COID
+  vars IM IM' : Import
+  var IDIM : IMID
+  vars SCO SCO0 : SetOfComponent
+  vars SIM SIM0 : SetOfImport
+  var StIM : SetOfIMState
+
+}
+
+--> ***************************
+--> (3) init(S) implies inv(S).
+--> ***************************
+-- Since wfs-validNext is imposed by init(S), initinv(S) for wfs-validNext always holds.
+
+--> ***************************
+--> (4) inv(S) implies inv(SS).
+--> ***************************
+
+open Proofwfs-validNext .
+--> ************************************************************************
+--> trans [RS-stop1]:
+-->    < (cmp(IDCO, started, started, stopped) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, started, stopped, stopped) SCO), SIM,
+-->      (clog("RS-stop1:Should Stop", cmp(IDCO, started, stopped, stopped),
+-->       mlog(
+-->      (cmp(IDCO, started, started, stopped) SCO), SIM
+-->      )) ListLG) > .
+--> ************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- eq transitsTo(started,stopped) = true .
+:goal {
+  eq invinv(< (cmp(idCO, started, started, stopped) sCO), sIM, 
+              lg >) = true .
+}
+:apply (rd-)
+:def noswiredcsp = :csp {
+  eq getIMsOfECOInStates(sIM,idCO,swired) = empIM .
+  eq sIM = (imp(tIM,idIM,iidCO,idCO,swired,nIMs,tIMs) sIM') .
+}
+:apply (noswiredcsp rd-)
+:def nIMscsp = :csp {
+  eq nIMs = unused .
+  eq nIMs = wired .
+  eq nIMs = swired .
+  eq nIMs = unwired .
+}
+:def tIMscsp = :csp {
+  eq tIMs = unused .
+  eq tIMs = wired .
+  eq tIMs = swired .
+  eq tIMs = unwired .
+}
+:apply (nIMscsp tIMscsp rd-)
+--> Proof of RS-stop1 for inv-validNext done.
+-->
+show proof
+close
+
+open Proofwfs-validNext .
+--> ************************************************************************
+--> ctrans [RD-stop]:
+-->    < (cmp(IDCO, started, stopped, TSCO) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, stopped, stopped, TSCO) SCO), SIM,
+-->      (clog("RD-stop:Do Stop", cmp(IDCO, stopped, stopped, TSCO),
+-->       mlog(
+-->      (cmp(IDCO, started, stopped, TSCO) SCO), SIM
+-->      )) ListLG) >
+-->    if getICOsOfIMsInStates(SCO,
+-->                            getIMsOfECOInStates(SIM,IDCO,(wired swired)),
+-->                            (started sstarted)) = empCO .
+--> ************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+:goal {
+  eq invinv(< (cmp(idCO, started, stopped, tCOs) sCO), sIM, 
+              lg >) = true .
+}
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
+:def csp4-2RD-stop = :csp {
+  eq getICOsOfIMsInStates(sCO,
+                          getIMsOfECOInStates(sIM,idCO,(wired swired)),
+                         (started sstarted)) = empCO .
+}
+:apply (csp4-2RD-stop rd-)
+:def swiredctf = :ctf {
+  eq getIMsOfECOInStates(sIM,idCO,swired) = empIM .
+}
+:apply (swiredctf rd-)
+--> Proof of RD-stop for inv-validNext done.
 -->
 show proof
 close
@@ -1431,6 +1523,7 @@ open Proofwfs-validTarget .
 --> *****************************************************************************************
 --> Step 4-1: Begin with the most general case which is matched with LHS of the current rule.
 --> *****************************************************************************************
+-- Set the direction of state change.
 eq transitsTo(unused,unwired) = true .
 :goal {
   eq invinv(< (cmp(idCO, stopped, nCOs, tCOs) sCO), 
@@ -1539,44 +1632,13 @@ close
 -- This goal requires robust-lemmaV11.
 open Proofwfs-validTarget .
 --> ***********************************************************************************
---> trans [RD-wire1]:
--->    < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
--->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM),
--->      ListLG >
---> => < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
--->      (imp(TIM, IDIM, IIDCO, EIDCO,   wired, swired, swired) SIM),
--->      (ilog("RD-wire1:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
--->       mlog(
--->      (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
--->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM)
--->      )) ListLG) > .
---> ***********************************************************************************
---> *************************************************************************
---> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
--- Set the direction of state change.
-eq transitsTo(unwired,wired) = true .
-:goal {
-  eq invinv(< (cmp(iidCO, stopped, stopped, tCOs) sCO), 
-              (imp(tIM, idIM, iidCO, eidCO, unwired, swired, swired) sIM),
-              lg >) = true .
-}
-:apply (rd-)
---> Proof of RD-wire1 for inv-validTarget done.
--->
-show proof
-close
-
--- This goal requires robust-lemmaV11.
-open Proofwfs-validTarget .
---> ***********************************************************************************
---> trans [RD-wire2]:
+--> trans [RD-wire]:
 -->    < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM),
 -->      ListLG >
 --> => < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO,   wired, swired, swired) SIM),
--->      (ilog("RD-wire2:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
+-->      (ilog("RD-wire:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
 -->       mlog(
 -->      (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM)
@@ -1593,7 +1655,7 @@ eq transitsTo(unwired,wired) = true .
               lg >) = true .
 }
 :apply (rd-)
---> Proof of RD-wire2 for inv-validTarget done.
+--> Proof of RD-wire for inv-validTarget done.
 -->
 show proof
 close
@@ -2143,39 +2205,13 @@ show proof
 show proof
 
 --> ***********************************************************************************
---> trans [RD-wire1]:
--->    < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
--->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM),
--->      ListLG >
---> => < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
--->      (imp(TIM, IDIM, IIDCO, EIDCO,   wired, swired, swired) SIM),
--->      (ilog("RD-wire1:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
--->       mlog(
--->      (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
--->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM)
--->      )) ListLG) > .
---> ***********************************************************************************
---> *************************************************************************
---> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
-:goal {
-  eq invinv(< (cmp(iidCO, stopped, stopped, tCOs) sCO), 
-              (imp(tIM, idIM, iidCO, eidCO, unwired, swired, swired) sIM),
-              lg >) = true .
-}
-:apply (rd-)
---> Proof of RD-wire1 for inv-allCOin9States done.
--->
-show proof
-
---> ***********************************************************************************
---> trans [RD-wire2]:
+--> trans [RD-wire]:
 -->    < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM),
 -->      ListLG >
 --> => < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO,   wired, swired, swired) SIM),
--->      (ilog("RD-wire2:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
+-->      (ilog("RD-wire:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
 -->       mlog(
 -->      (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM)
@@ -2190,7 +2226,7 @@ show proof
               lg >) = true .
 }
 :apply (rd-)
---> Proof of RD-wire2 for inv-allCOin9States done.
+--> Proof of RD-wire for inv-allCOin9States done.
 -->
 show proof
 
@@ -2728,39 +2764,13 @@ show proof
 show proof
 
 --> ***********************************************************************************
---> trans [RD-wire1]:
--->    < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
--->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM),
--->      ListLG >
---> => < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
--->      (imp(TIM, IDIM, IIDCO, EIDCO,   wired, swired, swired) SIM),
--->      (ilog("RD-wire1:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
--->       mlog(
--->      (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
--->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM)
--->      )) ListLG) > .
---> ***********************************************************************************
---> *************************************************************************
---> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
-:goal {
-  eq invinv(< (cmp(iidCO, stopped, stopped, tCOs) sCO), 
-              (imp(tIM, idIM, iidCO, eidCO, unwired, swired, swired) sIM),
-              lg >) = true .
-}
-:apply (rd-)
---> Proof of RD-wire1 for inv-allIMin14States done.
--->
-show proof
-
---> ***********************************************************************************
---> trans [RD-wire2]:
+--> trans [RD-wire]:
 -->    < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM),
 -->      ListLG >
 --> => < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO,   wired, swired, swired) SIM),
--->      (ilog("RD-wire2:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
+-->      (ilog("RD-wire:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
 -->       mlog(
 -->      (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM)
@@ -2775,7 +2785,7 @@ show proof
               lg >) = true .
 }
 :apply (rd-)
---> Proof of RD-wire2 for inv-allIMin14States done.
+--> Proof of RD-wire for inv-allIMin14States done.
 -->
 show proof
 
@@ -3313,39 +3323,13 @@ show proof
 show proof
 
 --> ***********************************************************************************
---> trans [RD-wire1]:
--->    < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
--->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM),
--->      ListLG >
---> => < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
--->      (imp(TIM, IDIM, IIDCO, EIDCO,   wired, swired, swired) SIM),
--->      (ilog("RD-wire1:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
--->       mlog(
--->      (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
--->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM)
--->      )) ListLG) > .
---> ***********************************************************************************
---> *************************************************************************
---> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
---> *************************************************************************
-:goal {
-  eq invinv(< (cmp(iidCO, stopped, stopped, tCOs) sCO), 
-              (imp(tIM, idIM, iidCO, eidCO, unwired, swired, swired) sIM),
-              lg >) = true .
-}
-:apply (rd-)
---> Proof of RD-wire1 for inv-noChangeSstarted done.
--->
-show proof
-
---> ***********************************************************************************
---> trans [RD-wire2]:
+--> trans [RD-wire]:
 -->    < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM),
 -->      ListLG >
 --> => < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO,   wired, swired, swired) SIM),
--->      (ilog("RD-wire2:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
+-->      (ilog("RD-wire:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
 -->       mlog(
 -->      (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
 -->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM)
@@ -3360,7 +3344,7 @@ show proof
               lg >) = true .
 }
 :apply (rd-)
---> Proof of RD-wire2 for inv-noChangeSstarted done.
+--> Proof of RD-wire for inv-noChangeSstarted done.
 -->
 show proof
 

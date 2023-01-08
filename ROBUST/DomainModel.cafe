@@ -763,27 +763,14 @@ module! STATERules {
        (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, swired) SIM)
 	 )) ListLG) > .
 
-  -- A unwired Import can be wired if its Component is stopped.
-  trans [RD-wire1]:
-     < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
-       (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM),
-       ListLG >
-  => < (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
-       (imp(TIM, IDIM, IIDCO, EIDCO,   wired, swired, swired) SIM),
-       (ilog("RD-wire1:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
-	  mlog(
-       (cmp(IIDCO, stopped, stopped, TSCO) SCO), 
-       (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM)
-	 )) ListLG) > .
-
-  -- A unwired Import can be wired if its export Component is stably started.
-  trans [RD-wire2]:
+    -- A unwired Import can be wired if its export Component is stably started.
+  trans [RD-wire]:
      < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
        (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM),
        ListLG >
   => < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
        (imp(TIM, IDIM, IIDCO, EIDCO,   wired, swired, swired) SIM),
-       (ilog("RD-wire2:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
+       (ilog("RD-wire:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
 	  mlog(
        (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
        (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM)
