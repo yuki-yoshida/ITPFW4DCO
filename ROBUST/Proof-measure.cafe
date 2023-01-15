@@ -595,4 +595,4 @@ select ProofMeasure .
 show proof
 select
 
---> Totally 21 goals should be proved.
+--> Totally 20 goals should be proved.

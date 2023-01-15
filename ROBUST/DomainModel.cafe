@@ -449,22 +449,24 @@ module! STATEfuns {
   -- ** and noCycleCurrent(SCO,SIM) .
 
   pred validNextComponent : SetOfComponent SetOfImport
-  ceq validNextComponent((CO SCO),SIM)
-    = not (next(CO) in stopped)
-    if not (getIMsOfECOInStates(SIM,id(CO),swired) = empIM) .
-  ceq validNextComponent((CO SCO),SIM)
-    = true
-    if getIMsOfECOInStates(SIM,id(CO),swired) = empIM .
+  eq validNextComponent(empCO,SIM) = true .
+  eq validNextComponent((cmp(IDCO,CSCO, stopped,TSCO) SCO),SIM)
+    = (getIMsOfECOInStates(SIM,IDCO,swired) = empIM) and
+      validNextComponent(SCO,SIM) .
+  eq validNextComponent((cmp(IDCO,CSCO, started,TSCO) SCO),SIM)
+    = validNextComponent(SCO,SIM) .
+  eq validNextComponent((cmp(IDCO,CSCO,sstarted,TSCO) SCO),SIM)
+    = allIMInStates(getIMsOfECO(SIM,IDCO),swired) and
+      validNextComponent(SCO,SIM) .
 
   pred validNextImport : SetOfImport SetOfComponent
   eq validNextImport(empIM,SCO) = true .
-  eq validNextImport(SIM,(cmp(IDCO,sstarted,NSCO,TSCO) SCO))
-     = allIMInNextStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(wired swired unused)) and
+  eq validNextImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,swired,TSIM) SIM),SCO)
+     = (CSIM in (wired swired) implies state(getComponent(SCO,EIDCO)) = sstarted) and 
        validNextImport(SIM,SCO) .
-  ceq validNextImport(SIM,(CO SCO))
+  ceq validNextImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,TSIM) SIM),SCO)
      = validNextImport(SIM,SCO) 
-     if not (state(CO) in sstarted) .
-  eq validNextImport(SIM,empCO) = true .
+     if not (NSIM in swired) .
 
   pred validNext : SetOfComponent SetOfImport
   eq validNext(SCO,SIM)
