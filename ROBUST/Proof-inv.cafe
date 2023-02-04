@@ -137,13 +137,13 @@ module Proofwfs-validCurrent {
   -- 	   iidCOeidCODiffer(IM SIM0) and
   --          state(getComponent(SCO0,exporter(IM))) in (started sstarted) and
   --          state(IM') = wired .
-  -- ceq (validCurrentComponent(SCO,SCO0,(IM  SIM0)) and
-  --      validCurrentComponent(SCO,SCO0,(IM' SIM0)))
-  --    = validCurrentComponent(SCO,SCO0,(IM  SIM0))
-  --    if changeObjState(IM,IM') and subset(SCO,SCO0) and 
-  --       iidCOeidCODiffer(IM SIM0) and
-  --       state(getComponent(SCO0,exporter(IM))) in (started sstarted) and
-  -- 	state(IM') = wired .
+  ceq (validCurrentComponent(SCO,SCO0,(IM  SIM0)) and
+       validCurrentComponent(SCO,SCO0,(IM' SIM0)))
+     = validCurrentComponent(SCO,SCO0,(IM  SIM0))
+     if changeObjState(IM,IM') and subset(SCO,SCO0) and 
+        iidCOeidCODiffer(IM SIM0) and
+        state(getComponent(SCO0,exporter(IM))) in (started sstarted) and
+  	state(IM') = wired .
 
   -- eq robust-lemmaV10(TIM,IDIM,IIDCO,EIDCO,SCO,SCO0,SIM0)
   --   = validCurrentComponent(SCO,SCO0,(imp(TIM,IDIM,IIDCO,EIDCO, wired,swired,swired) SIM0)) implies
@@ -151,6 +151,18 @@ module Proofwfs-validCurrent {
   eq (validCurrentComponent(SCO,SCO0,(imp(TIM,IDIM,IIDCO,EIDCO, wired,swired,swired) SIM0)) and
       validCurrentComponent(SCO,SCO0,(imp(TIM,IDIM,IIDCO,EIDCO,swired,swired,swired) SIM0)))
     = validCurrentComponent(SCO,SCO0,(imp(TIM,IDIM,IIDCO,EIDCO, wired,swired,swired) SIM0)) .
+
+  -- eq robust-lemmaV16
+  ceq (validCurrentImport(SIM0,(CO  SCO0)) and
+       validCurrentImport(SIM0,(CO' SCO0)))
+     = validCurrentImport(SIM0,(CO  SCO0))
+    if changeObjState(CO,CO') .
+
+  -- eq robust-lemmaV17
+  ceq (validCurrentImport(SIM0,(CO  SCO0)) and
+       validCurrentImport(SIM0,(CO' SCO0)))
+     = validCurrentImport(SIM0,(CO  SCO0))
+    if changeObjState2(CO,CO') .
 
 }
 
@@ -163,7 +175,9 @@ module Proofwfs-validCurrent {
 --> (4) inv(S) implies inv(SS).
 --> ***************************
 
+-- This goal requires robust-lemma01.
 -- This goal requires robust-lemmaV03.
+-- This goal requires robust-lemmaV17.
 open Proofwfs-validCurrent .
 --> ************************************************************************
 --> trans [RS-stop1]:
@@ -191,6 +205,7 @@ show proof
 close
 
 -- This goal requires robust-lemmaV04.
+-- This goal requires robust-lemmaV16.
 open Proofwfs-validCurrent .
 --> ************************************************************************
 --> ctrans [RD-stop]:
@@ -234,6 +249,7 @@ show proof
 close
 
 -- This goal requires robust-lemmaV03.
+-- This goal requires robust-lemmaV17.
 open Proofwfs-validCurrent .
 --> *************************************************************************
 -->  ctrans [RS-stop2]:
@@ -282,6 +298,7 @@ close
 
 
 -- This goal requires robust-lemmaV03.
+-- This goal requires robust-lemmaV17.
 open Proofwfs-validCurrent .
 --> ************************************************************************************
 --> trans [RS-sstart1]:
@@ -309,6 +326,7 @@ show proof
 close
 
 -- This goal requires robust-lemmaV03.
+-- This goal requires robust-lemmaV17.
 open Proofwfs-validCurrent .
 --> ****************************************************************************************
 --> ctrans [RS-sstart2]:
@@ -349,6 +367,7 @@ close
 
 -- This goal requires robust-lemma01.
 -- This goal requires robust-lemmaV05.
+-- This goal requires robust-lemmaV16.
 open Proofwfs-validCurrent .
 --> ********************************************************************************************************
 --> ctrans [RD-start]:
@@ -730,6 +749,7 @@ close
 
 -- This goal requires robust-lemmaV03-1.
 -- This goal requires robust-lemmaV04.
+-- This goal requires robust-lemmaV17.
 open Proofwfs-validCurrent .
 --> ********************************************************************************************
 --> trans [RS-unwire3]:
@@ -776,6 +796,7 @@ eq transitsTo(started,stopped) = true .
 show proof
 close
 
+-- This goal requires robust-lemmaV09.
 open Proofwfs-validCurrent .
 --> ***********************************************************************************
 --> trans [RD-wire]:
@@ -801,6 +822,10 @@ eq transitsTo(unwired,wired) = true .
               lg >) = true .
 }
 :apply (rd-)
+:def differctf = :ctf {
+  eq iidCOeidCODiffer(sIM) = true .
+}
+:apply (differctf rd-)
 --> Proof of RD-wire for inv-validCurrent done.
 -->
 show proof
@@ -856,22 +881,26 @@ module Proofwfs-validNext {
   -- eq robust-lemmaV12(CO,CO',SCO0,SIM0)
   --   = validNextImport(SIM0,(CO  SCO0)) implies 
   --     validNextImport(SIM0,(CO' SCO0))
-  --     when changeObjState(CO,CO') and next(CO') = stopped and
-  --          getIMsOfECOInStates(SIM0,id(CO),swired) = empIM .
+  --     when changeObjState(CO,CO') and next(CO') = stopped .
   ceq (validNextImport(SIM0,(CO  SCO0)) and
        validNextImport(SIM0,(CO' SCO0)))
      = validNextImport(SIM0,(CO  SCO0))
-     if changeObjState2(CO,CO') and next(CO') = stopped and
-        getIMsOfECOInStates(SIM0,id(CO),swired) = empIM .
+     if changeObjState2(CO,CO') and next(CO') = stopped .
 
   -- eq robust-lemmaV13(IM,IM',SCO0,SIM0)
-  --   = validNextComponent(SCO0,(IM  oSIM0)) implies 
+  --   = validNextComponent(SCO0,(IM  SIM0)) implies 
   --     validNextComponent(SCO0,(IM' SIM0))
-  --     when changeObjState2(IM,IM') and next(IM') = unwired .
+  --     when changeObjState2(IM,IM') and next(IM') = unwired and
+  --          uniqCO(SCO0) and 
+  --          (existCO(SCO0,importer(IM)) implies 
+  --	         not (next(getComponent(SCO0,importer(IM))) = sstarted)) .
   ceq (validNextComponent(SCO0,(IM  SIM0)) and
        validNextComponent(SCO0,(IM' SIM0)))
      = validNextComponent(SCO0,(IM  SIM0))
-     if changeObjState2(IM,IM') and next(IM') = unwired .
+     if changeObjState2(IM,IM') and next(IM') = unwired and
+        uniqCO(SCO0) and 
+        (existCO(SCO0,importer(IM)) implies 
+           not (next(getComponent(SCO0,importer(IM))) = sstarted)) .
 
   -- eq robust-lemmaV14(IM,IM',SCO0,SIM0)
   --   = validNextComponent(SCO0,(IM  SIM0)) implies 
@@ -924,11 +953,6 @@ eq transitsTo(started,stopped) = true .
               lg >) = true .
 }
 :apply (rd-)
-:def swiredExcsp = :csp {
-  eq getIMsOfECOInStates(sIM,idCO,swired) = empIM .
-  eq sIM = (imp(tIM, idIM', iidCO, idCO, cIMs', nIMs', swired) sIM') .
-}
-:apply (swiredExcsp rd-)
 --> Proof of RS-stop1 for inv-validNext done.
 -->
 show proof
@@ -1788,7 +1812,7 @@ eq transitsTo(wired,swired) = true .
 -->
 show proof
 close
-
+eof 
 --> **************************************
 --> Proof of inv-allCOin9States.
 -->  eq inv-allCOin9States(< SCO,SIM,L >)

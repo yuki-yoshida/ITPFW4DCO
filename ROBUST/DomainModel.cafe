@@ -402,45 +402,36 @@ module! STATEfuns {
   eq equivIMSet(imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM)
      = (CSIM = NSIM) and (CSIM = TSIM) and equivIMSet(SIM) .
 
-  pred validTargetComponent : SetOfComponent SetOfComponent SetOfImport
-  eq validTargetComponent(empCO,SCO0,SIM0) = true .
-  eq validTargetComponent((cmp(IDCO,CSCO,NSCO,sstarted) SCO),SCO0,SIM0)
-     = allIMInTargetStates(getIMsOfTypeOfICO(SIM0,mandatory,IDCO),(swired unused)) and
-       allCOInTargetStates(getECOsOfIMs(SCO0,getIMsOfICOInTargetStates(SIM0,IDCO,swired)),sstarted) and
-       validTargetComponent(SCO,SCO0,SIM0) .
-  eq validTargetComponent((cmp(IDCO,CSCO,NSCO,stopped) SCO),SCO0,SIM0)
-     = validTargetComponent(SCO,SCO0,SIM0) .
-  eq validTargetComponent((cmp(IDCO,CSCO,NSCO,started) SCO),SCO0,SIM0)
-     = false .
-
-  pred validTargetImport : SetOfImport SetOfComponent
-  eq validTargetImport(empIM,SCO0) = true .
-  -- Assuming an Import swired to a sstarted Component.
-  eq validTargetImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,swired) SIM),SCO0)
-     = target(getComponent(SCO0,EIDCO)) = sstarted and validTargetImport(SIM,SCO0) .
-  ceq validTargetImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,TSIM) SIM),SCO0)
-     = validTargetImport(SIM,SCO0)
-     if not (TSIM = swired) .
-
-  pred validTarget : SetOfComponent SetOfImport
-  eq validTarget(SCO,SIM)
-     = validTargetComponent(SCO,SCO,SIM) and validTargetImport(SIM,SCO) .
-  -- The no cycle invariant is assumed.
-  -- ** and noCycleTarget(SCO,SIM) .
-
   pred validCurrentComponent : SetOfComponent SetOfComponent SetOfImport
   eq validCurrentComponent(empCO,SCO0,SIM0) = true .
-  ceq validCurrentComponent((cmp(IDCO,CSCO,NSCO,TSCO) SCO),SCO0,SIM0)
+  eq validCurrentComponent((cmp(IDCO,stopped,NSCO,TSCO) SCO),SCO0,SIM0)
+     = not (NSCO = started) and
+       validCurrentComponent(SCO,SCO0,SIM0) .
+  eq validCurrentComponent((cmp(IDCO,started,NSCO,TSCO) SCO),SCO0,SIM0)
      = allIMInStates(getIMsOfTypeOfICO(SIM0,mandatory,IDCO),(wired swired unused)) and
        allCOInStates(getECOsOfIMs(SCO0,getIMsOfICOInStates(SIM0,IDCO,(wired swired))),(started sstarted)) and
-       validCurrentComponent(SCO,SCO0,SIM0) 
-     if CSCO in (started sstarted) .
-  eq validCurrentComponent((cmp(IDCO,stopped,NSCO,TSCO) SCO),SCO0,SIM0)
-     = validCurrentComponent(SCO,SCO0,SIM0) .
+       validCurrentComponent(SCO,SCO0,SIM0) .
+  eq validCurrentComponent((cmp(IDCO,sstarted,NSCO,TSCO) SCO),SCO0,SIM0)
+     = (NSCO = sstarted and TSCO = sstarted) and
+       allIMInStates(getIMsOfTypeOfICO(SIM0,mandatory,IDCO),(wired swired unused)) and
+       allIMInNextStates(getIMsOfTypeOfICO(SIM0,mandatory,IDCO),(wired swired unused)) and
+       allCOInStates(getECOsOfIMs(SCO0,getIMsOfICOInStates(SIM0,IDCO,(wired swired))),(started sstarted)) and
+       allCOInNextStates(getECOsOfIMs(SCO0,getIMsOfICOInStates(SIM0,IDCO,(wired swired))),(started sstarted)) and
+       validCurrentComponent(SCO,SCO0,SIM0) .
 
   pred validCurrentImport : SetOfImport SetOfComponent
   -- "failed" is not concerned .
-  eq validCurrentImport(SIM,SCO0) = true .
+  eq validCurrentImport((imp(TIM,IDIM,IIDCO,EIDCO,unused,NSIM,TSIM) SIM),SCO)
+     = (NSIM in (unused unwired)) and not (TSIM = unwired) and
+       validCurrentImport(SIM,SCO) .
+  eq validCurrentImport((imp(TIM,IDIM,IIDCO,EIDCO,wired,NSIM,TSIM) SIM),SCO)
+     = validCurrentImport(SIM,SCO) .
+  eq validCurrentImport((imp(TIM,IDIM,IIDCO,EIDCO,swired,NSIM,TSIM) SIM),SCO)
+     = (NSIM = swired) and (TSIM = swired) and
+       validCurrentImport(SIM,SCO) .
+  eq validCurrentImport((imp(TIM,IDIM,IIDCO,EIDCO,unwired,NSIM,TSIM) SIM),SCO)
+     = not (NSIM = wired) and not (TSIM = unused) and 
+       validCurrentImport(SIM,SCO) .
 
   pred validCurrent : SetOfComponent SetOfImport
   eq validCurrent(SCO,SIM)
@@ -451,28 +442,67 @@ module! STATEfuns {
   pred validNextComponent : SetOfComponent SetOfImport
   eq validNextComponent(empCO,SIM) = true .
   eq validNextComponent((cmp(IDCO,CSCO, stopped,TSCO) SCO),SIM)
-    = (getIMsOfECOInStates(SIM,IDCO,swired) = empIM) and
-      validNextComponent(SCO,SIM) .
-  eq validNextComponent((cmp(IDCO,CSCO, started,TSCO) SCO),SIM)
     = validNextComponent(SCO,SIM) .
+  eq validNextComponent((cmp(IDCO,CSCO, started,TSCO) SCO),SIM)
+    = (CSCO = started) and
+      validNextComponent(SCO,SIM) .
   eq validNextComponent((cmp(IDCO,CSCO,sstarted,TSCO) SCO),SIM)
-    = allIMInStates(getIMsOfECO(SIM,IDCO),swired) and
+    = (TSCO = sstarted) and
+      ((CSCO = started) implies
+	 (getIMsOfTypeOfICOInNextStates(SIM,mandatory,IDCO,unwired) = empIM)) and
       validNextComponent(SCO,SIM) .
 
   pred validNextImport : SetOfImport SetOfComponent
   eq validNextImport(empIM,SCO) = true .
-  eq validNextImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,swired,TSIM) SIM),SCO)
-     = (CSIM in (wired swired) implies state(getComponent(SCO,EIDCO)) = sstarted) and 
+  eq validNextImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,unused,TSIM) SIM),SCO)
+     = (((TSIM = unused) and (CSIM in (wired unused))) or 
+	((TSIM = swired) and (CSIM = unused))) and
        validNextImport(SIM,SCO) .
-  ceq validNextImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,TSIM) SIM),SCO)
-     = validNextImport(SIM,SCO) 
-     if not (NSIM in swired) .
+  eq validNextImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,wired,TSIM) SIM),SCO)
+     = (CSIM = wired) and
+       validNextImport(SIM,SCO) .
+  eq validNextImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,swired,TSIM) SIM),SCO)
+     = TSIM = swired and
+       ((CSIM in (wired swired)) implies (state(getComponent(SCO,EIDCO)) = sstarted)) and 
+       validNextImport(SIM,SCO) .
+  eq validNextImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,unwired,TSIM) SIM),SCO)
+     = (((TSIM = unwired) and (CSIM in (wired unwired))) or (TSIM = swired)) and
+       validNextImport(SIM,SCO) .
 
   pred validNext : SetOfComponent SetOfImport
   eq validNext(SCO,SIM)
      = validNextComponent(SCO,SIM) and validNextImport(SIM,SCO) .
   -- The no cycle invariant is assumed.
   -- ** and noCycleNext(SCO,SIM) .
+
+  pred validTargetComponent : SetOfComponent SetOfComponent SetOfImport
+  eq validTargetComponent(empCO,SCO0,SIM0) = true .
+  eq validTargetComponent((cmp(IDCO,CSCO,NSCO,stopped) SCO),SCO0,SIM0)
+     = validTargetComponent(SCO,SCO0,SIM0) .
+  eq validTargetComponent((cmp(IDCO,CSCO,NSCO,started) SCO),SCO0,SIM0)
+     = false .
+  eq validTargetComponent((cmp(IDCO,CSCO,NSCO,sstarted) SCO),SCO0,SIM0)
+     = allIMInTargetStates(getIMsOfTypeOfICO(SIM0,mandatory,IDCO),(swired unused)) and
+       allCOInTargetStates(getECOsOfIMs(SCO0,getIMsOfICOInTargetStates(SIM0,IDCO,swired)),sstarted) and
+       validTargetComponent(SCO,SCO0,SIM0) .
+
+  pred validTargetImport : SetOfImport SetOfComponent
+  eq validTargetImport(empIM,SCO0) = true .
+  -- Assuming an Import swired to a sstarted Component.
+  eq validTargetImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,wired) SIM),SCO0)
+     = false .
+  eq validTargetImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,swired) SIM),SCO0)
+     = (target(getComponent(SCO0,EIDCO)) = sstarted) and 
+       validTargetImport(SIM,SCO0) .
+  ceq validTargetImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,TSIM) SIM),SCO0)
+     = validTargetImport(SIM,SCO0)
+     if TSIM in (unused unwired) .
+
+  pred validTarget : SetOfComponent SetOfImport
+  eq validTarget(SCO,SIM)
+     = validTargetComponent(SCO,SCO,SIM) and validTargetImport(SIM,SCO) .
+  -- The no cycle invariant is assumed.
+  -- ** and noCycleTarget(SCO,SIM) .
 
   pred iidCOeidCODiffer : SetOfImport
   eq iidCOeidCODiffer(empIM) = true .

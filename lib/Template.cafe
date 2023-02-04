@@ -173,15 +173,16 @@ module -PRMOBJBASE {
 
   -- Basic operators
   pred _>_ : ObjState ObjState
+  eq (ST:ObjState > ST) = false .
 
   op null : -> Object {constr}
-  ceq (O:Object = null ) = false
+  ceq (O:Object = null) = false
     if not (O == null) .
-  ceq (ID:ObjID = id(null) ) = false
+  ceq (ID:ObjID = id(null)) = false
     if not (ID == id(null)) .
-  ceq (T:ObjType = type(null) ) = false
+  ceq (T:ObjType = type(null)) = false
     if not (T == type(null)) .
-  ceq (ST:ObjState = state(null) ) = false
+  ceq (ST:ObjState = state(null)) = false
     if not (ST == state(null)) .
 
   eq (O1:Object = O2:Object)

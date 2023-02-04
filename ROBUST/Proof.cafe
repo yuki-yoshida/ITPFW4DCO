@@ -131,9 +131,9 @@ module PROOF {
       -- Note that (true xor A) == (not A)
   ceq inv(S) = false if (true xor noCOCycleD(S)) .
       -- Note that (true xor A) == (not A)
-  ceq inv(S) = false if not inv-allCOin9States(S) .
-  ceq inv(S) = false if not inv-allIMin14States(S) .
-  ceq inv(S) = false if not inv-noChangeSstarted(S) .
+--  ceq inv(S) = false if not inv-allCOin9States(S) .
+--  ceq inv(S) = false if not inv-allIMin14States(S) .
+--  ceq inv(S) = false if not inv-noChangeSstarted(S) .
 
   pred isCOin9States : Component
   eq allCOin9States(empCO) = true .

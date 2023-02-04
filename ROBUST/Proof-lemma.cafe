@@ -459,10 +459,6 @@ open ProofLemma .
 :apply (noCycleU rd-)
 -- Case 1-1-1-2-1-2: swired
 :apply (nIMscsp tIMscsp rd-)
--- Case 1-1-1-2-1-2-4-4: swired swired
-:apply (nCOscsp tCoscsp rd-)
--- Case 1-1-1-2-1-2-4-4-3-3: sstarted sstarted
-:apply (noCycleU rd-)
 -- Case 1-1-2: sIM = (imp(mandatory, idIM, idCO, eidCO, unused, nIMs, tIMs) sIM')
 :def tIMs3csp = :csp {
   eq tIMs = unwired .

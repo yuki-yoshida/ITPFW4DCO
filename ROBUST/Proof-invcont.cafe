@@ -154,6 +154,9 @@ open PROOF .
 :apply (exICOcsp rd-)
 -- Case 3-1-1-1-2-4-2: there is iidCO component
 :apply (cCOscsp nCOscsp tCOscsp rd-)
+-- Case 3-1-1-1-2-4-2-3-3-3: sstarted sstarted sstarted
+--  which is discharged by :init eq (cCOs = tCOs) = false .
+-- -- :apply (equivCOSetFalse rd-)
 -- Case 3-1-1-2-2-2: mandatory unwired unwired unwired
 --  which is discharged by :init eq (cIMs = tIMs) = false .
 :apply (equivIMSetFalse rd-)
@@ -197,6 +200,9 @@ open PROOF .
 :apply (exICOcsp rd-)
 -- Case 3-1-1-3-2-4-2: there is iidCO component
 :apply (cCOscsp nCOscsp tCOscsp rd-)
+-- Case 3-1-1-3-2-4-2-3-3-3: sstarted sstarted sstarted
+--  which is discharged by :init eq (cCOs = tCOs) = false .
+-- -- :apply (equivCOSetFalse rd-)
 -- Case 3-1-1-3-3-4: mandatory   wired   wired  swired
 --> *****************************************************************
 --> Step 1-3: Consider which rule can be applied to the current case.
