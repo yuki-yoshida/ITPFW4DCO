@@ -1,8 +1,8 @@
 in DomainModel.cafe
 -- in Simulate.cafe
 in Proof.cafe               -- Reload everytime!
-in Proof-lemma.cafe         --   4 goals
+in Proof-lemma.cafe         --  35 goals
 in Proof-invcont.cafe       --   1 goal
 in Proof-measure.cafe       --  20 goals
-in Proof-inv.cafe           -- 120 goals
---> Totally 145 goals should be proved.
+in Proof-inv.cafe           --  60 goals
+--> Totally 116 goals should be proved.

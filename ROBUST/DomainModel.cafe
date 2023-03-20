@@ -379,7 +379,7 @@ module! STATEfuns {
   pred stableCOSet : SetOfComponent
   eq stableCOSet(empCO) = true .
   eq stableCOSet((cmp(IDCO,sstarted,NSCO,TSCO) SCO))
-     = (NSCO = sstarted) and (TSCO = sstarted) and stableCOSet(SCO) .
+     = false .
   ceq stableCOSet((cmp(IDCO,CSCO,NSCO,TSCO) SCO))
      = (CSCO = NSCO) and stableCOSet(SCO)
      if not (CSCO = sstarted) .
@@ -387,7 +387,7 @@ module! STATEfuns {
   pred stableIMSet : SetOfImport
   eq stableIMSet(empIM) = true .
   eq stableIMSet((imp(TIM,IDIM,IIDCO,IDCO,swired,NSIM,TSIM) SIM))
-     = (NSIM = swired) and (TSIM = swired) and stableIMSet(SIM) .
+     = false .
   ceq stableIMSet((imp(TIM,IDIM,IIDCO,IDCO,CSIM,NSIM,TSIM) SIM))
      = (CSIM = NSIM) and stableIMSet(SIM)
      if not (CSIM = swired) .
@@ -405,24 +405,27 @@ module! STATEfuns {
   pred validCurrentComponent : SetOfComponent SetOfComponent SetOfImport
   eq validCurrentComponent(empCO,SCO0,SIM0) = true .
   eq validCurrentComponent((cmp(IDCO,stopped,NSCO,TSCO) SCO),SCO0,SIM0)
-     = not (NSCO = started) and
+     = ((TSCO = stopped) implies (NSCO = stopped)) and
+       allIMInStates(getIMsOfECO(SIM0,IDCO),(unwired unused)) and
        validCurrentComponent(SCO,SCO0,SIM0) .
   eq validCurrentComponent((cmp(IDCO,started,NSCO,TSCO) SCO),SCO0,SIM0)
      = allIMInStates(getIMsOfTypeOfICO(SIM0,mandatory,IDCO),(wired swired unused)) and
        allCOInStates(getECOsOfIMs(SCO0,getIMsOfICOInStates(SIM0,IDCO,(wired swired))),(started sstarted)) and
        validCurrentComponent(SCO,SCO0,SIM0) .
   eq validCurrentComponent((cmp(IDCO,sstarted,NSCO,TSCO) SCO),SCO0,SIM0)
-     = (NSCO = sstarted and TSCO = sstarted) and
-       allIMInStates(getIMsOfTypeOfICO(SIM0,mandatory,IDCO),(wired swired unused)) and
-       allIMInNextStates(getIMsOfTypeOfICO(SIM0,mandatory,IDCO),(wired swired unused)) and
-       allCOInStates(getECOsOfIMs(SCO0,getIMsOfICOInStates(SIM0,IDCO,(wired swired))),(started sstarted)) and
-       allCOInNextStates(getECOsOfIMs(SCO0,getIMsOfICOInStates(SIM0,IDCO,(wired swired))),(started sstarted)) and
+     = allIMInStates(getIMsOfTypeOfICO(SIM0,mandatory,IDCO),(swired unused)) and
+       allCOInStates(getECOsOfIMs(SCO0,getIMsOfTypeOfICOInStates(SIM0,mandatory,IDCO,swired)),sstarted) and
+       allCOInStates(getECOsOfIMs(SCO0,getIMsOfTypeOfICOInStates(SIM0,optional,IDCO,(wired swired))),(started sstarted)) and
+       (NSCO = sstarted and TSCO = sstarted) and
        validCurrentComponent(SCO,SCO0,SIM0) .
 
   pred validCurrentImport : SetOfImport SetOfComponent
   -- "failed" is not concerned .
+  eq validCurrentImport(empIM,SCO) = true .
   eq validCurrentImport((imp(TIM,IDIM,IIDCO,EIDCO,unused,NSIM,TSIM) SIM),SCO)
-     = (NSIM in (unused unwired)) and not (TSIM = unwired) and
+     = ((TSIM = unused) implies (NSIM = unused)) and
+       not (TSIM = unwired) and
+       ((TSIM = swired) implies (NSIM in (unused unwired))) and
        validCurrentImport(SIM,SCO) .
   eq validCurrentImport((imp(TIM,IDIM,IIDCO,EIDCO,wired,NSIM,TSIM) SIM),SCO)
      = validCurrentImport(SIM,SCO) .
@@ -430,7 +433,9 @@ module! STATEfuns {
      = (NSIM = swired) and (TSIM = swired) and
        validCurrentImport(SIM,SCO) .
   eq validCurrentImport((imp(TIM,IDIM,IIDCO,EIDCO,unwired,NSIM,TSIM) SIM),SCO)
-     = not (NSIM = wired) and not (TSIM = unused) and 
+     = ((TIM = mandatory) implies (state(getComponent(SCO,IIDCO)) = stopped)) and
+       ((TSIM = unwired) implies (NSIM = unwired)) and
+       not (NSIM = unused) and not (TSIM = unused) and
        validCurrentImport(SIM,SCO) .
 
   pred validCurrent : SetOfComponent SetOfImport
@@ -442,31 +447,35 @@ module! STATEfuns {
   pred validNextComponent : SetOfComponent SetOfImport
   eq validNextComponent(empCO,SIM) = true .
   eq validNextComponent((cmp(IDCO,CSCO, stopped,TSCO) SCO),SIM)
-    = validNextComponent(SCO,SIM) .
+     = validNextComponent(SCO,SIM) .
   eq validNextComponent((cmp(IDCO,CSCO, started,TSCO) SCO),SIM)
-    = (CSCO = started) and
-      validNextComponent(SCO,SIM) .
+     = (CSCO = started) and
+       validNextComponent(SCO,SIM) .
   eq validNextComponent((cmp(IDCO,CSCO,sstarted,TSCO) SCO),SIM)
-    = (TSCO = sstarted) and
-      ((CSCO = started) implies
-	 (getIMsOfTypeOfICOInNextStates(SIM,mandatory,IDCO,unwired) = empIM)) and
-      validNextComponent(SCO,SIM) .
+     = (TSCO = sstarted) and
+       ((CSCO in (started sstarted)) implies
+	 (allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(unused swired)) and
+          allIMInTargetStates(getIMsOfTypeOfICOInStates(SIM,mandatory,IDCO,unused),unused))) and
+       validNextComponent(SCO,SIM) .
 
   pred validNextImport : SetOfImport SetOfComponent
   eq validNextImport(empIM,SCO) = true .
   eq validNextImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,unused,TSIM) SIM),SCO)
-     = (((TSIM = unused) and (CSIM in (wired unused))) or 
-	((TSIM = swired) and (CSIM = unused))) and
+     = not (TSIM = unwired) and
+       ((CSIM = unused) or (TSIM = unused)) and
        validNextImport(SIM,SCO) .
   eq validNextImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,wired,TSIM) SIM),SCO)
      = (CSIM = wired) and
        validNextImport(SIM,SCO) .
+
+--        ((CSIM in (wired swired)) implies not (next(getComponent(SCO,EIDCO)) = stopped)) and
+--        だが、初期状態にはなく、そのような遷移もないので、明示する必要が無い。
   eq validNextImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,swired,TSIM) SIM),SCO)
-     = TSIM = swired and
-       ((CSIM in (wired swired)) implies (state(getComponent(SCO,EIDCO)) = sstarted)) and 
+     = (TSIM = swired) and
+       ((CSIM in (wired swired)) implies (state(getComponent(SCO,EIDCO)) = sstarted)) and
        validNextImport(SIM,SCO) .
   eq validNextImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,unwired,TSIM) SIM),SCO)
-     = (((TSIM = unwired) and (CSIM in (wired unwired))) or (TSIM = swired)) and
+     = not (TSIM = unused) and
        validNextImport(SIM,SCO) .
 
   pred validNext : SetOfComponent SetOfImport
@@ -483,20 +492,22 @@ module! STATEfuns {
      = false .
   eq validTargetComponent((cmp(IDCO,CSCO,NSCO,sstarted) SCO),SCO0,SIM0)
      = allIMInTargetStates(getIMsOfTypeOfICO(SIM0,mandatory,IDCO),(swired unused)) and
-       allCOInTargetStates(getECOsOfIMs(SCO0,getIMsOfICOInTargetStates(SIM0,IDCO,swired)),sstarted) and
        validTargetComponent(SCO,SCO0,SIM0) .
 
   pred validTargetImport : SetOfImport SetOfComponent
   eq validTargetImport(empIM,SCO0) = true .
   -- Assuming an Import swired to a sstarted Component.
+  eq validTargetImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,unused) SIM),SCO0)
+     = (CSIM in (wired unused)) and (NSIM in (wired unused)) and
+       validTargetImport(SIM,SCO0) .
   eq validTargetImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,wired) SIM),SCO0)
      = false .
   eq validTargetImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,swired) SIM),SCO0)
-     = (target(getComponent(SCO0,EIDCO)) = sstarted) and 
+     = (target(getComponent(SCO0,EIDCO)) = sstarted ) and
        validTargetImport(SIM,SCO0) .
-  ceq validTargetImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,TSIM) SIM),SCO0)
-     = validTargetImport(SIM,SCO0)
-     if TSIM in (unused unwired) .
+  eq validTargetImport((imp(TIM,IDIM,IIDCO,EIDCO,CSIM,NSIM,unwired) SIM),SCO0)
+     = ((TIM = mandatory) implies (target(getComponent(SCO0,IIDCO)) = stopped)) and
+       validTargetImport(SIM,SCO0) .
 
   pred validTarget : SetOfComponent SetOfImport
   eq validTarget(SCO,SIM)
@@ -601,9 +612,10 @@ module! STATERules {
 	  mlog(
        (cmp(IDCO, started, stopped, TSCO) SCO), SIM
 	 )) ListLG) >
-     if getICOsOfIMsInStates(SCO,
-                             getIMsOfECOInStates(SIM,IDCO,(wired swired)),
-                             (started sstarted)) = empCO .
+     if allIMInStates(getIMsOfECO(SIM,IDCO),(unwired unused)) .
+     -- if getICOsOfIMsInStates(SCO,
+     --                         getIMsOfECOInStates(SIM,IDCO,(wired swired)),
+     --                         (started sstarted)) = empCO .
 
   -- A started Component should stop if its mandatory Import should be unwired.
   ctrans [RS-stop2]:
@@ -642,7 +654,8 @@ module! STATERules {
        (cmp(IDCO, started,  started, sstarted) SCO), SIM
 	 )) ListLG) >
      if allIMInStates(getIMsOfTypeOfICO(SIM,mandatory,IDCO),(swired unused)) and
-        allIMInTargetStates(getIMsOfTypeOfICOInStates(SIM,mandatory,IDCO,unused),unused) .
+        allIMInTargetStates(getIMsOfTypeOfICOInStates(SIM,mandatory,IDCO,unused),unused) and
+        allCOInStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,(wired swired))),(started sstarted)) .
 
   -- A stopped Component can be started 
   -- only if all of its mandatory imports are stalby wired or unused
@@ -660,15 +673,16 @@ module! STATERules {
         allIMInTargetStates(getIMsOfTypeOfICOInStates(SIM,mandatory,IDCO,unused),unused) and
         allCOInStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,(wired swired))),(started sstarted)) .
 
-  -- A started Component can be stably started if it should be so.
-  trans [RD-sstart]:
+  -- A started Component can be stably started if its mandatory exporters are sstarted.
+  ctrans [RD-sstart]:
      < (cmp(IDCO,  started, sstarted, sstarted) SCO), SIM,
        ListLG >
   => < (cmp(IDCO, sstarted, sstarted, sstarted) SCO), SIM,
        (clog("RD-sstart:Do Stably Start", cmp(IDCO, sstarted, sstarted, sstarted),
 	  mlog(
        (cmp(IDCO, started, sstarted, sstarted) SCO), SIM
-	 )) ListLG) > .
+	 )) ListLG) > 
+     if allCOInStates(getECOsOfIMs(SCO,getIMsOfTypeOfICOInStates(SIM,mandatory,IDCO,swired)),sstarted) .
 
   -- A wired Import should be unwired if it is targeted.
   trans [RS-unwire1]:

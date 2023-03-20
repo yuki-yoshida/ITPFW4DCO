@@ -4,12 +4,52 @@ module ProofLemma {
   protecting(PROOF)
 
   var S : State
-  vars CO CO' Xc : Component
-  var IM : Import
+  vars CO CO' CO0 Xc : Component
+  vars IDCO IIDCO EIDCO : COID
+  vars IM IM' : Import
+  var IDIM : IMID
+  var TIM : IMType
   vars SCO SCO' SCO0 : SetOfComponent
-  vars SIM SIM' : SetOfImport
+  vars SIM SIM' SIM0 : SetOfImport
+  var StIM : SetOfIMState
   var L : ListOfLog
   var LS : LocalState
+
+  -- May be used.
+  -- ceq allIMInStates(getIMsOfECO(SIM',IDCO)),StIM) = true
+  --  if allIMInStates(getIMsOfECO(SIM, IDCO),StIM) and subset(SIM,SIM') .
+
+  pred robust-lemma01 : Component COID SetOfComponent SetOfImport SetOfIMState
+  eq robust-lemma01(CO,IDCO,SCO,SIM,StIM) 
+    = (getECOsOfIMs((CO SCO),getIMsOfICOInStates(SIM,IDCO,StIM)) =
+       getECOsOfIMs(SCO,     getIMsOfICOInStates(SIM,IDCO,StIM)))
+      when id(CO) = IDCO and iidCOeidCODiffer(SIM) .
+
+  pred robust-lemma02 : Component Component Component COID SetOfComponent SetOfImport
+  eq robust-lemma02(CO,CO',CO0,IDCO,SCO,SIM)
+    = allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfICOInStates(SIM,IDCO,(wired swired))),
+                    (started sstarted)) implies
+      allCOInStates(getECOsOfIMs((CO' CO0 SCO),getIMsOfICOInStates(SIM,IDCO,(wired swired))),
+		    (started sstarted))
+      when changeObjState(CO,CO') and id(CO0) = IDCO and ( id(CO) = IDCO ) = false and
+	   allIMInStates(getIMsOfECO(SIM,id(CO)),(unwired unused)) .
+
+  pred robust-lemma02-1 : Component Component Component IMType COID SetOfComponent SetOfImport
+  eq robust-lemma02-1(CO,CO',CO0,TIM,IDCO,SCO,SIM)
+    = allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,(wired swired))),
+                    (started sstarted)) implies
+      allCOInStates(getECOsOfIMs((CO' CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,(wired swired))),
+		    (started sstarted))
+      when changeObjState(CO,CO') and id(CO0) = IDCO and ( id(CO) = IDCO ) = false and
+	   allIMInStates(getIMsOfECO(SIM,id(CO)),(unwired unused)) .
+
+  pred robust-lemma03 : Component Component COID SetOfComponent SetOfImport
+  eq robust-lemma03(CO,CO',IDCO,SCO,SIM)
+    = allCOInStates(getECOsOfIMs((CO  SCO),getIMsOfICOInStates(SIM,idCO,(wired swired))),
+                    (started sstarted)) implies
+      allCOInStates(getECOsOfIMs((CO' SCO),getIMsOfICOInStates(SIM,idCO,(wired swired))),
+		    (started sstarted))
+      when changeObjState(CO,CO') and (state(CO') in (started sstarted)) .
 
   -- for NoCyclic Lemma
   eq [noCycleU :nonexec]:
@@ -34,17 +74,472 @@ module ProofLemma {
   eq robust-lemmaC03(CO,SCO,SIM,L)
     = cont(< (CO SCO), SIM, L >) 
       when inv(< (CO SCO), SIM, L >) and
-           CO in st(started,started,sstarted) .
+           CO in st(started,sstarted,sstarted) .
 
   pred robust-lemmaC04 : Component SetOfComponent SetOfImport ListOfLog
   eq robust-lemmaC04(CO,SCO,SIM,L)
     = cont(< (CO SCO), SIM, L >) 
       when inv(< (CO SCO), SIM, L >) and
+           CO in st(started,started,sstarted) .
+
+  pred robust-lemmaC05 : Component SetOfComponent SetOfImport ListOfLog
+  eq robust-lemmaC05(CO,SCO,SIM,L)
+    = cont(< (CO SCO), SIM, L >) 
+      when inv(< (CO SCO), SIM, L >) and
            CO in st(stopped,sstarted,sstarted) .
 
   op ls : -> LocalState .
+
+  -- Valid Lemmas
+  pred robust-lemmaV01 : Component Component SetOfComponent SetOfComponent SetOfImport
+  eq robust-lemmaV01(CO,CO',SCO,SCO0,SIM0)
+    = validTargetComponent(SCO,(CO  SCO0),SIM0) implies 
+      validTargetComponent(SCO,(CO' SCO0),SIM0)
+      when changeObjState(CO,CO') .
+
+  pred robust-lemmaV01-2 : Component Component SetOfComponent SetOfComponent SetOfImport
+  eq robust-lemmaV01-2(CO,CO',SCO,SCO0,SIM0)
+    = validTargetComponent(SCO,(CO  SCO0),SIM0) implies 
+      validTargetComponent(SCO,(CO' SCO0),SIM0)
+      when changeObjState2(CO,CO') .
+
+  pred robust-lemmaV02 : Component Component SetOfComponent SetOfImport
+  eq robust-lemmaV02(CO,CO',SCO0,SIM0)
+    = validTargetImport(SIM0,(CO  SCO0)) implies 
+      validTargetImport(SIM0,(CO' SCO0))
+      when changeObjState(CO,CO') .
+
+  pred robust-lemmaV02-2 : Component Component SetOfComponent SetOfImport
+  eq robust-lemmaV02-2(CO,CO',SCO0,SIM0)
+    = validTargetImport(SIM0,(CO  SCO0)) implies 
+      validTargetImport(SIM0,(CO' SCO0))
+      when changeObjState2(CO,CO') .
+
+  pred robust-lemmaV03 : Component Component SetOfComponent SetOfComponent SetOfImport
+  eq robust-lemmaV03(CO,CO',SCO,SCO0,SIM0)
+    = validCurrentComponent(SCO,(CO  SCO0),SIM0) implies 
+      validCurrentComponent(SCO,(CO' SCO0),SIM0)
+      when changeObjState2(CO,CO') and not (state(CO) = sstarted) .
+
+  pred robust-lemmaV03-1 : Import Import SetOfComponent SetOfComponent SetOfImport
+  eq robust-lemmaV03-1(IM,IM',SCO,SCO0,SIM0)
+    = validCurrentComponent(SCO,SCO0,(IM  SIM0)) implies 
+      validCurrentComponent(SCO,SCO0,(IM' SIM0))
+      when changeObjState2(IM,IM') .
+
+  pred robust-lemmaV04 : Component Component SetOfComponent SetOfComponent SetOfImport
+  eq robust-lemmaV04(CO,CO',SCO,SCO0,SIM0)
+    = validCurrentComponent(SCO,(CO  SCO0),SIM0) implies 
+      validCurrentComponent(SCO,(CO' SCO0),SIM0)
+      when state(CO') = stopped and changeObjState(CO,CO') and subset(SCO,SCO0) and
+	   uniqCO(CO SCO0) and
+	   allIMInStates(getIMsOfECO(SIM0,id(CO)),(unwired unused)) .
+
+  pred robust-lemmaV05 : Component Component SetOfComponent SetOfComponent SetOfImport
+  eq robust-lemmaV05(CO,CO',SCO,SCO0,SIM0)
+    = validCurrentComponent(SCO,(CO  SCO0),SIM0) implies 
+      validCurrentComponent(SCO,(CO' SCO0),SIM0)
+      when (state(CO') in (started sstarted)) and changeObjState(CO,CO') and subset(SCO,SCO0) and
+	   uniqCO(CO SCO0) and 
+	   allIMInStates(getIMsOfECO(SIM0,id(CO)),(unwired unused)) .
+
+  pred robust-lemmaV06 : Import Import SetOfComponent SetOfComponent SetOfImport
+  eq robust-lemmaV06(IM,IM',SCO,SCO0,SIM0)
+    = validCurrentComponent(SCO,SCO0,(IM  SIM0)) implies 
+      validCurrentComponent(SCO,SCO0,(IM' SIM0))
+      when changeObjState(IM,IM') and
+           state(IM') = unwired and type(IM') = optional .
+
+  pred robust-lemmaV07 : Import Import SetOfComponent SetOfComponent SetOfImport
+  eq robust-lemmaV07(IM,IM',SCO,SCO0,SIM0)
+    = validCurrentComponent(SCO,SCO0,(IM  SIM0)) implies 
+      validCurrentComponent(SCO,SCO0,(IM' SIM0))
+      when changeObjState(IM,IM') and subset(SCO,SCO0) and
+           iidCOeidCODiffer(IM SIM0) and
+           (state(IM') in (unwired unused)) and
+           state(getICOOfIM(SCO0,IM)) = stopped .
+
+  pred robust-lemmaV08 : Import Import SetOfComponent SetOfComponent SetOfImport
+  eq robust-lemmaV08(IM,IM',SCO,SCO0,SIM0)
+    = validCurrentComponent(SCO,SCO0,(IM  SIM0)) implies 
+      validCurrentComponent(SCO,SCO0,(IM' SIM0))
+      when changeObjState(IM,IM') and
+           state(IM') = unused .
+
+  pred robust-lemmaV09 : Import Import SetOfComponent SetOfComponent SetOfImport
+  eq robust-lemmaV09(IM,IM',SCO,SCO0,SIM0)
+    = validCurrentComponent(SCO,SCO0,(IM  SIM0)) implies 
+      validCurrentComponent(SCO,SCO0,(IM' SIM0))
+      when changeObjState(IM,IM') and subset(SCO,SCO0) and
+  	   iidCOeidCODiffer(IM SIM0) and
+           state(getECOOfIM(SCO0,IM)) in (started sstarted) and
+           state(IM) = unwired and state(IM') = wired .
+
+  pred robust-lemmaV10 : IMType IMID COID COID SetOfComponent SetOfComponent SetOfImport
+  eq robust-lemmaV10(TIM,IDIM,IIDCO,EIDCO,SCO,SCO0,SIM0)
+    = validCurrentComponent(SCO,SCO0,(imp(TIM,IDIM,IIDCO,EIDCO, wired,swired,swired) SIM0)) implies
+      validCurrentComponent(SCO,SCO0,(imp(TIM,IDIM,IIDCO,EIDCO,swired,swired,swired) SIM0)) .
+
+  pred robust-lemmaV11 : Import Import SetOfComponent SetOfComponent SetOfImport
+  eq robust-lemmaV11(IM,IM',SCO,SCO0,SIM0)
+    = validTargetComponent(SCO,SCO0,(IM  SIM0)) implies
+      validTargetComponent(SCO,SCO0,(IM' SIM0))
+      when changeObjState(IM,IM') .
+
+  pred robust-lemmaV11-1 : Import Import SetOfComponent SetOfComponent SetOfImport
+  eq robust-lemmaV11-1(IM,IM',SCO,SCO0,SIM0)
+    = validTargetComponent(SCO,SCO0,(IM  SIM0)) implies
+      validTargetComponent(SCO,SCO0,(IM' SIM0))
+      when changeObjState2(IM,IM') .
+
+  pred robust-lemmaV12 : Component Component SetOfComponent SetOfImport
+  eq robust-lemmaV12(CO,CO',SCO0,SIM0)
+    = validNextImport(SIM0,(CO  SCO0)) implies 
+      validNextImport(SIM0,(CO' SCO0))
+      when changeObjState2(CO,CO') and next(CO') = stopped .
+
+  pred robust-lemmaV13 : Import Import SetOfComponent SetOfImport
+  eq robust-lemmaV13(IM,IM',SCO0,SIM0)
+    = validNextComponent(SCO0,(IM  SIM0)) implies 
+      validNextComponent(SCO0,(IM' SIM0))
+      when changeObjState2(IM,IM') .
+
+  pred robust-lemmaV14 : Import Import SetOfComponent SetOfImport
+  eq robust-lemmaV14(IM,IM',SCO0,SIM0)
+    = validNextComponent(SCO0,(IM  SIM0)) implies 
+      validNextComponent(SCO0,(IM' SIM0))
+      when changeObjState(IM,IM') and type(IM) = optional .
+
+  pred robust-lemmaV14-1 : Import Import SetOfComponent SetOfComponent SetOfImport
+  eq robust-lemmaV14-1(IM,IM',SCO,SCO0,SIM0)
+    = validNextComponent(SCO,(IM  SIM0)) implies 
+      validNextComponent(SCO,(IM' SIM0))
+      when changeObjState(IM,IM') and type(IM) = mandatory and
+           subset(SCO,SCO0) and state(getICOOfIM(SCO0,IM)) = stopped .
+
+  pred robust-lemmaV14-2 : Import Import SetOfComponent SetOfImport
+  eq robust-lemmaV14-2(IM,IM',SCO0,SIM0)
+    = validNextComponent(SCO0,(IM  SIM0)) implies 
+      validNextComponent(SCO0,(IM' SIM0))
+      when changeObjState(IM,IM') and 
+           state(IM') = unused and target(IM) = unused .
+
+  pred robust-lemmaV14-3 : Import Import SetOfComponent SetOfImport
+  eq robust-lemmaV14-3(IM,IM',SCO0,SIM0)
+    = validNextComponent(SCO0,(IM  SIM0)) implies 
+      validNextComponent(SCO0,(IM' SIM0))
+      when changeObjState(IM,IM') and 
+           state(IM') = wired and target(IM) = swired .
+
+  pred robust-lemmaV14-4 : Import Import SetOfComponent SetOfImport
+  eq robust-lemmaV14-4(IM,IM',SCO0,SIM0)
+    = validNextComponent(SCO0,(IM  SIM0)) implies 
+      validNextComponent(SCO0,(IM' SIM0))
+      when changeObjState(IM,IM') and state(IM') = swired .
+
+  pred robust-lemmaV15 : Component Component SetOfComponent SetOfImport
+  eq robust-lemmaV15(CO,CO',SCO0,SIM0)
+    = validNextImport(SIM0,(CO  SCO0)) implies 
+      validNextImport(SIM0,(CO' SCO0))
+      when changeObjState(CO,CO') and not (state(CO) = sstarted) .
+
+  pred robust-lemmaV16 : Component Component SetOfComponent SetOfImport
+  eq robust-lemmaV16(CO,CO',SCO0,SIM0)
+    = validCurrentImport(SIM0,(CO  SCO0)) implies
+      validCurrentImport(SIM0,(CO' SCO0))
+      when changeObjState(CO,CO') and 
+          ((state(CO') = stopped) or (getIMsOfTypeOfICOInStates(SIM0,mandatory,id(CO),unwired) = empIM)) .
+
+  pred robust-lemmaV17 : Component Component SetOfComponent SetOfImport
+  eq robust-lemmaV17(CO,CO',SCO0,SIM0)
+    = validCurrentImport(SIM0,(CO  SCO0)) implies
+      validCurrentImport(SIM0,(CO' SCO0))
+      when changeObjState2(CO,CO') .
+
+  pred robust-lemmaV18 : Component Component SetOfComponent SetOfImport
+  eq robust-lemmaV18(CO,CO',SCO0,SIM0)
+    = validNextImport(SIM0,(CO  SCO0)) implies 
+      validNextImport(SIM0,(CO' SCO0))
+      when changeObjState2(CO,CO') and next(CO') = sstarted .
 }
 
+--> Proof of robust-lemma01
+--> eq robust-lemma01(CO,IDCO,SCO,SIM,StIM) 
+-->   = (getECOsOfIMs((CO SCO),getIMsOfICOInStates(SIM,IDCO,StIM)) =
+-->      getECOsOfIMs(SCO,     getIMsOfICOInStates(SIM,IDCO,StIM)))
+-->     when id(CO) = IDCO and iidCOeidCODiffer(SIM) .
+open ProofLemma .
+  -- Define <wf for robust-lemma01
+  [COIDCOSCSISIS] op t : Component COID SetOfComponent SetOfImport SetOfIMState -> COIDCOSCSISIS {constr} .
+  pred _<wf_ : COIDCOSCSISIS COIDCOSCSISIS .
+  ceq ( t(CO,IDCO,SCO,SIM',StIM) <wf t(CO,IDCO,SCO,SIM,StIM) ) = true
+     if SIM' <wf SIM .
+
+  -- Induction Hypothesis
+  ceq [robust-lemma01-IH :nonexec]:
+    ((id(CO) = IDCO and iidCOeidCODiffer(SIM)) implies
+     (getECOsOfIMs((CO SCO),getIMsOfICOInStates(SIM,IDCO,StIM)) =
+      getECOsOfIMs(SCO,     getIMsOfICOInStates(SIM,IDCO,StIM)))) = true 
+   if ( t(CO,IDCO,SCO,SIM,StIM) <wf t(co,idCO,sCO,sIM,sIMs) ) = true .
+
+:goal { eq robust-lemma01(co,idCO,sCO,sIM,sIMs) = true . }
+:def idCOctf = :ctf {
+  eq id(co) = idCO .
+}
+:apply (idCOctf rd-)
+:def sIMcsp = :csp {
+  eq sIM = empIM .
+  eq sIM = (im sIM') .
+}
+:apply (sIMcsp rd-)
+:def differctf = :ctf {
+  eq iidCOeidCODiffer(sIM') = true .
+}
+:apply (differctf rd-)
+-- Case 1-2-1: iidCOeidCODiffer(sIM') = true .
+:def initIH = :init as robust-lemma01-IH-in [robust-lemma01-IH]
+    by {CO:Component <- co; 
+	IDCO:COID <- idCO;
+	SCO:SetOfComponent <- sCO;
+	SIM:SetOfImport <- sIM'; 
+	StIM:SetOfIMState <- sIMs; }
+:apply (initIH)
+:def impIMctf = :ctf {
+  eq importer(im) = idCO .
+}
+:def expIMctf = :ctf {
+  eq exporter(im) = idCO .
+}
+:apply (impIMctf expIMctf rd-)
+-- Case 1-2-1-1-1-2: exporter(im) = idCO & exporter(im) /= idCO.
+:def sIMsctf = :ctf {
+  eq state(im) in sIMs = true .
+}
+:apply (sIMsctf rd-)
+--> Proof of robust-lemma01 done
+-->
+show proof
+close
+
+--> Proof of robust-lemma02
+--> eq robust-lemma02(CO,CO',CO0,IDCO,SCO,SIM)
+-->   = allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfICOInStates(SIM,IDCO,(wired swired))),
+-->                   (started sstarted)) implies
+-->     allCOInStates(getECOsOfIMs((CO' CO0 SCO),getIMsOfICOInStates(SIM,IDCO,(wired swired))),
+-->	              (started sstarted))
+-->     when changeObjState(CO,CO') and id(CO0) = IDCO and ( id(CO) = IDCO ) = false and
+-->          allIMInStates(getIMsOfECO(SIM,id(CO)),(unwired unused)) .
+open ProofLemma .
+  -- Define <wf for robust-lemma02
+  [COCOCOSCOSIM] op t : Component Component Component COID SetOfComponent SetOfImport -> COCOCOSCOSIM {constr} .
+  pred _<wf_ : COCOCOSCOSIM COCOCOSCOSIM .
+  ceq ( t(CO,CO',CO0,IDCO,SCO,SIM') <wf t(CO,CO',CO0,IDCO,SCO,SIM) ) = true
+     if SIM' <wf SIM .
+
+  -- Induction Hypothesis
+  ceq [robust-lemma02-IH :nonexec]:
+      (allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfICOInStates(SIM,IDCO,(wired swired))),
+                    (started sstarted)) and
+       allCOInStates(getECOsOfIMs((CO' CO0 SCO),getIMsOfICOInStates(SIM,IDCO,(wired swired))),
+		    (started sstarted)))
+     = allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfICOInStates(SIM,IDCO,(wired swired))),
+		    (started sstarted))
+     if changeObjState(CO,CO') and id(CO0) = IDCO and ( id(CO) = IDCO ) = false and
+	allIMInStates(getIMsOfECO(SIM,id(CO)),(unwired unused)) and
+        ( t(CO,CO',CO0,IDCO,SCO,SIM) <wf t(co,co',co0,idCO,sCO,sIM) ) = true .
+
+:goal { eq robust-lemma02(co,co',co0,idCO,sCO,sIM) = true . }
+:def idco0ctf = :ctf {
+  eq id(co0) = idCO .
+}
+:apply (idco0ctf rd-)
+:def idcoctf = :ctf {
+  eq id(co) = idCO .
+}
+:apply (idcoctf rd-)
+:def changeObjStateI = :csp { eq id(co') = id(co) . }  
+:def changeObjStateS = :csp { eq (state(co) > state(co')) = true . }
+:def changeObjStateN = :csp { eq next(co') = next(co) . }
+:def changeObjStateT = :csp { eq target(co') = target(co) . }
+:apply (changeObjStateI changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 1-2-1-1-1-1: changeObjState(co,co')
+:def getICOcsp = :csp {
+  eq getIMsOfICOInStates(sIM,idCO,(wired swired)) = empIM .
+  eq sIM = (imp(tIM, idIM, idCO, eidCO, cIMs, nIMs, tIMs) sIM') .
+}
+:apply (getICOcsp rd-)
+-- Case 1-2-1-1-1-1-2: Component idCO has an wired or swired import.
+:def eidCOctf = :ctf {
+  eq eidCO = id(co) .
+}
+:def getIMsOfECOctf = :ctf {
+  eq allIMInStates(getIMsOfECO(sIM',id(co)),(unwired unused)) = true .
+}
+:def cIMs2csp = :csp {
+  eq cIMs = wired .
+  eq cIMs = swired .
+}
+:apply (eidCOctf getIMsOfECOctf cIMs2csp rd-)
+:def initIH = :init as robust-lemma02-IH-in [robust-lemma02-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	CO0:Component <- co0;
+        IDCO:COID <- idCO;
+	SCO:SetOfComponent <- sCO;
+	SIM:SetOfImport <- sIM'; } 
+:apply (initIH rd-)
+:apply (initIH rd-)
+--> Proof of robust-lemma02 done
+-->
+show proof
+close
+
+--> Proof of robust-lemma02-1
+--> pred robust-lemma02-1 : Component Component Component IMType COID SetOfComponent SetOfImport
+--> eq robust-lemma02-1(CO,CO',CO0,TIM,IDCO,SCO,SIM)
+-->   = allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,(wired swired))),
+-->                   (started sstarted)) implies
+-->     allCOInStates(getECOsOfIMs((CO' CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,(wired swired))),
+-->	    (started sstarted))
+-->     when changeObjState(CO,CO') and id(CO0) = IDCO and ( id(CO) = IDCO ) = false and
+-->          allIMInStates(getIMsOfECO(SIM,id(CO)),(unwired unused)) .
+open ProofLemma .
+  -- Define <wf for robust-lemma02-1
+  [COCOCOTYIDSCOSIM] op t : Component Component Component IMType COID SetOfComponent SetOfImport -> COCOCOTYIDSCOSIM {constr} .
+  pred _<wf_ : COCOCOTYIDSCOSIM COCOCOTYIDSCOSIM .
+  ceq ( t(CO,CO',CO0,TIM,IDCO,SCO,SIM') <wf t(CO,CO',CO0,TIM,IDCO,SCO,SIM) ) = true
+     if SIM' <wf SIM .
+
+  -- Induction Hypothesis
+  ceq [robust-lemma02-1-IH :nonexec]:
+      (allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,(wired swired))),
+                    (started sstarted)) and
+       allCOInStates(getECOsOfIMs((CO' CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,(wired swired))),
+		    (started sstarted)))
+     = allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,(wired swired))),
+		    (started sstarted))
+     if changeObjState(CO,CO') and id(CO0) = IDCO and ( id(CO) = IDCO ) = false and
+        allIMInStates(getIMsOfECO(SIM,id(CO)),(unwired unused)) and
+        ( t(CO,CO',CO0,TIM,IDCO,SCO,SIM) <wf t(co,co',co0,tIM,idCO,sCO,sIM) ) = true .
+
+:goal { eq robust-lemma02-1(co,co',co0,tIM,idCO,sCO,sIM) = true . }
+:def idco0ctf = :ctf {
+  eq id(co0) = idCO .
+}
+:apply (idco0ctf rd-)
+:def idcoctf = :ctf {
+  eq id(co) = idCO .
+}
+:apply (idcoctf rd-)
+:def changeObjStateI = :csp { eq id(co') = id(co) . }  
+:def changeObjStateS = :csp { eq (state(co) > state(co')) = true . }
+:def changeObjStateN = :csp { eq next(co') = next(co) . }
+:def changeObjStateT = :csp { eq target(co') = target(co) . }
+:apply (changeObjStateI changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 1-2-1-1-1-1: changeObjState(co,co')
+:def getIMscsp = :csp {
+  eq getIMsOfTypeOfICOInStates(sIM,tIM,idCO,(wired swired)) = empIM .
+  eq sIM = (imp(tIM, idIM, idCO, eidCO,  wired, nIMs, tIMs) sIM') .
+  eq sIM = (imp(tIM, idIM, idCO, eidCO, swired, nIMs, tIMs) sIM') .
+}
+:def eidCOctf = :ctf {
+  eq eidCO = id(co) .
+}
+:def getIMsOfECOctf = :ctf {
+  eq allIMInStates(getIMsOfECO(sIM',id(co)),(unwired unused)) = true .
+}
+:apply (getIMscsp eidCOctf getIMsOfECOctf rd-)
+:def initIH = :init as robust-lemma02-1-IH-in [robust-lemma02-1-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	CO0:Component <- co0;
+        IDCO:COID <- idCO;
+	SCO:SetOfComponent <- sCO;
+	SIM:SetOfImport <- sIM'; } 
+:apply (initIH rd-)
+:apply (initIH rd-)
+--> Proof of robust-lemma02-1 done
+-->
+show proof
+close
+
+--> Proof of robust-lemma03
+--> pred robust-lemma03 : Component Component COID SetOfComponent SetOfImport
+--> eq robust-lemma03(CO,CO',IDCO,SCO,SIM)
+-->   = allCOInStates(getECOsOfIMs((CO  SCO),getIMsOfICOInStates(SIM,idCO,(wired swired))),
+-->                   (started sstarted)) implies
+-->     allCOInStates(getECOsOfIMs((CO' SCO),getIMsOfICOInStates(SIM,idCO,(wired swired))),
+-->	    (started sstarted))
+-->     when changeObjState(CO,CO') and (state(CO') in (started sstarted)) .
+open ProofLemma .
+  -- Define <wf for robust-lemma03
+  [COCOSCOSIM] op t : Component Component COID SetOfComponent SetOfImport -> COCOSCOSIM {constr} .
+  pred _<wf_ : COCOSCOSIM COCOSCOSIM .
+  ceq ( t(CO,CO',IDCO,SCO,SIM') <wf t(CO,CO',IDCO,SCO,SIM) ) = true
+     if SIM' <wf SIM .
+
+  -- Induction Hypothesis
+  ceq [robust-lemma03-IH :nonexec]:
+      (allCOInStates(getECOsOfIMs((CO  SCO),getIMsOfICOInStates(SIM,IDCO,(wired swired))),
+                    (started sstarted)) and
+       allCOInStates(getECOsOfIMs((CO' SCO),getIMsOfICOInStates(SIM,IDCO,(wired swired))),
+		    (started sstarted)))
+     = allCOInStates(getECOsOfIMs((CO  SCO),getIMsOfICOInStates(SIM,IDCO,(wired swired))),
+		    (started sstarted))
+     if changeObjState(CO,CO') and (state(CO') in (started sstarted)) and
+        ( t(CO,CO',IDCO,SCO,SIM) <wf t(co,co',idCO,sCO,sIM) ) = true .
+
+:goal { eq robust-lemma03(co,co',idCO,sCO,sIM) = true . }
+:def tIMcsp = :csp  { 
+  eq tIM = mandatory .
+  eq tIM = optional .
+}
+:def initIH = :init as robust-lemma03-IH-in [robust-lemma03-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+        IDCO:COID <- idCO;
+	SCO:SetOfComponent <- sCO;
+	SIM:SetOfImport <- sIM'; } 
+:def cIMscsp = :csp {
+  eq cIMs = unused .
+  eq cIMs = wired .
+  eq cIMs = swired .
+  eq cIMs = unwired .
+}
+:def nIMscsp = :csp  { 
+  eq nIMs = unused .
+  eq nIMs = unwired .
+  eq nIMs = wired .
+  eq nIMs = swired .
+}
+:def tIMscsp = :csp  { 
+  eq tIMs = unused .
+  eq tIMs = unwired .
+  eq tIMs = wired .
+  eq tIMs = swired .
+}
+:def empSIMcsp = :csp {
+  eq sIM = empIM .
+  eq sIM = (imp(tIM, idIM, iidCO, eidCO, cIMs, nIMs, tIMs) sIM') .
+}
+:apply (empSIMcsp rd-)
+:def stateco'ctf = :ctf {
+  eq (state(co') in (started sstarted)) = true .
+}
+:apply (stateco'ctf rd-)
+:def changeObjStateI = :csp { eq id(co') = id(co) . }  
+:def changeObjStateS = :csp { eq (state(co) > state(co')) = true . }
+:def changeObjStateN = :csp { eq next(co') = next(co) . }
+:def changeObjStateT = :csp { eq target(co') = target(co) . }
+:apply (changeObjStateI changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 2-1-1-1-1-1: changeObjState(co,co')
+:apply (initIH tIMcsp cIMscsp nIMscsp tIMscsp rd-)
+--> Proof of robust-lemma03 done
+-->
+show proof
+close
+
+--> Cont Lemmas
 --> Proof of robust-lemmaC01
 -->  eq robust-lemmaC01(CO,SCO,SIM,L)
 -->    = cont(< (CO SCO), SIM, L >) 
@@ -74,6 +569,11 @@ open ProofLemma .
   eq tIMs = wired .
   eq tIMs = swired .
 }
+:def cCOscsp = :csp  { 
+  eq cCOs = stopped .
+  eq cCOs = started .
+  eq cCOs = sstarted .
+}
 :def nCOscsp = :csp  { 
   eq nCOs = stopped .
   eq nCOs = started .
@@ -97,31 +597,37 @@ open ProofLemma .
 --> Step 1-5: Split the current case into cases where
 -->  the condition of the current rule does or does not hold. 
 --> *********************************************************
--- The condition of RD-stop is getICOsOfIMsInStates(...) = empCO
+-- The condition of RD-stop is allIMInStates(...) = true
 :def canstopcsp = :csp {
-  eq getICOsOfIMsInStates(sCO,
-                          getIMsOfECOInStates(sIM,idCO,(wired swired)),
-                         (started sstarted)) = empCO .
+  eq allIMInStates(getIMsOfECO(sIM,idCO),(unwired unused)) = true .
   eq sIM = (imp(tIM, idIM, iidCO, idCO, cIMs, nIMs, tIMs) sIM') .
 }
 :apply (canstopcsp rd-)
 -- Case 1-2: RD-stop can not be applied
 -- which means that
 --   idIM is currently wired or swired and
---   idIM has an importer component that is currently started or sstarted
-:init ( eq sCO = (cmp(iidCO,cCOs,nCOs,tCOs) sCO') .) .
 :def cIMscsp2 = :csp  { 
   eq cIMs = wired .
   eq cIMs = swired .
 }
-:def cCOscsp2 = :csp  { 
-  eq cCOs = started .
-  eq cCOs = sstarted .
-}
 :apply (tIMcsp cIMscsp2 nIMscsp tIMscsp rd-)
--- Case 1-2-1-1-1-2-2: mandatory wired unwired unwired
-:apply (cCOscsp2 nCOscsp tCOscsp rd-)
--- Case 1-2-1-1-1-2-2-1-1-1 started stopped stopped
+-- Case 1-2-1-1-2-2: mandatory wired unwired unwired
+--> *****************************************************************
+--> Step 1-3: Consider which rule can be applied to the current case.
+--> *****************************************************************
+-- rule RD-unwire2 should be applied
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- In order to be matched with the LHS of the rule, idIM should have an stopped importer.
+:def existCOcsp = :csp {
+  eq existCO(sCO,iidCO) = false .
+  eq sCO = (cmp(iidCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (existCOcsp rd-)
+:apply (cCOscsp nCOscsp tCOscsp rd-)
+-- Case 1-2-1-1-2-2-2-2-1-1: started stopped stopped
 --> ******************************************************************************
 --> Step 1-8: When falling in a cyclic situation, use No Cyclic Dependency Lemma.
 --> ******************************************************************************
@@ -142,8 +648,8 @@ close
 -->    = cont(< (CO SCO), SIM, L >) 
 -->      when inv(< (CO SCO), SIM, L >) and
 -->        CO in st(started,stopped,sstarted) .
+-- This goal requires robust-lemmaC01.
 open ProofLemma .
-  -- This lemma requres C01:
   -- eq robust-lemmaC01(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
@@ -174,6 +680,11 @@ open ProofLemma .
   eq tIMs = wired .
   eq tIMs = swired .
 }
+:def cCOscsp = :csp  { 
+  eq cCOs = stopped .
+  eq cCOs = started .
+  eq cCOs = sstarted .
+}
 :def nCOscsp = :csp  { 
   eq nCOs = stopped .
   eq nCOs = started .
@@ -197,11 +708,9 @@ open ProofLemma .
 --> Step 1-5: Split the current case into cases where
 -->  the condition of the current rule does or does not hold. 
 --> *********************************************************
--- The condition of RD-stop is getICOsOfIMsInStates(...) = empCO
+-- The condition of RD-stop is allIMInStates(...) = true
 :def canstopcsp = :csp {
-  eq getICOsOfIMsInStates(sCO,
-                          getIMsOfECOInStates(sIM,idCO,(wired swired)),
-                         (started sstarted)) = empCO .
+  eq allIMInStates(getIMsOfECO(sIM,idCO),(unwired unused)) = true .
   eq sIM = (imp(tIM, idIM, iidCO, idCO, cIMs, nIMs, tIMs) sIM') .
 }
 :apply (canstopcsp rd-)
@@ -209,22 +718,40 @@ open ProofLemma .
 -- which means that
 --   idIM is currently wired or swired and
 --   idIM has an importer component that is currently started or sstarted
-:init ( eq sCO = (cmp(iidCO,cCOs,nCOs,tCOs) sCO') .) .
 :def cIMscsp2 = :csp  { 
   eq cIMs = wired .
   eq cIMs = swired .
 }
-:def cCOscsp2 = :csp  { 
-  eq cCOs = started .
-  eq cCOs = sstarted .
-}
 :apply (tIMcsp cIMscsp2 nIMscsp tIMscsp rd-)
--- Case 1-2-1-1-1-2-2: mandatory wired unwired unwired
-:apply (cCOscsp2 nCOscsp tCOscsp rd-)
--- Case 1-2-1-1-1-2-2-1-1-1 is discharged by C01
--- Case 1-2-1-1-1-2-4: mandatory wired unwired swired
-:apply (cCOscsp2 nCOscsp tCOscsp rd-)
--- Case 1-2-1-1-1-2-4-1-1-3: started stopped sstarted
+-- Case 1-2-1-1-2-2: mandatory wired unwired unwired
+--> *****************************************************************
+--> Step 1-3: Consider which rule can be applied to the current case.
+--> *****************************************************************
+-- rule RD-unwire2 should be applied
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- In order to be matched with the LHS of the rule, idIM should have an stopped importer.
+:def existCOcsp = :csp {
+  eq existCO(sCO,iidCO) = false .
+  eq sCO = (cmp(iidCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (existCOcsp rd-)
+:apply (cCOscsp nCOscsp tCOscsp rd-)
+-- Case 1-2-1-1-2-4: mandatory wired unwired swired
+--> *****************************************************************
+--> Step 1-3: Consider which rule can be applied to the current case.
+--> *****************************************************************
+-- rule RD-unwire2 should be applied
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- In order to be matched with the LHS of the rule, idIM should have an stopped importer.
+:apply (existCOcsp rd-)
+:apply (cCOscsp nCOscsp tCOscsp rd-)
+-- Case 1-2-1-1-2-4-2-2-1-3: started stopped sstarted
 --> ******************************************************************************
 --> Step 1-8: When falling in a cyclic situation, use No Cyclic Dependency Lemma.
 --> ******************************************************************************
@@ -244,12 +771,99 @@ close
 -->  eq robust-lemmaC03(CO,SCO,SIM,L)
 -->    = cont(< (CO SCO), SIM, L >) 
 -->      when inv(< (CO SCO), SIM, L >) and
--->        CO in st(started,started,sstarted) .
+-->        CO in st(started,sstarted,sstarted) .
 open ProofLemma .
 --> ***********************************************************************
 --> Step 1-1: Begin with the most general representation of a global state.
 --> ***********************************************************************
 :goal { eq robust-lemmaC03(co,sCO,sIM,lg) = true . }
+:csp {
+  eq co = cmp(idCO,started,sstarted,sstarted) .
+}
+:def nIMscsp = :csp  { 
+  eq nIMs = unused .
+  eq nIMs = unwired .
+  eq nIMs = wired .
+  eq nIMs = swired .
+}
+:def tIMscsp = :csp  { 
+  eq tIMs = unused .
+  eq tIMs = unwired .
+  eq tIMs = wired .
+  eq tIMs = swired .
+}
+:def exECOcsp = :csp  { 
+  eq existCO(sCO,eidCO) = false .
+  eq sCO = (cmp(eidCO,cCOs,nCOs,tCOs) sCO') .
+}
+:def cCOscsp = :csp  { 
+  eq cCOs = stopped .
+  eq cCOs = started .
+  eq cCOs = sstarted .
+}
+:def nCOscsp = :csp  { 
+  eq nCOs = stopped .
+  eq nCOs = started .
+  eq nCOs = sstarted .
+}
+:def tCOscsp = :csp  { 
+  eq tCOs = stopped .
+  eq tCOs = started .
+  eq tCOs = sstarted .
+}
+--> *****************************************************************
+--> Step 1-3: Consider which rule can be applied to the current case.
+--> *****************************************************************
+-- rule RD-sstart should be applied
+--> *************************************************************************************
+--> Step 1-4: Split the current case into cases which collectively cover the current case
+-->  and one of which is matched with the LHS of the current rule.
+--> *************************************************************************************
+-- The corrent case is already matched with the LHS of rule RD-sstart.
+--> *********************************************************
+--> Step 1-5: Split the current case into cases where
+-->  the condition of the current rule does or does not hold. 
+--> *********************************************************
+-- The condition of RD-sstart is 
+--     allCOInStates(getECOsOfIMs(SCO,getIMsOfTypeOfICOInStates(SIM,mandatory,IDCO,swired)),sstarted) .
+:def csp1-5 = :csp {
+  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfTypeOfICOInStates(sIM,mandatory,idCO,swired)),sstarted) = true .
+  eq sIM = (imp(mandatory, idIM, idCO, eidCO, swired, nIMs, tIMs) sIM') .
+}
+:apply (csp1-5 rd-)
+-- Case 1-2: sIM = (imp(mandatory, idIM, idCO, eidCO, swired, nIMs, tIMs) sIM') .
+:apply (tIMscsp nIMscsp rd-)
+-- Case 1-2-4-4: sIM = (imp(mandatory, idIM, idCO, eidCO, swired, swired, swired) sIM') .
+:apply (exECOcsp rd-)
+:def cCOs2csp = :csp {
+  eq cCOs = stopped . 
+  eq cCOs = started . 
+}
+:apply (cCOs2csp nCOscsp tCOscsp rd-)
+--> Proof of robust-lemmaC03 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaC04
+-->  eq robust-lemmaC04(CO,SCO,SIM,L)
+-->    = cont(< (CO SCO), SIM, L >) 
+-->      when inv(< (CO SCO), SIM, L >) and
+-->        CO in st(started,started,sstarted) .
+-- This goal requires robust-lemmaC03.
+open ProofLemma .
+  -- eq robust-lemmaC03(CO,SCO,SIM,L)
+  --   = cont(< (CO SCO), SIM, L >) 
+  --     when inv(< (CO SCO), SIM, L >) and
+  --          CO in st(started,sstarted,sstarted) .
+  ceq inv(< (CO SCO), SIM, L >) = false 
+    if CO in st(started,sstarted,sstarted) and
+       cont(< (CO SCO), SIM, L >) = false .
+
+--> ***********************************************************************
+--> Step 1-1: Begin with the most general representation of a global state.
+--> ***********************************************************************
+:goal { eq robust-lemmaC04(co,sCO,sIM,lg) = true . }
 :csp {
   eq co = cmp(idCO,started,started,sstarted) .
 }
@@ -297,19 +911,51 @@ open ProofLemma .
 --> Step 1-5: Split the current case into cases where
 -->  the condition of the current rule does or does not hold. 
 --> *********************************************************
--- The condition of RS-sstart2 is allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
+-- The condition of RS-sstart2 is 
+--     allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) and
+--     allIMInTargetStates(getIMsOfTypeOfICOInStates(SIM,mandatory,IDCO,unused),unused) and
+--     allCOInStates(getECOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,(wired swired))),(started sstarted)) .
+
 :def csp1-5-1 = :csp {
   eq allIMInStates(getIMsOfTypeOfICO(sIM,mandatory,idCO),(swired unused)) = true .
   eq sIM = (imp(mandatory, idIM, idCO, eidCO, unwired, nIMs, tIMs) sIM') .
   eq sIM = (imp(mandatory, idIM, idCO, eidCO,   wired, nIMs, tIMs) sIM') .
 }
-:apply (csp1-5-1 rd-)
+:apply (csp1-5-1)
 -- Case 1-1: allIMInStates(...)
 :def csp1-5-2 = :csp {
   eq allIMInTargetStates(getIMsOfTypeOfICOInStates(sIM,mandatory,idCO,unused),unused) = true .
   eq sIM = (imp(mandatory, idIM, idCO, eidCO, unused, nIMs, tIMs) sIM') .
 }
-:apply (csp1-5-2 rd-)
+:apply (csp1-5-2)
+-- Case 1-1-1: allIMInTargetStates(...)
+:def csp1-5-3 = :csp {
+  eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),(started sstarted)) = true .
+  eq sIM = (imp(optional, idIM, idCO, eidCO,  wired, nIMs, tIMs) sIM') .
+  eq sIM = (imp(tIM,      idIM, idCO, eidCO, swired, nIMs, tIMs) sIM') .
+}
+:apply (csp1-5-3 rd-)
+-- Case 1-1-1-2: sIM = (imp(optional, idIM, idCO, eidCO, wired, nIMs, tIMs) sIM') .
+-- Note that csp1-5-1 means a mandatory import should be swired or unused.
+:apply (tIMscsp nIMscsp rd-)
+-- Case 1-1-1-2-4-3: sIM = (imp(optional, idIM, idCO, eidCO, wired, wired, swired) sIM') .
+:apply (exECOcsp rd-)
+:csp { eq cCOs = stopped . }
+:apply (nCOscsp tCOscsp rd-)
+-- Case 1-1-1-3: sIM = (imp(tIM, idIM, idCO, eidCO, swired, nIMs, tIMs) sIM') .
+:def tIMcsp = :csp {
+  eq tIM = mandatory .
+  eq tIM = optional .
+}
+:apply (tIMcsp tIMscsp nIMscsp rd-)
+-- Case 1-1-1-3-1-4-4: sIM = (imp(mandatory, idIM, idCO, eidCO, swired, swired, swired) sIM') .
+:apply (exECOcsp rd-)
+:csp { eq cCOs = stopped . }
+:apply (nCOscsp tCOscsp rd-)
+-- Case 1-1-1-3-2-4-4: sIM = (imp(optional, idIM, idCO, eidCO, swired, swired, swired) sIM') .
+:apply (exECOcsp rd-)
+:csp { eq cCOs = stopped . }
+:apply (nCOscsp tCOscsp rd-)
 -- Case 1-1-2: sIM = (imp(mandatory, idIM, idCO, eidCO, unused, nIMs, tIMs) sIM')
 :def tIMs3csp = :csp {
   eq tIMs = unwired .
@@ -319,6 +965,8 @@ open ProofLemma .
 :apply (tIMs3csp rd-)
 -- Case 1-1-2-3: swired
 :apply (nIMscsp rd-)
+-- Case 1-2: unwired
+:apply (nIMscsp tIMscsp rd-)
 -- Case 1-3: wired
 :apply (nIMscsp tIMscsp rd-)
 -- Case 1-3-3-4: wired wired swired
@@ -339,18 +987,21 @@ open ProofLemma .
       LS:LocalState <- st(started,started,sstarted);
       S:State <- (< (co sCO), sIM, lg >);}
 :apply (noCycleU rd-)
---> Proof of robust-lemmaC03 done
+-- Case 1-3-3-4-2-2-3-3: started sstarted sstarted is discharged by C03
+--> Proof of robust-lemmaC04 done
 -->
 show proof
 close
 
---> Proof of robust-lemmaC04
--->  eq robust-lemmaC04(CO,SCO,SIM,L)
+--> Proof of robust-lemmaC05
+-->  eq robust-lemmaC05(CO,SCO,SIM,L)
 -->    = cont(< (CO SCO), SIM, L >) 
 -->      when inv(< (CO SCO), SIM, L >) and
 -->           CO in st(stopped,sstarted,sstarted) .
+-- This goal requires robust-lemmaC02.
+-- This goal requires robust-lemmaC03.
+-- This goal requires robust-lemmaC04.
 open ProofLemma .
-  -- This lemma requres C02 & C03:
   -- eq robust-lemmaC02(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
@@ -362,6 +1013,14 @@ open ProofLemma .
   -- eq robust-lemmaC03(CO,SCO,SIM,L)
   --   = cont(< (CO SCO), SIM, L >) 
   --     when inv(< (CO SCO), SIM, L >) and
+  --          CO in st(started,stopped,sstarted) .
+  ceq inv(< (CO SCO), SIM, L >) = false 
+    if CO in st(started,sstarted,sstarted) and
+       cont(< (CO SCO), SIM, L >) = false .
+
+  -- eq robust-lemmaC04(CO,SCO,SIM,L)
+  --   = cont(< (CO SCO), SIM, L >) 
+  --     when inv(< (CO SCO), SIM, L >) and
   --          CO in st(started,started,sstarted) .
   ceq inv(< (CO SCO), SIM, L >) = false 
     if CO in st(started,started,sstarted) and
@@ -370,7 +1029,7 @@ open ProofLemma .
 --> ***********************************************************************
 --> Step 1-1: Begin with the most general representation of a global state.
 --> ***********************************************************************
-:goal { eq robust-lemmaC04(co,sCO,sIM,lg) = true . }
+:goal { eq robust-lemmaC05(co,sCO,sIM,lg) = true . }
 :csp {
   eq co = cmp(idCO,stopped,sstarted,sstarted) .
 }
@@ -424,13 +1083,13 @@ open ProofLemma .
   eq sIM = (imp(mandatory, idIM, idCO, eidCO, unwired, nIMs, tIMs) sIM') .
   eq sIM = (imp(mandatory, idIM, idCO, eidCO,   wired, nIMs, tIMs) sIM') .
 }
-:apply (csp1-5-1 rd-)
+:apply (csp1-5-1)
 -- Case 1-1: allIMInStates(...)
 :def csp1-5-2 = :csp {
   eq allIMInTargetStates(getIMsOfTypeOfICOInStates(sIM,mandatory,idCO,unused),unused) = true .
   eq sIM = (imp(mandatory, idIM, idCO, eidCO, unused, nIMs, tIMs) sIM') .
 }
-:apply (csp1-5-2 rd-)
+:apply (csp1-5-2)
 -- Case 1-1-1: allIMInTargetStates(...) 
 :def csp1-5-3 = :csp {
   eq allCOInStates(getECOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),(started sstarted)) = true .
@@ -446,19 +1105,6 @@ open ProofLemma .
   eq cIMs = swired .
 }
 :apply (eidCOcsp cIMs2csp rd-)
--- Case 1-1-1-2-1-1: wired
-:apply (nIMscsp tIMscsp rd-)
--- Case 1-1-1-2-1-1-3-4: wired swired
-:apply (nCOscsp tCoscsp rd-)
--- Case 1-1-1-2-1-1-3-4-3-3: sstarted sstarted
-:def noCycleU = :init as noCycleU-in [noCycleU]
-  by {CO:Component <- co;
-      Xc:Component <- co;
-      LS:LocalState <- st(stopped,sstarted,sstarted);
-      S:State <- (< (co sCO), sIM, lg >);}
-:apply (noCycleU rd-)
--- Case 1-1-1-2-1-2: swired
-:apply (nIMscsp tIMscsp rd-)
 -- Case 1-1-2: sIM = (imp(mandatory, idIM, idCO, eidCO, unused, nIMs, tIMs) sIM')
 :def tIMs3csp = :csp {
   eq tIMs = unwired .
@@ -490,14 +1136,19 @@ open ProofLemma .
 -->  and one of which is matched with the LHS of the current rule.
 --> *************************************************************************************
 :apply (cCOscsp nCOscsp tCOscsp rd-)
--- Case 1-2-4-4-2-2-1-3: started stopped sstarted is discharged by C02
--- Case 1-2-4-4-2-2-2-3: started started sstarted is discharged by C03
+-- Case 1-2-4-4-2-2-2-3: started started sstarted is discharged by C04
 -- Case 1-2-4-4-2-1-3-3: stopped sstarted sstarted
 --> ******************************************************************************
 --> Step 1-8: When falling in a cyclic situation, use No Cyclic Dependency Lemma.
 --> ******************************************************************************
 -- The Cyclic Dependency Lemma rejects this case.
+:def noCycleU = :init as noCycleU-in [noCycleU]
+  by {CO:Component <- co;
+      Xc:Component <- co;
+      LS:LocalState <- st(stopped,sstarted,sstarted);
+      S:State <- (< (co sCO), sIM, lg >);}
 :apply (noCycleU rd-)
+-- Case 1-2-4-4-2-2-3-3: started sstarted sstarted
 -- Case 1-3: wired
 --> *****************************************************************
 --> Step 1-3: Consider which rule can be applied to the current case.
@@ -520,15 +1171,2097 @@ open ProofLemma .
 -->  and one of which is matched with the LHS of the current rule.
 --> *************************************************************************************
 :apply (cCOscsp nCOscsp tCOscsp rd-)
--- Case 1-3-3-4-2-1-3-3: stopped sstarted sstarted
---> ******************************************************************************
---> Step 1-8: When falling in a cyclic situation, use No Cyclic Dependency Lemma.
---> ******************************************************************************
--- The Cyclic Dependency Lemma rejects this case.
-:apply (noCycleU rd-)
---> Proof of robust-lemmaC04 done
+--> Proof of robust-lemmaC05 done
 -->
 show proof
 close
 
---> Totally 4 goals should be proved.
+--> Proof of robust-lemmaV01
+--> eq robust-lemmaV01(CO,CO',SCO,SCO0,SIM0)
+-->   = validTargetComponent(SCO,(CO  SCO0),SIM0) implies 
+-->     validTargetComponent(SCO,(CO' SCO0),SIM0)
+-->     when changeObjState(CO,CO') .
+-- This goal requires m2o3-lemma01.
+open ProofLemma .
+  -- Define <wf for robust-lemmaV01
+  [CCSCSCSI] op t : Component Component SetOfComponent SetOfComponent SetOfImport -> CCSCSCSI {constr} .
+  pred _<wf_ : CCSCSCSI CCSCSCSI .
+  ceq ( t(CO,CO',SCO',SCO0,SIM0) <wf t(CO,CO',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  --  eq robust-lemmaV01(CO,CO',SCO,SCO0,SIM0)
+  --    = validTargetComponent(SCO,(CO  SCO0),SIM0) implies 
+  --      validTargetComponent(SCO,(CO' SCO0),SIM0)
+  --      when changeObjState(CO,CO') .
+  ceq [robust-lemmaV01-IH :nonexec]:
+      (changeObjState(CO,CO') and
+       validTargetComponent(SCO,(CO  SCO0),SIM0) and
+       validTargetComponent(SCO,(CO' SCO0),SIM0))
+    = (changeObjState(CO,CO') and
+       validTargetComponent(SCO,(CO  SCO0),SIM0))
+    if t(CO,CO',SCO,SCO0,SIM0) <wf t(co,co',sCO,sCO0,sIM0) .
+
+:goal { eq robust-lemmaV01(co,co',sCO,sCO0,sIM0) = true . }
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def tCOscsp = :csp {
+  eq tCOs = stopped . 
+  eq tCOs = started . 
+  eq tCOs = sstarted . 
+}
+:apply (tCOscsp rd-)
+-- Case 2-1: stopped
+:def initIH = :init as robust-lemmaV01-IH-in [robust-lemmaV01-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; }
+:apply (initIH rd-)
+-- Case 2-3: sstarted
+:def changeObjStateI = :csp { eq id(co') = id(co) . }  
+:def changeObjStateS = :csp { eq (state(co) > state(co')) = true . }
+:def changeObjStateN = :csp { eq next(co') = next(co) . }
+:def changeObjStateT = :csp { eq target(co') = target(co) . }
+:apply (changeObjStateI changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 2-3-1-1-1-1: changeObjState(co,co') = true .
+:apply (initIH rd-)
+--> Proof of robust-lemmaV01 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV01-2
+--> eq robust-lemmaV01-2(CO,CO',SCO,SCO0,SIM0)
+-->   = validTargetComponent(SCO,(CO  SCO0),SIM0) implies 
+-->     validTargetComponent(SCO,(CO' SCO0),SIM0)
+-->     when changeObjState2(CO,CO') .
+-- This goal requires m2o3-lemma01-2.
+open ProofLemma .
+  -- Define <wf for robust-lemmaV01-2
+  [CCSCSCSI] op t : Component Component SetOfComponent SetOfComponent SetOfImport -> CCSCSCSI {constr} .
+  pred _<wf_ : CCSCSCSI CCSCSCSI .
+  ceq ( t(CO,CO',SCO',SCO0,SIM0) <wf t(CO,CO',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  --  eq robust-lemmaV01-2(CO,CO',SCO,SCO0,SIM0)
+  --    = validTargetComponent(SCO,(CO  SCO0),SIM0) implies 
+  --      validTargetComponent(SCO,(CO' SCO0),SIM0)
+  --      when changeObjState2(CO,CO') .
+  ceq [robust-lemmaV01-2-IH :nonexec]:
+      (changeObjState2(CO,CO') and
+       validTargetComponent(SCO,(CO  SCO0),SIM0) and
+       validTargetComponent(SCO,(CO' SCO0),SIM0))
+    = (changeObjState2(CO,CO') and
+       validTargetComponent(SCO,(CO  SCO0),SIM0))
+    if t(CO,CO',SCO,SCO0,SIM0) <wf t(co,co',sCO,sCO0,sIM0) .
+
+:goal { eq robust-lemmaV01-2(co,co',sCO,sCO0,sIM0) = true . }
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def tCOscsp = :csp {
+  eq tCOs = stopped . 
+  eq tCOs = started . 
+  eq tCOs = sstarted . 
+}
+:apply (tCOscsp rd-)
+-- Case 2-1: stopped
+:def initIH = :init as robust-lemmaV01-2-IH-in [robust-lemmaV01-2-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; }
+:apply (initIH rd-)
+-- Case 2-3: sstarted
+:def changeObjState2I = :csp { eq id(co') = id(co) . }  
+:def changeObjState2S = :csp { eq state(co') = state(co) . }
+:def changeObjState2N = :csp { eq (next(co) > next(co')) = true . }
+:def changeObjState2T = :csp { eq target(co') = target(co) . }
+:apply (changeObjState2I changeObjState2S changeObjState2N changeObjState2T rd-)
+-- Case 2-3-1-1-1-1: changeObjState2(co,co') = true .
+:apply (initIH rd-)
+--> Proof of robust-lemmaV01-2 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV02
+--> eq robust-lemmaV02(CO,CO',SCO0,SIM0)
+-->   = validTargetImport(SIM0,(CO  SCO0)) implies 
+-->     validTargetImport(SIM0,(CO' SCO0))
+-->     when changeObjState(CO,CO') .
+-- This goal requires m2o3-lemma01.
+open ProofLemma .
+  -- Define <wf for robust-lemmaV02
+  [CCSCSI] op t : Component Component SetOfComponent SetOfImport -> CCSCSI {constr} .
+  pred _<wf_ : CCSCSI CCSCSI .
+  ceq ( t(CO,CO',SCO0,SIM') <wf t(CO,CO',SCO0,SIM0) ) = true
+     if SIM' <wf SIM0 .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV02(CO,CO',SCO0,SIM0)
+  --   = validTargetImport(SIM0,(CO  SCO0)) implies 
+  --     validTargetImport(SIM0,(CO' SCO0))
+  --     when changeObjState(CO,CO') .
+  ceq [robust-lemmaV02-IH :nonexec]:
+      (changeObjState(CO,CO') and
+       validTargetImport(SIM0,(CO  SCO0)) and
+       validTargetImport(SIM0,(CO' SCO0)))
+    = (changeObjState(CO,CO') and
+       validTargetImport(SIM0,(CO  SCO0)))
+    if t(CO,CO',SCO0,SIM0) <wf t(co,co',sCO0,sIM0) .
+
+:goal { eq robust-lemmaV02(co,co',sCO0,sIM0) = true . }
+:def empSIM0csp = :csp {
+  eq sIM0 = empIM .
+  eq sIM0 = (imp(tIM, idIM, iidCO, idCO, cIMs, nIMs, tIMs) sIM') .
+}
+:apply (empSIM0csp rd-)
+:def changeObjStateI = :csp { eq id(co') = id(co) . }  
+:def changeObjStateS = :csp { eq (state(co) > state(co')) = true . }
+:def changeObjStateN = :csp { eq next(co') = next(co) . }
+:def changeObjStateT = :csp { eq target(co') = target(co) . }
+:apply (changeObjStateI changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 2-1-1-1-1: changeObjState(co,co') = true
+:def initIH = :init as robust-lemmaV02-IH-in [robust-lemmaV02-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM'; }
+:apply (initIH)
+:def tIMscsp = :csp {
+  eq tIMs = unused . 
+  eq tIMs = wired . 
+  eq tIMs = swired . 
+  eq tIMs = unwired . 
+}
+:apply (tIMscsp rd-)
+-- Case 2-1-1-1-1-1-3: swired
+:def idCOctf = :ctf {
+  eq id(co) = idCO .
+}
+:apply (idCOctf rd-)
+-- Case 2-1-1-1-1-1-4: unwired
+:def iidCOctf = :ctf {
+  eq id(co) = iidCO .
+}
+:apply (iidCOctf rd-)
+--> Proof of robust-lemmaV02 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV02-2
+--> eq robust-lemmaV02-2(CO,CO',SCO0,SIM0)
+-->   = validTargetImport(SIM0,(CO  SCO0)) implies 
+-->     validTargetImport(SIM0,(CO' SCO0))
+-->     when changeObjState2(CO,CO') .
+-- This goal requires m2o3-lemma01-2.
+open ProofLemma .
+  -- Define <wf for robust-lemmaV02-2
+  [CCSCSI] op t : Component Component SetOfComponent SetOfImport -> CCSCSI {constr} .
+  pred _<wf_ : CCSCSI CCSCSI .
+  ceq ( t(CO,CO',SCO0,SIM') <wf t(CO,CO',SCO0,SIM0) ) = true
+     if SIM' <wf SIM0 .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV02-2(CO,CO',SCO0,SIM0)
+  --   = validTargetImport(SIM0,(CO  SCO0)) implies 
+  --     validTargetImport(SIM0,(CO' SCO0))
+  --     when changeObjState2(CO,CO') .
+  ceq [robust-lemmaV02-2-IH :nonexec]:
+      (changeObjState2(CO,CO') and
+       validTargetImport(SIM0,(CO  SCO0)) and
+       validTargetImport(SIM0,(CO' SCO0)))
+    = (changeObjState2(CO,CO') and
+       validTargetImport(SIM0,(CO  SCO0)))
+    if t(CO,CO',SCO0,SIM0) <wf t(co,co',sCO0,sIM0) .
+
+:goal { eq robust-lemmaV02-2(co,co',sCO0,sIM0) = true . }
+:def empSIM0csp = :csp {
+  eq sIM0 = empIM .
+  eq sIM0 = (imp(tIM, idIM, iidCO, idCO, cIMs, nIMs, tIMs) sIM') .
+}
+:apply (empSIM0csp rd-)
+:def changeObjState2I = :csp { eq id(co') = id(co) . }  
+:def changeObjState2S = :csp { eq state(co') = state(co) . }
+:def changeObjState2N = :csp { eq (next(co) > next(co')) = true . }
+:def changeObjState2T = :csp { eq target(co') = target(co) . }
+:apply (changeObjState2I changeObjState2S changeObjState2N changeObjState2T rd-)
+-- Case 2-1-1-1-1: changeObjState2(co,co') = true
+:def initIH = :init as robust-lemmaV02-2-IH-in [robust-lemmaV02-2-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM'; }
+:apply (initIH)
+:def tIMscsp = :csp {
+  eq tIMs = unused . 
+  eq tIMs = wired . 
+  eq tIMs = swired . 
+  eq tIMs = unwired . 
+}
+:apply (tIMscsp rd-)
+-- Case 2-1-1-1-1-1-3: swired
+:def idCOctf = :ctf {
+  eq id(co) = idCO .
+}
+:apply (idCOctf rd-)
+-- Case 2-1-1-1-1-1-4: unwired
+:def iidCOctf = :ctf {
+  eq id(co) = iidCO .
+}
+:apply (iidCOctf rd-)
+--> Proof of robust-lemmaV02-2 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV03
+--> eq robust-lemmaV03(CO,CO',SCO,SCO0,SIM0)
+-->   = validCurrentComponent(SCO,(CO  SCO0),SIM0) implies 
+-->     validCurrentComponent(SCO,(CO' SCO0),SIM0)
+-->     when changeObjState2(CO,CO') and not (state(CO) = sstarted) .
+-- This goal requires m2o3-lemma02 .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV03
+  [CCSCSCSI] op t : Component Component SetOfComponent SetOfComponent SetOfImport -> CCSCSCSI {constr} .
+  pred _<wf_ : CCSCSCSI CCSCSCSI .
+  ceq ( t(CO,CO',SCO',SCO0,SIM0) <wf t(CO,CO',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  --  eq robust-lemmaV03(CO,CO',SCO,SCO0,SIM0)
+  --    = validCurrentComponent(SCO,(CO  SCO0),SIM0) implies 
+  --      validCurrentComponent(SCO,(CO' SCO0),SIM0)
+  --      when changeObjState2(CO,CO') and not (state(CO) = sstarted) .
+  ceq [robust-lemmaV03-IH :nonexec]:
+     (validCurrentComponent(SCO,(CO  SCO0),SIM0) and
+      validCurrentComponent(SCO,(CO' SCO0),SIM0))
+    = validCurrentComponent(SCO,(CO  SCO0),SIM0)
+    if changeObjState2(CO,CO') and not (state(CO) = sstarted) and
+       t(CO,CO',SCO,SCO0,SIM0) <wf t(co,co',sCO,sCO0,sIM0) .
+
+:goal { eq robust-lemmaV03(co,co',sCO,sCO0,sIM0) = true . }
+:def statecoctf = :ctf {
+  eq state(co) = sstarted .
+}
+:apply (statecoctf rd-)
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def changeObjState2I = :csp { eq id(co') = id(co) . }  
+:def changeObjState2S = :csp { eq state(co') = state(co) . }
+:def changeObjState2N = :csp { eq (next(co) > next(co')) = true . }
+:def changeObjState2T = :csp { eq target(co') = target(co) . }
+:apply (changeObjState2I changeObjState2S changeObjState2N changeObjState2T rd-)
+:def initIH = :init as robust-lemmaV03-IH-in [robust-lemmaV03-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; }
+:apply (initIH) 
+:def cCOscsp = :csp {
+  eq cCOs = stopped . 
+  eq cCOs = started . 
+  eq cCOs = sstarted . 
+}
+:apply (cCOscsp rd-)
+--> Proof of robust-lemmaV03 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV03-1
+--> eq robust-lemmaV03-1(IM,IM',SCO,SCO0,SIM0)
+-->   = validCurrentComponent(SCO,SCO0,(IM  SIM0)) implies 
+-->     validCurrentComponent(SCO,SCO0,(IM' SIM0))
+-->     when changeObjState2(IM,IM') .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV03-1
+  [IISCSCSI] op t : Import Import SetOfComponent SetOfComponent SetOfImport -> IISCSCSI {constr} .
+  pred _<wf_ : IISCSCSI IISCSCSI .
+  ceq ( t(IM,IM',SCO',SCO0,SIM0) <wf t(IM,IM',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV03-1(IM,IM',SCO,SCO0,SIM0)
+  --   = validCurrentComponent(SCO,SCO0,(IM  SIM0)) implies 
+  --     validCurrentComponent(SCO,SCO0,(IM' SIM0))
+  --     when changeObjState2(IM,IM') .
+  ceq [robust-lemmaV03-1-IH :nonexec]:
+      (validCurrentComponent(SCO,SCO0,(IM  SIM0)) and
+       validCurrentComponent(SCO,SCO0,(IM' SIM0)))
+    = validCurrentComponent(SCO,SCO0,(IM SIM0))
+    if changeObjState2(IM,IM') and
+       t(IM,IM',SCO,SCO0,SIM0) <wf t(im,im',sCO,sCO0,sIM0) .
+
+:goal { eq robust-lemmaV03-1(im,im',sCO,sCO0,sIM0) = true . }
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def changeObjState2I = :csp { eq id(im') = id(im) . }  
+:def changeObjState2M = :csp { eq importer(im') = importer(im) . }
+:def changeObjState2X = :csp { eq exporter(im') = exporter(im) . }
+:def changeObjState2P = :csp { eq type(im') = type(im) . }
+:def changeObjState2S = :csp { eq state(im') = state(im) . }
+:def changeObjState2N = :csp { eq (next(im) > next(im')) = true . }
+:def changeObjState2T = :csp { eq target(im') = target(im) . }
+:apply (changeObjState2I changeObjState2M changeObjState2X changeObjState2P changeObjState2S changeObjState2N changeObjState2T rd-)
+-- Case 2-1-1-1-1-1-1-1: changeObjState2(im,im') = true .
+:def initIH = :init as robust-lemmaV03-1-IH-in [robust-lemmaV03-1-IH]
+    by {IM:Import <- im; 
+	IM':Import <- im';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; }
+:apply (initIH)
+:def cCOscsp = :csp {
+  eq cCOs = stopped . 
+  eq cCOs = started . 
+  eq cCOs = sstarted . 
+}
+:apply (cCOscsp)
+-- Case 2-1-1-1-1-1-1-1-1-1: stopped
+:def exporterctf = :ctf {
+  eq exporter(im) = idCO .
+}
+:apply (exporterctf rd-)
+-- Case 2-1-1-1-1-1-1-1-1-2: started
+:def importerctf = :ctf {
+  eq importer(im) = idCO .
+}
+:def typecsp = :csp {
+  eq type(im) = mandatory .
+  eq type(im) = optional .
+}
+:def stateimcsp = :csp {
+  eq state(im) = unused .
+  eq state(im) = wired .
+  eq state(im) = swired .
+  eq state(im) = unwired .
+}
+:apply (importerctf typecsp stateimcsp rd-)
+-- Case 2-1-1-1-1-1-1-1-1-3: sstarted
+:apply (importerctf typecsp stateimcsp rd-)
+--> Proof of robust-lemmaV03-1 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV04
+--> eq robust-lemmaV04(CO,CO',SCO,SCO0,SIM0)
+-->   = validCurrentComponent(SCO,(CO  SCO0),SIM0) implies 
+-->     validCurrentComponent(SCO,(CO' SCO0),SIM0)
+-->     when state(CO') = stopped and changeObjState(CO,CO') and subset(SCO,SCO0) and
+-->          uniqCO(CO SCO0) and
+-->          allIMInStates(getIMsOfECO(SIM0,id(CO)),(unwired unused)) .
+-- This goal requires set-lemma13.
+-- This goal requires robust-lemma02.
+-- This goal requires robust-lemma02-1.
+open ProofLemma .
+  -- eq robust-lemma02(CO,CO',CO0,IDCO,SCO,SIM)
+  --   = allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfICOInStates(SIM,IDCO,(wired swired))),
+  --                   (started sstarted)) implies
+  --     allCOInStates(getECOsOfIMs((CO' CO0 SCO),getIMsOfICOInStates(SIM,IDCO,(wired swired))),
+  -- 		    (started sstarted))
+  --     when changeObjState(CO,CO') and id(CO0) = IDCO and ( id(CO) = IDCO ) = false and
+  --	   allIMInStates(getIMsOfECO(SIM,id(CO)),(unwired unused)) .
+  ceq (allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfICOInStates(SIM,IDCO,(wired swired))),
+                    (started sstarted)) and
+       allCOInStates(getECOsOfIMs((CO' CO0 SCO),getIMsOfICOInStates(SIM,IDCO,(wired swired))),
+		    (started sstarted)))
+     = allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfICOInStates(SIM,IDCO,(wired swired))),
+		    (started sstarted))
+     if changeObjState(CO,CO') and id(CO0) = IDCO and ( id(CO) = IDCO ) = false and
+        allIMInStates(getIMsOfECO(SIM,id(CO)),(unwired unused)) .
+
+  -- eq robust-lemma02-1(CO,CO',CO0,TIM,IDCO,SCO,SIM)
+  --   = allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,(wired swired))),
+  --                   (started sstarted)) implies
+  --     allCOInStates(getECOsOfIMs((CO' CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,(wired swired))),
+  -- 		    (started sstarted))
+  --     when changeObjState(CO,CO') and id(CO0) = IDCO and ( id(CO) = IDCO ) = false and
+  -- 	   allIMInStates(getIMsOfECO(SIM,id(CO)),(unwired unused)) .
+  ceq (allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,(wired swired))),
+                    (started sstarted)) and
+       allCOInStates(getECOsOfIMs((CO' CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,(wired swired))),
+		    (started sstarted)))
+     = allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,(wired swired))),
+		    (started sstarted))
+     if changeObjState(CO,CO') and id(CO0) = IDCO and ( id(CO) = IDCO ) = false and
+        allIMInStates(getIMsOfECO(SIM,id(CO)),(unwired unused)) .
+  ceq (allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,swired)),
+                    sstarted) and
+       allCOInStates(getECOsOfIMs((CO' CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,swired)),
+		    sstarted))
+     = allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,swired)),
+		    sstarted)
+     if changeObjState(CO,CO') and id(CO0) = IDCO and ( id(CO) = IDCO ) = false and
+        allIMInStates(getIMsOfECO(SIM,id(CO)),(unwired unused)) .
+
+  -- Define <wf for robust-lemmaV04
+  [CCSCSCSI] op t : Component Component SetOfComponent SetOfComponent SetOfImport -> CCSCSCSI {constr} .
+  pred _<wf_ : CCSCSCSI CCSCSCSI .
+  ceq ( t(CO,CO',SCO',SCO0,SIM0) <wf t(CO,CO',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  --  eq robust-lemmaV04(CO,CO',SCO,SCO0,SIM0)
+  --    = validCurrentComponent(SCO,(CO  SCO0),SIM0) implies 
+  --      validCurrentComponent(SCO,(CO' SCO0),SIM0)
+  --      when state(CO') = stopped and changeObjState(CO,CO') and subset(SCO,SCO0) and
+  --           uniqCO(CO SCO0) and
+  --	       allIMInStates(getIMsOfECO(SIM0,id(CO)),(unwired unused)) .
+  ceq [robust-lemmaV04-IH :nonexec]:
+      (validCurrentComponent(SCO,(CO  SCO0),SIM0) and
+       validCurrentComponent(SCO,(CO' SCO0),SIM0))
+    =  validCurrentComponent(SCO,(CO  SCO0),SIM0)
+    if state(CO') = stopped and changeObjState(CO,CO') and subset(SCO,SCO0) and
+       uniqCO(CO SCO0) and
+       allIMInStates(getIMsOfECO(SIM0,id(CO)),(unwired unused)) and
+       t(CO,CO',SCO,SCO0,SIM0) <wf t(co,co',sCO,sCO0,sIM0) .
+
+:goal { eq robust-lemmaV04(co,co',sCO,sCO0,sIM0) = true . }
+:def subsetcsp = :csp {
+ eq subset(sCO,sCO0) = false .
+ eq sCO0 = (sCO sCO0') .
+}
+:apply (subsetcsp rd-)
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def idCOctf = :ctf {
+  eq idCO = id(co) .
+}
+:def uniqCO1ctf = :ctf {
+  eq existCO((sCO0' sCO'),idCO) = true .
+}
+:def uniqCO2ctf = :ctf {
+  eq existCO((sCO0' sCO'),id(co)) = true .
+}
+:def uniqCO3ctf = :ctf {
+  eq uniqCO(sCO' sCO0') = true .
+}
+:apply (idCOctf uniqCO1ctf uniqCO2ctf uniqCO3ctf rd-)
+:def stateco'ctf = :ctf {
+  eq state(co') = stopped .
+}
+:apply (stateco'ctf rd-)
+:def changeObjStateI = :csp { eq id(co') = id(co) . }  
+:def changeObjStateS = :csp { eq (state(co) > stopped) = true . }
+:def changeObjStateN = :csp { eq next(co') = next(co) . }
+:def changeObjStateT = :csp { eq target(co') = target(co) . }
+:apply (changeObjStateI changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 2-2-2-2-2-1-1-1-1-1-1: changeObjState(co,co') = true .
+:def eximctf = :ctf {
+  eq allIMInStates(getIMsOfECO(sIM0,id(co)),(unwired unused)) = true .
+}
+:apply (eximctf rd-)
+:def initIH = :init as robust-lemmaV04-IH-in [robust-lemmaV04-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; }
+:def cCOscsp = :csp {
+  eq cCOs = stopped . 
+  eq cCOs = started .
+  eq cCOs = sstarted .
+}
+:apply (cCOscsp)
+-- Case 2-2-2-2-2-1-1-1-1-1-1-1-1: stopped
+:apply (initIH rd-)
+-- Case 2-2-2-2-2-1-1-1-1-1-1-1-2: started
+:def getIMscsp = :csp {
+  eq getIMsOfICOInStates(sIM0,idCO,(wired swired)) = empIM .
+  eq sIM0 = (imp(tIM, idIM, idCO, eidCO, cIMs, nIMs, tIMs) sIM0') .
+}
+:apply (getIMscsp rd-)
+-- Case 2-2-2-2-2-1-1-1-1-1-1-1-2-1: getIMsOfICOInStates(...) = empIM .
+:apply (initIH rd-)
+-- Case 2-2-2-2-2-1-1-1-1-1-1-1-2-2: getIMsOfICOInStates(...) /= empIM .
+:def cIMscsp2 = :csp  { 
+  eq cIMs = wired .
+  eq cIMs = swired .
+}
+:def eidCOctf = :ctf {
+  eq eidCO = id(co) .
+}
+:apply (cIMscsp2 eidCOctf rd-)
+-- Case 2-2-2-2-2-1-1-1-1-1-1-1-2-2-1-2: wired false
+:def eximcsp = :csp {
+  eq allIMInStates(getIMsOfECO(sIM0',id(co)),(unwired unused)) = true .
+}
+:apply (eximcsp initIH rd-)
+-- Case 2-2-2-2-2-1-1-1-1-1-1-1-2-2-2-2: swired false
+:apply (eximcsp initIH rd-)
+-- Case 2-2-2-2-2-1-1-1-1-1-1-1-3: sstarted
+:apply (eximcsp initIH rd-)
+--> Proof of robust-lemmaV04 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV05
+--> eq robust-lemmaV05(CO,CO',SCO,SCO0,SIM0)
+-->   = validCurrentComponent(SCO,(CO  SCO0),SIM0) implies 
+-->     validCurrentComponent(SCO,(CO' SCO0),SIM0)
+-->     when (state(CO') in (started sstarted)) and changeObjState(CO,CO') and subset(SCO,SCO0) and
+-->          uniqCO(CO SCO0) and 
+-->          allIMInStates(getIMsOfECO(SIM0,id(CO)),(unwired unused)) .
+-- This goal requires robust-lemma01.
+-- This goal requires robust-lemma02-1.
+-- This goal requires robust-lemma03.
+open ProofLemma .
+  -- eq robust-lemma01(CO,IDCO,SCO,SIM,StIM) 
+  --   = (getECOsOfIMs((CO SCO),getIMsOfICOInStates(SIM,IDCO,StIM)) =
+  --      getECOsOfIMs(SCO,     getIMsOfICOInStates(SIM,IDCO,StIM)))
+  --     when id(CO) = IDCO and 
+  ceq getECOsOfIMs((CO SCO),getIMsOfICOInStates(SIM,IDCO,StIM)) =
+      getECOsOfIMs(SCO,     getIMsOfICOInStates(SIM,IDCO,StIM))
+    if id(CO) = IDCO and iidCOeidCODiffer(SIM) .
+
+  -- eq robust-lemma02-1(CO,CO',CO0,TIM,IDCO,SCO,SIM)
+  --   = allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,(wired swired))),
+  --                   (started sstarted)) implies
+  --     allCOInStates(getECOsOfIMs((CO' CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,(wired swired))),
+  -- 		    (started sstarted))
+  --     when changeObjState(CO,CO') and id(CO0) = IDCO and ( id(CO) = IDCO ) = false and
+  -- 	   allIMInStates(getIMsOfECO(SIM,id(CO)),(unwired unused)) .
+  ceq (allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,(wired swired))),
+                    (started sstarted)) and
+       allCOInStates(getECOsOfIMs((CO' CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,(wired swired))),
+		    (started sstarted)))
+     = allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,(wired swired))),
+		    (started sstarted))
+     if changeObjState(CO,CO') and id(CO0) = IDCO and ( id(CO) = IDCO ) = false and
+        allIMInStates(getIMsOfECO(SIM,id(CO)),(unwired unused)) .
+  ceq (allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,swired)),
+                    sstarted) and
+       allCOInStates(getECOsOfIMs((CO' CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,swired)),
+		    sstarted))
+     = allCOInStates(getECOsOfIMs((CO  CO0 SCO),getIMsOfTypeOfICOInStates(SIM,TIM,IDCO,swired)),
+		    sstarted)
+     if changeObjState(CO,CO') and id(CO0) = IDCO and ( id(CO) = IDCO ) = false and
+        allIMInStates(getIMsOfECO(SIM,id(CO)),(unwired unused)) .
+
+  -- eq robust-lemma03(CO,CO',IDCO,SCO,SIM)
+  --   = allCOInStates(getECOsOfIMs((CO  SCO),getIMsOfICOInStates(SIM,idCO,(wired swired))),
+  --                   (started sstarted)) implies
+  --     allCOInStates(getECOsOfIMs((CO' SCO),getIMsOfICOInStates(SIM,idCO,(wired swired))),
+  -- 		    (started sstarted))
+  --     when changeObjState(CO,CO') and state(CO') in (started sstarted) .
+  ceq (allCOInStates(getECOsOfIMs((CO  SCO),getIMsOfICOInStates(SIM',idCO,(wired swired))),
+                    (started sstarted)) and
+       allCOInStates(getECOsOfIMs((CO' SCO),getIMsOfICOInStates(SIM',idCO,(wired swired))),
+		    (started sstarted)))
+     = allCOInStates(getECOsOfIMs((CO  SCO),getIMsOfICOInStates(SIM',idCO,(wired swired))),
+		    (started sstarted))
+     if changeObjState(CO,CO') and ( state(CO') in (started sstarted) ) .
+
+  -- Define <wf for robust-lemmaV05
+  [CCSCSCSI] op t : Component Component SetOfComponent SetOfComponent SetOfImport -> CCSCSCSI {constr} .
+  pred _<wf_ : CCSCSCSI CCSCSCSI .
+  ceq ( t(CO,CO',SCO',SCO0,SIM0) <wf t(CO,CO',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV05(CO,CO',SCO,SCO0,SIM0)
+  --   = validCurrentComponent(SCO,(CO  SCO0),SIM0) implies 
+  --     validCurrentComponent(SCO,(CO' SCO0),SIM0)
+  --     when (state(CO') in (started sstarted)) and changeObjState(CO,CO') and subset(SCO,SCO0) and
+  --          uniqCO(CO SCO0) and 
+  --          allIMInStates(getIMsOfECO(SIM0,id(CO)),(unwired unused)) .
+  ceq [robust-lemmaV05-IH :nonexec]:
+      (validCurrentComponent(SCO,(CO  SCO0),SIM0) and
+       validCurrentComponent(SCO,(CO' SCO0),SIM0))
+    =  validCurrentComponent(SCO,(CO  SCO0),SIM0)
+    if (state(CO') in (started sstarted)) and changeObjState(CO,CO') and subset(SCO,SCO0) and
+       uniqCO(CO SCO0) and 
+       allIMInStates(getIMsOfECO(SIM0,id(CO)),(unwired unused)) and
+       t(CO,CO',SCO,SCO0,SIM0) <wf t(co,co',sCO,sCO0,sIM0) .
+
+:goal { eq robust-lemmaV05(co,co',sCO,sCO0,sIM0) = true . }
+:def subsetcsp = :csp {
+ eq subset(sCO,sCO0) = false .
+ eq sCO0 = (sCO sCO0') .
+}
+:apply (subsetcsp rd-)
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def idCOctf = :ctf {
+  eq idCO = id(co) .
+}
+:def uniqCO1ctf = :ctf {
+  eq existCO((sCO0' sCO'),idCO) = true .
+}
+:def uniqCO2ctf = :ctf {
+  eq existCO((sCO0' sCO'),id(co)) = true .
+}
+:def uniqCO3ctf = :ctf {
+  eq uniqCO(sCO' sCO0') = true .
+}
+:apply (idCOctf uniqCO1ctf uniqCO2ctf uniqCO3ctf rd-)
+:def stateco'ctf = :ctf {
+  eq (state(co') in (started sstarted)) = true .
+}
+:apply (stateco'ctf rd-)
+:def changeObjStateI = :csp { eq id(co') = id(co) . }  
+:def changeObjStateS = :csp { eq (state(co) > state(co')) = true . }
+:def changeObjStateN = :csp { eq next(co') = next(co) . }
+:def changeObjStateT = :csp { eq target(co') = target(co) . }
+:apply (changeObjStateI changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 2-2-2-2-2-1-1-1-1-1-1: changeObjState(co,co') = true .
+:def eximctf = :ctf {
+  eq allIMInStates(getIMsOfECO(sIM0,id(co)),(unwired unused)) = true .
+}
+:apply (eximctf rd-)
+:def initIH = :init as robust-lemmaV05-IH-in [robust-lemmaV05-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; }
+:def cCOscsp = :csp {
+  eq cCOs = stopped . 
+  eq cCOs = started .
+  eq cCOs = sstarted .
+}
+:apply (cCOscsp)
+-- Case 2-2-2-2-2-1-1-1-1-1-1-1-1: cCOs = stopped . 
+:apply (initIH rd-)
+-- Case 2-2-2-2-2-1-1-1-1-1-1-1-2: cCOs = started . 
+:apply (initIH rd-)
+-- Case 2-2-2-2-2-1-1-1-1-1-1-1-3: cCOs = sstarted . 
+:apply (initIH rd-)
+--> Proof of robust-lemmaV05 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV06
+--> eq robust-lemmaV06(IM,IM',SCO,SCO0,SIM0)
+-->   = validCurrentComponent(SCO,SCO0,(IM  SIM0)) implies 
+-->     validCurrentComponent(SCO,SCO0,(IM' SIM0))
+-->   when changeObjState(IM,IM') and
+-->        state(IM') = unwired and type(IM') = optional .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV06
+  [IISCSCSI] op t : Import Import SetOfComponent SetOfComponent SetOfImport -> IISCSCSI {constr} .
+  pred _<wf_ : IISCSCSI IISCSCSI .
+  ceq ( t(IM,IM',SCO',SCO0,SIM0) <wf t(IM,IM',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV06(IM,IM',SCO,SCO0,SIM0)
+  --   = validCurrentComponent(SCO,SCO0,(IM  SIM0)) implies 
+  --     validCurrentComponent(SCO,SCO0,(IM' SIM0))
+  --   when changeObjState(IM,IM') and
+  --        state(IM') = unwired and type(IM') = optional .
+  ceq [robust-lemmaV06-IH :nonexec]:
+      (validCurrentComponent(SCO,SCO0,(IM  SIM0)) and
+       validCurrentComponent(SCO,SCO0,(IM' SIM0)))
+    = validCurrentComponent(SCO,SCO0,(IM SIM0))
+    if changeObjState(IM,IM') and
+       state(IM') = unwired and type(IM') = optional and
+       t(IM,IM',SCO,SCO0,SIM0) <wf t(im,im',sCO,sCO0,sIM0) .
+
+:goal { eq robust-lemmaV06(im,im',sCO,sCO0,sIM0) = true . }
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def im'unwirectf = :ctf {
+  eq state(im') = unwired .
+}
+:apply (im'unwirectf rd-)
+:def im'optctf = :ctf {
+  eq type(im') = optional .
+}
+:apply (im'optctf rd-)
+:def changeObjStateI = :csp { eq id(im') = id(im) . }  
+:def changeObjStateM = :csp { eq importer(im') = importer(im) . }
+:def changeObjStateX = :csp { eq exporter(im') = exporter(im) . }
+:def changeObjStateP = :csp { eq type(im) = type(im') . }
+:def changeObjStateS = :csp { eq (state(im) > unwired) = true . }
+:def changeObjStateN = :csp { eq next(im') = next(im) . }
+:def changeObjStateT = :csp { eq target(im') = target(im) . }
+:apply (changeObjStateI changeObjStateM changeObjStateX changeObjStateP changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 2-1-1-1-1-1-1-1-1-1: changeObjState(im,im') = true .
+:def initIH = :init as robust-lemmaV06-IH-in [robust-lemmaV06-IH]
+    by {IM:Import <- im; 
+	IM':Import <- im';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; }
+:apply (initIH rd-)
+:def cCOscsp = :csp {
+  eq cCOs = stopped . 
+  eq cCOs = started . 
+  eq cCOs = sstarted . 
+}
+:def exporterctf = :ctf {
+  eq exporter(im) = idCO .
+}
+:def importerctf = :ctf {
+  eq importer(im) = idCO .
+}
+:def stateimcsp = :csp {
+  eq state(im) = unused .
+  eq state(im) = wired .
+  eq state(im) = swired .
+  eq state(im) = unwired .
+}
+:apply (cCOscsp)
+:apply (exporterctf rd-)
+:apply (importerctf stateimcsp rd-)
+:apply (importerctf stateimcsp rd-)
+--> Proof of robust-lemmaV06 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV07
+--> eq robust-lemmaV07(IM,IM',SCO,SCO0,SIM0)
+-->   = validCurrentComponent(SCO,SCO0,(IM  SIM0)) implies 
+-->     validCurrentComponent(SCO,SCO0,(IM' SIM0))
+-->     when changeObjState(IM,IM') and subset(SCO,SCO0) and
+-->          iidCOeidCODiffer(IM SIM0) and
+-->          (state(im') in (unwired unused)) and
+-->          state(getICOOfIM(SCO0,IM)) = stopped .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV07
+  [IISCSCSI] op t : Import Import SetOfComponent SetOfComponent SetOfImport -> IISCSCSI {constr} .
+  pred _<wf_ : IISCSCSI IISCSCSI .
+  ceq ( t(IM,IM',SCO',SCO0,SIM0) <wf t(IM,IM',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV07(IM,IM',SCO,SCO0,SIM0)
+  --   = validCurrentComponent(SCO,SCO0,(IM  SIM0)) implies 
+  --     validCurrentComponent(SCO,SCO0,(IM' SIM0))
+  --     when changeObjState(IM,IM') and subset(SCO,SCO0) and
+  --          iidCOeidCODiffer(IM SIM0) and
+  --          (state(IM') in (unwired unused)) and
+  --          state(getICOOfIM(SCO0,IM)) = stopped .
+  ceq [robust-lemmaV07-IH :nonexec]:
+      (validCurrentComponent(SCO,SCO0,(IM  SIM0)) and
+       validCurrentComponent(SCO,SCO0,(IM' SIM0)))
+     = validCurrentComponent(SCO,SCO0,(IM  SIM0))
+     if changeObjState(IM,IM') and subset(SCO,SCO0) and 
+        iidCOeidCODiffer(IM SIM0) and
+        (state(IM') in (unwired unused)) and
+        state(getICOOfIM(SCO0,IM)) = stopped and
+        t(IM,IM',SCO,SCO0,SIM0) <wf t(im,im',sCO,sCO0,sIM0) .
+
+:goal { eq robust-lemmaV07(im,im',sCO,sCO0,sIM0) = true . }
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def subsetcsp = :csp {
+  eq subset((cmp(idCO,cCOs,nCOs,tCOs) sCO'),sCO0) = false .
+  eq sCO0 = (cmp(idCO,cCOs,nCOs,tCOs) sCO' sCO0') .
+}
+:apply (subsetcsp rd-)
+:def changeObjStateI = :csp { eq id(im') = id(im) . }  
+:def changeObjStateM = :csp { eq importer(im') = importer(im) . }
+:def changeObjStateX = :csp { eq exporter(im') = exporter(im) . }
+:def changeObjStateP = :csp { eq type(im) = type(im') . }
+:def changeObjStateS = :csp { eq (state(im) > state(im')) = true . }
+:def changeObjStateN = :csp { eq next(im') = next(im) . }
+:def changeObjStateT = :csp { eq target(im') = target(im) . }
+:apply (changeObjStateI changeObjStateM changeObjStateX changeObjStateP changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 2-2-1-1-1-1-1-1-1: changeObjState(im,im') = true .
+:def initIH = :init as robust-lemmaV07-IH-in [robust-lemmaV07-IH]
+    by {IM:Import <- im; 
+	IM':Import <- im';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; }
+:def stateim'ctf = :ctf {
+  eq (state(im') in (unwired unused)) = true .
+}
+:def cCOscsp = :csp {
+  eq cCOs = stopped . 
+  eq cCOs = started . 
+  eq cCOs = sstarted . 
+}
+:def imidCOctf = :ctf {
+  eq importer(im) = idCO .
+}
+:def exidCOctf = :ctf {
+  eq exporter(im) = idCO .
+}
+:def differctf = :ctf {
+  eq iidCOeidCODiffer(sIM0) = true .
+}
+:def statectf = :ctf {
+  eq state(getComponent((sCO0' sCO'),importer(im))) = stopped .
+}
+:def impexpctf = :ctf {
+  eq importer(im) = exporter(im) .
+}
+:apply (stateim'ctf cCOscsp imidCOctf rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-1-1: cCOs = stopped and importer(im) = idCO
+:apply (exidCOctf rd-)
+:apply (differctf initIH rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-1-2: cCOs = stopped and importer(im) /= idCO
+:apply (exidCOctf)
+:apply (differctf statectf initIH rd-)
+:apply (impexpctf rd-)
+:apply (differctf statectf initIH rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-2-2: cCOs = started and importer(im) /= idCO
+:apply (impexpctf rd-)
+:apply (differctf statectf initIH rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-3-2: cCOs = sstarted and importer(im) /= idCO
+:apply (impexpctf rd-)
+:apply (differctf statectf initIH rd-)
+--> Proof of robust-lemmaV07 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV08
+--> eq robust-lemmaV08(IM,IM',SCO,SCO0,SIM0)
+-->   = validCurrentComponent(SCO,SCO0,(IM  SIM0)) implies 
+-->     validCurrentComponent(SCO,SCO0,(IM' SIM0))
+-->   when changeObjState(IM,IM') and
+-->        state(IM') = unused .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV08
+  [IISCSCSI] op t : Import Import SetOfComponent SetOfComponent SetOfImport -> IISCSCSI {constr} .
+  pred _<wf_ : IISCSCSI IISCSCSI .
+  ceq ( t(IM,IM',SCO',SCO0,SIM0) <wf t(IM,IM',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV08(IM,IM',SCO,SCO0,SIM0)
+  --   = validCurrentComponent(SCO,SCO0,(IM  SIM0)) implies 
+  --     validCurrentComponent(SCO,SCO0,(IM' SIM0))
+  --   when changeObjState(IM,IM') and
+  --        state(IM') = unused
+  ceq [robust-lemmaV08-IH :nonexec]:
+      (validCurrentComponent(SCO,SCO0,(IM  SIM0)) and
+       validCurrentComponent(SCO,SCO0,(IM' SIM0)))
+    = validCurrentComponent(SCO,SCO0,(IM SIM0))
+    if changeObjState(IM,IM') and
+       state(IM') = unused and
+       t(IM,IM',SCO,SCO0,SIM0) <wf t(im,im',sCO,sCO0,sIM0) .
+
+:goal { eq robust-lemmaV08(im,im',sCO,sCO0,sIM0) = true . }
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def im'unusedctf = :ctf {
+  eq state(im') = unused .
+}
+:apply (im'unusedctf rd-)
+
+:def changeObjStateI = :csp { eq id(im') = id(im) . }  
+:def changeObjStateM = :csp { eq importer(im') = importer(im) . }
+:def changeObjStateX = :csp { eq exporter(im') = exporter(im) . }
+:def changeObjStateP = :csp { eq type(im) = type(im') . }
+:def changeObjStateS = :csp { eq (state(im) > unused) = true . }
+:def changeObjStateN = :csp { eq next(im') = next(im) . }
+:def changeObjStateT = :csp { eq target(im') = target(im) . }
+:apply (changeObjStateI changeObjStateM changeObjStateX changeObjStateP changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 2-1-1-1-1-1-1-1-1: changeObjState(im,im') = true .
+:def initIH = :init as robust-lemmaV08-IH-in [robust-lemmaV08-IH]
+    by {IM:Import <- im; 
+	IM':Import <- im';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; }
+:apply (initIH rd-)
+:def cCOscsp = :csp {
+  eq cCOs = stopped . 
+  eq cCOs = started . 
+  eq cCOs = sstarted . 
+}
+:def exporterctf = :ctf {
+  eq exporter(im) = idCO .
+}
+:def importerctf = :ctf {
+  eq importer(im) = idCO .
+}
+:def typecsp = :csp {
+  eq type(im') = mandatory .
+  eq type(im') = optional .
+}
+:def stateimcsp = :csp {
+  eq state(im) = unused .
+  eq state(im) = unwired .
+  eq state(im) = wired .
+  eq state(im) = swired .
+}
+:apply (cCOscsp)
+-- Case 2-1-1-1-1-1-1-1-1-1-1: stopped
+:apply (exporterctf rd-)
+-- Case 2-1-1-1-1-1-1-1-1-1-2: started
+:apply (importerctf typecsp stateimcsp rd-)
+-- Case 2-1-1-1-1-1-1-1-1-1-3: sstarted
+:apply (importerctf typecsp stateimcsp rd-)
+--> Proof of robust-lemmaV08 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV09
+--> eq robust-lemmaV09(IM,IM',SCO,SCO0,SIM0)
+-->   = validCurrentComponent(SCO,SCO0,(IM  SIM0)) implies 
+-->     validCurrentComponent(SCO,SCO0,(IM' SIM0))
+-->     when changeObjState(IM,IM') and subset(SCO,SCO0) and
+-->          iidCOeidCODiffer(IM SIM0) and
+-->          state(getECOOfIM(SCO0,IM)) in (started sstarted) and
+-->          state(IM) = unwired and state(IM') = wired .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV09
+  [IISCSCSI] op t : Import Import SetOfComponent SetOfComponent SetOfImport -> IISCSCSI {constr} .
+  pred _<wf_ : IISCSCSI IISCSCSI .
+  ceq ( t(IM,IM',SCO',SCO0,SIM0) <wf t(IM,IM',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV09(IM,IM',SCO,SCO0,SIM0)
+  --   = validCurrentComponent(SCO,SCO0,(IM  SIM0)) implies 
+  --     validCurrentComponent(SCO,SCO0,(IM' SIM0))
+  --     when changeObjState(IM,IM') and subset(SCO,SCO0) and
+  --          iidCOeidCODiffer(IM SIM0) and
+  --          state(getECOOfIM(SCO0,IM)) in (started sstarted) and
+  --          state(IM) = unwired and state(IM') = wired .
+  ceq [robust-lemmaV09-IH :nonexec]:
+      (validCurrentComponent(SCO,SCO0,(IM  SIM0)) and
+       validCurrentComponent(SCO,SCO0,(IM' SIM0)))
+     = validCurrentComponent(SCO,SCO0,(IM  SIM0))
+     if changeObjState(IM,IM') and subset(SCO,SCO0) and 
+        iidCOeidCODiffer(IM SIM0) and
+        state(getECOOfIM(SCO0,IM)) in (started sstarted) and
+        state(IM) = unwired and state(IM') = wired and
+       t(IM,IM',SCO,SCO0,SIM0) <wf t(im,im',sCO,sCO0,sIM0) .
+
+:goal { eq robust-lemmaV09(im,im',sCO,sCO0,sIM0) = true . }
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def subsetcsp = :csp {
+  eq subset((cmp(idCO,cCOs,nCOs,tCOs) sCO'),sCO0) = false .
+  eq sCO0 = (cmp(idCO,cCOs,nCOs,tCOs) sCO' sCO0') .
+}
+:def imunwiredctf = :ctf {
+  eq state(im) = unwired .
+}
+:def im'wiredctf = :ctf {
+  eq state(im') = wired .
+}
+:def idDifferctf = :ctf {
+  eq iidCOeidCODiffer(sIM0) = true .
+}
+:apply (subsetcsp imunwiredctf im'wiredctf idDifferctf rd-)
+:def changeObjStateI = :csp { eq id(im') = id(im) . }  
+:def changeObjStateM = :csp { eq importer(im') = importer(im) . }
+:def changeObjStateX = :csp { eq exporter(im') = exporter(im) . }
+:def changeObjStateP = :csp { eq type(im') = type(im) . }
+:def changeObjStateS = :csp { eq (unwired > wired) = true . }
+:def changeObjStateN = :csp { eq next(im') = next(im) . }
+:def changeObjStateT = :csp { eq target(im') = target(im) . }
+:apply (changeObjStateI changeObjStateM changeObjStateX changeObjStateP changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-1-1: changeObjState(im,im') = true .
+:def initIH = :init as robust-lemmaV09-IH-in [robust-lemmaV09-IH]
+    by {IM:Import <- im; 
+	IM':Import <- im';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; }
+:def exidCOctf = :ctf {
+  eq exporter(im) = idCO .
+}
+:def imidCOctf = :ctf {
+  eq importer(im) = idCO .
+}
+:def cCOscsp = :csp {
+  eq cCOs = stopped . 
+  eq cCOs = started . 
+  eq cCOs = sstarted . 
+}
+:apply (cCOscsp)
+-- Case 2-2-1-1-1-1-1-1-1-1-1-1-1: stopped
+:apply (initIH rd-)
+:apply (exidCOctf imidCOctf rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-1-1-1-1-2-1: stopped, exporter(im) /= idCO, importer(im) = idCO
+:def statecsp = :csp {
+  eq state(getComponent((sCO' sCO0'),exporter(im))) = stopped .
+  eq state(getComponent((sCO' sCO0'),exporter(im))) = started .
+  eq state(getComponent((sCO' sCO0'),exporter(im))) = sstarted .
+}
+:apply (statecsp rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-1-1-1-1-2-2: stopped, exporter(im) /= idCO, importer(im) /= idCO
+:def idDifferctf2 = :ctf {
+  eq importer(im) = exporter(im) .
+}
+:apply (idDifferctf2 rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-1-1-1-1-2-2-2: differ
+:apply (statecsp rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-1-1-2: started
+:apply (initIH rd-)
+:apply (exidCOctf imidCOctf rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-1-1-2-1-2-1: started, exporter(im) /= idCO, importer(im) = idCO
+:def typecsp = :csp {
+  eq type(im) = mandatory .
+  eq type(im) = optional .
+}
+:apply (typecsp rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-1-1-2-1-2-1-2: optional
+:apply (statecsp rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-1-1-2-1-2-2: started, exporter(im) /= idCO, importer(im) /= idCO
+:apply (idDifferctf2 rd-)
+:apply (statecsp rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-1-1-3: sstarted
+:apply (initIH rd-)
+:apply (exidCOctf imidCOctf rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-1-1-3-1-2-1: sstarted, exporter(im) /= idCO, importer(im) = idCO
+:apply (typecsp rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-1-1-3-1-2-1-2: optioanl
+:apply (statecsp rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-1-1-3-1-2-2: sstarted, exporter(im) /= idCO, importer(im) /= idCO
+:apply (idDifferctf2 rd-)
+:apply (statecsp rd-)
+--> Proof of robust-lemmaV09 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV10
+--> eq robust-lemmaV10(TIM,IDIM,IIDCO, EIDCO, SCO,SCO0,SIM0)
+-->   = validCurrentComponent(SCO,SCO0,(imp(TIM,IDIM,IIDCO,EIDCO, wired,swired,swired) SIM0)) implies
+-->           validCurrentComponent(SCO,SCO0,(imp(TIM,IDIM,IIDCO,EIDCO,swired,swired,swired) SIM0)) .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV10
+  [TMCCSCSCSI] op t : IMType IMID COID COID SetOfComponent SetOfComponent SetOfImport -> TMCCSCSCSI {constr} .
+  pred _<wf_ : TMCCSCSCSI TMCCSCSCSI .
+  ceq ( t(TIM,IDIM,IIDCO,EIDCO,SCO',SCO0,SIM0) <wf t(TIM,IDIM,IIDCO,EIDCO,SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV10(TIM,IDIM,IIDCO, EIDCO, SCO,SCO0,SIM0)
+  --   = validCurrentComponent(SCO,SCO0,(imp(TIM,IDIM,IIDCO,EIDCO, wired,swired,swired) SIM0)) implies
+  --     validCurrentComponent(SCO,SCO0,(imp(TIM,IDIM,IIDCO,EIDCO,swired,swired,swired) SIM0)) .
+  ceq [robust-lemmaV10-IH :nonexec]:
+     (validCurrentComponent(SCO,SCO0,(imp(TIM,IDIM,IIDCO,EIDCO, wired,swired,swired) SIM0)) and
+      validCurrentComponent(SCO,SCO0,(imp(TIM,IDIM,IIDCO,EIDCO,swired,swired,swired) SIM0)))
+    = validCurrentComponent(SCO,SCO0,(imp(TIM,IDIM,IIDCO,EIDCO, wired,swired,swired) SIM0)) 
+    if t(TIM,IDIM,IIDCO,EIDCO,SCO,SCO0,SIM0) <wf t(tIM,idIM,iidCO,eidCO,sCO,sCO0,sIM0) .
+
+:goal { eq robust-lemmaV10(tIM,idIM,iidCO,eidCO,sCO,sCO0,sIM0) = true . }
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def initIH = :init as robust-lemmaV10-IH-in [robust-lemmaV10-IH]
+    by {TIM:IMType <- tIM;
+	IDIM:IMID <- idIM;
+	IIDCO:COID <- iidCO;
+	EIDCO:COID <- eidCO;
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; }
+:apply (initIH)
+:def cCOscsp = :csp {
+  eq cCOs = stopped . 
+  eq cCOs = started . 
+  eq cCOs = sstarted . 
+}
+:apply (cCOscsp rd-)
+--> Proof of robust-lemmaV10 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV11
+-->  eq robust-lemmaV11(IM,IM',SCO,SCO0,SIM0)
+-->   = validTargetComponent(SCO,SCO0,(IM  SIM0)) implies
+-->     validTargetComponent(SCO,SCO0,(IM' SIM0))
+-->     when changeObjState(IM,IM') .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV11
+  [IISCSCSI] op t : Import Import SetOfComponent SetOfComponent SetOfImport -> IISCSCSI {constr} .
+  pred _<wf_ : IISCSCSI IISCSCSI .
+  ceq ( t(IM,IM',SCO',SCO0,SIM0) <wf t(IM,IM',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV11(IM,IM',SCO,SCO0,SIM0)
+  --   = validTargetComponent(SCO,SCO0,(IM  SIM0)) implies
+  --     validTargetComponent(SCO,SCO0,(IM' SIM0))
+  --   when changeObjState(IM,IM') .
+  ceq [robust-lemmaV11-IH :nonexec]:
+      (validTargetComponent(SCO,SCO0,(IM  SIM0)) and
+       validTargetComponent(SCO,SCO0,(IM' SIM0)))
+     = validTargetComponent(SCO,SCO0,(IM  SIM0))
+    if changeObjState(IM,IM') and
+       t(IM,IM',SCO,SCO0,SIM0) <wf t(im,im',sCO,sCO0,sIM0) .
+
+:goal { eq robust-lemmaV11(im,im',sCO,sCO0,sIM0) = true . }
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def changeObjStateI = :csp { eq id(im') = id(im) . }  
+:def changeObjStateM = :csp { eq importer(im') = importer(im) . }
+:def changeObjStateX = :csp { eq exporter(im') = exporter(im) . }
+:def changeObjStateP = :csp { eq type(im') = type(im) . }
+:def changeObjStateS = :csp { eq (state(im) > state(im')) = true . }
+:def changeObjStateN = :csp { eq next(im') = next(im) . }
+:def changeObjStateT = :csp { eq target(im') = target(im) . }
+:apply (changeObjStateI changeObjStateM changeObjStateX changeObjStateP changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 2-1-1-1-1-1-1-1: changeObjState(im,im') = true .
+:def initIH = :init as robust-lemmaV11-IH-in [robust-lemmaV11-IH]
+    by {IM:Import <- im; 
+	IM':Import <- im';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; }
+:apply (initIH rd-)
+:def tCOscsp = :csp {
+  eq tCOs = stopped . 
+  eq tCOs = started . 
+  eq tCOs = sstarted . 
+}
+:apply (tCOscsp rd-)
+:def impIMctf = :ctf {
+  eq importer(im) = idCO .
+}
+:def typecsp = :csp {
+  eq type(im) = mandatory .
+  eq type(im) = optional .
+}
+:def targetimcsp = :csp {
+  eq target(im) = unused .
+  eq target(im) = wired .
+  eq target(im) = swired .
+  eq target(im) = unwired .
+}
+:apply (impIMctf typecsp targetimcsp rd-)
+--> Proof of robust-lemmaV11 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV11-1
+-->  eq robust-lemmaV11-1(IM,IM',SCO,SCO0,SIM0)
+-->   = validTargetComponent(SCO,SCO0,(IM  SIM0)) implies
+-->     validTargetComponent(SCO,SCO0,(IM' SIM0))
+-->     when changeObjState2(IM,IM') .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV11-1
+  [IISCSCSI] op t : Import Import SetOfComponent SetOfComponent SetOfImport -> IISCSCSI {constr} .
+  pred _<wf_ : IISCSCSI IISCSCSI .
+  ceq ( t(IM,IM',SCO',SCO0,SIM0) <wf t(IM,IM',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV11-1(IM,IM',SCO,SCO0,SIM0)
+  --   = validTargetComponent(SCO,SCO0,(IM  SIM0)) implies
+  --     validTargetComponent(SCO,SCO0,(IM' SIM0))
+  --   when changeObjState2(IM,IM') .
+  ceq [robust-lemmaV11-1-IH :nonexec]:
+      (validTargetComponent(SCO,SCO0,(IM  SIM0)) and
+       validTargetComponent(SCO,SCO0,(IM' SIM0)))
+     = validTargetComponent(SCO,SCO0,(IM  SIM0))
+    if changeObjState2(IM,IM') and
+       t(IM,IM',SCO,SCO0,SIM0) <wf t(im,im',sCO,sCO0,sIM0) .
+
+:goal { eq robust-lemmaV11-1(im,im',sCO,sCO0,sIM0) = true . }
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def changeObjState2I = :csp { eq id(im') = id(im) . }  
+:def changeObjState2M = :csp { eq importer(im') = importer(im) . }
+:def changeObjState2X = :csp { eq exporter(im') = exporter(im) . }
+:def changeObjState2P = :csp { eq type(im') = type(im) . }
+:def changeObjState2S = :csp { eq state(im') = state(im) . }
+:def changeObjState2N = :csp { eq (next(im) > next(im')) = true . }
+:def changeObjState2T = :csp { eq target(im') = target(im) . }
+:apply (changeObjState2I changeObjState2M changeObjState2X changeObjState2P changeObjState2S changeObjState2N changeObjState2T rd-)
+-- Case 2-1-1-1-1-1-1-1: changeObjState2(im,im') = true .
+:def initIH = :init as robust-lemmaV11-1-IH-in [robust-lemmaV11-1-IH]
+    by {IM:Import <- im; 
+	IM':Import <- im';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; }
+:apply (initIH rd-)
+:def tCOscsp = :csp {
+  eq tCOs = stopped . 
+  eq tCOs = started . 
+  eq tCOs = sstarted . 
+}
+:apply (tCOscsp rd-)
+:def impIMctf = :ctf {
+  eq importer(im) = idCO .
+}
+:def typecsp = :csp {
+  eq type(im) = mandatory .
+  eq type(im) = optional .
+}
+:def targetimcsp = :csp {
+  eq target(im) = unused .
+  eq target(im) = wired .
+  eq target(im) = swired .
+  eq target(im) = unwired .
+}
+:apply (impIMctf typecsp targetimcsp rd-)
+--> Proof of robust-lemmaV11-1 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV12
+--> eq robust-lemmaV12(CO,CO',SCO0,SIM0)
+-->   = validNextImport(SIM0,(CO  SCO0)) implies 
+-->     validNextImport(SIM0,(CO' SCO0))
+-->     when changeObjState2(CO,CO') and next(CO') = stopped .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV12
+  [CCSCSI] op t : Component Component SetOfComponent SetOfImport -> CCSCSI {constr} .
+  pred _<wf_ : CCSCSI CCSCSI .
+  ceq ( t(CO,CO',SCO0,SIM') <wf t(CO,CO',SCO0,SIM0) ) = true
+     if SIM' <wf SIM0 .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV12(CO,CO',SCO0,SIM0)
+  --   = validNextImport(SIM0,(CO  SCO0)) implies 
+  --     validNextImport(SIM0,(CO' SCO0))
+  --     when changeObjState2(CO,CO') and next(CO') = stopped .
+  ceq [robust-lemmaV12-IH :nonexec]:
+      (validNextImport(SIM0,(CO  SCO0)) and
+       validNextImport(SIM0,(CO' SCO0)))
+     = validNextImport(SIM0,(CO  SCO0))
+    if changeObjState2(CO,CO') and next(CO') = stopped and
+       t(CO,CO',SCO0,SIM0) <wf t(co,co',sCO0,sIM0) .
+
+:goal { eq robust-lemmaV12(co,co',sCO0,sIM0) = true . }
+:def empSIM0csp = :csp {
+  eq sIM0 = empIM .
+  eq sIM0 = (imp(tIM, idIM, iidCO, eidCO, cIMs, nIMs, tIMs) sIM') .
+}
+:apply (empSIM0csp rd-)
+:def nextCO'ctf = :ctf {
+  eq next(co') = stopped .
+}
+:apply (nextCO'ctf rd-)
+:def changeObjState2I = :csp { eq id(co') = id(co) . }  
+:def changeObjState2S = :csp { eq state(co') = state(co) . }
+:def changeObjState2N = :csp { eq (next(co) > stopped) = true . }
+:def changeObjState2T = :csp { eq target(co') = target(co) . }
+:apply (changeObjState2I changeObjState2S changeObjState2N changeObjState2T rd-)
+-- Case 2-1-1-1-1-1: changeObjState(co,co') = true
+:def initIH = :init as robust-lemmaV12-IH-in [robust-lemmaV12-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM'; }
+:apply (initIH)
+:def cIMscsp = :csp {
+  eq cIMs = unused .
+  eq cIMs = wired .
+  eq cIMs = swired .
+  eq cIMs = unwired .
+}
+:def nIMscsp = :csp {
+  eq nIMs = unused .
+  eq nIMs = wired .
+  eq nIMs = swired .
+  eq nIMs = unwired .
+}
+:def tIMscsp = :csp {
+  eq tIMs = unused .
+  eq tIMs = wired .
+  eq tIMs = swired .
+  eq tIMs = unwired .
+}
+:apply (cIMscsp nIMscsp tIMscsp rd-)
+-- Case 2-1-1-1-1-1-1-2-3-3: unused swired swired
+:def eidCOctf = :ctf {
+  eq eidCO = id(co) .
+}
+:apply (eidCOctf rd-)
+-- Case 2-1-1-1-1-1-1-3-3-3: swired swired swired
+:apply (eidCOctf rd-)
+--> Proof of robust-lemmaV12 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV13
+--> eq robust-lemmaV13(IM,IM',SCO0,SIM0)
+-->   = validNextComponent(SCO0,(IM  SIM0)) implies 
+-->     validNextComponent(SCO0,(IM' SIM0))
+-->     when changeObjState2(IM,IM') .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV13
+  [IISCSI] op t : Import Import SetOfComponent SetOfImport -> IISCSI {constr} .
+  pred _<wf_ : IISCSI IISCSI .
+  ceq ( t(IM,IM',SCO',SIM') <wf t(IM,IM',SCO0,SIM0) ) = true
+     if SCO' <wf SCO0 .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV13(IM,IM',SCO0,SIM0)
+  --   = validNextComponent(SCO0,(IM  SIM0)) implies 
+  --     validNextComponent(SCO0,(IM' SIM0))
+  --     when changeObjState2(IM,IM') .
+  ceq [robust-lemmaV13-IH :nonexec]:
+     (validNextComponent(SCO0,(IM  SIM0)) and
+      validNextComponent(SCO0,(IM' SIM0)))
+    = validNextComponent(SCO0,(IM  SIM0)) 
+   if changeObjState2(IM,IM') and 
+       t(IM,IM',SCO0,SIM0) <wf t(im,im',sCO0,sIM0) .
+
+:goal { eq robust-lemmaV13(im,im',sCO0,sIM0) = true . }
+:def empSCO0csp = :csp {
+  eq sCO0 = empCO .
+  eq sCO0 = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCO0csp)
+:apply (rd-)
+:def uniqCOctf = :ctf {
+  eq uniqCO(sCO') = true .
+}
+:def nextIM'ctf = :ctf {
+  eq next(im') = unwired .
+}
+:def changeObjState2I = :csp { eq id(im') = id(im) . }  
+:def changeObjState2M = :csp { eq importer(im') = importer(im) . }
+:def changeObjState2X = :csp { eq exporter(im') = exporter(im) . }
+:def changeObjState2P = :csp { eq type(im') = type(im) . }
+:def changeObjState2S = :csp { eq state(im') = state(im) . }
+:def changeObjState2N = :csp { eq (next(im) > next(im')) = true . }
+:def changeObjState2T = :csp { eq target(im') = target(im) . }
+:apply (changeObjState2I changeObjState2M changeObjState2X changeObjState2P changeObjState2S changeObjState2N changeObjState2T rd-)
+:def initIH = :init as robust-lemmaV13-IH-in [robust-lemmaV13-IH]
+    by {IM:Import <- im; 
+	IM':Import <- im';
+	SCO0:SetOfComponent <- sCO';
+	SIM0:SetOfImport <- sIM0; }
+:apply (initIH)
+:def nCOscsp = :csp {
+  eq nCOs = stopped . 
+  eq nCOs = started . 
+  eq nCOs = sstarted . 
+}
+:apply (nCOscsp rd-)
+-- Case 2-1-1-1-1-1-1-1-1-3: sstarted
+:def tIMcsp = :csp  { 
+  eq type(im) = mandatory .
+  eq type(im) = optional .
+}
+:def impimctf = :ctf {
+  eq importer(im) = idCO .
+}
+:def imunusedctf = :ctf {
+  eq state(im) = unused .
+}
+:apply (tIMcsp impimctf imunusedctf rd-)
+--> Proof of robust-lemmaV13 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV14
+--> eq robust-lemmaV14(IM,IM',SCO0,SIM0)
+-->   = validNextComponent(SCO0,(IM  SIM0)) implies 
+-->     validNextComponent(SCO0,(IM' SIM0))
+-->     when changeObjState(IM,IM') and type(IM) = optional .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV14
+  [IISCSI] op t : Import Import SetOfComponent SetOfImport -> IISCSI {constr} .
+  pred _<wf_ : IISCSI IISCSI .
+  ceq ( t(IM,IM',SCO',SIM') <wf t(IM,IM',SCO0,SIM0) ) = true
+     if SCO' <wf SCO0 .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV14(IM,IM',SCO0,SIM0)
+  --   = validNextComponent(SCO0,(IM  SIM0)) implies 
+  --     validNextComponent(SCO0,(IM' SIM0))
+  --     when changeObjState(IM,IM') and type(IM) = optional .
+  ceq [robust-lemmaV14-IH :nonexec]:
+      (validNextComponent(SCO0,(IM  SIM0)) and
+       validNextComponent(SCO0,(IM' SIM0)))
+     = validNextComponent(SCO0,(IM  SIM0))
+    if changeObjState(IM,IM') and type(IM) = optional and
+       t(IM,IM',SCO0,SIM0) <wf t(im,im',sCO0,sIM0) .
+
+:goal { eq robust-lemmaV14(im,im',sCO0,sIM0) = true . }
+:def empSCO0csp = :csp {
+  eq sCO0 = empCO .
+  eq sCO0 = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCO0csp rd-)
+:def tIMcsp = :csp  { eq type(im) = optional . }
+:def changeObjStateI = :csp { eq id(im') = id(im) . }  
+:def changeObjStateM = :csp { eq importer(im') = importer(im) . }
+:def changeObjStateX = :csp { eq exporter(im') = exporter(im) . }
+:def changeObjStateP = :csp { eq type(im') = type(im) . }
+:def changeObjStateS = :csp { eq (state(im) > state(im')) = true . }
+:def changeObjStateN = :csp { eq next(im') = next(im) . }
+:def changeObjStateT = :csp { eq target(im') = target(im) . }
+:apply (tIMcsp changeObjStateI changeObjStateM changeObjStateX changeObjStateP changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 2-1-1-1-1-1-1-1-1: changeObjState(im,im') = true
+:def initIH = :init as robust-lemmaV14-IH-in [robust-lemmaV14-IH]
+    by {IM:Import <- im; 
+	IM':Import <- im';
+	SCO0:SetOfComponent <- sCO';
+	SIM0:SetOfImport <- sIM0; }
+:apply (initIH)
+:def nCOscsp = :csp {
+  eq nCOs = stopped . 
+  eq nCOs = started . 
+  eq nCOs = sstarted . 
+}
+:apply (nCOscsp rd-)
+--> Proof of robust-lemmaV14 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV14-1
+--> eq robust-lemmaV14-1(IM,IM',SCO,SCO0,SIM0)
+-->   = validNextComponent(SCO,(IM  SIM0)) implies 
+-->     validNextComponent(SCO,(IM' SIM0))
+-->     when changeObjState(IM,IM') and type(IM) = mandatory and
+-->          subset(SCO,SCO0) and state(getICOOfIM(SCO0,IM)) = stopped .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV14-1
+  [IISCSCSI] op t : Import Import SetOfComponent SetOfComponent SetOfImport -> IISCSCSI {constr} .
+  pred _<wf_ : IISCSCSI IISCSCSI .
+  ceq ( t(IM,IM',SCO',SCO0,SIM0) <wf t(IM,IM',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV14-1(IM,IM',SCO,SCO0,SIM0)
+  --   = validNextComponent(SCO,(IM  SIM0)) implies 
+  --     validNextComponent(SCO,(IM' SIM0))
+  --     when changeObjState(IM,IM') and type(IM) = mandatory and
+  --          subset(SCO,SCO0) and state(getICOOfIM(SCO0,IM)) = stopped .
+  ceq [robust-lemmaV14-1-IH :nonexec]:
+      (validNextComponent(SCO,(IM  SIM0)) and
+       validNextComponent(SCO,(IM' SIM0)))
+     = validNextComponent(SCO,(IM  SIM0))
+    if changeObjState(IM,IM') and type(IM) = mandatory and
+       subset(SCO,SCO0) and state(getICOOfIM(SCO0,IM)) = stopped and
+       t(IM,IM',SCO,SCO0,SIM0) <wf t(im,im',sCO,sCO0,sIM0) .
+
+:goal { eq robust-lemmaV14-1(im,im',sCO,sCO0,sIM0) = true . }
+:def subsetcsp = :csp {
+ eq subset(sCO,sCO0) = false .
+ eq sCO0 = (sCO sCO0') .
+}
+:apply (subsetcsp rd-)
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def tIMcsp = :csp  { eq type(im) = mandatory . }
+:def changeObjStateI = :csp { eq id(im') = id(im) . }  
+:def changeObjStateM = :csp { eq importer(im') = importer(im) . }
+:def changeObjStateX = :csp { eq exporter(im') = exporter(im) . }
+:def changeObjStateP = :csp { eq type(im') = type(im) . }
+:def changeObjStateS = :csp { eq (state(im) > state(im')) = true . }
+:def changeObjStateN = :csp { eq next(im') = next(im) . }
+:def changeObjStateT = :csp { eq target(im') = target(im) . }
+:def impIMctf = :ctf {
+  eq importer(im) = idCO .
+}
+:def nCOscsp = :csp {
+  eq nCOs = stopped . 
+  eq nCOs = started . 
+  eq nCOs = sstarted . 
+}
+:apply (tIMcsp changeObjStateI changeObjStateM changeObjStateX changeObjStateP changeObjStateS changeObjStateN changeObjStateT impIMctf rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-1: changeObjState(im,im') = true and importer(im) = idCO .
+:def cCOsctf = :ctf  { 
+  eq cCOs = stopped .
+}
+:apply (cCOsctf rd-)
+:def initIH = :init as robust-lemmaV14-1-IH-in [robust-lemmaV14-1-IH]
+    by {IM:Import <- im; 
+	IM':Import <- im';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; }
+:apply (initIH)
+:apply (nCOscsp rd-)
+-- Case 2-2-1-1-1-1-1-1-1-1-2: changeObjState(im,im') = true and importer(im) /= idCO .
+:def impstopctf = :ctf {
+  eq state(getComponent((sCO' sCO0'),importer(im))) = stopped .
+}
+:apply (impstopctf rd-)
+:apply (initIH)
+:apply (nCOscsp rd-)
+--> Proof of robust-lemmaV14-1 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV14-2
+--> eq robust-lemmaV14-2(IM,IM',SCO0,SIM0)
+-->   = validNextComponent(SCO0,(IM  SIM0)) implies 
+-->     validNextComponent(SCO0,(IM' SIM0))
+-->     when changeObjState(IM,IM') and
+-->     state(IM') = unused and target(IM) = unused .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV14-2
+  [IISCSI] op t : Import Import SetOfComponent SetOfImport -> IISCSI {constr} .
+  pred _<wf_ : IISCSI IISCSI .
+  ceq ( t(IM,IM',SCO',SIM') <wf t(IM,IM',SCO0,SIM0) ) = true
+     if SCO' <wf SCO0 .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV14-2(IM,IM',SCO0,SIM0)
+  --   = validNextComponent(SCO0,(IM  SIM0)) implies 
+  --     validNextComponent(SCO0,(IM' SIM0))
+  --     when changeObjState(IM,IM') and
+  --          state(IM') = unused and target(IM) = unused .
+  ceq [robust-lemmaV14-2-IH :nonexec]:
+      (validNextComponent(SCO0,(IM  SIM0)) and
+       validNextComponent(SCO0,(IM' SIM0)))
+     = validNextComponent(SCO0,(IM  SIM0))
+    if changeObjState(IM,IM') and 
+       state(IM') = unused and target(IM) = unused and
+       t(IM,IM',SCO0,SIM0) <wf t(im,im',sCO0,sIM0) .
+
+:goal { eq robust-lemmaV14-2(im,im',sCO0,sIM0) = true . }
+:def empSCO0csp = :csp {
+  eq sCO0 = empCO .
+  eq sCO0 = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCO0csp rd-)
+:def stateim = :csp { eq state(im') = unused . }
+:def targetim = :csp { eq target(im) = unused . }
+:def changeObjStateI = :csp { eq id(im') = id(im) . }  
+:def changeObjStateM = :csp { eq importer(im') = importer(im) . }
+:def changeObjStateX = :csp { eq exporter(im') = exporter(im) . }
+:def changeObjStateP = :csp { eq type(im') = type(im) . }
+:def changeObjStateS = :csp { eq (state(im) > unused) = true . }
+:def changeObjStateN = :csp { eq next(im') = next(im) . }
+:def changeObjStateT = :csp { eq target(im') = target(im) . }
+:apply (stateim targetim changeObjStateI changeObjStateM changeObjStateX changeObjStateP changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 2-1-1-1-1-1-1-1-1-1: changeObjState(im,im') = true
+:def initIH = :init as robust-lemmaV14-2-IH-in [robust-lemmaV14-2-IH]
+    by {IM:Import <- im; 
+	IM':Import <- im';
+	SCO0:SetOfComponent <- sCO';
+	SIM0:SetOfImport <- sIM0; }
+:apply (initIH)
+:def nCOscsp = :csp {
+  eq nCOs = stopped . 
+  eq nCOs = started . 
+  eq nCOs = sstarted . 
+}
+:apply (nCOscsp rd-)
+-- Case 2-1-1-1-1-1-1-1-1-1-3: sstarted
+:def importerctf = :ctf {
+  eq importer(im) = idCO .
+}
+:def typecsp = :csp {
+  eq type(im) = mandatory .
+  eq type(im) = optional .
+}
+:apply (importerctf typecsp rd-)
+--> Proof of robust-lemmaV14-2 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV14-3
+--> eq robust-lemmaV14-3(IM,IM',SCO0,SIM0)
+-->   = validNextComponent(SCO0,(IM  SIM0)) implies 
+-->     validNextComponent(SCO0,(IM' SIM0))
+-->     when changeObjState(IM,IM') and 
+-->          state(IM') = wired and target(IM) = swired .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV14-3
+  [IISCSI] op t : Import Import SetOfComponent SetOfImport -> IISCSI {constr} .
+  pred _<wf_ : IISCSI IISCSI .
+  ceq ( t(IM,IM',SCO',SIM') <wf t(IM,IM',SCO0,SIM0) ) = true
+     if SCO' <wf SCO0 .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV14-3(IM,IM',SCO0,SIM0)
+  --   = validNextComponent(SCO0,(IM  SIM0)) implies 
+  --     validNextComponent(SCO0,(IM' SIM0))
+  --     when changeObjState(IM,IM') and 
+  --          state(IM') = wired and target(IM) = swired .
+  ceq [robust-lemmaV14-3-IH :nonexec]:
+      (validNextComponent(SCO0,(IM  SIM0)) and
+       validNextComponent(SCO0,(IM' SIM0)))
+     = validNextComponent(SCO0,(IM  SIM0))
+    if changeObjState(IM,IM') and 
+       state(IM') = wired and target(IM) = swired and
+       t(IM,IM',SCO0,SIM0) <wf t(im,im',sCO0,sIM0) .
+
+:goal { eq robust-lemmaV14-3(im,im',sCO0,sIM0) = true . }
+:def empSCO0csp = :csp {
+  eq sCO0 = empCO .
+  eq sCO0 = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCO0csp rd-)
+:def stateim = :csp { eq state(im') = wired . }
+:def targetim = :csp { eq target(im) = swired . }
+:def changeObjStateI = :csp { eq id(im') = id(im) . }  
+:def changeObjStateM = :csp { eq importer(im') = importer(im) . }
+:def changeObjStateX = :csp { eq exporter(im') = exporter(im) . }
+:def changeObjStateP = :csp { eq type(im') = type(im) . }
+:def changeObjStateS = :csp { eq (state(im) > wired) = true . }
+:def changeObjStateN = :csp { eq next(im') = next(im) . }
+:def changeObjStateT = :csp { eq target(im') = target(im) . }
+:apply (stateim targetim changeObjStateI changeObjStateM changeObjStateX changeObjStateP changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 2-1-1-1-1-1-1-1-1-1: changeObjState(im,im') = true
+:def initIH = :init as robust-lemmaV14-3-IH-in [robust-lemmaV14-3-IH]
+    by {IM:Import <- im; 
+	IM':Import <- im';
+	SCO0:SetOfComponent <- sCO';
+	SIM0:SetOfImport <- sIM0; }
+:apply (initIH)
+:def nCOscsp = :csp {
+  eq nCOs = stopped . 
+  eq nCOs = started . 
+  eq nCOs = sstarted . 
+}
+:apply (nCOscsp rd-)
+-- Case 2-1-1-1-1-1-1-1-1-1-3: sstarted
+:def importerctf = :ctf {
+  eq importer(im) = idCO .
+}
+:def typecsp = :csp {
+  eq type(im) = mandatory .
+  eq type(im) = optional .
+}
+:apply (importerctf typecsp rd-)
+-- Case 2-1-1-1-1-1-1-1-1-1-1-3-1-1: importer(im) = idCO and mandatory
+:def cCOscsp = :csp  { 
+  eq cCOs = stopped .
+  eq (cCOs in (sstarted started)) = true .
+}
+:apply (cCOscsp rd-)
+-- Case 2-1-1-1-1-1-1-1-1-1-1-3-1-1-2: cCOS = started or sstarted
+-- (swired > wired) = false and (wire > wire) = false
+:def stateimcsp = :csp {
+  eq state(im) = unwired .
+  eq state(im) = unused .
+}
+:apply (stateimcsp rd-)
+--> Proof of robust-lemmaV14-3 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV14-4
+--> eq robust-lemmaV14-4(IM,IM',SCO0,SIM0)
+-->   = validNextComponent(SCO0,(IM  SIM0)) implies 
+-->     validNextComponent(SCO0,(IM' SIM0))
+-->     when changeObjState(IM,IM') and state(IM') = swired .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV14-4
+  [IISCSI] op t : Import Import SetOfComponent SetOfImport -> IISCSI {constr} .
+  pred _<wf_ : IISCSI IISCSI .
+  ceq ( t(IM,IM',SCO',SIM') <wf t(IM,IM',SCO0,SIM0) ) = true
+     if SCO' <wf SCO0 .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV14-4(IM,IM',SCO0,SIM0)
+  --   = validNextComponent(SCO0,(IM  SIM0)) implies 
+  --     validNextComponent(SCO0,(IM' SIM0))
+  --     when changeObjState(IM,IM') and state(IM') = swired .
+  ceq [robust-lemmaV14-4-IH :nonexec]:
+      (validNextComponent(SCO0,(IM  SIM0)) and
+       validNextComponent(SCO0,(IM' SIM0)))
+     = validNextComponent(SCO0,(IM  SIM0))
+    if changeObjState(IM,IM') and state(IM') = swired and
+       t(IM,IM',SCO0,SIM0) <wf t(im,im',sCO0,sIM0) .
+
+:goal { eq robust-lemmaV14-4(im,im',sCO0,sIM0) = true . }
+:def empSCO0csp = :csp {
+  eq sCO0 = empCO .
+  eq sCO0 = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCO0csp rd-)
+:def stateim = :csp { eq state(im') = swired . }
+:def targetim = :csp { eq target(im) = swired . }
+:def changeObjStateI = :csp { eq id(im') = id(im) . }  
+:def changeObjStateM = :csp { eq importer(im') = importer(im) . }
+:def changeObjStateX = :csp { eq exporter(im') = exporter(im) . }
+:def changeObjStateP = :csp { eq type(im') = type(im) . }
+:def changeObjStateS = :csp { eq (state(im) > swired) = true . }
+:def changeObjStateN = :csp { eq next(im') = next(im) . }
+:def changeObjStateT = :csp { eq target(im') = target(im) . }
+:apply (stateim targetim changeObjStateI changeObjStateM changeObjStateX changeObjStateP changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 2-1-1-1-1-1-1-1-1-1: changeObjState(im,im') = true
+:def initIH = :init as robust-lemmaV14-4-IH-in [robust-lemmaV14-4-IH]
+    by {IM:Import <- im; 
+	IM':Import <- im';
+	SCO0:SetOfComponent <- sCO';
+	SIM0:SetOfImport <- sIM0; }
+:apply (initIH)
+:def nCOscsp = :csp {
+  eq nCOs = stopped . 
+  eq nCOs = started . 
+  eq nCOs = sstarted . 
+}
+:apply (nCOscsp rd-)
+-- Case 2-1-1-1-1-1-1-1-1-1-3: sstarted
+:def importerctf = :ctf {
+  eq importer(im) = idCO .
+}
+:def typecsp = :csp {
+  eq type(im) = mandatory .
+  eq type(im) = optional .
+}
+:apply (importerctf typecsp rd-)
+-- Case 2-1-1-1-1-1-1-1-1-1-1-3-1-1: importer(im) = idCO and mandatory
+:def cCOscsp = :csp  { 
+  eq cCOs = stopped .
+  eq (cCOs in (sstarted started)) = true .
+}
+:apply (cCOscsp rd-)
+-- Case 2-1-1-1-1-1-1-1-1-1-1-3-1-1-2: cCOS = started or sstarted
+-- (swired > swired) = false
+:def stateimcsp = :csp {
+  eq state(im) = unwired .
+  eq state(im) = wired .
+  eq state(im) = unused .
+}
+:apply (stateimcsp rd-)
+--> Proof of robust-lemmaV14-4 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV15
+--> eq robust-lemmaV15(CO,CO',SCO0,SIM0)
+-->   = validNextImport(SIM0,(CO  SCO0)) implies 
+-->     validNextImport(SIM0,(CO' SCO0))
+-->     when changeObjState(CO,CO') and not (state(CO) = sstarted) .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV15
+  [CCSCSI] op t : Component Component SetOfComponent SetOfImport -> CCSCSI {constr} .
+  pred _<wf_ : CCSCSI CCSCSI .
+  ceq ( t(CO,CO',SCO0,SIM') <wf t(CO,CO',SCO0,SIM0) ) = true
+     if SIM' <wf SIM0 .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV15(CO,CO',SCO0,SIM0)
+  --   = validNextImport(SIM0,(CO  SCO0)) implies 
+  --     validNextImport(SIM0,(CO' SCO0))
+  --     when changeObjState(CO,CO') and not (state(CO) = sstarted) .
+  ceq [robust-lemmaV15-IH :nonexec]:
+      (validNextImport(SIM0,(CO  SCO0)) and
+       validNextImport(SIM0,(CO' SCO0)))
+     = validNextImport(SIM0,(CO  SCO0))
+    if changeObjState(CO,CO') and not (state(CO) = sstarted) and
+       t(CO,CO',SCO0,SIM0) <wf t(co,co',sCO0,sIM0) .
+
+:goal { eq robust-lemmaV15(co,co',sCO0,sIM0) = true . }
+:def empSIM0csp = :csp {
+  eq sIM0 = empIM .
+  eq sIM0 = (imp(tIM, idIM, iidCO, eidCO, cIMs, nIMs, tIMs) sIM') .
+}
+:apply (empSIM0csp rd-)
+:def stateCOctf = :ctf {
+  eq state(co) = sstarted .
+}
+:apply (stateCOctf rd-)
+:def changeObjStateI = :csp { eq id(co') = id(co) . }  
+:def changeObjStateS = :csp { eq (state(co) > state(co')) = true . }
+:def changeObjStateN = :csp { eq next(co') = next(co) . }
+:def changeObjStateT = :csp { eq target(co') = target(co) . }
+:apply (changeObjStateI changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 2-2-1-1-1-1: changeObjState(co,co') = true
+:def initIH = :init as robust-lemmaV15-IH-in [robust-lemmaV15-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM'; }
+:apply (initIH)
+:def nIMscsp = :csp {
+  eq nIMs = unused .
+  eq nIMs = wired .
+  eq nIMs = swired .
+  eq nIMs = unwired .
+}
+:apply (nIMscsp rd-)
+:def eidCOctf = :ctf {
+  eq eidCO = id(co) .
+}
+:apply (eidCOctf rd-)
+--> Proof of robust-lemmaV15 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV16
+--> pred robust-lemmaV16 : Component Component SetOfComponent SetOfImport
+--> eq robust-lemmaV16(CO,CO',SCO0,SIM0)
+-->   = validCurrentImport(SIM0,(CO  SCO0)) implies
+-->     validCurrentImport(SIM0,(CO' SCO0))
+-->     when changeObjState(CO,CO') and 
+-->          ((state(CO') = stopped) or (getIMsOfTypeOfICOInStates(SIM0,mandatory,id(CO),unwired) = empIM)) .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV16
+  [CCSCSI] op t : Component Component SetOfComponent SetOfImport -> CCSCSI {constr} .
+  pred _<wf_ : CCSCSI CCSCSI .
+  ceq ( t(CO,CO',SCO0,SIM') <wf t(CO,CO',SCO0,SIM0) ) = true
+     if SIM' <wf SIM0 .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV16(CO,CO',SCO0,SIM0)
+  --   = validCurrentImport(SIM0,(CO  SCO0)) implies
+  --     validCurrentImport(SIM0,(CO' SCO0))
+  --     when changeObjState(CO,CO') and 
+  --          ((state(CO') = stopped) or (getIMsOfTypeOfICOInStates(SIM0,mandatory,id(CO),unwired) = empIM)) .
+  ceq [robust-lemmaV16-IH :nonexec]:
+      (validCurrentImport(SIM0,(CO  SCO0)) and
+       validCurrentImport(SIM0,(CO' SCO0)))
+     = validCurrentImport(SIM0,(CO  SCO0))
+    if changeObjState(CO,CO') and
+       ((state(CO') = stopped) or (getIMsOfTypeOfICOInStates(SIM0,mandatory,id(CO),unwired) = empIM)) and
+       t(CO,CO',SCO0,SIM0) <wf t(co,co',sCO0,sIM0) .
+
+:goal { eq robust-lemmaV16(co,co',sCO0,sIM0) = true . }
+:def initIH = :init as robust-lemmaV16-IH-in [robust-lemmaV16-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM'; }
+:def tIMcsp = :csp  { 
+  eq tIM = mandatory .
+  eq tIM = optional .
+}
+:def cIMscsp = :csp {
+  eq cIMs = unused .
+  eq cIMs = wired .
+  eq cIMs = swired .
+  eq cIMs = unwired .
+}
+:def nIMscsp = :csp  { 
+  eq nIMs = unused .
+  eq nIMs = unwired .
+  eq nIMs = wired .
+  eq nIMs = swired .
+}
+:def tIMscsp = :csp  { 
+  eq tIMs = unused .
+  eq tIMs = unwired .
+  eq tIMs = wired .
+  eq tIMs = swired .
+}
+:def changeObjStateI = :csp { eq id(co') = id(co) . }  
+:def changeObjStateS = :csp { eq (state(co) > state(co')) = true . }
+:def changeObjStateS' = :csp { eq (state(co) > stopped) = true . }
+:def changeObjStateN = :csp { eq next(co') = next(co) . }
+:def changeObjStateT = :csp { eq target(co') = target(co) . }
+:def stateco'ctf = :ctf {
+  eq state(co') = stopped .
+}
+:def nounwiredctf = :ctf {
+  eq getIMsOfTypeOfICOInStates(sIM',mandatory,id(co),unwired) = empIM .
+}
+:def iidCOctf = :ctf {
+  eq iidCO = id(co) .
+}
+:def empSIM0csp = :csp {
+  eq sIM0 = empIM .
+  eq sIM0 = (imp(tIM, idIM, iidCO, eidCO, cIMs, nIMs, tIMs) sIM') .
+}
+:apply (empSIM0csp rd-)
+:apply (changeObjStateI changeObjStateN changeObjStateT rd-)
+:apply (stateco'ctf)
+-- Case 2-1-1-1-1: state(co') = stopped
+:apply (changeObjStateS' initIH cIMscsp nIMscsp tIMscsp iidCOctf rd-)
+-- Case 2-1-1-1-2: state(co') /= stopped
+:apply (changeObjStateS rd-)
+:apply (iidCOctf tIMcsp cIMscsp nounwiredctf initIH nIMscsp tIMscsp rd-)
+--> Proof of robust-lemmaV16 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV17
+--> pred robust-lemmaV17 : Component Component SetOfComponent SetOfImport
+--> eq robust-lemmaV17(CO,CO',SCO0,SIM0)
+-->   = validCurrentImport(SIM0,(CO  SCO0)) implies
+-->     validCurrentImport(SIM0,(CO' SCO0))
+-->     when changeObjState2(CO,CO') .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV17
+  [CCSCSI] op t : Component Component SetOfComponent SetOfImport -> CCSCSI {constr} .
+  pred _<wf_ : CCSCSI CCSCSI .
+  ceq ( t(CO,CO',SCO0,SIM') <wf t(CO,CO',SCO0,SIM0) ) = true
+     if SIM' <wf SIM0 .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV17(CO,CO',SCO0,SIM0)
+  --   = validCurrentImport(SIM0,(CO  SCO0)) implies
+  --     validCurrentImport(SIM0,(CO' SCO0))
+  --     when changeObjState2(CO,CO') .
+  ceq [robust-lemmaV17-IH :nonexec]:
+      (validCurrentImport(SIM0,(CO  SCO0)) and
+       validCurrentImport(SIM0,(CO' SCO0)))
+     = validCurrentImport(SIM0,(CO  SCO0))
+    if changeObjState2(CO,CO') and
+       t(CO,CO',SCO0,SIM0) <wf t(co,co',sCO0,sIM0) .
+
+:goal { eq robust-lemmaV17(co,co',sCO0,sIM0) = true . }
+:def initIH = :init as robust-lemmaV17-IH-in [robust-lemmaV17-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM'; }
+:def tIMcsp = :csp  { 
+  eq tIM = mandatory .
+  eq tIM = optional .
+}
+:def cIMscsp = :csp {
+  eq cIMs = unused .
+  eq cIMs = wired .
+  eq cIMs = swired .
+  eq cIMs = unwired .
+}
+:def nIMscsp = :csp  { 
+  eq nIMs = unused .
+  eq nIMs = unwired .
+  eq nIMs = wired .
+  eq nIMs = swired .
+}
+:def tIMscsp = :csp  { 
+  eq tIMs = unused .
+  eq tIMs = unwired .
+  eq tIMs = wired .
+  eq tIMs = swired .
+}
+:def changeObjState2I = :csp { eq id(co') = id(co) . }  
+:def changeObjState2S = :csp { eq state(co') = state(co) . }
+:def changeObjState2N = :csp { eq (next(co) > next(co')) = true . }
+:def changeObjState2T = :csp { eq target(co') = target(co) . }
+:def iidCOctf = :ctf {
+  eq iidCO = id(co) .
+}
+:def empSIM0csp = :csp {
+  eq sIM0 = empIM .
+  eq sIM0 = (imp(tIM, idIM, iidCO, eidCO, cIMs, nIMs, tIMs) sIM') .
+}
+:apply (empSIM0csp rd-)
+:apply (changeObjState2I changeObjState2S changeObjState2N changeObjState2T rd-)
+-- Case 2-1-1-1-1: changeObjState(co,co')
+:apply (initIH)
+:apply (tIMcsp cIMscsp nIMscsp tIMscsp iidCOctf rd-)
+--> Proof of robust-lemmaV17 done
+-->
+show proof
+close
+
+--> Proof of robust-lemmaV18
+--> eq robust-lemmaV18(CO,CO',SCO0,SIM0)
+-->   = validNextImport(SIM0,(CO  SCO0)) implies 
+-->     validNextImport(SIM0,(CO' SCO0))
+-->     when changeObjState2(CO,CO') and next(CO') = sstarted .
+open ProofLemma .
+  -- Define <wf for robust-lemmaV18
+  [CCSCSI] op t : Component Component SetOfComponent SetOfImport -> CCSCSI {constr} .
+  pred _<wf_ : CCSCSI CCSCSI .
+  ceq ( t(CO,CO',SCO0,SIM') <wf t(CO,CO',SCO0,SIM0) ) = true
+     if SIM' <wf SIM0 .
+
+  -- Induction Hypothesis
+  -- eq robust-lemmaV18(CO,CO',SCO0,SIM0)
+  --   = validNextImport(SIM0,(CO  SCO0)) implies 
+  --     validNextImport(SIM0,(CO' SCO0))
+  --     when changeObjState2(CO,CO') and next(CO') = sstarted .
+  ceq [robust-lemmaV18-IH :nonexec]:
+      (validNextImport(SIM0,(CO  SCO0)) and
+       validNextImport(SIM0,(CO' SCO0)))
+     = validNextImport(SIM0,(CO  SCO0))
+    if changeObjState2(CO,CO') and next(CO') = sstarted and
+       t(CO,CO',SCO0,SIM0) <wf t(co,co',sCO0,sIM0) .
+
+:goal { eq robust-lemmaV18(co,co',sCO0,sIM0) = true . }
+:def empSIM0csp = :csp {
+  eq sIM0 = empIM .
+  eq sIM0 = (imp(tIM, idIM, iidCO, eidCO, cIMs, nIMs, tIMs) sIM') .
+}
+:apply (empSIM0csp rd-)
+:def nextCO'ctf = :ctf {
+  eq next(co') = sstarted .
+}
+:apply (nextCO'ctf rd-)
+:def changeObjState2I = :csp { eq id(co') = id(co) . }  
+:def changeObjState2S = :csp { eq state(co') = state(co) . }
+:def changeObjState2N = :csp { eq (next(co) > sstarted) = true . }
+:def changeObjState2T = :csp { eq target(co') = target(co) . }
+:apply (changeObjState2I changeObjState2S changeObjState2N changeObjState2T rd-)
+-- Case 2-1-1-1-1-1: changeObjState(co,co') = true
+:def initIH = :init as robust-lemmaV18-IH-in [robust-lemmaV18-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM'; }
+:apply (initIH)
+:def cIMscsp = :csp {
+  eq cIMs = unused .
+  eq cIMs = wired .
+  eq cIMs = swired .
+  eq cIMs = unwired .
+}
+:def nIMscsp = :csp {
+  eq nIMs = unused .
+  eq nIMs = wired .
+  eq nIMs = swired .
+  eq nIMs = unwired .
+}
+:def tIMscsp = :csp {
+  eq tIMs = unused .
+  eq tIMs = wired .
+  eq tIMs = swired .
+  eq tIMs = unwired .
+}
+:def eidCOctf = :ctf {
+  eq eidCO = id(co) .
+}
+:apply (cIMscsp nIMscsp tIMscsp eidCOctf rd-)
+--> Proof of robust-lemmaV18 done
+-->
+show proof
+close
+
+--> Totally 35 goals should be proved.

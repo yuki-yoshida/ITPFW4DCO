@@ -8,40 +8,40 @@ open PROOF .
 ops COC COC1 COC2 COD : -> COIDLt .
 ops IMW IMV IMW1 IMW2 : -> IMIDLt .
 
-ops components00 components01 : -> SetOfComponent .
-eq components00 =
-  (cmp(COD,  stopped, stopped, sstarted) cmp(COC,  stopped, stopped, sstarted) 
-   cmp(COC1, stopped, stopped, sstarted) cmp(COC2, stopped, stopped, sstarted)) .
-eq components01 =
-  (cmp(COD,  started, sstarted, sstarted) cmp(COC,  stopped, sstarted, sstarted) 
-   cmp(COC1, stopped, sstarted, sstarted) cmp(COC2, started, sstarted, sstarted)) .
+-- ops components00 components01 : -> SetOfComponent .
+-- eq components00 =
+--   (cmp(COD,  stopped, stopped, sstarted) cmp(COC,  stopped, stopped, sstarted) 
+--    cmp(COC1, stopped, stopped, sstarted) cmp(COC2, stopped, stopped, sstarted)) .
+-- eq components01 =
+--   (cmp(COD,  started, sstarted, sstarted) cmp(COC,  stopped, sstarted, sstarted) 
+--    cmp(COC1, stopped, sstarted, sstarted) cmp(COC2, started, sstarted, sstarted)) .
 
-op imports00 : -> SetOfImport .
-eq imports00 =
-  (imp(optional,  IMW,  COD,  COC,   wired,  wired,  swired)
-   imp(optional,  IMW1, COD,  COC1,  wired,  wired,  swired)
-   imp(optional,  IMW2, COD,  COC2,  wired,  wired,  swired)) .
+-- op imports00 : -> SetOfImport .
+-- eq imports00 =
+--   (imp(optional,  IMW,  COD,  COC,   wired,  wired,  swired)
+--    imp(optional,  IMW1, COD,  COC1,  wired,  wired,  swired)
+--    imp(optional,  IMW2, COD,  COC2,  wired,  wired,  swired)) .
 
-ops s00 s01 : -> State .
-eq s00 =
-  < components00, imports00, empLog > .
-eq s01 =
-  < components01, imports00, empLog > .
+-- ops s00 s01 : -> State .
+-- eq s00 =
+--   < components00, imports00, empLog > .
+-- eq s01 =
+--   < components01, imports00, empLog > .
       
-red wfs-validCurrent(s00) .
-red wfs-validCurrent(s01) = false .
+-- red wfs-validCurrent(s00) .
+-- red wfs-validCurrent(s01) = false .
 
-red s00 .
-red m(s00) == 27 .
-red not (wfs(s00) == false) .
-red init(s00) = wfs(s00) .
-red final(s00) == false .
+-- red s00 .
+-- red m(s00) == 27 .
+-- red not (wfs(s00) == false) .
+-- red init(s00) = wfs(s00) .
+-- red final(s00) == false .
 
-exec s00 .
-exec m(s00) == 0 .
-exec not (wfs(s00) == false) .
-exec init(s00) == false .
-exec final(s00) .
+-- exec s00 .
+-- exec m(s00) == 0 .
+-- exec not (wfs(s00) == false) .
+-- exec init(s00) == false .
+-- exec final(s00) .
 
 op components : -> SetOfComponent .
 eq components =
@@ -221,5 +221,30 @@ exec m(s6) == 0 .
 exec not (wfs(s6) == false) .
 exec init(s6) == false .
 exec final(s6) .
+
+op components7 : -> SetOfComponent .
+eq components7 =
+  (cmp(COD,  sstarted, sstarted, sstarted) 
+   cmp(COC1,  started,  started, sstarted)) .
+
+op imports7 : -> SetOfImport .
+eq imports7 =
+  (imp(mandatory, IMW,   COD, COC1, unused, unused,  swired)) .
+
+-- op s7 : -> State .
+-- eq s7 =
+--   < components7, imports7, empLog > .
+      
+-- red s7 .
+-- red m(s7) == 10 .
+-- red not (wfs(s7) == false) .
+-- red init(s7) = wfs(s7) .
+-- red final(s7) == false .
+
+-- exec s7 .
+-- exec m(s7) == 0 .
+-- exec not (wfs(s7) == false) .
+-- exec init(s7) == false .
+-- exec final(s7) .
 
 close
