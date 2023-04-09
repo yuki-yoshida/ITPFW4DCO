@@ -1980,5 +1980,272 @@ show proof
 
 select
 
---> Totally 61 goals should be proved
---> including 2 cont-lemmas, 16 bool&set-lemmas, 5 base-lemmas(+1), 28 m2o-lemmas, 6 o2o-lemmas, and 4 o2o2o-lemmas.
+module M2O3-LEMMAS {
+  including(-OBJLINKMANY2ONE3-lemma)
+
+  pred (_when _) : Bool Bool { prec: 64 r-assoc }
+  eq (B1:Bool when B2:Bool)
+     = B2 implies B1 .
+
+  var IDX : LObjID 
+  vars X X' : LObject
+  vars Z Z' : Object
+  vars S_X S_X' S_X1 S_X2 : SetOfLObject
+  vars S_Z S_Z' S_Z1 S_Z2 : SetOfObject
+  vars SX SX1 : LObjState
+  vars SZ SZ1 SZ2 : ObjState
+  var St_X : SetOfLObjState
+  var St_Z : SetOfObjState
+  var OT : ObjType
+
+  -- Axioms
+  -- M2O3 Lemmas are valid only when instantiating with the following properties.
+  eq X in empLObj = false .
+  eq X in (X S_X) = true .
+  ceq X in (X' S_X) = X in S_X if not(X = X') .
+  eq ((X S_X) = empLObj) = false .
+
+  eq Z in empObj = false .
+  eq Z in (Z S_Z) = true .
+  ceq Z in (Z' S_Z) = Z in S_Z if not(Z = Z') .
+  eq ((Z S_Z) = empObj) = false .
+
+  eq SX in SX1 = (SX = SX1) .
+  eq SX in (SX St_X) = true .
+  ceq SX in (SX1 St_X) = SX in St_X if not(SX = SX1) .
+
+  eq SZ in empState = false .
+  eq SZ in (SZ St_Z) = true .
+  ceq SZ in (SZ1 St_Z) = SZ in St_Z if not(SZ = SZ1) .
+  eq ((SZ St_Z) = empState) = false .
+
+  eq subset(empLObj,S_X) = true .
+  eq subset(S_X,empLObj) = (S_X = empLObj) .
+  eq subset(S_X,S_X) = true .
+  ceq subset((X S_X),S_X') = subset(S_X,S_X') if (X in S_X') .
+  ceq subset((X S_X),S_X') = false if not (X in S_X') .
+  eq subset(S_X,(X S_X)) = true .
+
+  eq subset(empObj,S_Z) = true .
+  eq subset(S_Z,empObj) = (S_Z = empObj) .
+  eq subset(S_Z,S_Z) = true .
+  ceq subset((Z S_Z),S_Z') = subset(S_Z,S_Z') if (Z in S_Z') .
+  ceq subset((Z S_Z),S_Z') = false if not (Z in S_Z') .
+  eq subset(S_Z,(Z S_Z)) = true .
+
+  eq getLObject((X S_X),IDX)
+     = if (id(X) = IDX) then X else getLObject(S_X,IDX) fi .
+
+  pred hasID : LObject LObjID
+  eq hasID(X,IDX) = id(X) = IDX .
+
+  eq existLObj(empLObj,IDX)
+     = false .
+  eq existLObj((X S_X),IDX)
+     = hasID(X,IDX) or existLObj(S_X,IDX) .
+
+  eq allLObjInStates(empLObj, St_X) = true .
+  eq allLObjInStates((X S_X), St_X)
+     = (state(X) in St_X) and allLObjInStates(S_X, St_X) .
+
+  eq allLObjInStates2(empLObj, St_X) = true .
+  eq allLObjInStates2((X S_X), St_X)
+     = (state2(X) in St_X) and allLObjInStates2(S_X, St_X) .
+
+  eq allLObjInStates3(empLObj, St_X) = true .
+  eq allLObjInStates3((X S_X), St_X)
+     = (state3(X) in St_X) and allLObjInStates3(S_X, St_X) .
+
+  pred _<wf_ : SetOfObject SetOfObject
+  eq S_Z <wf (Z S_Z) = true .
+
+  pred m2o3-lemma01 : LObject LObject SetOfLObject SetOfObject SetOfLObjState
+  eq m2o3-lemma01(X,X',S_X,S_Z,St_X)
+     = allLObjInStates3(getXsOfZs((X  S_X),S_Z),St_X) implies
+       allLObjInStates3(getXsOfZs((X' S_X),S_Z),St_X)
+     when changeObjState(X,X') .
+
+  pred m2o3-lemma01-2 : LObject LObject SetOfLObject SetOfObject SetOfLObjState
+  eq m2o3-lemma01-2(X,X',S_X,S_Z,St_X)
+     = allLObjInStates3(getXsOfZs((X  S_X),S_Z),St_X) implies
+       allLObjInStates3(getXsOfZs((X' S_X),S_Z),St_X)
+     when changeObjState2(X,X') .
+
+  pred m2o3-lemma02 : LObject LObject SetOfLObject SetOfObject SetOfLObjState
+  eq m2o3-lemma02(X,X',S_X,S_Z,St_X)
+     = allLObjInStates(getXsOfZs((X  S_X),S_Z),St_X) implies
+       allLObjInStates(getXsOfZs((X' S_X),S_Z),St_X)
+     when changeObjState2(X,X') .
+
+  -- Constants for Proofs.
+  ops x x' x1 x2 : -> LObject .
+  ops z z' z1 z2 z3 : -> Object .
+  op idX : -> LObjID
+  op idZ : -> ObjID
+  ops setX setX' : -> SetOfLObject
+  ops setZ setZ' : -> SetOfObject
+  op ot : -> ObjType
+  op sx : -> LObjState
+  op sz : -> ObjState
+  op setSX : -> SetOfLObjState
+  op setSZ : -> SetOfObjState
+}
+
+--> **********************************************************
+--> Prove m2o3-lemma01
+-->   = allLObjInStates3(getXsOfZs((X  S_X),S_Z),St_X) implies
+-->     allLObjInStates3(getXsOfZs((X' S_X),S_Z),St_X)
+-->   when changeObjState(X,X') .
+--> **********************************************************
+open M2O3-LEMMAS .
+  -- Define <wf for m2o3-lemma01
+  [LOLOSLOSOLOS] op t : LObject LObject SetOfLObject SetOfObject SetOfLObjState -> LOLOSLOSOLOS .
+  pred _<wf_ : LOLOSLOSOLOS LOLOSLOSOLOS .
+  ceq ( t(X,X',S_X,S_Z',St_X) <wf t(X,X',S_X,S_Z,St_X) ) = true
+     if S_Z' <wf S_Z .
+  -- Induction Hypothesis
+  ceq [m2o3-lemma01-IH :nonexec]:
+      m2o3-lemma01(X,X',S_X,S_Z,St_X) = true
+    if t(X,X',S_X,S_Z,St_X) <wf t(x,x',setX,setZ,setSX) .
+:goal {
+  eq m2o3-lemma01(x,x',setX,setZ,setSX) = true .
+}
+:def changeObjStateI  = :ctf { eq id(x') = id(x) . }  
+:def changeObjStateS  = :ctf { eq (state(x) > state(x')) = true . }
+:def changeObjStateS2 = :ctf { eq state2(x') = state2(x) . }
+:def changeObjStateS3 = :ctf { eq state3(x') = state3(x) . }
+:apply (changeObjStateI changeObjStateS changeObjStateS2 changeObjStateS3 rd-)
+:def empsetZcsp = :csp {
+  eq setZ = empObj .
+  eq setZ = (z setZ') .
+}
+:apply (empsetZcsp rd-)
+:def linkzctf = :ctf {
+  eq link(z) = id(x) .
+}
+:apply (linkzctf rd-)
+:def state3xctf = :ctf {
+  eq (state3(x) in setSX) = true .
+}
+:apply (state3xctf rd-)
+:def initIH = :init as m2o3-lemma01-IH-in [m2o3-lemma01-IH]
+    by {X:LObject <- x; 
+	X':LObject <- x';
+	S_X:SetOfLObject <- setX;
+	S_Z:SetOfObject <- setZ';
+	St_X:SetOfLObjState <- setSX; }
+:apply (initIH rd-)
+:def state3zctf = :ctf {
+  eq (state3(getLObject(setX,link(z))) in setSX) = true .
+}
+:apply (state3zctf rd-)
+:apply (initIH rd-)
+show proof
+close 
+
+--> **********************************************************
+--> Prove m2o3-lemma01-2
+-->   = allLObjInStates3(getXsOfZs((X  S_X),S_Z),St_X) implies
+-->     allLObjInStates3(getXsOfZs((X' S_X),S_Z),St_X)
+-->   when changeObjState2(X,X') .
+--> **********************************************************
+open M2O3-LEMMAS .
+  -- Define <wf for m2o3-lemma01-2
+  [LOLOSLOSOLOS] op t : LObject LObject SetOfLObject SetOfObject SetOfLObjState -> LOLOSLOSOLOS .
+  pred _<wf_ : LOLOSLOSOLOS LOLOSLOSOLOS .
+  ceq ( t(X,X',S_X,S_Z',St_X) <wf t(X,X',S_X,S_Z,St_X) ) = true
+     if S_Z' <wf S_Z .
+  -- Induction Hypothesis
+  ceq [m2o3-lemma01-2-IH :nonexec]:
+      m2o3-lemma01-2(X,X',S_X,S_Z,St_X) = true
+    if t(X,X',S_X,S_Z,St_X) <wf t(x,x',setX,setZ,setSX) .
+:goal {
+  eq m2o3-lemma01-2(x,x',setX,setZ,setSX) = true .
+}
+:def changeObjState2I  = :ctf { eq id(x') = id(x) . }  
+:def changeObjState2S  = :ctf { eq state(x') = state(x) . }
+:def changeObjState2S2 = :ctf { eq (state2(x) > state2(x')) = true . }
+:def changeObjState2S3 = :ctf { eq state3(x') = state3(x) . }
+:apply (changeObjState2I changeObjState2S changeObjState2S2 changeObjState2S3 rd-)
+:def empsetZcsp = :csp {
+  eq setZ = empObj .
+  eq setZ = (z setZ') .
+}
+:apply (empsetZcsp rd-)
+:def linkzctf = :ctf {
+  eq link(z) = id(x) .
+}
+:apply (linkzctf rd-)
+:def state3xctf = :ctf {
+  eq (state3(x) in setSX) = true .
+}
+:apply (state3xctf rd-)
+:def initIH = :init as m2o3-lemma01-2-IH-in [m2o3-lemma01-2-IH]
+    by {X:LObject <- x; 
+	X':LObject <- x';
+	S_X:SetOfLObject <- setX;
+	S_Z:SetOfObject <- setZ';
+	St_X:SetOfLObjState <- setSX; }
+:apply (initIH rd-)
+:def state3zctf = :ctf {
+  eq (state3(getLObject(setX,link(z))) in setSX) = true .
+}
+:apply (state3zctf rd-)
+:apply (initIH rd-)
+show proof
+close 
+
+--> *********************************************************
+--> Prove m2o3-lemma02
+-->   = allLObjInStates(getXsOfZs((X  S_X),S_Z),St_X) implies
+-->     allLObjInStates(getXsOfZs((X' S_X),S_Z),St_X)
+-->   when changeObjState2(X,X') .
+--> *********************************************************
+open M2O3-LEMMAS .
+  -- Define <wf for m2o3-lemma02
+  [LOLOSLOSOLOS] op t : LObject LObject SetOfLObject SetOfObject SetOfLObjState -> LOLOSLOSOLOS .
+  pred _<wf_ : LOLOSLOSOLOS LOLOSLOSOLOS .
+  ceq ( t(X,X',S_X,S_Z',St_X) <wf t(X,X',S_X,S_Z,St_X) ) = true
+     if S_Z' <wf S_Z .
+  -- Induction Hypothesis
+  ceq [m2o3-lemma02-IH :nonexec]:
+      m2o3-lemma02(X,X',S_X,S_Z,St_X) = true
+    if t(X,X',S_X,S_Z,St_X) <wf t(x,x',setX,setZ,setSX) .
+:goal {
+  eq m2o3-lemma02(x,x',setX,setZ,setSX) = true .
+}
+:def changeObjState2I  = :ctf { eq id(x') = id(x) . }  
+:def changeObjState2S  = :ctf { eq state(x') = state(x) . }
+:def changeObjState2S2 = :ctf { eq (state2(x) > state2(x')) = true . }
+:def changeObjState2S3 = :ctf { eq state3(x') = state3(x) . }
+:apply (changeObjState2I changeObjState2S changeObjState2S2 changeObjState2S3 rd-)
+:def empsetZcsp = :csp {
+  eq setZ = empObj .
+  eq setZ = (z setZ') .
+}
+:apply (empsetZcsp rd-)
+:def linkzctf = :ctf {
+  eq link(z) = id(x) .
+}
+:apply (linkzctf rd-)
+:def statexctf = :ctf {
+  eq (state(x) in setSX) = true .
+}
+:apply (statexctf rd-)
+:def initIH = :init as m2o3-lemma02-IH-in [m2o3-lemma02-IH]
+    by {X:LObject <- x; 
+	X':LObject <- x';
+	S_X:SetOfLObject <- setX;
+	S_Z:SetOfObject <- setZ';
+	St_X:SetOfLObjState <- setSX; }
+:apply (initIH rd-)
+:def statezctf = :ctf {
+  eq (state(getLObject(setX,link(z))) in setSX) = true .
+}
+:apply (statezctf rd-)
+:apply (initIH rd-)
+show proof
+close 
+
+--> Totally 64 goals should be proved
+--> including 2 cont-lemmas, 16 bool&set-lemmas, 5 base-lemmas(+1), 28 m2o-lemmas, 6 o2o-lemmas, 4 o2o2o-lemmas, and 3 m2o3-lemmas.

@@ -12,7 +12,7 @@ module ProofLemma {
   vars SCO SCO' SCO0 : SetOfComponent
   vars SIM SIM' SIM0 : SetOfImport
   var StIM : SetOfIMState
-  var L : ListOfLog
+  vars LG LG' : ListOfLog
   var LS : LocalState
 
   -- May be used.
@@ -51,6 +51,17 @@ module ProofLemma {
 		    (started sstarted))
       when changeObjState(CO,CO') and (state(CO') in (started sstarted)) .
 
+  pred robust-lemma04 : Component Component COID SetOfComponent SetOfImport
+  eq robust-lemma04(CO,CO',IDCO,SCO,SIM)
+     = subsetID(getECOsOfIMs((CO' SCO),getIMsOfTypeOfICO(SIM,mandatory,IDCO)),
+                getECOsOfIMs((CO  SCO),getIMsOfTypeOfICO(SIM,mandatory,IDCO)))
+      when changeObjState2(CO,CO') .
+
+  pred robust-lemma05 : Component Component SetOfComponent SetOfComponent SetOfImport ListOfLog ListOfLog
+  eq robust-lemma05(CO,CO',SCO,SCO0,SIM0,LG,LG')
+     = subsetIDDepend(SCO,SCO,< (CO' SCO0), SIM0, LG' >,< (CO SCO0), SIM0, LG >)
+      when changeObjState2(CO,CO') and subset(SCO,SCO0) .
+
   -- for NoCyclic Lemma
   eq [noCycleU :nonexec]:
     noCDLU(CO,Xc,LS,S) = true .
@@ -59,33 +70,33 @@ module ProofLemma {
 
   -- Cont Lemmas
   pred robust-lemmaC01 : Component SetOfComponent SetOfImport ListOfLog
-  eq robust-lemmaC01(CO,SCO,SIM,L)
-    = cont(< (CO SCO), SIM, L >) 
-      when inv(< (CO SCO), SIM, L >) and
+  eq robust-lemmaC01(CO,SCO,SIM,LG)
+    = cont(< (CO SCO), SIM, LG >) 
+      when inv(< (CO SCO), SIM, LG >) and
            CO in st(started,stopped,stopped) .
 
   pred robust-lemmaC02 : Component SetOfComponent SetOfImport ListOfLog
-  eq robust-lemmaC02(CO,SCO,SIM,L)
-    = cont(< (CO SCO), SIM, L >) 
-      when inv(< (CO SCO), SIM, L >) and
+  eq robust-lemmaC02(CO,SCO,SIM,LG)
+    = cont(< (CO SCO), SIM, LG >) 
+      when inv(< (CO SCO), SIM, LG >) and
            CO in st(started,stopped,sstarted) .
 
   pred robust-lemmaC03 : Component SetOfComponent SetOfImport ListOfLog
-  eq robust-lemmaC03(CO,SCO,SIM,L)
-    = cont(< (CO SCO), SIM, L >) 
-      when inv(< (CO SCO), SIM, L >) and
+  eq robust-lemmaC03(CO,SCO,SIM,LG)
+    = cont(< (CO SCO), SIM, LG >) 
+      when inv(< (CO SCO), SIM, LG >) and
            CO in st(started,sstarted,sstarted) .
 
   pred robust-lemmaC04 : Component SetOfComponent SetOfImport ListOfLog
-  eq robust-lemmaC04(CO,SCO,SIM,L)
-    = cont(< (CO SCO), SIM, L >) 
-      when inv(< (CO SCO), SIM, L >) and
+  eq robust-lemmaC04(CO,SCO,SIM,LG)
+    = cont(< (CO SCO), SIM, LG >) 
+      when inv(< (CO SCO), SIM, LG >) and
            CO in st(started,started,sstarted) .
 
   pred robust-lemmaC05 : Component SetOfComponent SetOfImport ListOfLog
-  eq robust-lemmaC05(CO,SCO,SIM,L)
-    = cont(< (CO SCO), SIM, L >) 
-      when inv(< (CO SCO), SIM, L >) and
+  eq robust-lemmaC05(CO,SCO,SIM,LG)
+    = cont(< (CO SCO), SIM, LG >) 
+      when inv(< (CO SCO), SIM, LG >) and
            CO in st(stopped,sstarted,sstarted) .
 
   op ls : -> LocalState .
@@ -261,6 +272,7 @@ module ProofLemma {
     = validNextImport(SIM0,(CO  SCO0)) implies 
       validNextImport(SIM0,(CO' SCO0))
       when changeObjState2(CO,CO') and next(CO') = sstarted .
+
 }
 
 --> Proof of robust-lemma01
@@ -539,11 +551,121 @@ open ProofLemma .
 show proof
 close
 
+--> Proof of robust-lemma04
+--> pred robust-lemma04 : Component Component COID SetOfComponent SetOfImport
+--> eq robust-lemma04(CO,CO',IDCO,SCO,SIM)
+-->    = subsetID(getECOsOfIMs((CO' SCO),getIMsOfTypeOfICO(SIM,mandatory,IDCO)),
+-->               getECOsOfIMs((CO  SCO),getIMsOfTypeOfICO(SIM,mandatory,IDCO)))
+-->     when changeObjState2(CO,CO') .
+open ProofLemma .
+  -- Define <wf for robust-lemma04
+  [COCOIDSCOSIM] op t : Component Component COID SetOfComponent SetOfImport -> COCOIDSCOSIM {constr} .
+  pred _<wf_ : COCOIDSCOSIM COCOIDSCOSIM .
+  ceq ( t(CO,CO',IDCO,SCO,SIM') <wf t(CO,CO',IDCO,SCO,SIM) ) = true
+     if SIM' <wf SIM .
+
+  -- Induction Hypothesis
+  ceq [robust-lemma04-IH :nonexec]:
+     subsetID(getECOsOfIMs((CO' SCO),getIMsOfTypeOfICO(SIM,mandatory,IDCO)),
+              getECOsOfIMs((CO  SCO),getIMsOfTypeOfICO(SIM,mandatory,IDCO))) = true
+     if changeObjState2(CO,CO') and 
+        ( t(CO,CO',IDCO,SCO,SIM) <wf t(co,co',idCO,sCO,sIM) ) = true .
+
+:goal { eq robust-lemma04(co,co',idCO,sCO,sIM) = true . }
+:def changeObjState2I = :csp { eq id(co') = id(co) . }  
+:def changeObjState2S = :csp { eq state(co') = state(co) . }
+:def changeObjState2N = :csp { eq (next(co) > next(co')) = true . }
+:def changeObjState2T = :csp { eq target(co') = target(co) . }
+:apply (changeObjState2I changeObjState2S changeObjState2N changeObjState2T rd-)
+-- Case 1-1-1-1: changeObjState2(co,co')
+:def initIH = :init as robust-lemma04-IH-in [robust-lemma04-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO:SetOfComponent <- sCO;
+	SIM:SetOfImport <- sIM'; } 
+:apply (initIH rd-)
+:def empSIMcsp = :csp {
+  eq sIM = empIM .
+  eq sIM = (imp(tIM, idIM, iidCO, eidCO, cIMs, nIMs, tIMs) sIM') .
+  eq sIM = (imp(tIM, idIM,  idCO, eidCO, cIMs, nIMs, tIMs) sIM') .
+}
+:apply (empSIMcsp rd-)
+:def tIMcsp = :csp  { 
+  eq tIM = mandatory .
+  eq tIM = optional .
+}
+:apply (tIMcsp rd-)
+:def eidCOctf = :ctf {
+  eq eidCO = id(co) .
+}
+:apply (eidCOctf rd-)
+--> Proof of robust-lemma04 done
+-->
+show proof
+close
+
+--> Proof of robust-lemma05
+--> pred robust-lemma05 : Component Component SetOfComponent SetOfComponent SetOfImport ListOfLog ListOfLog
+--> eq robust-lemma05(CO,CO',SCO,SCO0,SIM0,LG,LG')
+-->   = subsetIDDepend(SCO,SCO,< (CO' SCO0), SIM0, LG' >,< (CO SCO0), SIM0, LG >)
+-->     when changeObjState2(CO,CO') and subset(SCO,SCO0) .
+-- This goal requires robust-lemma04.
+open ProofLemma .
+  -- Define <wf for robust-lemma05
+  [COCOSCOSCOSIM] op t : Component Component SetOfComponent SetOfComponent SetOfImport -> COCOSCOSCOSIM {constr} .
+  pred _<wf_ : COCOSCOSCOSIM COCOSCOSCOSIM .
+  ceq ( t(CO,CO',SCO',SCO0,SIM0) <wf t(CO,CO',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  ceq [robust-lemma05-IH :nonexec]:
+     subsetIDDepend(SCO,SCO,< (CO' SCO0), SIM0, LG' >,< (CO SCO0), SIM0, LG >) = true
+     if changeObjState2(CO,CO') and subset(SCO,SCO0) and
+        ( t(CO,CO',SCO,SCO0,SIM0) <wf t(co,co',sCO,sCO0,sIM0) ) = true .
+
+  -- Lemmas 
+  -- eq robust-lemma04(CO,CO',IDCO,SCO,SIM)
+  --    = subsetID(getECOsOfIMs((CO' SCO),getIMsOfTypeOfICO(SIM,mandatory,IDCO)),
+  --               getECOsOfIMs((CO  SCO),getIMsOfTypeOfICO(SIM,mandatory,IDCO)))
+  --     when changeObjState2(CO,CO') .
+  ceq subsetID(getECOsOfIMs((CO' SCO),getIMsOfTypeOfICO(SIM,mandatory,IDCO)),
+               getECOsOfIMs((CO  SCO),getIMsOfTypeOfICO(SIM,mandatory,IDCO))) = true
+      if changeObjState2(CO,CO') .
+
+:goal { eq robust-lemma05(co,co',sCO,sCO0,sIM0,lg,lg') = true . }
+:def subsetcsp = :csp {
+ eq subset(sCO,sCO0) = false .
+ eq sCO0 = (sCO sCO0') .
+}
+:apply (subsetcsp rd-)
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def changeObjState2I = :csp { eq id(co') = id(co) . }  
+:def changeObjState2S = :csp { eq state(co') = state(co) . }
+:def changeObjState2N = :csp { eq (next(co) > next(co')) = true . }
+:def changeObjState2T = :csp { eq target(co') = target(co) . }
+:apply (changeObjState2I changeObjState2S changeObjState2N changeObjState2T rd-)
+-- Case 2-2-1-1-1-1: changeObjState2(co,co')
+:def initIH = :init as robust-lemma05-IH-in [robust-lemma05-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; } 
+:apply (initIH rd-)
+--> Proof of robust-lemma05 done
+-->
+show proof
+close
+
 --> Cont Lemmas
 --> Proof of robust-lemmaC01
--->  eq robust-lemmaC01(CO,SCO,SIM,L)
--->    = cont(< (CO SCO), SIM, L >) 
--->      when inv(< (CO SCO), SIM, L >) and
+-->  eq robust-lemmaC01(CO,SCO,SIM,LG)
+-->    = cont(< (CO SCO), SIM, LG >) 
+-->      when inv(< (CO SCO), SIM, LG >) and
 -->        CO in st(started,stopped,stopped) .
 open ProofLemma .
 --> ***********************************************************************
@@ -644,19 +766,19 @@ show proof
 close
 
 --> Proof of robust-lemmaC02
--->  eq robust-lemmaC02(CO,SCO,SIM,L)
--->    = cont(< (CO SCO), SIM, L >) 
--->      when inv(< (CO SCO), SIM, L >) and
+-->  eq robust-lemmaC02(CO,SCO,SIM,LG)
+-->    = cont(< (CO SCO), SIM, LG >) 
+-->      when inv(< (CO SCO), SIM, LG >) and
 -->        CO in st(started,stopped,sstarted) .
 -- This goal requires robust-lemmaC01.
 open ProofLemma .
-  -- eq robust-lemmaC01(CO,SCO,SIM,L)
-  --   = cont(< (CO SCO), SIM, L >) 
-  --     when inv(< (CO SCO), SIM, L >) and
+  -- eq robust-lemmaC01(CO,SCO,SIM,LG)
+  --   = cont(< (CO SCO), SIM, LG >) 
+  --     when inv(< (CO SCO), SIM, LG >) and
   --          CO in st(started,stopped,stopped) .
-  ceq inv(< (CO SCO), SIM, L >) = false 
+  ceq inv(< (CO SCO), SIM, LG >) = false 
     if CO in st(started,stopped,stopped) and
-       cont(< (CO SCO), SIM, L >) = false .
+       cont(< (CO SCO), SIM, LG >) = false .
 --> ***********************************************************************
 --> Step 1-1: Begin with the most general representation of a global state.
 --> ***********************************************************************
@@ -768,9 +890,9 @@ show proof
 close
 
 --> Proof of robust-lemmaC03
--->  eq robust-lemmaC03(CO,SCO,SIM,L)
--->    = cont(< (CO SCO), SIM, L >) 
--->      when inv(< (CO SCO), SIM, L >) and
+-->  eq robust-lemmaC03(CO,SCO,SIM,LG)
+-->    = cont(< (CO SCO), SIM, LG >) 
+-->      when inv(< (CO SCO), SIM, LG >) and
 -->        CO in st(started,sstarted,sstarted) .
 open ProofLemma .
 --> ***********************************************************************
@@ -846,19 +968,19 @@ show proof
 close
 
 --> Proof of robust-lemmaC04
--->  eq robust-lemmaC04(CO,SCO,SIM,L)
--->    = cont(< (CO SCO), SIM, L >) 
--->      when inv(< (CO SCO), SIM, L >) and
+-->  eq robust-lemmaC04(CO,SCO,SIM,LG)
+-->    = cont(< (CO SCO), SIM, LG >) 
+-->      when inv(< (CO SCO), SIM, LG >) and
 -->        CO in st(started,started,sstarted) .
 -- This goal requires robust-lemmaC03.
 open ProofLemma .
-  -- eq robust-lemmaC03(CO,SCO,SIM,L)
-  --   = cont(< (CO SCO), SIM, L >) 
-  --     when inv(< (CO SCO), SIM, L >) and
+  -- eq robust-lemmaC03(CO,SCO,SIM,LG)
+  --   = cont(< (CO SCO), SIM, LG >) 
+  --     when inv(< (CO SCO), SIM, LG >) and
   --          CO in st(started,sstarted,sstarted) .
-  ceq inv(< (CO SCO), SIM, L >) = false 
+  ceq inv(< (CO SCO), SIM, LG >) = false 
     if CO in st(started,sstarted,sstarted) and
-       cont(< (CO SCO), SIM, L >) = false .
+       cont(< (CO SCO), SIM, LG >) = false .
 
 --> ***********************************************************************
 --> Step 1-1: Begin with the most general representation of a global state.
@@ -994,37 +1116,37 @@ show proof
 close
 
 --> Proof of robust-lemmaC05
--->  eq robust-lemmaC05(CO,SCO,SIM,L)
--->    = cont(< (CO SCO), SIM, L >) 
--->      when inv(< (CO SCO), SIM, L >) and
+-->  eq robust-lemmaC05(CO,SCO,SIM,LG)
+-->    = cont(< (CO SCO), SIM, LG >) 
+-->      when inv(< (CO SCO), SIM, LG >) and
 -->           CO in st(stopped,sstarted,sstarted) .
 -- This goal requires robust-lemmaC02.
 -- This goal requires robust-lemmaC03.
 -- This goal requires robust-lemmaC04.
 open ProofLemma .
-  -- eq robust-lemmaC02(CO,SCO,SIM,L)
-  --   = cont(< (CO SCO), SIM, L >) 
-  --     when inv(< (CO SCO), SIM, L >) and
+  -- eq robust-lemmaC02(CO,SCO,SIM,LG)
+  --   = cont(< (CO SCO), SIM, LG >) 
+  --     when inv(< (CO SCO), SIM, LG >) and
   --          CO in st(started,stopped,sstarted) .
-  ceq inv(< (CO SCO), SIM, L >) = false 
+  ceq inv(< (CO SCO), SIM, LG >) = false 
     if CO in st(started,stopped,sstarted) and
-       cont(< (CO SCO), SIM, L >) = false .
+       cont(< (CO SCO), SIM, LG >) = false .
 
-  -- eq robust-lemmaC03(CO,SCO,SIM,L)
-  --   = cont(< (CO SCO), SIM, L >) 
-  --     when inv(< (CO SCO), SIM, L >) and
+  -- eq robust-lemmaC03(CO,SCO,SIM,LG)
+  --   = cont(< (CO SCO), SIM, LG >) 
+  --     when inv(< (CO SCO), SIM, LG >) and
   --          CO in st(started,stopped,sstarted) .
-  ceq inv(< (CO SCO), SIM, L >) = false 
+  ceq inv(< (CO SCO), SIM, LG >) = false 
     if CO in st(started,sstarted,sstarted) and
-       cont(< (CO SCO), SIM, L >) = false .
+       cont(< (CO SCO), SIM, LG >) = false .
 
-  -- eq robust-lemmaC04(CO,SCO,SIM,L)
-  --   = cont(< (CO SCO), SIM, L >) 
-  --     when inv(< (CO SCO), SIM, L >) and
+  -- eq robust-lemmaC04(CO,SCO,SIM,LG)
+  --   = cont(< (CO SCO), SIM, LG >) 
+  --     when inv(< (CO SCO), SIM, LG >) and
   --          CO in st(started,started,sstarted) .
-  ceq inv(< (CO SCO), SIM, L >) = false 
+  ceq inv(< (CO SCO), SIM, LG >) = false 
     if CO in st(started,started,sstarted) and
-       cont(< (CO SCO), SIM, L >) = false .
+       cont(< (CO SCO), SIM, LG >) = false .
 
 --> ***********************************************************************
 --> Step 1-1: Begin with the most general representation of a global state.
@@ -3264,4 +3386,4 @@ open ProofLemma .
 show proof
 close
 
---> Totally 35 goals should be proved.
+--> Totally 37 goals should be proved.
