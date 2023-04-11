@@ -14,7 +14,6 @@ module CYCLELEMMA {
   pred noCDL : Object State ObjState
   pred cycle-lemma1 : Object ObjState State
   pred cycle-lemma2 : Object ObjState State
-  pred SDL : SetOfObject SetOfObject SetOfObject State State
 
   vars O O' : Object
   vars OS OS' OS0 OS0' OS1 OS1' : SetOfObject
@@ -56,17 +55,23 @@ module CYCLELEMMA {
   ceq ( t(O',LS,S) <wf t(O,LS,S) ) = true
      if O' in DDSC(O,S) .
 
-  -- Subset Dependency Lemma
-  eq SDL(OS,OS',OS0,S,S')
-    = (subset(OS',getAllObjC(S')) and subset(OS',OS) and
-       (inv(S) implies subsetDepend(S',S))) implies
-      (inv(S) and noCycleC(OS,OS0,S)) implies noCycleC(OS',OS0,S') .
-
   -- Define <wf for SDL
   [OSOSOSSS] op t : SetOfObject SetOfObject SetOfObject State State -> OSOSOSSS {constr} .
   pred _<wf_ : OSOSOSSS OSOSOSSS .
   eq ( t(OS1,OS,OS0,S,S') <wf t((O OS1),(O OS),OS0,S,S') ) = true .
   eq ( t(OS1',DDSC(O,S'),(O OS0),S,S') <wf t(OS1,(O OS),OS0,S,S') ) = true .
+
+  pred hasID : Object ObjID
+  eq hasID(O,A:ObjID) = (id(O) = A) .
+  eq existObj(empObj,A:ObjID) = false .
+  eq existObj((O OS),A:ObjID) = (hasID(O,A) or existObj(OS,A)) .
+
+  -- Define <wf for SDLID
+  [OSOSOSOSSS] op t : SetOfObject SetOfObject SetOfObject SetOfObject State State -> OSOSOSOSSS {constr} .
+  pred _<wf_ : OSOSOSOSSS OSOSOSOSSS .
+  ceq ( t(OS1,OS1',OS0,OS0',S,S') <wf t(OS,OS',OS0,OS0',S,S') ) = true
+    if OS1 <wf OS and OS1' <wf OS' .
+  eq ( t(DDSC(O,S),DDSC(O',S'),(O OS0),(O' OS0'),S,S') <wf t((O OS),(O' OS'),OS0,OS0',S,S') ) = true .
 
   -- Set Axiom
   ceq [OinOS :nonexec]:
@@ -74,7 +79,7 @@ module CYCLELEMMA {
    if subset((O OS'),OS) .
 
   ops o o' : -> Object .
-  ops os os' os0 os0' os1 os1' : -> SetOfObject .
+  ops os os' os0 os0' os1 os1' os2 os2' : -> SetOfObject .
   op ls : -> ObjState .
   ops s s' : -> State .
 }
@@ -251,10 +256,13 @@ show proof
 close 
 
 --> Proof of Subset Dependency Lemma
--->  eq SDL(OS,OS',OS0,S,S')
--->    = (subset(OS',getAllObjC(S')) and subset(OS',OS) and
--->       (inv(S) implies subsetDepend(S',S))) implies
--->      (inv(S) and noCycleC(OS,OS0,S)) implies noCycleC(OS',OS0,S') .
+--> eq SDL(OS,OS',OS0,S,S')
+-->  = (inv(S) and 
+-->     subset(OS',getAllObjC(S')) and 
+-->     subset(OS',OS) and
+-->     subsetDepend(S',S) and
+-->     noCycleC(OS,OS0,S))
+-->    implies noCycleC(OS',OS0,S') .
 open CYCLELEMMA .
 
   -- Subset Axiom
@@ -264,13 +272,18 @@ open CYCLELEMMA .
 
   -- Induction Hypothesis
   ceq [SDL-IH :nonexec]:
-      (inv(S) and noCycleC(OS1,OS0,S) and noCycleC(OS,OS0,S'))
-    = (inv(S) and noCycleC(OS1,OS0,S))
-    if subset(OS,getAllObjC(S')) and 
+      (noCycleC(OS1,OS0,S) and noCycleC(OS,OS0,S'))
+    =  noCycleC(OS1,OS0,S)
+    if inv(S) and 
+       subset(OS,getAllObjC(S')) and 
        subset(OS,OS1) and
        subsetDepend(S',S) and
        (t(OS1,OS,OS0,S,S') <wf t(os1,os,os0,s,s')) .
 :goal { eq SDL(os1,os,os0,s,s') = true . }
+:def invctf = :ctf {
+  eq inv(s) = true .
+}
+:apply (invctf rd-)
 :def subDctf = :ctf {
   eq subsetDepend(getAllObjC(s'),getAllObjC(s),s',s) = true .
 }
@@ -322,4 +335,107 @@ open CYCLELEMMA .
 -->
 show proof
 close
---> Totally 4 goals should be proved
+
+--> Proof of Subset Dependency Lemma by ID
+--> eq SDLID(OS,OS',OS0,OS0',S,S')
+-->  = (inv(S) and 
+-->     subsetID(OS',OS) and 
+-->     subsetID(OS0',OS0) and
+-->     subsetIDDepend(S',S) and
+-->     noCycleC(OS,OS0,S))
+-->    implies noCycleC(OS',OS0',S') .
+open CYCLELEMMA .
+
+  -- SubsetID Axiom
+  eq subsetID(OS,(OS OS')) = true .
+  ceq subsetID(OS,(O OS')) = false
+    if not existObj(OS,id(O)) and not subsetID(OS,OS') .
+  ceq [SubsetID :nonexec]:
+    subsetID(OS,OS') = true if subsetID((O OS),OS') = true .
+
+  -- Induction Hypothesis
+  ceq [SDLID-IH :nonexec]:
+      (noCycleC(OS,OS0,S) and noCycleC(OS',OS0',S'))
+    =  noCycleC(OS,OS0,S)
+    if inv(S) and subsetID(OS',OS) and 
+       subsetID(OS0',OS0) and subsetIDDepend(S',S) and
+       (t(OS,OS',OS0,OS0',S,S') <wf t(os,os',os0,os0',s,s')) .
+:goal { eq SDLID(os,os',os0,os0',s,s') = true . }
+:def invctf = :ctf {
+  eq inv(s) = true .
+}
+:apply (invctf rd-)
+:def empObjcsp = :csp {
+  eq os' = empObj .
+  eq os' = (o' os1') .
+}
+:apply (empObjcsp rd-)
+-- Case 2: os' = (o' os1') 
+:csp { eq existObj(os1',id(o')) = false . } -- Assuming uniqObj(os) .
+-- Since subsetID((o' os1'),os) should hold,
+--   existObj(os,id(o')) holds that means 
+--      os = (o os1) where id(o) = id(o') and subsetID(os1',os1) holds.
+:def existco'csp = :csp {
+  eq existObj(os,id(o')) = false .
+  eq os = (o os1) .
+}
+:apply (existco'csp rd-)
+:csp { eq id(o) = id(o') . }
+-- Case 2-1-2-1: existObj(os,id(o')) = true .
+:def subsetIDctf = :ctf {
+  eq subsetID(os1',os1) = true .
+}
+:apply (subsetIDctf rd-)
+-- Case 2-1-2-1-1: subsetID(os',os) = true .
+-- Here we should show that (o' in os0') implies (o in os0) .
+:def o'inos0'csp = :csp {
+  eq os0' = (o' os2') .
+  eq (o' in os0') = false .
+}
+:apply (o'inos0'csp rd-)
+-- Case 2-1-2-1-1-1: (o' in os0') = true which should be discharged by susetID(os0',os0') = false .
+-- subsetID((o' os2'),os0) implies existObj(os0,id(o')) .
+:def oinos0csp = :csp {
+  eq os0 = (o os2) .
+  eq existObj(os0,id(o')) = false .
+}
+:apply (oinos0csp rd-)
+-- Case 2-1-2-1-1-2: (o' in os0') = false
+:def oinos0ctf = :ctf {
+  eq (o in os0) = true .
+}
+:apply (oinos0ctf rd-)
+-- Case 2-1-2-1-1-2-2: Both (o in os0) and (o' in os0') does not hold.
+:def subsetIDos0ctf = :ctf {
+  eq subsetID(os0',os0) = true .
+}
+:apply (subsetIDos0ctf rd-)
+:def subDctf = :ctf {
+  eq subsetIDDepend(getAllObjC(s'),getAllObjC(s),s',s) = true .
+}
+:apply (subDctf rd-)
+-- subsetIDDepend(getAllObjC(s'),getAllObjC(s),s',s) = true means that
+-- subsetID(DDSC(o,s'),DDSC(o,s)) for any object O in getAllObjC(s') 
+:csp {
+  eq subsetID(DDSC(o',s'),DDSC(o,s)) = true .
+}
+:init as SDLID-IH-in1 [SDLID-IH]
+  by {OS:SetOfObject   <- os1;
+      OS':SetOfObject  <- os1';
+      OS0:SetOfObject  <- os0;
+      OS0':SetOfObject <- os0';
+      S:State  <- s; 
+      S':State <- s'; }
+:init as SDLID-IH-in1 [SDLID-IH]
+  by {OS:SetOfObject   <- DDSC(o,s);
+      OS':SetOfObject  <- DDSC(o',s');
+      OS0:SetOfObject  <- (o os0);
+      OS0':SetOfObject <- (o' os0');
+      S:State  <- s; 
+      S':State <- s'; }
+:apply (rd-)
+--> Proof of Subset Dependency Lemma by ID done
+-->
+show proof
+close
+--> Totally 5 goals should be proved

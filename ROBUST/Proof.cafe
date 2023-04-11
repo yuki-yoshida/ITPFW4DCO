@@ -29,36 +29,6 @@ module PROOF {
   ceq (COS > COS') = true if transitsTo(COS,COS') .
   ceq (IMS > IMS') = true if transitsTo(IMS,IMS') .
 
-  vars O O' : Component
-  vars OS OS' OS0 OS0' : SetOfComponent
-  var S' : State
-  pred subsetID : SetOfComponent SetOfComponent
-  eq subsetID(empCO,OS) = true .
-  eq subsetID(OS,empCO) = (OS = empCO) .
-  eq subsetID(OS,OS) = true .
-  ceq subsetID((O OS),OS') = subsetID(OS,OS') if existCO(OS',id(O)) .
-  ceq subsetID((O OS),OS') = false if not existCO(OS',id(O)) .
-  ceq subsetID(OS,(O OS')) = true if subsetID(OS,OS') .
-  ceq subsetID(OS,OS') = true if subset(OS,OS') .
-
-  pred subsetIDDepend : State State
-  pred subsetIDDepend : SetOfComponent SetOfComponent State State
-  eq subsetIDDepend(S',S) 
-    = subsetIDDepend(getAllCO(S'),getAllCO(S),S',S) .
-  eq subsetIDDepend(empCO,OS,S',S) = true .
-  ceq subsetIDDepend((O' OS'),OS,S',S) 
-    = false if not existCO(OS,id(O')) .
-  eq subsetIDDepend((O' OS'),(O OS),S',S) 
-    = (id(O') = id(O)) and
-      subsetID(DDSCOU(O',S'),DDSCOU(O,S)) and
-      subsetIDDepend(OS',OS,S',S) .
-
-  ceq [SDLID-lemma :nonexec]:
-     inv(S) and noCOCycleU(OS,OS0,S) and noCOCycleU(OS',OS0',S') 
-   = inv(S) and noCOCycleU(OS,OS0,S) 
-    if subsetID(OS',OS) and subsetID(OS0',OS0) and
-       (inv(S) implies subsetIDDepend(S',S)) .
-
 --> **************************************
 --> Step 0-1: Define init(S) and final(S).
 --> **************************************

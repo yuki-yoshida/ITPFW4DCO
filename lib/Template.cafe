@@ -1499,7 +1499,7 @@ module PRMCYCLE {
 module CYCLEPRED(P :: PRMCYCLE) {
 
   vars Oc Oc' Xc : Object
-  vars V OS OS' OS0 : SetOfObject
+  vars V OS OS' OS0 OS0' : SetOfObject
   var LS : ObjState
   var S : State
 
@@ -1569,11 +1569,62 @@ module CYCLEPRED(P :: PRMCYCLE) {
       subset(DDSC(Oc',S'),DDSC(Oc,S)) and
       subsetDepend(OS',OS,S',S) .
 
+  -- The equation version of Subset Dependency Lemma
   ceq [SDL-lemma :nonexec]:
      inv(S) and noCycleC(OS,OS0,S) and noCycleC(OS',OS0,S') 
    = inv(S) and noCycleC(OS,OS0,S) 
     if subset(OS',getAllObjC(S')) and 
        subset(OS',OS) and
        (inv(S) implies subsetDepend(S',S)) .
+
+  -- The predicate version of Subset Dependency Lemma
+  -- Since an equation label cannot be renamed, SDL equation cannot be extended twice.
+  pred SDL : SetOfObject SetOfObject SetOfObject State State
+  eq SDL(OS,OS',OS0,S,S')
+   = (inv(S) and 
+      subset(OS',getAllObjC(S')) and 
+      subset(OS',OS) and
+      subsetDepend(S',S) and
+      noCycleC(OS,OS0,S))
+     implies noCycleC(OS',OS0,S') .
+
+  -- Subset Dependency Lemma by ID
+  pred subsetID : SetOfObject SetOfObject
+  eq subsetID(empObj,OS) = true .
+  eq subsetID(OS,empObj) = (OS = empObj) .
+  eq subsetID(OS,OS) = true .
+  ceq subsetID((Oc OS),OS') = subsetID(OS,OS') if existObj(OS',id(Oc)) .
+  ceq subsetID((Oc OS),OS') = false if not existObj(OS',id(Oc)) .
+  ceq subsetID(OS,(Oc OS')) = true if subsetID(OS,OS') .
+
+  pred subsetIDDepend : State State
+  pred subsetIDDepend : SetOfObject SetOfObject State State
+  eq subsetIDDepend(S',S) 
+    = subsetIDDepend(getAllObjC(S'),getAllObjC(S),S',S) .
+  eq subsetIDDepend(empObj,OS,S',S) = true .
+  ceq subsetIDDepend((Oc' OS'),OS,S',S) 
+    = false if not existObj(OS,id(Oc')) .
+  eq subsetIDDepend((Oc' OS'),(Oc OS),S',S) 
+    = (id(Oc') = id(Oc)) and
+      subsetID(DDSC(Oc',S'),DDSC(Oc,S)) and
+      subsetIDDepend(OS',OS,S',S) .
+
+  -- The equation version of Subset Dependency Lemma by ID
+  ceq [SDLID-lemma :nonexec]:
+     inv(S) and noCycleC(OS,OS0,S) and noCycleC(OS',OS0',S') 
+   = inv(S) and noCycleC(OS,OS0,S) 
+    if subsetID(OS',OS) and subsetID(OS0',OS0) and
+       (inv(S) implies subsetIDDepend(S',S)) .
+
+  -- The predicate version of Subset Dependency Lemma by ID
+  -- Since an equation label cannot be renamed, SDLID equation cannot be extended twice.
+  pred SDLID : SetOfObject SetOfObject SetOfObject SetOfObject State State
+  eq SDLID(OS,OS',OS0,OS0',S,S')
+   = (inv(S) and 
+      subsetID(OS',OS) and 
+      subsetID(OS0',OS0) and
+      subsetIDDepend(S',S) and
+      noCycleC(OS,OS0,S))
+     implies noCycleC(OS',OS0',S') .
 }
 

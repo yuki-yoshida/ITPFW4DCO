@@ -345,8 +345,10 @@ module! STATEfuns {
 			op DDSC -> DDSCOU,
 			op empObj -> empCO,
 			op getAllObjC -> getAllCO})
-	* {op noCycleC -> noCOCycleU,
-	       op noCDL -> noCDLU})
+	    * {op noCycleC -> noCOCycleU,
+	       op noCDL -> noCDLU,
+	       op subsetIDDepend -> subsetIDDepU,
+	       op SDLID -> SDLIDU})
 
   extending(CYCLEPRED(
 	STATECyclefuns {sort Object -> Component,
@@ -359,7 +361,9 @@ module! STATEfuns {
 			op empObj -> empCO,
 			op getAllObjC -> getAllCO})
 	    * {op noCycleC -> noCOCycleD,
-	       op noCDL -> noCDLD})
+	       op noCDL -> noCDLD,
+	       op subsetIDDepend -> subsetIDDepD,
+               op SDLID -> SDLIDD})
 
   var CO : Component
   var IM : Import
