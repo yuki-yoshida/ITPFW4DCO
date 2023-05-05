@@ -253,8 +253,11 @@ show proof
 --> **************************************************
 --> Step 4-3: Use Subset Dependency Lemma if possible.
 --> **************************************************
--- :init as noRSCycle-lemma-in ( eq noRSCycle-lemma(S:State,S':State) = true . )
-:init ( eq (inv(S:State) implies subsetDepend(S':State,S)) = true . )
+:def invsctf = :ctf {
+  eq inv(< (res(trs,idRS,initial) sRS), sPR >) = true .
+}
+:apply (invsctf rd-)
+:init as noRSCycle-lemma-in ( eq noRSCycle-lemma(S:State,S':State) = true . )
   by {S:State  <- (< (res(trs,idRS,initial) sRS) , sPR >);
       S':State <- (< (res(trs,idRS,started) sRS) , sPR >); }
 :init as SDL-lemma-in [SDL-lemma]
@@ -280,6 +283,10 @@ show proof
 --> **************************************************
 --> Step 4-3: Use Subset Dependency Lemma if possible.
 --> **************************************************
+:def invsctf = :ctf {
+  eq inv(< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >) = true .
+}
+:apply (invsctf rd-)
 :init as noRSCycle-lemma-in ( eq noRSCycle-lemma(S:State,S':State) = true . )
   by {S:State  <- (< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,notready,idRS,idRRS) sPR) >);
       S':State <- (< (res(trs,idRRS,started) sRS), (prop(tpr,idPR,ready,idRS,idRRS) sPR) >); }
@@ -291,6 +298,7 @@ show proof
 :apply (rd-)
 show proof
 select
+
 --> Lemma for invariant noRSCycle(S)
 module Proofinv-noRSCycle-lemma {
   protecting(Proofinv-noRSCycle)

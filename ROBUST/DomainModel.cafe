@@ -617,9 +617,6 @@ module! STATERules {
        (cmp(IDCO, started, stopped, TSCO) SCO), SIM
 	 )) ListLG) >
      if allIMInStates(getIMsOfECO(SIM,IDCO),(unwired unused)) .
-     -- if getICOsOfIMsInStates(SCO,
-     --                         getIMsOfECOInStates(SIM,IDCO,(wired swired)),
-     --                         (started sstarted)) = empCO .
 
   -- A started Component should stop if its mandatory Import should be unwired.
   ctrans [RS-stop2]:
@@ -813,7 +810,7 @@ module! STATERules {
        (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, swired) SIM)
 	 )) ListLG) > .
 
-    -- A unwired Import can be wired if its export Component is stably started.
+  -- A unwired Import can be wired if its export Component is stably started.
   trans [RD-wire]:
      < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
        (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM),

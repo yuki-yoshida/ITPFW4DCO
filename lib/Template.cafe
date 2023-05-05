@@ -314,6 +314,11 @@ module -OBJECTBASE0 {
     allObjInStates0(S_O,(St S_St)) = true
     if allObjInStates0(S_O,S_St) .
 
+  ceq [base-lemma07]:
+       (allObjInStates0(S_O,S_St) and allObjInStates0(S_O',S_St))
+     =  allObjInStates0(S_O,S_St)
+     if subset(S_O',S_O) .
+
   ceq [set-lemma07]:
       ((O' in O) and (O' in S_O))
      = (O' in O)
@@ -554,6 +559,8 @@ module -OBJLINKMANY2ONE0-lemma(LINK :: PRMOBJLINK) {
 
   op getXsOfZs : SetOfLObject SetOfObject -> SetOfLObject
   eq getXsOfZs(S_X,empObj)
+     = empLObj .
+  eq getXsOfZs(empLObj,S_Z)
      = empLObj .
   eq getXsOfZs(S_X,(Z S_Z))
      = (getXOfZ(S_X,Z) getXsOfZs(S_X,S_Z)) .
@@ -798,13 +805,12 @@ module -OBJLINKMANY2ONE0 {
      if not (type(Z) = OT) and changeObjState0(Z,Z') .
 
   ceq [m2o-lemma22]:
-     (getLObject(S_X,link(Z)) in getXsOfZsInStates0(S_X,S_Z,St_X)) = true
-     if not S_X = empLObj and (state(getLObject(S_X,link(Z))) in St_X) and (Z in S_Z) .
+     subset(getXsOfZs(S_X,S_Z),getXsOfZs(S_X,S_Z')) = true
+     if subset(S_Z,S_Z') .
 
-  eq [m2o-lemma23]:
-      (subset(S_Z,S_Z') and
-       subset(getXsOfZsInStates0(S_X,S_Z,St_X),getXsOfZsInStates0(S_X,S_Z',St_X)))
-     = subset(S_Z,S_Z') .
+  ceq [m2o-lemma23]:
+     subset(getXsOfZsInStates0(S_X,S_Z,St_X),getXsOfZsInStates0(S_X,S_Z',St_X)) = true
+     if subset(S_Z,S_Z') .
 
   ceq [m2o-lemma24]:
        subset(getXsOfZsInStates0((X' S_X),S_Z,St_X),getXsOfZsInStates0((X S_X),S_Z,St_X))
@@ -825,8 +831,15 @@ module -OBJLINKMANY2ONE0 {
      if changeObjState0(Z,Z') and not state(Z') in St_Z .
 
   ceq [m2o-lemma28]:
-     subset(getZsOfXInStates0((Z' S_Z),X,St_Z),getZsOfXInStates0((Z S_Z),X,St_Z)) = true
+     subset(getZsOfXInStates0((Z' S_Z),IDX,St_Z),getZsOfXInStates0((Z S_Z),IDX,St_Z)) = true
      if changeObjState0(Z,Z') and not state(Z') in St_Z .
+
+  eq [m2o-lemma29]:
+     subset(getZsOfTypeOfXInStates0(S_Z,OT,IDX,St_Z),getZsOfXInStates0(S_Z,IDX,St_Z)) = true .
+
+  ceq [m2o-lemma30]:
+     subset(getXsOfZs(S_X,S_Z),getXsOfZs(S_X,S_Z')) = true
+     if subset(S_Z,S_Z') .
 }
 
 module OBJLINKMANY2ONE(LINK :: PRMOBJLINK) {
@@ -1571,18 +1584,17 @@ module CYCLEPRED(P :: PRMCYCLE) {
 
   -- The equation version of Subset Dependency Lemma
   ceq [SDL-lemma :nonexec]:
-     inv(S) and noCycleC(OS,OS0,S) and noCycleC(OS',OS0,S') 
-   = inv(S) and noCycleC(OS,OS0,S) 
+     noCycleC(OS,OS0,S) and noCycleC(OS',OS0,S') 
+   = noCycleC(OS,OS0,S) 
     if subset(OS',getAllObjC(S')) and 
        subset(OS',OS) and
-       (inv(S) implies subsetDepend(S',S)) .
+       subsetDepend(S',S) .
 
   -- The predicate version of Subset Dependency Lemma
   -- Since an equation label cannot be renamed, SDL equation cannot be extended twice.
   pred SDL : SetOfObject SetOfObject SetOfObject State State
   eq SDL(OS,OS',OS0,S,S')
-   = (inv(S) and 
-      subset(OS',getAllObjC(S')) and 
+   = (subset(OS',getAllObjC(S')) and 
       subset(OS',OS) and
       subsetDepend(S',S) and
       noCycleC(OS,OS0,S))
@@ -1611,17 +1623,16 @@ module CYCLEPRED(P :: PRMCYCLE) {
 
   -- The equation version of Subset Dependency Lemma by ID
   ceq [SDLID-lemma :nonexec]:
-     inv(S) and noCycleC(OS,OS0,S) and noCycleC(OS',OS0',S') 
-   = inv(S) and noCycleC(OS,OS0,S) 
+     noCycleC(OS,OS0,S) and noCycleC(OS',OS0',S') 
+   = noCycleC(OS,OS0,S) 
     if subsetID(OS',OS) and subsetID(OS0',OS0) and
-       (inv(S) implies subsetIDDepend(S',S)) .
+       subsetIDDepend(S',S) .
 
   -- The predicate version of Subset Dependency Lemma by ID
   -- Since an equation label cannot be renamed, SDLID equation cannot be extended twice.
   pred SDLID : SetOfObject SetOfObject SetOfObject SetOfObject State State
   eq SDLID(OS,OS',OS0,OS0',S,S')
-   = (inv(S) and 
-      subsetID(OS',OS) and 
+   = (subsetID(OS',OS) and 
       subsetID(OS0',OS0) and
       subsetIDDepend(S',S) and
       noCycleC(OS,OS0,S))

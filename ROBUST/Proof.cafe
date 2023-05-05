@@ -130,10 +130,10 @@ module PROOF {
   ops cIMs cIMs' nIMs nIMs' tIMs tIMs' : -> IMState
   op sCOs : -> SetOfCOState
   op sIMs : -> SetOfIMState
-  ops co co' co0 co1 : -> Component
+  ops co co' co'' co0 co1 : -> Component
   ops im im' im0 im1 : -> Import
 
-  ops lg lg' : -> ListOfLog
+  ops lg lg' lg'' : -> ListOfLog
 
 }
 

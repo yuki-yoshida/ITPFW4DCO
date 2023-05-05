@@ -257,8 +257,7 @@ close
 
 --> Proof of Subset Dependency Lemma
 --> eq SDL(OS,OS',OS0,S,S')
--->  = (inv(S) and 
--->     subset(OS',getAllObjC(S')) and 
+-->  = (subset(OS',getAllObjC(S')) and 
 -->     subset(OS',OS) and
 -->     subsetDepend(S',S) and
 -->     noCycleC(OS,OS0,S))
@@ -274,16 +273,11 @@ open CYCLELEMMA .
   ceq [SDL-IH :nonexec]:
       (noCycleC(OS1,OS0,S) and noCycleC(OS,OS0,S'))
     =  noCycleC(OS1,OS0,S)
-    if inv(S) and 
-       subset(OS,getAllObjC(S')) and 
+    if subset(OS,getAllObjC(S')) and 
        subset(OS,OS1) and
        subsetDepend(S',S) and
        (t(OS1,OS,OS0,S,S') <wf t(os1,os,os0,s,s')) .
 :goal { eq SDL(os1,os,os0,s,s') = true . }
-:def invctf = :ctf {
-  eq inv(s) = true .
-}
-:apply (invctf rd-)
 :def subDctf = :ctf {
   eq subsetDepend(getAllObjC(s'),getAllObjC(s),s',s) = true .
 }
@@ -338,8 +332,7 @@ close
 
 --> Proof of Subset Dependency Lemma by ID
 --> eq SDLID(OS,OS',OS0,OS0',S,S')
--->  = (inv(S) and 
--->     subsetID(OS',OS) and 
+-->  = (subsetID(OS',OS) and 
 -->     subsetID(OS0',OS0) and
 -->     subsetIDDepend(S',S) and
 -->     noCycleC(OS,OS0,S))
@@ -357,14 +350,10 @@ open CYCLELEMMA .
   ceq [SDLID-IH :nonexec]:
       (noCycleC(OS,OS0,S) and noCycleC(OS',OS0',S'))
     =  noCycleC(OS,OS0,S)
-    if inv(S) and subsetID(OS',OS) and 
+    if subsetID(OS',OS) and 
        subsetID(OS0',OS0) and subsetIDDepend(S',S) and
        (t(OS,OS',OS0,OS0',S,S') <wf t(os,os',os0,os0',s,s')) .
 :goal { eq SDLID(os,os',os0,os0',s,s') = true . }
-:def invctf = :ctf {
-  eq inv(s) = true .
-}
-:apply (invctf rd-)
 :def empObjcsp = :csp {
   eq os' = empObj .
   eq os' = (o' os1') .
