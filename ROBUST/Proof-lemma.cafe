@@ -96,7 +96,6 @@ module ProofLemma {
      = subsetIDDepU(SCO,SCO,< SCO0, (IM' SIM0), LG' >,< SCO0, (IM SIM0), LG >)
       when changeObjState2(IM,IM') and subset(SCO,SCO0) .
 
-  -- Lemmas which are not proved yet.
   pred robust-lemma07 : Component Component COID SetOfComponent SetOfImport
   eq robust-lemma07(CO,CO',IDCO,SCO,SIM)
      = subsetID(getICOsOfIMs((CO' SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO)),
@@ -1082,6 +1081,328 @@ open ProofLemma .
 }
 :apply (initIH importerctf typecsp rd-)
 --> Proof of robust-lemma06-2 done
+-->
+show proof
+close
+
+--> Proof of robust-lemma07
+--> pred robust-lemma07 : Component Component COID SetOfComponent SetOfImport
+--> eq robust-lemma07(CO,CO',IDCO,SCO,SIM)
+-->    = subsetID(getICOsOfIMs((CO' SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO)),
+-->               getICOsOfIMs((CO  SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO)))
+-->     when changeObjState(CO,CO') .
+open ProofLemma .
+  -- Define <wf for robust-lemma07
+  [COCOIDSCOSIM] op t : Component Component COID SetOfComponent SetOfImport -> COCOIDSCOSIM {constr} .
+  pred _<wf_ : COCOIDSCOSIM COCOIDSCOSIM .
+  ceq ( t(CO,CO',IDCO,SCO,SIM') <wf t(CO,CO',IDCO,SCO,SIM) ) = true
+     if SIM' <wf SIM .
+
+  -- Induction Hypothesis
+  ceq [robust-lemma07-IH :nonexec]:
+     subsetID(getICOsOfIMs((CO' SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO)),
+              getICOsOfIMs((CO  SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO))) = true
+     if changeObjState(CO,CO') and 
+        ( t(CO,CO',IDCO,SCO,SIM) <wf t(co,co',idCO,sCO,sIM) ) = true .
+
+:goal { eq robust-lemma07(co,co',idCO,sCO,sIM) = true . }
+:def changeObjStateI = :csp { eq id(co') = id(co) . }  
+:def changeObjStateS = :csp { eq (state(co) > state(co')) = true . }
+:def changeObjStateN = :csp { eq next(co') = next(co) . }
+:def changeObjStateT = :csp { eq target(co') = target(co) . }
+:apply (changeObjStateI changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 1-1-1-1: changeObjState(co,co')
+:def initIH = :init as robust-lemma07-IH-in [robust-lemma07-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO:SetOfComponent <- sCO;
+	SIM:SetOfImport <- sIM'; } 
+:apply (initIH rd-)
+:def empSIMcsp = :csp {
+  eq sIM = empIM .
+  eq sIM = (imp(tIM, idIM, iidCO, eidCO, cIMs, nIMs, tIMs) sIM') .
+  eq sIM = (imp(tIM, idIM,  idCO, eidCO, cIMs, nIMs, tIMs) sIM') .
+}
+:apply (empSIMcsp rd-)
+--> Proof of robust-lemma07 done
+-->
+show proof
+close
+
+--> Proof of robust-lemma07-2
+--> pred robust-lemma07-2 : Component Component COID SetOfComponent SetOfImport
+--> eq robust-lemma07-2(CO,CO',IDCO,SCO,SIM)
+-->    = subsetID(getICOsOfIMs((CO' SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO)),
+-->               getICOsOfIMs((CO  SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO)))
+-->     when changeObjState2(CO,CO') .
+open ProofLemma .
+  -- Define <wf for robust-lemma07-2
+  [COCOIDSCOSIM] op t : Component Component COID SetOfComponent SetOfImport -> COCOIDSCOSIM {constr} .
+  pred _<wf_ : COCOIDSCOSIM COCOIDSCOSIM .
+  ceq ( t(CO,CO',IDCO,SCO,SIM') <wf t(CO,CO',IDCO,SCO,SIM) ) = true
+     if SIM' <wf SIM .
+
+  -- Induction Hypothesis
+  ceq [robust-lemma07-2-IH :nonexec]:
+     subsetID(getICOsOfIMs((CO' SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO)),
+              getICOsOfIMs((CO  SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO))) = true
+     if changeObjState2(CO,CO') and 
+        ( t(CO,CO',IDCO,SCO,SIM) <wf t(co,co',idCO,sCO,sIM) ) = true .
+
+:goal { eq robust-lemma07-2(co,co',idCO,sCO,sIM) = true . }
+:def changeObjState2I = :csp { eq id(co') = id(co) . }  
+:def changeObjState2S = :csp { eq state(co') = state(co) . }
+:def changeObjState2N = :csp { eq (next(co) > next(co')) = true . }
+:def changeObjState2T = :csp { eq target(co') = target(co) . }
+:apply (changeObjState2I changeObjState2S changeObjState2N changeObjState2T rd-)
+-- Case 1-1-1-1: changeObjState2(co,co')
+:def initIH = :init as robust-lemma07-2-IH-in [robust-lemma07-2-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO:SetOfComponent <- sCO;
+	SIM:SetOfImport <- sIM'; } 
+:apply (initIH rd-)
+:def empSIMcsp = :csp {
+  eq sIM = empIM .
+  eq sIM = (imp(tIM, idIM, iidCO, eidCO, cIMs, nIMs, tIMs) sIM') .
+  eq sIM = (imp(tIM, idIM,  idCO, eidCO, cIMs, nIMs, tIMs) sIM') .
+}
+:apply (empSIMcsp rd-)
+--> Proof of robust-lemma07-2 done
+-->
+show proof
+close
+
+--> Proof of robust-lemma08
+--> pred robust-lemma08 : Component Component SetOfComponent SetOfComponent SetOfImport ListOfLog ListOfLog
+--> eq robust-lemma08(CO,CO',SCO,SCO0,SIM0,LG,LG')
+-->   = subsetIDDepD(SCO,SCO,< (CO' SCO0), SIM0, LG' >,< (CO SCO0), SIM0, LG >)
+-->     when changeObjState(CO,CO') and subset(SCO,SCO0) .
+-- This goal requires robust-lemma07.
+open ProofLemma .
+  -- Define <wf for robust-lemma08
+  [COCOSCOSCOSIM] op t : Component Component SetOfComponent SetOfComponent SetOfImport -> COCOSCOSCOSIM {constr} .
+  pred _<wf_ : COCOSCOSCOSIM COCOSCOSCOSIM .
+  ceq ( t(CO,CO',SCO',SCO0,SIM0) <wf t(CO,CO',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  ceq [robust-lemma08-IH :nonexec]:
+     subsetIDDepD(SCO,SCO,< (CO' SCO0), SIM0, LG' >,< (CO SCO0), SIM0, LG >) = true
+     if changeObjState(CO,CO') and subset(SCO,SCO0) and
+        ( t(CO,CO',SCO,SCO0,SIM0) <wf t(co,co',sCO,sCO0,sIM0) ) = true .
+
+  -- Lemmas 
+  -- eq robust-lemma07(CO,CO',IDCO,SCO,SIM)
+  --    = subsetID(getICOsOfIMs((CO' SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO)),
+  --               getICOsOfIMs((CO  SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO)))
+  --     when changeObjState(CO,CO') .
+  ceq subsetID(getICOsOfIMs((CO' SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO)),
+               getICOsOfIMs((CO  SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO))) = true
+      if changeObjState(CO,CO') .
+
+:goal { eq robust-lemma08(co,co',sCO,sCO0,sIM0,lg,lg') = true . }
+:def subsetcsp = :csp {
+ eq subset(sCO,sCO0) = false .
+ eq sCO0 = (sCO sCO0') .
+}
+:apply (subsetcsp rd-)
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def changeObjStateI = :csp { eq id(co') = id(co) . }  
+:def changeObjStateS = :csp { eq (state(co) > state(co')) = true . }
+:def changeObjStateN = :csp { eq next(co') = next(co) . }
+:def changeObjStateT = :csp { eq target(co') = target(co) . }
+:apply (changeObjStateI changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 2-2-1-1-1-1: changeObjState(co,co')
+:def initIH = :init as robust-lemma08-IH-in [robust-lemma08-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; } 
+:apply (initIH rd-)
+--> Proof of robust-lemma08 done
+-->
+show proof
+close
+
+--> Proof of robust-lemma08-2
+--> pred robust-lemma08-2 : Component Component SetOfComponent SetOfComponent SetOfImport ListOfLog ListOfLog
+--> eq robust-lemma08-2(CO,CO',SCO,SCO0,SIM0,LG,LG')
+-->   = subsetIDDepD(SCO,SCO,< (CO' SCO0), SIM0, LG' >,< (CO SCO0), SIM0, LG >)
+-->     when changeObjState2(CO,CO') and subset(SCO,SCO0) .
+-- This goal requires robust-lemma07-2.
+open ProofLemma .
+  -- Define <wf for robust-lemma08-2
+  [COCOSCOSCOSIM] op t : Component Component SetOfComponent SetOfComponent SetOfImport -> COCOSCOSCOSIM {constr} .
+  pred _<wf_ : COCOSCOSCOSIM COCOSCOSCOSIM .
+  ceq ( t(CO,CO',SCO',SCO0,SIM0) <wf t(CO,CO',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  ceq [robust-lemma08-2-IH :nonexec]:
+     subsetIDDepD(SCO,SCO,< (CO' SCO0), SIM0, LG' >,< (CO SCO0), SIM0, LG >) = true
+     if changeObjState2(CO,CO') and subset(SCO,SCO0) and
+        ( t(CO,CO',SCO,SCO0,SIM0) <wf t(co,co',sCO,sCO0,sIM0) ) = true .
+
+  -- Lemmas 
+  -- eq robust-lemma07-2(CO,CO',IDCO,SCO,SIM)
+  --    = subsetID(getICOsOfIMs((CO' SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO)),
+  --               getICOsOfIMs((CO  SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO)))
+  --     when changeObjState2(CO,CO') .
+  ceq subsetID(getICOsOfIMs((CO' SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO)),
+               getICOsOfIMs((CO  SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO))) = true
+      if changeObjState2(CO,CO') .
+
+:goal { eq robust-lemma08-2(co,co',sCO,sCO0,sIM0,lg,lg') = true . }
+:def subsetcsp = :csp {
+ eq subset(sCO,sCO0) = false .
+ eq sCO0 = (sCO sCO0') .
+}
+:apply (subsetcsp rd-)
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def changeObjState2I = :csp { eq id(co') = id(co) . }  
+:def changeObjState2S = :csp { eq state(co') = state(co) . }
+:def changeObjState2N = :csp { eq (next(co) > next(co')) = true . }
+:def changeObjState2T = :csp { eq target(co') = target(co) . }
+:apply (changeObjState2I changeObjState2S changeObjState2N changeObjState2T rd-)
+-- Case 2-2-1-1-1-1: changeObjState2(co,co')
+:def initIH = :init as robust-lemma08-2-IH-in [robust-lemma08-2-IH]
+    by {CO:Component <- co; 
+	CO':Component <- co';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; } 
+:apply (initIH rd-)
+--> Proof of robust-lemma08-2 done
+-->
+show proof
+close
+
+--> Proof of robust-lemma09
+--> pred robust-lemma09 : Import Import SetOfComponent SetOfComponent SetOfImport ListOfLog ListOfLog
+--> eq robust-lemma09(IM,IM',SCO,SCO0,SIM0,LG,LG')
+-->   = subsetIDDepD(SCO,SCO,< SCO0, (IM' SIM0), LG' >,< SCO0, (IM SIM0), LG >)
+-->     when changeObjState(IM,IM') and subset(SCO,SCO0) .
+open ProofLemma .
+  -- Define <wf for robust-lemma09
+  [IMIMSCOSCOSIM] op t : Import Import SetOfComponent SetOfComponent SetOfImport -> IMIMSCOSCOSIM {constr} .
+  pred _<wf_ : IMIMSCOSCOSIM IMIMSCOSCOSIM .
+  ceq ( t(IM,IM',SCO',SCO0,SIM0) <wf t(IM,IM',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  ceq [robust-lemma09-IH :nonexec]:
+     subsetIDDepD(SCO,SCO,< SCO0, (IM' SIM0), LG' >,< SCO0, (IM SIM0), LG >) = true
+     if changeObjState(IM,IM') and subset(SCO,SCO0) and
+        ( t(IM,IM',SCO,SCO0,SIM0) <wf t(im,im',sCO,sCO0,sIM0) ) = true .
+
+:goal { eq robust-lemma09(im,im',sCO,sCO0,sIM0,lg,lg') = true . }
+:def subsetcsp = :csp {
+ eq subset(sCO,sCO0) = false .
+ eq sCO0 = (sCO sCO0') .
+}
+:apply (subsetcsp rd-)
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def changeObjStateI = :csp { eq id(im') = id(im) . }  
+:def changeObjStateM = :csp { eq importer(im') = importer(im) . }
+:def changeObjStateX = :csp { eq exporter(im') = exporter(im) . }
+:def changeObjStateP = :csp { eq type(im') = type(im) . }
+:def changeObjStateS = :csp { eq (state(im) > state(im')) = true . }
+:def changeObjStateN = :csp { eq next(im') = next(im) . }
+:def changeObjStateT = :csp { eq target(im') = target(im) . }
+:apply (changeObjStateI changeObjStateM changeObjStateX changeObjStateP changeObjStateS changeObjStateN changeObjStateT rd-)
+-- Case 2-2-1-1-1-1-1-1-1: changeObjState(im,im')
+:def initIH = :init as robust-lemma09-IH-in [robust-lemma09-IH]
+    by {IM:Import <- im; 
+	IM':Import <- im';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; } 
+:def importerctf = :ctf {
+  eq importer(im) = idCO .
+}
+:def exporterctf = :ctf {
+  eq exporter(im) = idCO .
+}
+:def typecsp = :csp {
+  eq type(im) = mandatory .
+  eq type(im) = optional .
+}
+:apply (initIH importerctf exporterctf typecsp rd-)
+--> Proof of robust-lemma09 done
+-->
+show proof
+close
+
+--> Proof of robust-lemma09-2
+--> pred robust-lemma09-2 : Import Import SetOfComponent SetOfComponent SetOfImport ListOfLog ListOfLog
+--> eq robust-lemma09-2(IM,IM',SCO,SCO0,SIM0,LG,LG')
+-->   = subsetIDDepD(SCO,SCO,< SCO0, (IM' SIM0), LG' >,< SCO0, (IM SIM0), LG >)
+-->     when changeObjState2(IM,IM') and subset(SCO,SCO0) .
+open ProofLemma .
+  -- Define <wf for robust-lemma09-2
+  [IMIMSCOSCOSIM] op t : Import Import SetOfComponent SetOfComponent SetOfImport -> IMIMSCOSCOSIM {constr} .
+  pred _<wf_ : IMIMSCOSCOSIM IMIMSCOSCOSIM .
+  ceq ( t(IM,IM',SCO',SCO0,SIM0) <wf t(IM,IM',SCO,SCO0,SIM0) ) = true
+     if SCO' <wf SCO .
+
+  -- Induction Hypothesis
+  ceq [robust-lemma09-2-IH :nonexec]:
+     subsetIDDepD(SCO,SCO,< SCO0, (IM' SIM0), LG' >,< SCO0, (IM SIM0), LG >) = true
+     if changeObjState2(IM,IM') and subset(SCO,SCO0) and
+        ( t(IM,IM',SCO,SCO0,SIM0) <wf t(im,im',sCO,sCO0,sIM0) ) = true .
+
+:goal { eq robust-lemma09-2(im,im',sCO,sCO0,sIM0,lg,lg') = true . }
+:def subsetcsp = :csp {
+ eq subset(sCO,sCO0) = false .
+ eq sCO0 = (sCO sCO0') .
+}
+:apply (subsetcsp rd-)
+:def empSCOcsp = :csp {
+  eq sCO = empCO .
+  eq sCO = (cmp(idCO,cCOs,nCOs,tCOs) sCO') .
+}
+:apply (empSCOcsp rd-)
+:def changeObjState2I = :csp { eq id(im') = id(im) . }  
+:def changeObjState2M = :csp { eq importer(im') = importer(im) . }
+:def changeObjState2X = :csp { eq exporter(im') = exporter(im) . }
+:def changeObjState2P = :csp { eq type(im') = type(im) . }
+:def changeObjState2S = :csp { eq state(im') = state(im) . }
+:def changeObjState2N = :csp { eq (next(im) > next(im')) = true . }
+:def changeObjState2T = :csp { eq target(im') = target(im) . }
+:apply (changeObjState2I changeObjState2M changeObjState2X changeObjState2P changeObjState2S changeObjState2N changeObjState2T rd-)
+-- Case 2-2-1-1-1-1-1-1-1: changeObjState2(im,im')
+:def initIH = :init as robust-lemma09-2-IH-in [robust-lemma09-2-IH]
+    by {IM:Import <- im; 
+	IM':Import <- im';
+	SCO:SetOfComponent <- sCO';
+	SCO0:SetOfComponent <- sCO0;
+	SIM0:SetOfImport <- sIM0; } 
+:def importerctf = :ctf {
+  eq importer(im) = idCO .
+}
+:def exporterctf = :ctf {
+  eq exporter(im) = idCO .
+}
+:def typecsp = :csp {
+  eq type(im) = mandatory .
+  eq type(im) = optional .
+}
+:apply (initIH importerctf exporterctf typecsp rd-)
+--> Proof of robust-lemma09-2 done
 -->
 show proof
 close
@@ -3894,4 +4215,4 @@ open ProofLemma .
 show proof
 close
 
---> Totally 44 goals should be proved.
+--> Totally 50 goals should be proved.
