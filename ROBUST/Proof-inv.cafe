@@ -369,6 +369,7 @@ eq s''  = < (co'' sCO), (imp(mandatory,idIM,idCO,eidCO,cIMs,unwired,tIMs) sIM), 
 -- Case 2: cIMs = wired
 :apply (noCOCycleUctf2 noCOCycleUctf4 noCOCycleUctf6 rd-)
 :apply (SDLIDU1 SDLIDU2 SDLIDU3 SDLIDU4 SDLIDU5 SDLIDU6 rd-)
+-- short match-ACZ-Next-State given non match-ACZ-state:nil
 --> Proof of RS-stop2 for noCOCycleU done.
 -->
 show proof
@@ -808,6 +809,7 @@ eq s'  = < (co sCO), (im' sIM), lg' > .
       S:State <-  s;
       S':State <- s';}
 :apply (rd-)
+-- short match-ACZ-Next-State given non match-ACZ-state:nil
 --> Proof of RD-unwire2 for noCOCycleU done.
 -->
 show proof
@@ -1047,6 +1049,7 @@ eq s'  = < (co sCO), (im' sIM), lg' > .
       S:State <-  s;
       S':State <- s';}
 :apply (rd-)
+-- short match-ACZ-Next-State given non match-ACZ-state:nil
 --> Proof of RD-unwire4 for noCOCycleU done.
 -->
 show proof
@@ -1150,6 +1153,7 @@ eq s'  = < (co sCO), (im' sIM), lg' > .
       S:State <-  s;
       S':State <- s';}
 :apply (rd-)
+-- short match-ACZ-Next-State given non match-ACZ-state:nil
 --> Proof of RS-swire2 for noCOCycleU done.
 -->
 show proof
@@ -1215,6 +1219,7 @@ eq s'  = < (co sCO), (im' sIM), lg'  > .
       S:State <-  s;
       S':State <- s';}
 :apply (rd-)
+-- short match-ACZ-Next-State given non match-ACZ-state:nil
 --> Proof of RS-unwire3 for noCOCycleU done.
 -->
 show proof
@@ -1274,6 +1279,7 @@ eq s'  = < (co sCO), (im' sIM), lg' > .
       S:State <-  s;
       S':State <- s';}
 :apply (rd-)
+-- short match-ACZ-Next-State given non match-ACZ-state:nil
 --> Proof of RD-wire for noCOCycleU done.
 -->
 show proof
@@ -1317,6 +1323,1399 @@ eq s'  = < sCO, (im' sIM), lg' > .
       S':State <- s';}
 :apply (rd-)
 --> Proof of RD-swire for noCOCycleU done.
+-->
+show proof
+close
+
+--> *****************************************************
+--> Proof of noCOCycleD.
+-->  eq noCOCycleD(S) = noCOCycleD(getAllCO(S),empCO,S) .
+--> *****************************************************
+--> ******************************************
+--> Step 3-0: Define a predicate to be proved.
+--> ******************************************
+module ProofnoCOCycleD {
+  protecting(PROOF)
+  vars S S' : State
+  eq invK(S) = noCOCycleD(S) .
+
+  -- Lemmas
+  vars CO CO' : Component
+  vars IDCO IIDCO EIDCO : COID
+  vars IM IM' : Import
+  var IDIM : IMID
+  var TIM : IMType
+  vars SCO SCO' SCO0 SCO0' : SetOfComponent
+  vars SIM SIM0 : SetOfImport
+  var StIM : SetOfIMState
+  vars LG LG' : ListOfLog
+
+  -- May be abstract!
+  ceq (getComponent(SCO,IDCO) in CO) = false
+    if not (IDCO = id(CO)) .
+  eq id(getComponent(SCO,IDCO)) = IDCO .
+
+  -- for Subset Dependency Lemma by ID
+  eq [SDLIDD-lemma :nonexec]:
+    SDLIDD(SCO,SCO',SCO0,SCO0',S,S') = true .
+
+  -- Lemma
+  -- eq robust-lemma07(CO,CO',SCO,SIM)
+  ceq subsetID(getICOsOfIMs((CO' SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO)),
+               getICOsOfIMs((CO  SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO))) = true 
+    if changeObjState(CO,CO') .
+
+  -- eq robust-lemma07-2(CO,CO',SCO,SIM)
+  ceq subsetID(getICOsOfIMs((CO'  SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO)),
+               getICOsOfIMs((CO   SCO),getIMsOfTypeOfECO(SIM,mandatory,IDCO))) = true
+    if changeObjState2(CO,CO') .
+
+  -- eq robust-lemma08(CO,CO',SCO,SCO0,SIM0,LG,LG')
+  ceq subsetIDDepD(SCO,SCO,< (CO' SCO0), SIM0, LG' >,< (CO SCO0), SIM0, LG >) = true
+    if changeObjState(CO,CO') and subset(SCO,SCO0) .
+
+  -- eq robust-lemma08-2(CO,CO',SCO,SCO0,SIM0,LG,LG')
+  ceq subsetIDDepD(SCO,SCO,< (CO' SCO0), SIM0, LG' >,< (CO SCO0), SIM0, LG >) = true
+    if changeObjState2(CO,CO') and subset(SCO,SCO0) .
+
+  -- eq robust-lemma09(IM,IM',SCO,SCO0,SIM0,LG,LG')
+  --    = subsetIDDepD(SCO,SCO,< SCO0, (IM 'SIM0), LG' >,< SCO0, (IM SIM0), LG >)
+  --     when changeObjState(IM,IM') and subset(SCO,SCO0) .
+  ceq subsetIDDepD(SCO,SCO,< SCO0, (IM' SIM0), LG' >,< SCO0, (IM SIM0), LG >) = true
+    if changeObjState(IM,IM') and subset(SCO,SCO0) .
+
+  -- eq robust-lemma09-2(IM,IM',SCO,SCO0,SIM0,LG,LG')
+  --    = subsetIDDepD(SCO,SCO,< SCO0, (IM 'SIM0), LG' >,< SCO0, (IM SIM0), LG >)
+  --     when changeObjState2(IM,IM') and subset(SCO,SCO0) .
+  ceq subsetIDDepD(SCO,SCO,< SCO0, (IM' SIM0), LG' >,< SCO0, (IM SIM0), LG >) = true
+    if changeObjState2(IM,IM') and subset(SCO,SCO0) .
+
+  ops imm imm' imo imo' : -> Import .
+  ops lgm' lgo' : -> ListOfLog .
+  ops s s' s'' sm sm' so so' : -> State .
+}
+
+--> ***************************
+--> (3) init(S) implies inv(S).
+--> ***************************
+-- Since noCOCycleD is imposed by init(S), initinv(S) for wfs-validCurrent always holds.
+
+--> ***************************
+--> (4) inv(S) implies inv(SS).
+--> ***************************
+
+-- This goal requires robust-lemma07-2.
+-- This goal requires robust-lemma08-2.
+open ProofnoCOCycleD .
+--> ************************************************************************
+--> trans [RS-stop1]:
+-->    < (cmp(IDCO, started, started, stopped) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, started, stopped, stopped) SCO), SIM,
+-->      (clog("RS-stop1:Should Stop", cmp(IDCO, started, stopped, stopped),
+-->       mlog(
+-->      (cmp(IDCO, started, started, stopped) SCO), SIM
+-->      )) ListLG) > .
+--> ************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(started,stopped) = true .
+eq co  = cmp(idCO,started,started,stopped) .
+eq co' = cmp(idCO,started,stopped,stopped) .
+eq lg' = (clog("RS-stop1:Should Stop",co',(2 + (tdis(sIM) + tdis(sCO)))) lg) .
+eq s   = < (co  sCO), sIM, lg > .
+eq s'  = < (co' sCO), sIM, lg' > . 
+:goal {
+  eq invinv(< (co sCO), sIM, lg >) = true .
+}
+:def invsctf = :ctf {
+  eq inv(< (cmp(idCO,started,started,stopped) sCO), sIM, lg >)= true .
+}
+:apply (invsctf rd-)
+:def noCOCycleDctf = :ctf {
+  eq noCOCycleD(sCO,empCO,(< (cmp(idCO,started,started,stopped) sCO), sIM, lg >)) = true .
+}
+:apply (noCOCycleDctf rd-)
+-- We need (1)
+--   noCOCycleD(sCO,empCO,s) implies
+--   noCOCycleD(sCO,empCO,s')
+-- and (2)
+--   noCOCycleD(getICOsOfIMs((cmp(idCO,started,started,stopped) sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO)),
+--              cmp(idCO,started,started,stopped), s) implies
+--   noCOCycleD(getICOsOfIMs((cmp(idCO,started,stopped,stopped) sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO)),
+--              cmp(idCO,started,stopped,stopped), s')
+-- These are proved by using SDLID
+--  eq SDLID(OS,OS',OS0,OS0',S,S')
+--    = (subsetID(OS',OS) and 
+--       subsetID(OS0',OS0) and subsetIDDepend(S',S))) and
+--       noCycleC(OS,OS0,S)) implies noCycleC(OS',OS0',S') .
+
+-- For (1):
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  s;
+      S':State <- s';}
+-- and we should prove followings in advance:
+-- (a) subsetID(sCO,sCO)     that naturally holds
+-- (b) subsetID(empCO,empCO) that naturally holds
+-- (c) subsetIDDepD(s',s)
+--    (c1) subsetID(getICOsOfIMs(...),getICOsOfIMs(...))
+--    (c2) subsetIDDepD(sCO,sCO,s',s)
+
+-- For (2):
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((co  sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO':SetOfComponent <- getICOsOfIMs((co' sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO0:SetOfComponent <-  co;
+      SCO0':SetOfComponent <- co';
+      S:State <-  s;
+      S':State <- s';}
+-- and we should prove followings in advance:
+-- (a) subsetID(getICOsOfIMs(...),getICOsOfIMs(...)) that holds because of (c1)
+-- (b) subsetID(cmp(idCO,started,started,stopped),cmp(idCO,started,started,stopped)) that simply holds
+-- (c) (inv(s) implies subsetIDDepD(s',s)
+--    (c1) subsetID(getICOsOfIMs(...),getICOsOfIMs(...))
+--    (c2) subsetIDDepD(sCO,sCO,s',s)
+:apply (rd-)
+--> Proof of RS-stop1 for noCOCycleD done.
+-->
+show proof
+close
+
+-- This goal requires robust-lemma07.
+-- This goal requires robust-lemma08.
+open ProofnoCOCycleD .
+--> ****************************************************************
+--> ctrans [RD-stop]:
+-->    < (cmp(IDCO, started, stopped, TSCO) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, stopped, stopped, TSCO) SCO), SIM,
+-->      (clog("RD-stop:Do Stop", cmp(IDCO, stopped, stopped, TSCO),
+-->       mlog(
+-->      (cmp(IDCO, started, stopped, TSCO) SCO), SIM
+-->      )) ListLG) >
+-->    if allIMInStates(getIMsOfECO(SIM,IDCO),(unwired unused)) .
+--> ****************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(started,stopped) = true .
+eq co  = cmp(idCO,started,stopped,tCOs) .
+eq co' = cmp(idCO,stopped,stopped,tCOs) .
+eq lg' = (clog("RD-stop:Do Stop",co',(tdis(sCO) + (tdis(sIM) + tdis(co)))) lg) .
+eq s   = < (co  sCO), sIM, lg > .
+eq s'  = < (co' sCO), sIM, lg' > . 
+:goal {
+  eq invinv(< (cmp(idCO, started, stopped, tCOs) sCO), sIM, 
+              lg >) = true .
+}
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
+:def csp4-2RD-stop = :csp {
+  eq allIMInStates(getIMsOfECO(sIM,idCO),(unwired unused)) = true .
+}
+:apply (csp4-2RD-stop)
+:def invsctf = :ctf {
+  eq inv(< (cmp(idCO, started, stopped, tCOs) sCO), sIM, lg >) = true .
+}
+:apply (invsctf rd-)
+:def noCOCycleDctf = :ctf {
+  eq noCOCycleD(sCO,empCO,(< (cmp(idCO,started,stopped,tCOs) sCO), sIM, lg >)) = true .
+}
+:apply (noCOCycleDctf rd-)
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  s;
+      S':State <- s';}
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((co  sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO':SetOfComponent <- getICOsOfIMs((co' sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO0:SetOfComponent <-  co;
+      SCO0':SetOfComponent <- co';
+      S:State <-  s;
+      S':State <- s';}
+:apply (rd-)
+--> Proof of RD-stop for noCOCycleD done.
+-->
+show proof
+close
+
+-- This goal requires robust-lemma04.
+-- This goal requires robust-lemma05.
+open ProofnoCOCycleD .
+--> *************************************************************************
+-->  ctrans [RS-stop2]:
+-->     < (cmp(IDCO, started, started, sstarted) SCO),
+-->       (imp(mandatory, IDIM, IDCO, EIDCO, CSIM, unwired, TSIM) SIM),
+-->        ListLG >
+-->  => < (cmp(IDCO, started, stopped, sstarted) SCO),
+-->       (imp(mandatory, IDIM, IDCO, EIDCO, CSIM, unwired, TSIM) SIM),
+-->       (clog("RS-stop2:Should Stop", cmp(IDCO, started, stopped, sstarted),
+-->	  mlog(
+-->       (cmp(IDCO, started, started, sstarted) SCO),
+-->       (imp(mandatory, IDIM, IDCO, EIDCO, wired, unwired, TSIM) SIM)
+-->	 )) ListLG) > 
+-->     if CSIM in (wired unused) .
+--> *************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(started,stopped) = true .
+eq co  = cmp(idCO,started,started,sstarted) .
+eq co' = cmp(idCO,started,stopped,sstarted) .
+eq lg' = (clog("RS-stop2:Should Stop",co',(5 + (tdis(imp(mandatory,idIM,idCO,eidCO,wired,unwired,tIMs)) + (tdis(sIM) + tdis(sCO))))) lg) .
+eq s   = < (co  sCO), (imp(mandatory,idIM,idCO,eidCO,cIMs,unwired,tIMs) sIM), lg > .
+eq s'  = < (co' sCO), (imp(mandatory,idIM,idCO,eidCO,cIMs,unwired,tIMs) sIM), lg' > . 
+:goal {
+  eq invinv(< (cmp(idCO, started, started, sstarted) sCO), 
+              (imp(mandatory, idIM, idCO, eidCO, cIMs, unwired, tIMs) sIM),
+              lg >) = true .
+}
+--> ********************************************************************************
+--> Step 4-2': When another conditional rule may be applied
+-->  add an axiom representing that the condition does not hold to the current case.
+--> ********************************************************************************
+-- RS-sstart2 may be applied.
+:csp {
+  eq allIMInTargetStates(getIMsOfTypeOfICOInStates(sIM,mandatory,idCO,unused),unused) = false .
+}
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
+:def noCOCycleDctf1 = :ctf {
+  eq noCOCycleD(sCO,empCO,(< (cmp(idCO,started,started,sstarted) sCO), 
+			     (imp(mandatory,idIM,idCO,eidCO,unused,unwired,tIMs) sIM),
+			     lg >)) = true .
+}
+:def noCOCycleDctf2 = :ctf {
+  eq noCOCycleD(sCO,empCO,(< (cmp(idCO,started,started,sstarted) sCO), 
+			     (imp(mandatory,idIM,idCO,eidCO,wired,unwired,tIMs) sIM),
+			     lg >)) = true .
+}
+:def noCOCycleDctf3 = :ctf {
+  eq noCOCycleD(getICOsOfIMs((cmp(idCO,started,started,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO)),
+                cmp(idCO,started,started,sstarted),
+		(< (cmp(idCO,started,started,sstarted) sCO), (imp(mandatory,idIM,idCO,eidCO,unused,unwired,tIMs) sIM), lg >)) = true .
+}
+:def noCOCycleDctf4 = :ctf {
+  eq noCOCycleD(getICOsOfIMs((cmp(idCO,started,started,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO)),
+                cmp(idCO,started,started,sstarted),
+		(< (cmp(idCO,started,started,sstarted) sCO), (imp(mandatory,idIM,idCO,eidCO,wired,unwired,tIMs) sIM), lg >)) = true .
+}
+:def SDLIDD1 = :init as SDLIDD-lemma-in1 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  s;
+      S':State <- s';}
+:def SDLIDD2 = :init as SDLIDD-lemma-in2 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((co  sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO':SetOfComponent <- getICOsOfIMs((co' sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO0:SetOfComponent <-  co;
+      SCO0':SetOfComponent <- co';
+      S:State <-  s;
+      S':State <- s';}
+:def SDLIDD3 = :init as SDLIDD-lemma-in3 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((co  sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO));
+      SCO':SetOfComponent <- getICOsOfIMs((co' sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO));
+      SCO0:SetOfComponent <-  (co getComponent(sCO,eidCO));
+      SCO0':SetOfComponent <- (co' getComponent(sCO,eidCO));
+      S:State <-  s;
+      S':State <- s';}
+:def cIMscsp = :csp {
+  eq cIMs = unused .
+  eq cIMs = wired .
+}
+:apply (cIMscsp)
+-- Case 1-1: cIMs = unsued
+:apply (noCOCycleDctf1 noCOCycleDctf3 rd-)
+:apply (SDLIDD1 SDLIDD2 SDLIDD3 rd-)
+-- Case 1-2: cIMs = wired
+:apply (noCOCycleDctf2 noCOCycleDctf4 rd-)
+:apply (SDLIDD1 SDLIDD2 SDLIDD3 rd-)
+--> Proof of RS-stop2 for noCOCycleD done.
+-->
+show proof
+close
+
+open ProofnoCOCycleD .
+--> ************************************************************************************
+--> trans [RS-sstart1]:
+-->    < (cmp(IDCO, stopped,  stopped, sstarted) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, stopped, sstarted, sstarted) SCO), SIM,
+-->      (clog("RS-sstart1:Should Stably Start", cmp(IDCO, stopped, sstarted, sstarted),
+-->       mlog(
+-->      (cmp(IDCO, stopped,  stopped, sstarted) SCO), SIM
+-->      )) ListLG) > .
+--> ************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(stopped,sstarted) = true .
+eq co  = cmp(idCO,stopped,stopped,sstarted) .
+eq co' = cmp(idCO,stopped,sstarted,sstarted) .
+eq lg' = (clog("RS-sstart1:Should Stably Start",cmp(idCO,stopped,sstarted,sstarted),(3 + (tdis(sIM) + tdis(sCO)))) lg) .
+eq s   = < (co  sCO), sIM, lg > .
+eq s'  = < (co' sCO), sIM, lg' > . 
+:goal {
+  eq invinv(< (cmp(idCO, stopped, stopped, sstarted) sCO), sIM, 
+               lg >) = true .
+}
+:def noCOCycleDctf1 = :ctf {
+  eq noCOCycleD(sCO,empCO,(< (cmp(idCO,stopped,stopped,sstarted) sCO), sIM, lg >)) = true .
+}
+:def noCOCycleDctf2 = :ctf {
+  eq noCOCycleD(getICOsOfIMs((cmp(idCO,stopped,stopped,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO)),
+                cmp(idCO,stopped,stopped,sstarted),
+                (< (cmp(idCO,stopped,stopped,sstarted) sCO), sIM, lg >)) = true .
+}
+:apply (noCOCycleDctf1 noCOCycleDctf2 rd-)
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  s;
+      S':State <- s';}
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((co  sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO':SetOfComponent <- getICOsOfIMs((co' sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO0:SetOfComponent <-  co;
+      SCO0':SetOfComponent <- co';
+      S:State <-  s;
+      S':State <- s';}
+:apply (rd-)
+--> Proof of RS-sstart1 for noCOCycleD done.
+-->
+show proof
+close
+
+open ProofnoCOCycleD .
+--> ****************************************************************************************
+--> ctrans [RS-sstart2]:
+-->    < (cmp(IDCO, started,  started, sstarted) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, started, sstarted, sstarted) SCO), SIM,
+-->      (clog("RS-sstart2:Should Stably Start", cmp(IDCO, started, sstarted, sstarted),
+-->       mlog(
+-->      (cmp(IDCO, started,  started, sstarted) SCO), SIM
+-->      )) ListLG) >
+-->    if allIMInStates(getIMsOfTypeOfECO(SIM,mandatory,IDCO),(swired unused)) and
+-->       allIMInTargetStates(getIMsOfTypeOfECOInStates(SIM,mandatory,IDCO,unused),unused) .
+--> ****************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(started,sstarted) = true .
+eq co  = cmp(idCO,started, started,sstarted) .
+eq co' = cmp(idCO,started,sstarted,sstarted) .
+eq lg' = (clog("RS-sstart2:Should Stably Start",cmp(idCO,started,sstarted,sstarted),(5 + (tdis(sIM) + tdis(sCO)))) lg) .
+eq s   = < (co  sCO), sIM, lg > .
+eq s'  = < (co' sCO), sIM, lg' > . 
+:goal {
+  eq invinv(< (cmp(idCO, started, started, sstarted) sCO), sIM, 
+              lg >) = true .
+}
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
+:def csp4-2RS-sstart2A = :csp {
+  eq allIMInStates(getIMsOfTypeOfECO(sIM,mandatory,idCO),(swired unused)) = true .
+}
+:def csp4-2RS-sstart2B = :csp {
+  eq allIMInTargetStates(getIMsOfTypeOfECOInStates(sIM,mandatory,idCO,unused),unused) = true .
+}
+:apply (csp4-2RS-sstart2A csp4-2RS-sstart2B rd-)
+:def noCOCycleDctf1 = :ctf {
+  eq noCOCycleD(sCO,empCO,(< (cmp(idCO,started,started,sstarted) sCO), sIM, lg >)) = true .
+}
+:def noCOCycleDctf2 = :ctf {
+  eq noCOCycleD(getICOsOfIMs((cmp(idCO,started,started,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO)),
+                cmp(idCO,started,started,sstarted),
+		(< (cmp(idCO,started,started,sstarted) sCO), sIM, lg >)) = true .
+}
+:apply (noCOCycleDctf1 noCOCycleDctf2 rd-)
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  s;
+      S':State <- s';}
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((co  sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO':SetOfComponent <- getICOsOfIMs((co' sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO0:SetOfComponent <-  co;
+      SCO0':SetOfComponent <- co';
+      S:State <-  s;
+      S':State <- s';}
+:apply (rd-)
+--> Proof of RS-sstart2 for noCOCycleD done.
+-->
+show proof
+close
+
+open ProofnoCOCycleD .
+--> ********************************************************************************************************
+--> ctrans [RD-start]:
+-->    < (cmp(IDCO, stopped, sstarted, sstarted) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, started, sstarted, sstarted) SCO), SIM,
+-->      (clog("RD-start:Do Start", cmp(IDCO, started, sstarted, sstarted),
+-->       mlog(
+-->      (cmp(IDCO, stopped, sstarted, sstarted) SCO), SIM
+-->      )) ListLG) >
+-->    if allIMInStates(getIMsOfTypeOfECO(SIM,mandatory,IDCO),(swired unused)) and
+-->       allIMInTargetStates(getIMsOfTypeOfECOInStates(SIM,mandatory,IDCO,unused),unused) and
+-->       allCOInStates(getICOsOfIMs(SCO,getIMsOfICOInStates(SIM,IDCO,(wired swired))),(started sstarted)) .
+--> ********************************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(stopped,started) = true .
+eq co  = cmp(idCO,stopped,sstarted,sstarted) .
+eq co' = cmp(idCO,started,sstarted,sstarted) .
+eq lg' = (clog("RD-start:Do Start",cmp(idCO,started,sstarted,sstarted),(2 + (tdis(sIM) + tdis(sCO)))) lg) .
+eq s   = < (co  sCO), sIM, lg > .
+eq s'  = < (co' sCO), sIM, lg' > . 
+:goal {
+  eq invinv(< (cmp(idCO, stopped, sstarted, sstarted) sCO), sIM,
+              lg >) = true .
+}
+--> ************************************************************************
+--> Step 4-2: When the current rule is conditinal, 
+-->  add an axiom representing that the condition holds to the current case.
+--> ************************************************************************
+:def csp4-2RD-startA = :csp {
+  eq allIMInStates(getIMsOfTypeOfECO(sIM,mandatory,idCO),(swired unused)) = true .
+}
+:def csp4-2RD-startB = :csp {
+  eq allIMInTargetStates(getIMsOfTypeOfECOInStates(sIM,mandatory,idCO,unused),unused) = true .
+}
+:def csp4-2RD-startC = :csp {
+  eq allCOInStates(getICOsOfIMs(sCO,getIMsOfICOInStates(sIM,idCO,(wired swired))),
+                   (started sstarted)) = true .
+}
+:apply (csp4-2RD-startA csp4-2RD-startB csp4-2RD-startC rd-)
+-- allIMInStates(getIMsOfTypeOfECO(sIM,mandatory,idCO),(swired unused)) = true .
+:csp {
+  eq getIMsOfTypeOfECOInStates(sIM,mandatory,idCO,unwired) = empIM .
+}
+:def noCOCycleDctf1 = :ctf {
+  eq noCOCycleD(sCO,empCO,(< (cmp(idCO,stopped,sstarted,sstarted) sCO), sIM, lg >)) = true .
+}
+:def noCOCycleDctf2 = :ctf {
+  eq noCOCycleD(getICOsOfIMs((cmp(idCO,stopped,sstarted,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO)),
+                cmp(idCO,stopped,sstarted,sstarted),
+		(< (cmp(idCO,stopped,sstarted,sstarted) sCO), sIM, lg >)) = true .
+}
+:apply (noCOCycleDctf1 noCOCycleDctf2 rd-)
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  s;
+      S':State <- s';}
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((co  sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO':SetOfComponent <- getICOsOfIMs((co' sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO0:SetOfComponent <-  co;
+      SCO0':SetOfComponent <- co';
+      S:State <-  s;
+      S':State <- s';}
+:apply (rd-)
+--> Proof of RD-start for noCOCycleD done.
+-->
+show proof
+close
+
+open ProofnoCOCycleD .
+--> ********************************************************************************
+--> trans [RD-sstart]:
+-->    < (cmp(IDCO,  started, sstarted, sstarted) SCO), SIM,
+-->      ListLG >
+--> => < (cmp(IDCO, sstarted, sstarted, sstarted) SCO), SIM,
+-->      (clog("RD-sstart:Do Stably Start", cmp(IDCO, sstarted, sstarted, sstarted),
+-->       mlog(
+-->      (cmp(IDCO, started, sstarted, sstarted) SCO), SIM
+-->      )) ListLG) > .
+--> ********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(started,sstarted) = true .
+eq co  = cmp(idCO,started,sstarted,sstarted) .
+eq co' = cmp(idCO,sstarted,sstarted,sstarted) .
+eq lg' = (clog("RD-sstart:Do Stably Start",cmp(idCO,sstarted,sstarted,sstarted),(1 + (tdis(sIM) + tdis(sCO)))) lg) .
+eq s   = < (co  sCO), sIM, lg > .
+eq s'  = < (co' sCO), sIM, lg' > . 
+:goal {
+  eq invinv(< (cmp(idCO, started, sstarted, sstarted) sCO), sIM, 
+              lg >) = true .
+}
+:def noCOCycleDctf1 = :ctf {
+  eq noCOCycleD(sCO,empCO,(< (cmp(idCO,started,sstarted,sstarted) sCO), sIM, lg >)) = true .
+}
+:def noCOCycleDctf2 = :ctf {
+  eq noCOCycleD(getICOsOfIMs((cmp(idCO,started,sstarted,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO)),
+                cmp(idCO,started,sstarted,sstarted),
+		(< (cmp(idCO,started,sstarted,sstarted) sCO), sIM, lg >)) = true .
+}
+:apply (noCOCycleDctf1 noCOCycleDctf2 rd-)
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  s;
+      S':State <- s';}
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((co  sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO':SetOfComponent <- getICOsOfIMs((co' sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO0:SetOfComponent <-  co;
+      SCO0':SetOfComponent <- co';
+      S:State <-  s;
+      S':State <- s';}
+:apply (rd-)
+--> Proof of RD-sstart for noCOCycleD done.
+-->
+show proof
+close
+
+open ProofnoCOCycleD .
+--> *********************************************************************************************
+--> trans [RS-unwire1]:
+-->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unwired) SIM),
+-->      ListLG >
+--> => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unwired) SIM),
+-->      (ilog("RS-unwire1:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, unwired),
+-->       mlog(
+-->      SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, unwired) SIM)
+-->      )) ListLG) > .
+--> *********************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(wired,unwired) = true .
+eq im  = imp(tIM, idIM, iidCO, eidCO, wired,   wired, unwired) .
+eq im' = imp(tIM, idIM, iidCO, eidCO, wired, unwired, unwired) .
+eq lg' = (ilog("RS-unwire1:Should Unwire",imp(tIM,idIM,iidCO,eidCO,wired,unwired,unwired),(2 + (tdis(sIM) + tdis(sCO)))) lg) .
+eq s   = < sCO, (im  sIM), lg  > .
+eq s'  = < sCO, (im' sIM), lg' > .
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired, wired, unwired) sIM),
+              lg >) = true .
+}
+:def noCOCycleDctf = :ctf {
+  eq noCOCycleD(sCO,empCO,(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired, wired, unwired) sIM), lg >)) = true .
+}
+:apply (noCOCycleDctf rd-)
+-- We need
+--   noCOCycleD(sCO,empCO,s) implies
+--   noCOCycleD(sCO,empCO,s')
+-- These are proved by using SDLID
+--  eq SDLID(OS,OS',OS0,OS0',S,S')
+--    = (subsetID(OS',OS) and 
+--       subsetID(OS0',OS0) and subsetIDDepend(S',S))) and
+--       noCycleC(OS,OS0,S)) implies noCycleC(OS',OS0',S') .
+
+-- Then
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  s;
+      S':State <- s';}
+-- and we should prove followings in advance:
+-- (a) subsetID(sCO,sCO)     that naturally holds
+-- (b) subsetID(empCO,empCO) that naturally holds
+-- (c) subsetIDDepD(s',s)    that means
+--     subsetIDDepD(sCO,sCO,s',s) .
+:apply (rd-)
+--> Proof of RS-unwire1 for noCOCycleD done.
+-->
+show proof
+close
+
+-- This goal requires robust-lemma06-2.
+-- This goal requires robust-lemma06.
+open ProofnoCOCycleD .
+--> ********************************************************************************************
+--> trans [RD-unwire1]:
+-->    < SCO,
+-->      (imp(optional, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM),
+-->      ListLG >
+--> => < SCO,
+-->      (imp(optional, IDIM, IDCO, EIDCO, unwired, unwired, TSIM) SIM),
+-->      (ilog("RD-unwire1:Do Unwire", imp(optional, IDIM, IDCO, EIDCO, unwired, unwired, TSIM),
+-->       mlog(
+-->      SCO,
+-->      (imp(optional, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM)
+-->      )) ListLG) > .
+--> ********************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(wired,unwired) = true .
+eq im  = imp(optional, idIM, idCO, eidCO,   wired, unwired, tIMs) .
+eq im' = imp(optional, idIM, idCO, eidCO, unwired, unwired, tIMs) .
+eq lg' = (ilog("RD-unwire1:Do Unwire",imp(optional,idIM,idCO,eidCO,unwired,unwired,tIMs),(tdis(sIM) + (tdis(sCO) + tdis(imp(optional,idIM,idCO,eidCO,wired,unwired,tIMs))))) lg) .
+eq s   = < sCO, (im  sIM), lg  > .
+eq s'  = < sCO, (im' sIM), lg' > .
+:goal {
+  eq invinv(< sCO,
+              (imp(optional, idIM, idCO, eidCO,   wired, unwired, tIMs) sIM),
+              lg >) = true .
+}
+:def noCOCycleDctf = :ctf {
+  eq noCOCycleD(sCO,empCO,(< sCO,
+                             (imp(optional, idIM, idCO, eidCO,   wired, unwired, tIMs) sIM),
+			     lg >)) = true .
+}
+:apply (noCOCycleDctf rd-)
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  s;
+      S':State <- s';}
+:apply (rd-)
+--> Proof of RD-unwire1 for noCOCycleD done.
+-->
+show proof
+close
+
+open ProofnoCOCycleD .
+--> *********************************************************************************************
+--> trans [RD-unwire2]:
+-->    < (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
+-->      (imp(mandatory, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM),
+-->      ListLG >
+--> => < (cmp(IDCO, stopped, NSCO, TSCO) SCO),
+-->      (imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM) SIM),
+-->      (ilog("RD-unwire2:Do Unwire", imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, TSIM),
+-->       mlog(
+-->      (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
+-->      (imp(mandatory, IDIM, IDCO, EIDCO,   wired, unwired, TSIM) SIM)
+-->      )) ListLG) > .
+--> *********************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(wired,unwired) = true .
+eq co  = cmp(idCO,stopped,nCOs,tCOs) .
+eq im  = imp(mandatory, idIM, idCO, eidCO,   wired, unwired, tIMs) .
+eq im' = imp(mandatory, idIM, idCO, eidCO, unwired, unwired, tIMs) .
+eq lg' = (ilog("RD-unwire2:Do Unwire",imp(mandatory,idIM,idCO,eidCO,unwired,unwired,tIMs),(tdis(sCO) + (tdis(imp(mandatory,idIM,idCO,eidCO,wired,unwired,tIMs)) + (tdis(cmp(idCO,stopped,nCOs,tCOs)) + tdis(sIM))))) lg) .
+eq s   = < (co sCO), (im  sIM), lg  > .
+eq s'  = < (co sCO), (im' sIM), lg' > .
+:goal {
+  eq invinv(< (cmp(idCO, stopped, nCOs, tCOs) sCO), 
+              (imp(mandatory, idIM, idCO, eidCO,   wired, unwired, tIMs) sIM),
+              lg >) = true .
+}
+:def noCOCycleDctf1 = :ctf {
+  eq noCOCycleD(sCO,empCO,(< (cmp(idCO, stopped, nCOs, tCOs) sCO), 
+			     (imp(mandatory, idIM, idCO, eidCO,   wired, unwired, tIMs) sIM),
+			     lg >)) = true .
+}
+:def noCOCycleDctf2 = :ctf {
+  eq noCOCycleD(getICOsOfIMs((cmp(idCO,stopped,nCOs,tCOs) sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO)),cmp(idCO,stopped,nCOs,tCOs),(< (cmp(idCO,stopped,nCOs,tCOs) sCO), (imp(mandatory,idIM,idCO,eidCO,wired,unwired,tIMs) sIM), lg >)) = true .
+}
+:apply (noCOCycleDctf1 noCOCycleDctf2 rd-)
+:init as SDLIDD-lemma-in1 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  s;
+      S':State <- s';}
+:init as SDLIDD-lemma-in2 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((co sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO':SetOfComponent <- getICOsOfIMs((co sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO0:SetOfComponent <-  co;
+      SCO0':SetOfComponent <- co;
+      S:State <-  s;
+      S':State <- s';}
+-- :init as SDLIDD-lemma-in3 [SDLIDD-lemma]
+--   by {SCO:SetOfComponent <-  getICOsOfIMs((co sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO));
+--       SCO':SetOfComponent <- getICOsOfIMs((co sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO));
+--       SCO0:SetOfComponent <-  (getComponent(sCO,eidCO) co);
+--       SCO0':SetOfComponent <- (getComponent(sCO,eidCO) co);
+--       S:State <-  s;
+--       S':State <- s';}
+:apply (rd-)
+--> Proof of RD-unwire2 for noCOCycleD done.
+-->
+show proof
+close
+
+open ProofnoCOCycleD .
+--> *********************************************************************************************
+--> trans [RS-unused]:
+-->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired,  wired, unused) SIM),
+-->      ListLG >
+--> => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired, unused, unused) SIM),
+-->      (ilog("RS-unused:Should be Unused", imp(TIM, IDIM, IIDCO, EIDCO, wired, unused, unused),
+-->       mlog(
+-->      SCO, (imp(TIM, IDIM, IIDCO, EIDCO, wired, wired, unused) SIM)
+-->      )) ListLG) > .
+--> *********************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(wired,unused) = true .
+eq im  = imp(tIM, idIM, iidCO, eidCO, wired,  wired, unused) .
+eq im' = imp(tIM, idIM, iidCO, eidCO, wired, unused, unused) .
+eq lg' = (ilog("RS-unused:Should be Unused",imp(tIM,idIM,iidCO,eidCO,wired,unused,unused),(2 + (tdis(sIM) + tdis(sCO)))) lg) .
+eq s   = < sCO, (im  sIM), lg  > .
+eq s'  = < sCO, (im' sIM), lg' > .
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired,  wired, unused) sIM),
+              lg >) = true .
+}
+:def noCOCycleDctf = :ctf {
+  eq noCOCycleD(sCO,empCO,(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired,  wired, unused) sIM), lg >)) = true .
+}
+:apply (noCOCycleDctf rd-)
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  s;
+      S':State <- s';}
+:apply (rd-)
+--> Proof of RS-unused for noCOCycleD done.
+-->
+show proof
+close
+
+open ProofnoCOCycleD .
+--> **************************************************************************************
+--> trans [RD-unused]:
+-->    < SCO, (imp(TIM, IDIM, IDCO, EIDCO,  wired, unused, unused) SIM),
+-->      ListLG >
+--> => < SCO, (imp(TIM, IDIM, IDCO, EIDCO, unused, unused, unused) SIM),
+-->      (ilog("RD-unused:Do Unwire", imp(TIM, IDIM, IDCO, EIDCO, unused, unused, unused),
+-->       mlog(
+-->      SCO, (imp(TIM, IDIM, IDCO, EIDCO,  wired, unused, unused) SIM)
+-->      )) ListLG) > .
+--> **************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(wired,unused) = true .
+eq im  = imp(tIM, idIM, idCO, eidCO,  wired, unused, unused) .
+eq im' = imp(tIM, idIM, idCO, eidCO, unused, unused, unused) .
+eq lg' = (ilog("RD-unused:Do Unwire",imp(tIM,idIM,idCO,eidCO,unused,unused,unused),(1 + (tdis(sIM) + tdis(sCO)))) lg) .
+eq s   = < sCO, (im  sIM), lg  > .
+eq s'  = < sCO, (im' sIM), lg' > .
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, idCO, eidCO,  wired, unused, unused) sIM),
+              lg >) = true .
+}
+:def noCOCycleDctf = :ctf {
+  eq noCOCycleD(sCO,empCO,(< sCO, (imp(tIM, idIM, idCO, eidCO, wired, unused, unused) sIM), lg >)) = true .
+}
+:apply (noCOCycleDctf rd-)
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  s;
+      S':State <- s';}
+:apply (rd-)
+--> Proof of RD-unused for noCOCycleD done.
+-->
+show proof
+close
+
+open ProofnoCOCycleD .
+--> *********************************************************************************************
+--> trans [RS-unwire2]:
+-->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused,  unused, swired) SIM),
+-->      ListLG >
+--> => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused, unwired, swired) SIM),
+-->      (ilog("RS-unwire2:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, unused, unwired, swired),
+-->       mlog(
+-->      SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unused,  unused, swired) SIM)
+-->      )) ListLG) > .
+--> *********************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(unused,unwired) = true .
+eq im  = imp(tIM, idIM, iidCO, eidCO, unused,  unused, swired) .
+eq im' = imp(tIM, idIM, iidCO, eidCO, unused, unwired, swired) .
+eq lg' = (ilog("RS-unwire2:Should Unwire",imp(tIM,idIM,iidCO,eidCO,unused,unwired,swired),(5 + (tdis(sIM) + tdis(sCO)))) lg) .
+eq s   = < sCO, (im  sIM), lg  > .
+eq s'  = < sCO, (im' sIM), lg' > .
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, unused,  unused, swired) sIM),
+              lg >) = true .
+}
+:def noCOCycleDctf = :ctf {
+  eq noCOCycleD(sCO,empCO,(< sCO, (imp(tIM, idIM, iidCO, eidCO, unused,  unused, swired) sIM), lg >)) = true .
+}
+:apply (noCOCycleDctf rd-)
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  s;
+      S':State <- s';}
+:apply (rd-)
+--> Proof of RS-unwire2 for noCOCycleD done.
+-->
+show proof
+close
+
+open ProofnoCOCycleD .
+--> ******************************************************************************************
+--> trans [RD-unwire3]:
+-->    < SCO, (imp(optional, IDIM, IIDCO, EIDCO,  unused, unwired, swired) SIM),
+-->      ListLG >
+--> => < SCO, (imp(optional, IDIM, IIDCO, EIDCO, unwired, unwired, swired) SIM),
+-->      (ilog("RD-unwire3:Do Unwire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, swired),
+-->       mlog(
+-->      SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  unused, unwired, swired) SIM)
+-->      )) ListLG) > .
+--> ******************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(unused,unwired) = true .
+eq im  = imp(optional, idIM, iidCO, eidCO,  unused, unwired, swired) .
+eq im' = imp(optional, idIM, iidCO, eidCO, unwired, unwired, swired) .
+eq lg' = (ilog("RD-unwire3:Do Unwire",imp(optional,idIM,iidCO,eidCO,unwired,unwired,swired),(4 + (tdis(sIM) + tdis(sCO)))) lg) .
+eq s   = < sCO, (im  sIM), lg  > .
+eq s'  = < sCO, (im' sIM), lg' > .
+:goal {
+  eq invinv(< sCO, (imp(optional, idIM, iidCO, eidCO,  unused, unwired, swired) sIM),
+              lg >) = true .
+}
+:def noCOCycleDctf = :ctf {
+  eq noCOCycleD(sCO,empCO,(< sCO,
+                             (imp(optional, idIM, iidCO, eidCO,  unused, unwired, swired) sIM),
+			     lg >)) = true .
+}
+:apply (noCOCycleDctf rd-)
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  s;
+      S':State <- s';}
+:apply (rd-)
+--> Proof of RD-unwire3 for noCOCycleD done.
+-->
+show proof
+close
+
+open ProofnoCOCycleD .
+--> ************************************************************************************************
+-->  trans [RD-unwire4]:
+-->     < (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
+-->       (imp(mandatory, IDIM, IDCO, EIDCO,  unused, unwired, swired) SIM),
+-->       ListLG >
+-->  => < (cmp(IDCO, stopped, NSCO, TSCO) SCO),
+-->       (imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, swired) SIM),
+-->       (ilog("RD-unwire4:Do Unwire", imp(mandatory, IDIM, IDCO, EIDCO, unwired, unwired, swired),
+-->	  mlog(
+-->       (cmp(IDCO, stopped, NSCO, TSCO) SCO), 
+-->       (imp(mandatory, IDIM, IDCO, EIDCO,   unused, unwired, swired) SIM)
+-->	 )) ListLG) > .
+--> ************************************************************************************************
+--> *****************************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *****************************************************************************************
+-- Set the direction of state change.
+eq transitsTo(unused,unwired) = true .
+--> Should be checked for co!!!
+eq co  = cmp(idCO,stopped,nCOs,tCOs) .
+eq im  = imp(mandatory, idIM, idCO, eidCO, unused, unwired, swired) .
+eq im' = imp(mandatory, idIM, idCO, eidCO,unwired, unwired, swired) .
+eq lg' = (ilog("RD-unwire4:Do Unwire",imp(mandatory,idIM,idCO,eidCO,unwired,unwired,swired),(4 + (tdis(sIM) + (tdis(co) + tdis(sCO))))) lg) .
+eq s   = < (co sCO), (im  sIM), lg  > .
+eq s'  = < (co sCO), (im' sIM), lg' > .
+:goal {
+  eq invinv(< (cmp(idCO, stopped, nCOs, tCOs) sCO), 
+              (imp(mandatory, idIM, idCO, eidCO, unused, unwired, swired) sIM),
+              lg >) = true .
+}
+:def noCOCycleDctf1 = :ctf {
+  eq noCOCycleD(sCO,empCO,(< (cmp(idCO, stopped, nCOs, tCOs) sCO), 
+                             (imp(mandatory, idIM, idCO, eidCO, unused, unwired, swired) sIM),
+                             lg >)) = true .
+}
+:def noCOCycleDctf2 = :ctf {
+  eq noCOCycleD(getICOsOfIMs((cmp(idCO,stopped,nCOs,tCOs) sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO)),cmp(idCO,stopped,nCOs,tCOs),( < (cmp(idCO,stopped,nCOs,tCOs) sCO), (imp(mandatory,idIM,idCO,eidCO,unused,unwired,swired) sIM), lg >)) = true .
+}
+:apply (noCOCycleDctf1 noCOCycleDctf2 rd-)
+:init as SDLIDD-lemma-in1 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  s;
+      S':State <- s';}
+:init as SDLIDD-lemma-in2 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((co sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO':SetOfComponent <- getICOsOfIMs((co sCO),getIMsOfTypeOfECO(sIM,mandatory,idCO));
+      SCO0:SetOfComponent <-  co;
+      SCO0':SetOfComponent <- co;
+      S:State <-  s;
+      S':State <- s';}
+:apply (rd-)
+--> Proof of RD-unwire4 for noCOCycleD done.
+-->
+show proof
+close
+
+open ProofnoCOCycleD .
+--> ******************************************************************************************
+--> trans [RS-swire1]:
+-->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, swired) SIM),
+-->      ListLG >
+--> => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired,  swired, swired) SIM),
+-->      (ilog("RS-swire1:Should Wire", imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired),
+-->       mlog(
+-->      SCO, (imp(TIM, IDIM, IIDCO, EIDCO, unwired, unwired, swired) SIM)
+-->      )) ListLG) > .
+--> ******************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(unwired,swired) = true .
+eq im  = imp(tIM, idIM, iidCO, eidCO, unwired, unwired, swired) .
+eq im' = imp(tIM, idIM, iidCO, eidCO, unwired,  swired, swired) .
+eq lg' = (ilog("RS-swire1:Should Wire",imp(tIM,idIM,iidCO,eidCO,unwired,swired,swired),(3 + (tdis(sIM) + tdis(sCO)))) lg) .
+eq s   = < sCO, (im  sIM), lg  > .
+eq s'  = < sCO, (im' sIM), lg' > .
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, unwired, unwired, swired) sIM),
+              lg >) = true .
+}
+:def noCOCycleDctf = :ctf {
+  eq noCOCycleD(sCO,empCO,(< sCO,
+                             (imp(tIM, idIM, iidCO, eidCO, unwired, unwired, swired) sIM),
+			     lg >)) = true .
+}
+:apply (noCOCycleDctf rd-)
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  s;
+      S':State <- s';}
+:apply (rd-)
+--> Proof of RS-swire1 for noCOCycleD done.
+-->
+show proof
+close
+
+open ProofnoCOCycleD .
+--> ****************************************************************************************
+--> trans [RS-swire2]:
+-->    < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, wired,  wired, swired) SIM),
+-->      ListLG >
+--> => < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired) SIM),
+-->      (ilog("RS-swire2:Should Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
+-->       mlog(
+-->      (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, wired, wired, swired) SIM)
+-->      )) ListLG) > .
+--> ****************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(wired,swired) = true .
+eq co  = cmp(eidCO, sstarted, sstarted, sstarted) .
+eq imm  = imp(mandatory, idIM, iidCO, eidCO, wired,  wired, swired) .
+eq imm' = imp(mandatory, idIM, iidCO, eidCO, wired, swired, swired) .
+eq imo  = imp(optional,  idIM, iidCO, eidCO, wired,  wired, swired) .
+eq imo' = imp(optional,  idIM, iidCO, eidCO, wired, swired, swired) .
+eq lgm' = (ilog("RS-swire2:Should Wire",imp(mandatory,idIM,iidCO,eidCO,wired,swired,swired),(5 + (tdis(sIM) + tdis(sCO)))) lg) .
+eq lgo' = (ilog("RS-swire2:Should Wire",imp(optional, idIM,iidCO,eidCO,wired,swired,swired),(5 + (tdis(sIM) + tdis(sCO)))) lg) .
+eq s   = < (co sCO), (im  sIM), lg  > .
+eq sm   = < (co sCO), (imm  sIM), lg > .
+eq sm'  = < (co sCO), (imm' sIM), lgm' > .
+eq so   = < (co sCO), (imo  sIM), lg > .
+eq so'  = < (co sCO), (imo' sIM), lgo' > .
+:goal {
+  eq invinv(< (cmp(eidCO, sstarted, sstarted, sstarted) sCO), 
+              (imp(tIM, idIM, iidCO, eidCO, wired,  wired, swired) sIM),
+              lg >) = true .
+}
+:def tIMcsp = :csp {
+  eq tIM = mandatory .
+  eq tIM = optional .
+}
+:def noCOCycleDctfm1 = :ctf {
+  eq noCOCycleD(sCO,empCO,(< (cmp(eidCO, sstarted, sstarted, sstarted) sCO), 
+			     (imp(mandatory, idIM, iidCO, eidCO, wired,  wired, swired) sIM),
+			      lg >)) = true .
+}
+:def noCOCycleDctfo1 = :ctf {
+  eq noCOCycleD(sCO,empCO,(< (cmp(eidCO, sstarted, sstarted, sstarted) sCO), 
+			     (imp(optional,  idIM, iidCO, eidCO, wired,  wired, swired) sIM),
+			      lg >)) = true .
+}
+:def noCOCycleDctfm2 = :ctf {
+  eq noCOCycleD(getICOsOfIMs((cmp(eidCO,sstarted,sstarted,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO)),cmp(eidCO,sstarted,sstarted,sstarted),(< (cmp(eidCO,sstarted,sstarted,sstarted) sCO), (imp(mandatory,idIM,iidCO,eidCO,wired,wired,swired) sIM), lg >)) = true .
+}
+:def noCOCycleDctfo2 = :ctf {
+  eq noCOCycleD(getICOsOfIMs((cmp(eidCO,sstarted,sstarted,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO)),cmp(eidCO,sstarted,sstarted,sstarted),(< (cmp(eidCO,sstarted,sstarted,sstarted) sCO), (imp(optional,idIM,iidCO,eidCO,wired,wired,swired) sIM), lg >)) = true .
+}
+:def noCOCycleDctfm3 = :ctf {
+  eq noCOCycleD(getICOsOfIMs((cmp(eidCO,sstarted,sstarted,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,iidCO)),(cmp(eidCO,sstarted,sstarted,sstarted) getComponent(sCO,iidCO)),(< (cmp(eidCO,sstarted,sstarted,sstarted) sCO), (imp(mandatory,idIM,iidCO,eidCO,wired,wired,swired) sIM), lg >)) = true .
+}
+:def SDLIDDm1 = :init as SDLIDD-lemma-in1 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  sm;
+      S':State <- sm';}
+:def SDLIDDo1 = :init as SDLIDD-lemma-in1 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  so;
+      S':State <- so';}
+:def SDLIDDm2 = :init as SDLIDD-lemma-in2 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((cmp(eidCO,sstarted,sstarted,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO));
+      SCO':SetOfComponent <- getICOsOfIMs((cmp(eidCO,sstarted,sstarted,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO));
+      SCO0:SetOfComponent <-  cmp(eidCO,sstarted,sstarted,sstarted);
+      SCO0':SetOfComponent <- cmp(eidCO,sstarted,sstarted,sstarted);
+      S:State <-  sm;
+      S':State <- sm';}
+:def SDLIDDm3 = :init as SDLIDD-lemma-in3 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((cmp(eidCO,sstarted,sstarted,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,iidCO));
+      SCO':SetOfComponent <- getICOsOfIMs((cmp(eidCO,sstarted,sstarted,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,iidCO));
+      SCO0:SetOfComponent <-  (cmp(eidCO,sstarted,sstarted,sstarted) getComponent(sCO,iidCO));
+      SCO0':SetOfComponent <- (cmp(eidCO,sstarted,sstarted,sstarted) getComponent(sCO,iidCO));
+      S:State <-  sm;
+      S':State <- sm';}
+:def SDLIDDo2 = :init as SDLIDD-lemma-in2 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((cmp(eidCO,sstarted,sstarted,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO));
+	SCO':SetOfComponent <- getICOsOfIMs((cmp(eidCO,sstarted,sstarted,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO));
+      SCO0:SetOfComponent <-  cmp(eidCO,sstarted,sstarted,sstarted);
+      SCO0':SetOfComponent <- cmp(eidCO,sstarted,sstarted,sstarted);
+      S:State <-  so;
+      S':State <- so';}
+:apply (tIMcsp)
+-- Case 1: mandatory
+:apply (noCOCycleDctfm1 noCOCycleDctfm2 noCOCycleDctfm3 rd-)
+:apply (SDLIDDm1 SDLIDDm2 SDLIDDm3 rd-)
+-- Case 2: optional
+:apply (noCOCycleDctfo1 noCOCycleDctfo2 rd-)
+:apply (SDLIDDo1 SDLIDDo2 rd-)
+--> Proof of RS-swire2 for noCOCycleD done.
+-->
+show proof
+close
+
+open ProofnoCOCycleD .
+--> ********************************************************************************************
+--> trans [RS-unwire3]:
+-->    < (cmp(EIDCO, started, stopped, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, swired) SIM),
+-->      ListLG >
+--> => < (cmp(EIDCO, started, stopped, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, swired) SIM),
+-->      (ilog("RS-unwire3:Should Unwire", imp(TIM, IDIM, IIDCO, EIDCO, wired, unwired, swired),
+-->       mlog(
+-->      (cmp(EIDCO, started, stopped, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, wired,   wired, swired) SIM)
+-->      )) ListLG) > .
+--> ********************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(wired,unwired) = true .
+--> Should be checked for co!!!
+eq co  = cmp(eidCO,started,stopped,sstarted) .
+eq imm  = imp(mandatory, idIM, iidCO, eidCO, wired,   wired, swired) .
+eq imm' = imp(mandatory, idIM, iidCO, eidCO, wired, unwired, swired) .
+eq imo  = imp(optional,  idIM, iidCO, eidCO, wired,   wired, swired) .
+eq imo' = imp(optional,  idIM, iidCO, eidCO, wired, unwired, swired) .
+
+eq lgm' = (ilog("RS-unwire3:Should Unwire",imp(mandatory,idIM,iidCO,eidCO,wired,unwired,swired),(9 + (tdis(sCO) + tdis(sIM)))) lg) .
+eq lgo' = (ilog("RS-unwire3:Should Unwire",imp(optional, idIM,iidCO,eidCO,wired,unwired,swired),(9 + (tdis(sCO) + tdis(sIM)))) lg) .
+eq s   = < (co sCO), (im  sIM), lg   > .
+eq sm   = < (co sCO), (imm  sIM), lg   > .
+eq sm'  = < (co sCO), (imm' sIM), lgm'  > .
+eq so   = < (co sCO), (imo  sIM), lg   > .
+eq so'  = < (co sCO), (imo' sIM), lgo'  > .
+:goal {
+  eq invinv(< (cmp(eidCO, started, stopped, sstarted) sCO), 
+              (imp(tIM, idIM, iidCO, eidCO, wired, wired, swired) sIM),
+              lg >) = true .
+}
+:def tIMcsp = :csp {
+  eq tIM = mandatory .
+  eq tIM = optional .
+}
+:def noCOCycleDctfm1 = :ctf {
+  eq noCOCycleD(sCO,empCO,(< (cmp(eidCO,started,stopped,sstarted) sCO), 
+			     (imp(mandatory, idIM, iidCO, eidCO, wired, wired, swired) sIM), 
+			     lg >)) = true .
+}
+:def noCOCycleDctfo1 = :ctf {
+  eq noCOCycleD(sCO,empCO,(< (cmp(eidCO,started,stopped,sstarted) sCO), 
+			     (imp(optional,  idIM, iidCO, eidCO, wired, wired, swired) sIM), 
+			     lg >)) = true .
+}
+:def noCOCycleDctfm2 = :ctf {
+  eq noCOCycleD(getICOsOfIMs((cmp(eidCO,started,stopped,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO)),
+                cmp(eidCO,started,stopped,sstarted),
+		(< (cmp(eidCO,started,stopped,sstarted) sCO),
+		   (imp(mandatory, idIM, iidCO, eidCO, wired, wired, swired) sIM),
+		   lg >)) = true .
+}
+:def noCOCycleDctfo2 = :ctf {
+  eq noCOCycleD(getICOsOfIMs((cmp(eidCO,started,stopped,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO)),
+                cmp(eidCO,started,stopped,sstarted),
+		(< (cmp(eidCO,started,stopped,sstarted) sCO),
+		   (imp(optional,  idIM, iidCO, eidCO, wired, wired, swired) sIM),
+		   lg >)) = true .
+}
+:def noCOCycleDctfm3 = :ctf {
+  eq noCOCycleD(getICOsOfIMs((cmp(eidCO,started,stopped,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,iidCO)),(cmp(eidCO,started,stopped,sstarted) getComponent(sCO,iidCO)),(< (cmp(eidCO,started,stopped,sstarted) sCO) , (imp(mandatory,idIM,iidCO,eidCO,wired,wired,swired) sIM) , lg >)) = true .
+}
+:def SDLIDDm1 = :init as SDLIDD-lemma-in1 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  sm;
+      S':State <- sm';}
+:def SDLIDDo1 = :init as SDLIDD-lemma-in1 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  so;
+      S':State <- so';}
+:def SDLIDDm2 = :init as SDLIDD-lemma-in2 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((cmp(eidCO,started,stopped,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO));
+      SCO':SetOfComponent <- getICOsOfIMs((cmp(eidCO,started,stopped,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO));
+      SCO0:SetOfComponent <-  cmp(eidCO,started,stopped,sstarted);
+      SCO0':SetOfComponent <- cmp(eidCO,started,stopped,sstarted);
+      S:State <-  sm;
+      S':State <- sm';}
+:def SDLIDDo2 = :init as SDLIDD-lemma-in2 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((cmp(eidCO,started,stopped,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO));
+      SCO':SetOfComponent <- getICOsOfIMs((cmp(eidCO,started,stopped,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO));
+      SCO0:SetOfComponent <-  cmp(eidCO,started,stopped,sstarted);
+      SCO0':SetOfComponent <- cmp(eidCO,started,stopped,sstarted);
+      S:State <-  so;
+      S':State <- so';}
+:def SDLIDDm3 = :init as SDLIDD-lemma-in3 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((cmp(eidCO,started,stopped,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,iidCO));
+      SCO':SetOfComponent <- getICOsOfIMs((cmp(eidCO,started,stopped,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,iidCO));
+      SCO0:SetOfComponent <-  (cmp(eidCO,started,stopped,sstarted) getComponent(sCO,iidCO));
+      SCO0':SetOfComponent <- (cmp(eidCO,started,stopped,sstarted) getComponent(sCO,iidCO));
+      S:State <-  sm;
+      S':State <- sm';}
+:apply (tIMcsp)
+-- Case 1: mandatory
+:apply (noCOCycleDctfm1 noCOCycleDctfm2 noCOCycleDctfm3 rd-)
+:apply (SDLIDDm1 SDLIDDm2 SDLIDDm3 rd-)
+-- Case 2: optional
+:apply (noCOCycleDctfo1 noCOCycleDctfo2 rd-)
+:apply (SDLIDDo1 SDLIDDo2 rd-)
+--> Proof of RS-unwire3 for noCOCycleD done.
+-->
+show proof
+close
+
+open ProofnoCOCycleD .
+--> ***********************************************************************************
+--> trans [RD-wire]:
+-->    < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM),
+-->      ListLG >
+--> => < (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO,   wired, swired, swired) SIM),
+-->      (ilog("RD-wire:Do Wire", imp(TIM, IDIM, IIDCO, EIDCO, wired, swired, swired),
+-->       mlog(
+-->      (cmp(EIDCO, sstarted, sstarted, sstarted) SCO), 
+-->      (imp(TIM, IDIM, IIDCO, EIDCO, unwired, swired, swired) SIM)
+-->      )) ListLG) > .
+--> ***********************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+-- Set the direction of state change.
+eq transitsTo(unwired,wired) = true .
+eq co  = cmp(eidCO, sstarted, sstarted, sstarted) .
+eq imm  = imp(mandatory, idIM, iidCO, eidCO, unwired, swired, swired) .
+eq imm' = imp(mandatory, idIM, iidCO, eidCO,   wired, swired, swired) .
+eq imo  = imp(optional,  idIM, iidCO, eidCO, unwired, swired, swired) .
+eq imo' = imp(optional,  idIM, iidCO, eidCO,   wired, swired, swired) .
+eq lgm' = (ilog("RD-wire:Do Wire",imp(mandatory,idIM,iidCO,eidCO,wired,swired,swired),(2 + (tdis(sIM) + tdis(sCO)))) lg) .
+eq lgo' = (ilog("RD-wire:Do Wire",imp(optional, idIM,iidCO,eidCO,wired,swired,swired),(2 + (tdis(sIM) + tdis(sCO)))) lg) .
+eq s   = < (co sCO), (im  sIM), lg  > .
+eq sm   = < (co sCO), (imm  sIM), lg > .
+eq sm'  = < (co sCO), (imm' sIM), lgm' > .
+eq so   = < (co sCO), (imo  sIM), lg > .
+eq so'  = < (co sCO), (imo' sIM), lgo' > .
+:goal {
+  eq invinv(< (cmp(eidCO, sstarted, sstarted, sstarted) sCO), 
+              (imp(tIM, idIM, iidCO, eidCO, unwired, swired, swired) sIM),
+              lg >) = true .
+}
+:def tIMcsp = :csp {
+  eq tIM = mandatory .
+  eq tIM = optional .
+}
+:def noCOCycleDctfm1 = :ctf {
+  eq noCOCycleD(sCO,empCO,(< (cmp(eidCO, sstarted, sstarted, sstarted) sCO),
+			     (imp(mandatory, idIM, iidCO, eidCO, unwired, swired, swired) sIM),
+			     lg >)) = true .
+}
+:def noCOCycleDctfo1 = :ctf {
+  eq noCOCycleD(sCO,empCO,(< (cmp(eidCO, sstarted, sstarted, sstarted) sCO),
+			     (imp(optional, idIM, iidCO, eidCO, unwired, swired, swired) sIM),
+			     lg >)) = true .
+}
+:def noCOCycleDctfm2 = :ctf {
+  eq noCOCycleD(getICOsOfIMs((cmp(eidCO,sstarted,sstarted,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO)),cmp(eidCO,sstarted,sstarted,sstarted),(< (cmp(eidCO,sstarted,sstarted,sstarted) sCO) , (imp(mandatory,idIM,iidCO,eidCO,unwired,swired,swired) sIM), lg >)) = true .
+}
+:def noCOCycleDctfm3 = :ctf {
+  eq noCOCycleD(getICOsOfIMs((cmp(eidCO,sstarted,sstarted,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,iidCO)),(cmp(eidCO,sstarted,sstarted,sstarted) getComponent(sCO,iidCO)),(< (cmp(eidCO,sstarted,sstarted,sstarted) sCO) , (imp(mandatory,idIM,iidCO,eidCO,unwired,swired,swired) sIM), lg >)) = true .
+}
+:def noCOCycleDctfo2 = :ctf {
+  eq noCOCycleD(getICOsOfIMs((cmp(eidCO,sstarted,sstarted,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO)),cmp(eidCO,sstarted,sstarted,sstarted),(< (cmp(eidCO,sstarted,sstarted,sstarted) sCO) , (imp(optional,idIM,iidCO,eidCO,unwired,swired,swired) sIM), lg >)) = true .
+}
+:def SDLIDDm1 = :init as SDLIDD-lemma-in1 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  sm;
+      S':State <- sm';}
+:def SDLIDDo1 = :init as SDLIDD-lemma-in1 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  so;
+      S':State <- so';}
+:def SDLIDDm2 = :init as SDLIDD-lemma-in2 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((co sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO));
+      SCO':SetOfComponent <- getICOsOfIMs((co sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO));
+      SCO0:SetOfComponent <-  cmp(eidCO,sstarted,sstarted,sstarted);
+      SCO0':SetOfComponent <- cmp(eidCO,sstarted,sstarted,sstarted);
+      S:State <-  sm;
+      S':State <- sm';}
+:def SDLIDDm3 = :init as SDLIDD-lemma-in3 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((cmp(eidCO,sstarted,sstarted,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,iidCO));
+      SCO':SetOfComponent <- getICOsOfIMs((cmp(eidCO,sstarted,sstarted,sstarted) sCO),getIMsOfTypeOfECO(sIM,mandatory,iidCO));
+      SCO0:SetOfComponent <-  (cmp(eidCO,sstarted,sstarted,sstarted) getComponent(sCO,iidCO));
+      SCO0':SetOfComponent <- (cmp(eidCO,sstarted,sstarted,sstarted) getComponent(sCO,iidCO));
+      S:State <-  sm;
+      S':State <- sm';}
+:def SDLIDDo2 = :init as SDLIDD-lemma-in2 [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  getICOsOfIMs((co sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO));
+      SCO':SetOfComponent <- getICOsOfIMs((co sCO),getIMsOfTypeOfECO(sIM,mandatory,eidCO));
+      SCO0:SetOfComponent <-  cmp(eidCO,sstarted,sstarted,sstarted);
+      SCO0':SetOfComponent <- cmp(eidCO,sstarted,sstarted,sstarted);
+      S:State <-  so;
+      S':State <- so';}
+:apply (tIMcsp)
+-- Case 1: mandatory
+:apply (noCOCycleDctfm1 noCOCycleDctfm2 noCOCycleDctfm3 rd-)
+:apply (SDLIDDm1 SDLIDDm2 SDLIDDm3 rd-)
+-- Case 2: optional
+:apply (noCOCycleDctfo1 noCOCycleDctfo2 rd-)
+:apply (SDLIDDo1 SDLIDDo2 rd-)
+--> Proof of RD-wire for noCOCycleD done.
+-->
+show proof
+close
+
+open ProofnoCOCycleD .
+--> *******************************************************************************************
+--> trans [RD-swire]:
+-->    < SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  wired, swired, swired) SIM),
+-->      ListLG >
+--> => < SCO, (imp(TIM, IDIM, IIDCO, EIDCO, swired, swired, swired) SIM),
+-->      (ilog("RD-swire:Do Stably Wire", imp(TIM, IDIM, IIDCO, EIDCO, swired, swired, swired),
+-->       mlog(
+-->      SCO, (imp(TIM, IDIM, IIDCO, EIDCO,  wired, swired, swired) SIM)
+-->      )) ListLG) > .
+--> *******************************************************************************************
+--> *************************************************************************
+--> Step 4-1: Begin with the cases each of which matches to LHS of each rule.
+--> *************************************************************************
+eq transitsTo(wired,swired) = true .
+eq im  = imp(tIM, idIM, iidCO, eidCO,  wired, swired, swired) .
+eq im' = imp(tIM, idIM, iidCO, eidCO, swired, swired, swired) .
+eq lg' = (ilog("RD-swire:Do Stably Wire",imp(tIM,idIM,iidCO,eidCO,swired,swired,swired),(1 + (tdis(sIM) + tdis(sCO)))) lg) .
+eq s   = < sCO, (im  sIM), lg  > .
+eq s'  = < sCO, (im' sIM), lg' > .
+:goal {
+  eq invinv(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired, swired, swired) sIM),
+              lg >) = true .
+}
+:def noCOCycleDctf = :ctf {
+  eq noCOCycleD(sCO,empCO,(< sCO, (imp(tIM, idIM, iidCO, eidCO, wired, swired, swired) sIM),
+			     lg >)) = true .
+}
+:apply (noCOCycleDctf rd-)
+:init as SDLIDD-lemma-in [SDLIDD-lemma]
+  by {SCO:SetOfComponent <-  sCO;
+      SCO':SetOfComponent <- sCO;
+      SCO0:SetOfComponent <-  empCO;
+      SCO0':SetOfComponent <- empCO;
+      S:State <-  s;
+      S':State <- s';}
+:apply (rd-)
+--> Proof of RD-swire for noCOCycleD done.
 -->
 show proof
 close
@@ -1618,6 +3017,8 @@ eq transitsTo(started,stopped) = true .
   eq cIMs = unused .
   eq cIMs = wired .
 }
+-- loooong match-ACZ-Next-State given non match-ACZ-state:nil
+-- loooong match-ACZ-Next-State given non match-ACZ-state:nil
 :apply (cIMscsp rd-)
 --> Proof of RS-stop2 for inv-validCurrent done.
 -->
@@ -3735,4 +5136,4 @@ eq transitsTo(wired,swired) = true .
 -->
 show proof
 close
---> Totally 20*5 goals should be proved.(currently 40 goals).
+--> Totally 20*5 goals should be proved.
