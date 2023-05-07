@@ -265,20 +265,23 @@ open ProofnoCOCycleU .
 --> *************************************************************************
 -- Set the direction of state change.
 eq transitsTo(started,stopped) = true .
--- conditonal rule xxxxx may be applied.
-eq transitsTo(started,sstarted) = true .
 eq co  = cmp(idCO,started,started,sstarted) .
-eq co' = cmp(idCO,started,sstarted,sstarted) .
-eq co'' = cmp(idCO,started,stopped,sstarted) .
-eq lg' = (clog("RS-sstart2:Should Stably Start",cmp(idCO,started,sstarted,sstarted),(5 + (tdis(sIM) + (tdis(sCO) + tdis(imp(mandatory,idIM,idCO,eidCO,unused,unwired,tIMs)))))) lg) .
-eq lg'' = (clog("RS-stop2:Should Stop",co'',(5 + (tdis(imp(mandatory,idIM,idCO,eidCO,wired,unwired,tIMs)) + (tdis(sIM) + tdis(sCO))))) lg) .
+eq co' = cmp(idCO,started,stopped,sstarted) .
+eq lg' = (clog("RS-stop2:Should Stop",co',(5 + (tdis(imp(mandatory,idIM,idCO,eidCO,wired,unwired,tIMs)) + (tdis(sIM) + tdis(sCO))))) lg) .
 eq s   = < (co  sCO), (imp(mandatory,idIM,idCO,eidCO,cIMs,unwired,tIMs) sIM), lg > .
 eq s'  = < (co' sCO), (imp(mandatory,idIM,idCO,eidCO,cIMs,unwired,tIMs) sIM), lg' > . 
-eq s''  = < (co'' sCO), (imp(mandatory,idIM,idCO,eidCO,cIMs,unwired,tIMs) sIM), lg'' > . 
 :goal {
   eq invinv(< (cmp(idCO, started, started, sstarted) sCO), 
               (imp(mandatory, idIM, idCO, eidCO, cIMs, unwired, tIMs) sIM),
               lg >) = true .
+}
+--> ********************************************************************************
+--> Step 4-2': When another conditional rule may be applied
+-->  add an axiom representing that the condition does not hold to the current case.
+--> ********************************************************************************
+-- RS-sstart2 may be applied.
+:csp {
+  eq allIMInTargetStates(getIMsOfTypeOfICOInStates(sIM,mandatory,idCO,unused),unused) = false .
 }
 --> ************************************************************************
 --> Step 4-2: When the current rule is conditinal, 
@@ -323,13 +326,6 @@ eq s''  = < (co'' sCO), (imp(mandatory,idIM,idCO,eidCO,cIMs,unwired,tIMs) sIM), 
       SCO0':SetOfComponent <- empCO;
       S:State <-  s;
       S':State <- s';}
-:def SDLIDU2 = :init as SDLIDU-lemma-in2 [SDLIDU-lemma]
-  by {SCO:SetOfComponent <-  sCO;
-      SCO':SetOfComponent <- sCO;
-      SCO0:SetOfComponent <-  empCO;
-      SCO0':SetOfComponent <- empCO;
-      S:State <-  s;
-      S':State <- s'';}
 :def SDLIDU3 = :init as SDLIDU-lemma-in3 [SDLIDU-lemma]
   by {SCO:SetOfComponent <-  getECOsOfIMs((co  sCO),getIMsOfTypeOfICO(sIM,mandatory,idCO));
       SCO':SetOfComponent <- getECOsOfIMs((co' sCO),getIMsOfTypeOfICO(sIM,mandatory,idCO));
@@ -337,13 +333,6 @@ eq s''  = < (co'' sCO), (imp(mandatory,idIM,idCO,eidCO,cIMs,unwired,tIMs) sIM), 
       SCO0':SetOfComponent <- co';
       S:State <-  s;
       S':State <- s';}
-:def SDLIDU4 = :init as SDLIDU-lemma-in4 [SDLIDU-lemma]
-  by {SCO:SetOfComponent <-  getECOsOfIMs((co  sCO),getIMsOfTypeOfICO(sIM,mandatory,idCO));
-      SCO':SetOfComponent <- getECOsOfIMs((co'' sCO),getIMsOfTypeOfICO(sIM,mandatory,idCO));
-      SCO0:SetOfComponent <-  co;
-      SCO0':SetOfComponent <- co'';
-      S:State <-  s;
-      S':State <- s'';}
 :def SDLIDU5 = :init as SDLIDU-lemma-in5 [SDLIDU-lemma]
   by {SCO:SetOfComponent <-  getECOsOfIMs((co  sCO),getIMsOfTypeOfICO(sIM,mandatory,eidCO));
       SCO':SetOfComponent <- getECOsOfIMs((co' sCO),getIMsOfTypeOfICO(sIM,mandatory,eidCO));
@@ -351,13 +340,6 @@ eq s''  = < (co'' sCO), (imp(mandatory,idIM,idCO,eidCO,cIMs,unwired,tIMs) sIM), 
       SCO0':SetOfComponent <- (co' getComponent(sCO,eidCO));
       S:State <-  s;
       S':State <- s';}
-:def SDLIDU6 = :init as SDLIDU-lemma-in6 [SDLIDU-lemma]
-  by {SCO:SetOfComponent <-  getECOsOfIMs((co  sCO),getIMsOfTypeOfICO(sIM,mandatory,eidCO));
-      SCO':SetOfComponent <- getECOsOfIMs((co'' sCO),getIMsOfTypeOfICO(sIM,mandatory,eidCO));
-      SCO0:SetOfComponent <-  (co getComponent(sCO,eidCO));
-      SCO0':SetOfComponent <- (co'' getComponent(sCO,eidCO));
-      S:State <-  s;
-      S':State <- s'';}
 :def cIMscsp = :csp {
   eq cIMs = unused .
   eq cIMs = wired .
@@ -365,10 +347,10 @@ eq s''  = < (co'' sCO), (imp(mandatory,idIM,idCO,eidCO,cIMs,unwired,tIMs) sIM), 
 :apply (cIMscsp)
 -- Case 1: cIMs = unsued
 :apply (noCOCycleUctf1 noCOCycleUctf3 noCOCycleUctf5 rd-)
-:apply (SDLIDU1 SDLIDU2 SDLIDU3 SDLIDU4 SDLIDU5 SDLIDU6 rd-)
+:apply (SDLIDU1 SDLIDU3 SDLIDU5 rd-)
 -- Case 2: cIMs = wired
 :apply (noCOCycleUctf2 noCOCycleUctf4 noCOCycleUctf6 rd-)
-:apply (SDLIDU1 SDLIDU2 SDLIDU3 SDLIDU4 SDLIDU5 SDLIDU6 rd-)
+:apply (SDLIDU1 SDLIDU3 SDLIDU5 rd-)
 -- short match-ACZ-Next-State given non match-ACZ-state:nil
 --> Proof of RS-stop2 for noCOCycleU done.
 -->
@@ -2265,7 +2247,6 @@ open ProofnoCOCycleD .
 --> *****************************************************************************************
 -- Set the direction of state change.
 eq transitsTo(unused,unwired) = true .
---> Should be checked for co!!!
 eq co  = cmp(idCO,stopped,nCOs,tCOs) .
 eq im  = imp(mandatory, idIM, idCO, eidCO, unused, unwired, swired) .
 eq im' = imp(mandatory, idIM, idCO, eidCO,unwired, unwired, swired) .
@@ -2475,7 +2456,6 @@ open ProofnoCOCycleD .
 --> *************************************************************************
 -- Set the direction of state change.
 eq transitsTo(wired,unwired) = true .
---> Should be checked for co!!!
 eq co  = cmp(eidCO,started,stopped,sstarted) .
 eq imm  = imp(mandatory, idIM, iidCO, eidCO, wired,   wired, swired) .
 eq imm' = imp(mandatory, idIM, iidCO, eidCO, wired, unwired, swired) .
@@ -3540,7 +3520,6 @@ open Proofwfs-validCurrent .
 --> *************************************************************************
 -- Set the direction of state change.
 eq transitsTo(wired,unwired) = true .
--- eq transitsTo(started,stopped) = true .
 :goal {
   eq invinv(< (cmp(eidCO, started, stopped, sstarted) sCO), 
               (imp(tIM, idIM, iidCO, eidCO, wired, wired, swired) sIM),
@@ -3824,8 +3803,9 @@ open Proofwfs-validNext .
 --> *************************************************************************
 -- Set the direction of state change.
 eq transitsTo(started,stopped) = true .
--- conditonal rule xxxx may be applied.
+-- unconditonal rule RD-unwire4 may be applied.
 eq transitsTo(unused,unwired) = true .
+-- unconditonal rule RS-swire1 may be applied.
 eq transitsTo(unwired,swired) = true .
 :goal {
   eq invinv(< (cmp(idCO, started, started, sstarted) sCO), 
@@ -4313,7 +4293,6 @@ open Proofwfs-validNext .
 --> *************************************************************************
 -- Set the direction of state change.
 eq transitsTo(wired,unwired) = true .
--- eq transitsTo(started,stopped) = true .
 :goal {
   eq invinv(< (cmp(eidCO, started, stopped, sstarted) sCO), 
               (imp(tIM, idIM, iidCO, eidCO, wired, wired, swired) sIM),
